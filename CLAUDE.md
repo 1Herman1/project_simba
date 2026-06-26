@@ -107,6 +107,7 @@ project_simba/
 | Автоматизатор | `agents/automator.md` | Автоматизация бизнес-процессов |
 | Исследователь | `agents/researcher.md` | Изучение кодовой базы |
 | DevOps | `agents/devops.md` | CI/CD, деплой, инфраструктура |
+| Docs | `agents/anthropic-docs.md` | Вопросы по документации Claude Code |
 
 ---
 
