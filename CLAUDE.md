@@ -102,12 +102,29 @@ project_simba/
 
 | Агент | Файл | Назначение |
 |-------|------|-----------|
-| Архитектор | `agents/architect.md` | Проектирование структуры SaaS |
-| Ревьюер | `agents/code-reviewer.md` | Ревью кода на баги и качество |
+| Архитектор | `agents/architect.md` | Проектирует схему БД и API контракт |
+| Кодер | `agents/coder.md` | Пишет код по спецификации |
+| Ревьюер | `agents/code-reviewer.md` | Проверяет безопасность и производительность |
+| Дебаггер | `agents/debugger.md` | Ищет ошибки и предлагает исправления |
+| Документатор | `agents/documenter.md` | Пишет README, API docs, комментарии |
 | Автоматизатор | `agents/automator.md` | Автоматизация бизнес-процессов |
 | Исследователь | `agents/researcher.md` | Изучение кодовой базы |
 | DevOps | `agents/devops.md` | CI/CD, деплой, инфраструктура |
 | Docs | `agents/anthropic-docs.md` | Вопросы по документации Claude Code |
+
+---
+
+## 🛠️ Скиллы
+
+Файлы в `.claude/skills/`. Вызываются командой `/название`:
+
+| Скилл | Команда | Описание |
+|-------|---------|----------|
+| SaaS архитектура | `/saas-architecture` | Мультитенантность, Stripe биллинг, схема БД |
+| Интернет-магазин | `/ecommerce` | Каталог, корзина, заказы, оплата |
+| Лендинг / визитка | `/landing` | Astro + Tailwind, SSG/SSR, Lighthouse 95+ |
+| React Native | `/react-native` | Мобильные приложения iOS/Android с Expo |
+| API-first | `/api-first` | REST или tRPC, валидация, документация |
 
 ---
 
