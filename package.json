@@ -1,0 +1,10 @@
+{
+  "name": "simba",
+  "private": true,
+  "workspaces": ["server", "client", "admin"],
+  "scripts": {
+    "dev:server": "npm run dev --workspace=server",
+    "dev:client": "npm run dev --workspace=client",
+    "dev:admin": "npm run dev --workspace=admin"
+  }
+}
