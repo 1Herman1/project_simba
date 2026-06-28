@@ -5,6 +5,9 @@ import multipart from '@fastify/multipart'
 import prismaPlugin from './plugins/prisma'
 import authenticatePlugin from './plugins/authenticate'
 import authRoutes from './routes/auth/index'
+import productRoutes from './routes/products'
+import categoryRoutes from './routes/categories'
+import brandRoutes from './routes/brands'
 
 const app = Fastify({ logger: true })
 
@@ -28,8 +31,9 @@ async function start() {
 
   app.get('/health', async () => ({ status: 'ok' }))
 
-  // Роуты добавим сюда позже
-  // await app.register(productRoutes, { prefix: '/api/products' })
+  await app.register(productRoutes, { prefix: '/api/products' })
+  await app.register(categoryRoutes, { prefix: '/api/categories' })
+  await app.register(brandRoutes, { prefix: '/api/brands' })
 
   const port = Number(process.env.PORT) || 3000
   await app.listen({ port, host: '0.0.0.0' })

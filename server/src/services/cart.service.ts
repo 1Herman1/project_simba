@@ -1,0 +1,157 @@
+import { PrismaClient } from '@prisma/client'
+
+const cartInclude = {
+  items: {
+    include: {
+      productVariant: {
+        include: {
+          product: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              images: true,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+
+export async function getOrCreateCart(prisma: PrismaClient, userId: string) {
+  const existing = await prisma.cart.findUnique({
+    where: { userId },
+    include: cartInclude,
+  })
+
+  if (existing) return existing
+
+  return prisma.cart.create({
+    data: { userId },
+    include: cartInclude,
+  })
+}
+
+export async function addToCart(
+  prisma: PrismaClient,
+  userId: string,
+  productVariantId: string,
+  quantity: number
+) {
+  const variant = await prisma.productVariant.findUnique({
+    where: { id: productVariantId },
+  })
+
+  if (!variant || !variant.isActive) {
+    throw new Error('Товар не найден')
+  }
+
+  const cart = await getOrCreateCart(prisma, userId)
+
+  const existingItem = cart.items.find(
+    (item) => item.productVariantId === productVariantId
+  )
+
+  const totalQuantity = existingItem
+    ? existingItem.quantity + quantity
+    : quantity
+
+  if (variant.stock < totalQuantity) {
+    throw new Error('Недостаточно товара на складе')
+  }
+
+  if (existingItem) {
+    await prisma.cartItem.update({
+      where: { id: existingItem.id },
+      data: { quantity: totalQuantity },
+    })
+  } else {
+    await prisma.cartItem.create({
+      data: {
+        cartId: cart.id,
+        productVariantId,
+        productId: variant.productId,
+        quantity,
+      },
+    })
+  }
+
+  return getOrCreateCart(prisma, userId)
+}
+
+export async function updateCartItem(
+  prisma: PrismaClient,
+  cartItemId: string,
+  userId: string,
+  quantity: number
+) {
+  const item = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: { cart: true },
+  })
+
+  if (!item || item.cart.userId !== userId) {
+    throw new Error('Позиция корзины не найдена')
+  }
+
+  if (quantity === 0) {
+    await prisma.cartItem.delete({ where: { id: cartItemId } })
+  } else {
+    const variant = await prisma.productVariant.findUnique({
+      where: { id: item.productVariantId },
+    })
+
+    if (!variant || variant.stock < quantity) {
+      throw new Error('Недостаточно товара на складе')
+    }
+
+    await prisma.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity },
+    })
+  }
+
+  return getOrCreateCart(prisma, userId)
+}
+
+export async function removeFromCart(
+  prisma: PrismaClient,
+  cartItemId: string,
+  userId: string
+) {
+  const item = await prisma.cartItem.findUnique({
+    where: { id: cartItemId },
+    include: { cart: true },
+  })
+
+  if (!item || item.cart.userId !== userId) {
+    throw new Error('Позиция корзины не найдена')
+  }
+
+  await prisma.cartItem.delete({ where: { id: cartItemId } })
+
+  return getOrCreateCart(prisma, userId)
+}
+
+export async function clearCart(prisma: PrismaClient, userId: string) {
+  const cart = await prisma.cart.findUnique({ where: { userId } })
+  if (!cart) return
+
+  await prisma.cartItem.deleteMany({ where: { cartId: cart.id } })
+}
+
+type CartItemWithVariant = {
+  quantity: number
+  productVariant: { price: number }
+}
+
+export function calculateCartTotal(items: CartItemWithVariant[]) {
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.productVariant.price * item.quantity,
+    0
+  )
+  const itemsCount = items.reduce((sum, item) => sum + item.quantity, 0)
+
+  return { subtotal, itemsCount }
+}
