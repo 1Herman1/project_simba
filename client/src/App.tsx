@@ -1,9 +1,21 @@
 import { Routes, Route } from 'react-router-dom'
+import Layout from './components/layout/Layout'
+import HomePage from './pages/HomePage'
+import CatalogPage from './pages/CatalogPage'
+import CartPage from './pages/CartPage'
+import FavoritesPage from './pages/FavoritesPage'
+import ProfilePage from './pages/ProfilePage'
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<div className="p-8 text-2xl font-bold text-terra-600">Simba — скоро здесь будет магазин 🐾</div>} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/catalog" element={<CatalogPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Route>
     </Routes>
   )
 }
