@@ -1,0 +1,541 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUM'ы ──────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  super_admin
+  orders_manager
+  products_manager
+  customer
+}
+
+enum BonusLevel {
+  newcomer
+  active
+  premium
+}
+
+enum OtpChannel {
+  email
+  sms
+}
+
+enum PetSpecies {
+  cat
+  dog
+  other
+}
+
+enum FilterType {
+  checkbox
+  range
+  select
+}
+
+enum OrderStatus {
+  new
+  confirmed
+  in_transit
+  delivered
+  cancelled
+}
+
+enum DeliveryMethod {
+  cdek
+  yandex
+  post
+  ozon
+  dostavista
+  pickup
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum BannerPage {
+  home
+  catalog
+  other
+}
+
+enum BannerPosition {
+  main_slider
+  promo_strip
+  sidebar
+}
+
+enum ChatRole {
+  user
+  assistant
+}
+
+enum QuestionnaireSpecies {
+  cat
+  dog
+}
+
+// ─── МОДЕЛИ ──────────────────────────────────────────────────────────────────
+
+/// Пользователи системы — покупатели и сотрудники магазина
+model User {
+  id          String     @id @default(uuid())
+  email       String?    @unique
+  phone       String?    @unique
+  name        String
+  role        UserRole   @default(customer)
+  bonusPoints Int        @default(0)
+  bonusLevel  BonusLevel @default(newcomer)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  addresses     Address[]
+  pets          Pet[]
+  orders        Order[]
+  cart          Cart?
+  subscriptions Subscription[]
+  otpCodes      OtpCode[]
+  chatMessages  ChatMessage[]
+  comparison    Comparison?
+
+  @@index([email])
+  @@index([phone])
+  @@index([role])
+  @@map("users")
+}
+
+/// Одноразовые коды для входа по email или SMS — вместо паролей
+model OtpCode {
+  id        String     @id @default(uuid())
+  userId    String
+  code      String
+  channel   OtpChannel
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("otp_codes")
+}
+
+/// Адреса доставки пользователей
+model Address {
+  id         String   @id @default(uuid())
+  userId     String
+  label      String
+  city       String
+  street     String
+  house      String
+  apartment  String?
+  postalCode String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+/// Питомцы пользователей — для персонализации рекомендаций корма
+model Pet {
+  id          String     @id @default(uuid())
+  userId      String
+  name        String
+  species     PetSpecies
+  breed       String?
+  birthDate   DateTime?
+  healthNotes String?
+  createdAt   DateTime   @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("pets")
+}
+
+/// Категории каталога — поддерживают дерево (подкатегории через parentId)
+model Category {
+  id             String   @id @default(uuid())
+  name           String
+  slug           String   @unique
+  description    String?
+  image          String?
+  parentId       String?
+  seoTitle       String?
+  seoDescription String?
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  parent   Category?        @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[]       @relation("CategoryTree")
+  products ProductCategory[]
+  filters  CategoryFilter[]
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([isActive])
+  @@map("categories")
+}
+
+/// Бренды производителей — Royal Canin, Hill's и другие
+model Brand {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  description String?
+  createdAt   DateTime @default(now())
+
+  products Product[]
+
+  @@index([slug])
+  @@map("brands")
+}
+
+/// Товары каталога. isActive = false скрывает товар без удаления из БД
+model Product {
+  id               String   @id @default(uuid())
+  name             String
+  slug             String   @unique
+  description      String
+  brandId          String?
+  images           String[]
+  isGrainFree      Boolean  @default(false)
+  isHypoallergenic Boolean  @default(false)
+  isWeightControl  Boolean  @default(false)
+  protein          Float?
+  fat              Float?
+  fiber            Float?
+  ash              Float?
+  ingredients      String?
+  seoTitle         String?
+  seoDescription   String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  brand         Brand?               @relation(fields: [brandId], references: [id])
+  categories    ProductCategory[]
+  variants      ProductVariant[]
+  filterValues  ProductFilterValue[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  comparisons   ComparisonProduct[]
+  subscriptions Subscription[]
+
+  @@index([slug])
+  @@index([brandId])
+  @@index([isActive])
+  @@map("products")
+}
+
+/// Варианты товара — разные фасовки с разными ценами и остатками
+/// Цены в копейках: 199900 = 1999 рублей
+model ProductVariant {
+  id        String   @id @default(uuid())
+  productId String
+  weight    Float
+  price     Int
+  oldPrice  Int?
+  stock     Int      @default(0)
+  sku       String?  @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  subscriptions Subscription[]
+
+  @@index([productId])
+  @@index([isActive])
+  @@map("product_variants")
+}
+
+/// Фильтры каталога: "Вид животного", "Проблема здоровья", "Вес упаковки"
+model Filter {
+  id        String     @id @default(uuid())
+  name      String
+  slug      String     @unique
+  type      FilterType
+  createdAt DateTime   @default(now())
+
+  values        FilterValue[]
+  categories    CategoryFilter[]
+  productValues ProductFilterValue[]
+
+  @@index([slug])
+  @@map("filters")
+}
+
+/// Значения фильтров: "Кошки", "Почечная недостаточность", "2 кг"
+model FilterValue {
+  id        String   @id @default(uuid())
+  filterId  String
+  value     String
+  slug      String
+  createdAt DateTime @default(now())
+
+  filter   Filter               @relation(fields: [filterId], references: [id], onDelete: Cascade)
+  products ProductFilterValue[]
+
+  @@unique([filterId, slug])
+  @@index([filterId])
+  @@map("filter_values")
+}
+
+// ─── ТАБЛИЦЫ СВЯЗЕЙ (many-to-many) ───────────────────────────────────────────
+
+/// Товар ↔ Категория
+model ProductCategory {
+  productId  String
+  categoryId String
+  createdAt  DateTime @default(now())
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+  @@map("product_categories")
+}
+
+/// Товар ↔ Значение фильтра (для фильтрации в каталоге)
+model ProductFilterValue {
+  productId     String
+  filterValueId String
+
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  filterValue FilterValue @relation(fields: [filterValueId], references: [id], onDelete: Cascade)
+
+  @@id([productId, filterValueId])
+  @@index([filterValueId])
+  @@map("product_filter_values")
+}
+
+/// Категория ↔ Фильтр (какие фильтры показывать в каждой категории)
+model CategoryFilter {
+  categoryId String
+  filterId   String
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  filter   Filter   @relation(fields: [filterId], references: [id], onDelete: Cascade)
+
+  @@id([categoryId, filterId])
+  @@map("category_filters")
+}
+
+// ─── КОРЗИНА ─────────────────────────────────────────────────────────────────
+
+/// Корзина пользователя — одна на пользователя (One-to-One)
+model Cart {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  updatedAt DateTime @updatedAt
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+/// Позиция в корзине — конкретный вариант товара и количество
+model CartItem {
+  id               String   @id @default(uuid())
+  cartId           String
+  productVariantId String
+  productId        String
+  quantity         Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cart           Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  product        Product        @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productVariantId])
+  @@index([cartId])
+  @@map("cart_items")
+}
+
+// ─── ЗАКАЗЫ ──────────────────────────────────────────────────────────────────
+
+/// Заказы — фиксируют сумму, адрес и способ доставки на момент оформления
+model Order {
+  id                  String         @id @default(uuid())
+  userId              String
+  status              OrderStatus    @default(new)
+  deliveryMethod      DeliveryMethod
+  deliveryAddress     Json?
+  deliveryCost        Int            @default(0)
+  subtotal            Int
+  total               Int
+  bonusUsed           Int            @default(0)
+  bonusEarned         Int            @default(0)
+  hasSpecialPackaging Boolean        @default(false)
+  paymentStatus       PaymentStatus  @default(pending)
+  paymentId           String?
+  comment             String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+/// Позиция заказа — снапшот данных товара на момент покупки
+/// productName и price фиксируются навсегда, чтобы история не менялась при изменении товара
+model OrderItem {
+  id               String   @id @default(uuid())
+  orderId          String
+  productVariantId String
+  productId        String
+  productName      String
+  variantWeight    Float
+  price            Int
+  quantity         Int
+  createdAt        DateTime @default(now())
+
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  product        Product        @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ─── ПОДПИСКИ ────────────────────────────────────────────────────────────────
+
+/// Автоматические заказы — пользователь получает корм каждые N дней
+model Subscription {
+  id               String   @id @default(uuid())
+  userId           String
+  productVariantId String
+  productId        String
+  intervalDays     Int
+  nextDeliveryAt   DateTime
+  paymentMethodId  String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
+  product        Product        @relation(fields: [productId], references: [id])
+
+  @@index([userId])
+  @@index([nextDeliveryAt])
+  @@index([isActive])
+  @@map("subscriptions")
+}
+
+// ─── СРАВНЕНИЕ ───────────────────────────────────────────────────────────────
+
+/// Список сравнения товаров — один на пользователя
+model Comparison {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products ComparisonProduct[]
+
+  @@map("comparisons")
+}
+
+/// Товары в списке сравнения
+model ComparisonProduct {
+  comparisonId String
+  productId    String
+  addedAt      DateTime @default(now())
+
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([comparisonId, productId])
+  @@map("comparison_products")
+}
+
+// ─── АНКЕТА ──────────────────────────────────────────────────────────────────
+
+/// Анкета подбора корма — может быть анонимной (userId = null)
+model Questionnaire {
+  id               String               @id @default(uuid())
+  userId           String?
+  species          QuestionnaireSpecies
+  breed            String?
+  ageMonths        Int?
+  healthIssues     String[]
+  preferredBrands  String[]
+  discountCode     String?
+  resultProductIds String[]
+  createdAt        DateTime             @default(now())
+
+  @@index([userId])
+  @@map("questionnaires")
+}
+
+// ─── БАННЕРЫ ─────────────────────────────────────────────────────────────────
+
+/// Рекламные баннеры — управляются из админки
+model Banner {
+  id        String         @id @default(uuid())
+  title     String
+  image     String
+  link      String?
+  page      BannerPage
+  position  BannerPosition
+  isActive  Boolean        @default(true)
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([page, position])
+  @@index([isActive])
+  @@map("banners")
+}
+
+// ─── ЧАТ С AI ────────────────────────────────────────────────────────────────
+
+/// История сообщений с AI-ассистентом магазина
+/// sessionId — для анонимных пользователей до авторизации
+model ChatMessage {
+  id        String   @id @default(uuid())
+  userId    String?
+  sessionId String
+  role      ChatRole
+  content   String
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("chat_messages")
+}
