@@ -8,6 +8,9 @@ import authRoutes from './routes/auth/index'
 import productRoutes from './routes/products'
 import categoryRoutes from './routes/categories'
 import brandRoutes from './routes/brands'
+import cartRoutes from './routes/cart/index'
+import orderRoutes from './routes/orders/index'
+import orderAdminRoutes from './routes/orders/admin'
 
 const app = Fastify({ logger: true })
 
@@ -34,6 +37,9 @@ async function start() {
   await app.register(productRoutes, { prefix: '/api/products' })
   await app.register(categoryRoutes, { prefix: '/api/categories' })
   await app.register(brandRoutes, { prefix: '/api/brands' })
+  await app.register(cartRoutes, { prefix: '/api/cart' })
+  await app.register(orderRoutes, { prefix: '/api/orders' })
+  await app.register(orderAdminRoutes, { prefix: '/api/admin/orders' })
 
   const port = Number(process.env.PORT) || 3000
   await app.listen({ port, host: '0.0.0.0' })
