@@ -1,7 +1,7 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { otpService } from '../../services/otp.service'
-import { OtpChannel } from '@prisma/client'
+import { OtpChannel } from '../../types'
 
 const bodySchema = z
   .object({

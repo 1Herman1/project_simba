@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import nodemailer from 'nodemailer'
-import { PrismaClient, OtpChannel } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+import { OtpChannel } from '../types'
 
 function generateCode(): string {
   return crypto.randomInt(100000, 999999).toString()
