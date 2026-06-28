@@ -2,6 +2,9 @@ import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 import multipart from '@fastify/multipart'
+import prismaPlugin from './plugins/prisma'
+import authenticatePlugin from './plugins/authenticate'
+import authRoutes from './routes/auth/index'
 
 const app = Fastify({ logger: true })
 
@@ -19,10 +22,13 @@ async function start() {
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   })
 
+  await app.register(prismaPlugin)
+  await app.register(authenticatePlugin)
+  await app.register(authRoutes, { prefix: '/api/auth' })
+
   app.get('/health', async () => ({ status: 'ok' }))
 
   // Роуты добавим сюда позже
-  // await app.register(authRoutes, { prefix: '/api/auth' })
   // await app.register(productRoutes, { prefix: '/api/products' })
 
   const port = Number(process.env.PORT) || 3000
