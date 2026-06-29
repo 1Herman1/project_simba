@@ -1,5 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+
+// Порог бесплатной доставки в копейках (2000 ₽)
+const FREE_DELIVERY_THRESHOLD = 200000
+
+// Бонусный процент от суммы заказа
+const BONUS_RATE = 0.01
 
 const mockItems = [
   {
@@ -70,6 +76,10 @@ export default function CartPage() {
   const promoDiscount = promoApplied ? Math.round(subtotal * 0.1) : 0
   const total = subtotal - promoDiscount
 
+  const toFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal)
+  const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100)
+  const bonusEarned = Math.floor(total * BONUS_RATE)
+
   const handlePromo = () => {
     if (promoCode.toLowerCase() === 'simba10') setPromoApplied(true)
   }
@@ -91,9 +101,36 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-navy-900 mb-6">
+        <h1 className="text-2xl font-bold text-navy-900 mb-4">
           Корзина <span className="text-navy-300 font-normal text-lg">({items.length} товара)</span>
         </h1>
+
+        {/* Полоса до бесплатной доставки */}
+        <div className="bg-white rounded-2xl px-5 py-4 mb-6">
+          {toFreeDelivery > 0 ? (
+            <>
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-navy-700 font-medium">
+                  До бесплатной доставки: <span className="text-blue-300 font-bold">{(toFreeDelivery / 100).toLocaleString('ru-RU')} ₽</span>
+                </span>
+                <span className="text-navy-400 text-xs">от {(FREE_DELIVERY_THRESHOLD / 100).toLocaleString('ru-RU')} ₽</span>
+              </div>
+              <div className="h-2 bg-blue-50 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-200 rounded-full transition-all duration-500"
+                  style={{ width: `${deliveryProgress}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="h-2 bg-green-100 rounded-full flex-1 overflow-hidden">
+                <div className="h-full bg-green-400 rounded-full w-full" />
+              </div>
+              <span className="text-green-600 text-sm font-semibold whitespace-nowrap">🚚 Доставка бесплатна!</span>
+            </div>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -240,11 +277,19 @@ export default function CartPage() {
               )}
 
               {/* Бонусы */}
-              <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5 mb-4 flex items-center gap-2">
-                <span className="text-lg">🎁</span>
-                <div>
-                  <p className="text-xs font-semibold text-navy-900">Вы получите ~{Math.floor(total / 10000)} бонусов</p>
-                  <p className="text-xs text-navy-400">1 бонус = 1 ₽ на следующий заказ</p>
+              <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🎁</span>
+                  <p className="text-sm font-semibold text-navy-900">
+                    За этот заказ вы получите{' '}
+                    <span className="text-amber-500">+{bonusEarned} бонусов</span>
+                  </p>
+                </div>
+                <p className="text-xs text-navy-400 mb-2">1 бонус = 1 ₽ скидки на следующий заказ</p>
+                <div className="flex gap-2 text-xs">
+                  <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Новичок: 0–999</span>
+                  <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Активный: 1000+</span>
+                  <span className="bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-medium">Премиум: 5000+</span>
                 </div>
               </div>
 
