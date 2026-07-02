@@ -1,73 +1,38 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-type DeliveryMethod = 'courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
+type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'online' | 'cash'
 type Step = 'delivery' | 'payment' | 'confirm'
+
+interface DeliveryQuote {
+  provider: DeliveryMethod
+  key: string
+  title: string
+  description: string
+  price: number
+  daysMin: number
+  daysMax: number
+  available: boolean
+  error?: string
+}
 
 const mockCartItems = [
   { id: '1', name: 'Royal Canin Renal', brand: 'Royal Canin', weight: 2, quantity: 1, price: 249900 },
   { id: '2', name: "Hill's k/d Kidney Care", brand: "Hill's", weight: 1.5, quantity: 2, price: 219900 },
 ]
 
-const DELIVERY_OPTIONS = [
-  {
-    key: 'courier' as DeliveryMethod,
-    icon: '🚚',
-    title: 'Курьер Simba',
-    desc: 'Доставка до двери',
-    price: 0,
-    time: 'Сегодня, 18:00–22:00',
-  },
-  {
-    key: 'yandex' as DeliveryMethod,
-    icon: '🟡',
-    title: 'Яндекс Доставка',
-    desc: 'Быстрая доставка до двери',
-    price: 0,
-    time: 'Сегодня за 1–2 часа',
-  },
-  {
-    key: 'cdek' as DeliveryMethod,
-    icon: '📦',
-    title: 'СДЭК',
-    desc: 'Пункт выдачи или курьер',
-    price: 0,
-    time: '2–3 дня',
-  },
-  {
-    key: 'ozon' as DeliveryMethod,
-    icon: '🔵',
-    title: 'Ozon Delivery',
-    desc: 'Пункт выдачи Ozon',
-    price: 0,
-    time: '2–4 дня',
-  },
-  {
-    key: 'dostavista' as DeliveryMethod,
-    icon: '⚡',
-    title: 'Достависта',
-    desc: 'Экспресс-доставка за 1 час',
-    price: 29900,
-    time: 'В течение 1 часа',
-  },
-  {
-    key: 'post' as DeliveryMethod,
-    icon: '✉️',
-    title: 'Почта России',
-    desc: 'Отделение почты',
-    price: 0,
-    time: '5–14 дней',
-  },
-  {
-    key: 'pickup' as DeliveryMethod,
-    icon: '🏪',
-    title: 'Самовывоз',
-    desc: 'Магазин на ул. Ленина, 12',
-    price: 0,
-    time: 'Сегодня, готов через 30 мин',
-  },
-]
+const PROVIDER_ICONS: Record<string, string> = {
+  simba_courier: '🚚',
+  yandex: '🟡',
+  cdek: '📦',
+  ozon: '🔵',
+  dostavista: '⚡',
+  post: '✉️',
+  pickup: '🏪',
+}
+
+const totalWeight = mockCartItems.reduce((s, i) => s + i.weight * i.quantity, 0)
 
 const STEPS: { key: Step; label: string }[] = [
   { key: 'delivery', label: 'Доставка' },
@@ -78,12 +43,14 @@ const STEPS: { key: Step; label: string }[] = [
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<Step>('delivery')
-  const [delivery, setDelivery] = useState<DeliveryMethod>('courier')
+  const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
   const [payment, setPayment] = useState<PaymentMethod>('online')
   const [bonusSpend, setBonusSpend] = useState(false)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId] = useState('ORD-2026-0042')
+  const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
+  const [quotesLoading, setQuotesLoading] = useState(false)
 
   const [address, setAddress] = useState({
     city: 'Москва',
@@ -93,8 +60,33 @@ export default function CheckoutPage() {
     comment: '',
   })
 
+  // Запрашиваем котировки при вводе города
+  useEffect(() => {
+    if (!address.city || address.city.length < 3) return
+    const timer = setTimeout(async () => {
+      setQuotesLoading(true)
+      try {
+        const res = await fetch('/api/delivery/quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city: address.city, street: address.street, house: address.house, postalCode: address.postalCode, weightKg: totalWeight }),
+        })
+        if (res.ok) {
+          const data = await res.json() as { quotes: DeliveryQuote[] }
+          setQuotes(data.quotes)
+        }
+      } catch {
+        // Используем заглушки если API недоступен
+      } finally {
+        setQuotesLoading(false)
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [address.city, address.street, address.house])
+
   const subtotal = mockCartItems.reduce((s, i) => s + i.price * i.quantity, 0)
-  const deliveryCost = DELIVERY_OPTIONS.find(o => o.key === delivery)?.price ?? 0
+  const selectedQuote = quotes.find(q => q.provider === delivery)
+  const deliveryCost = selectedQuote?.price ?? 0
   const bonusDiscount = bonusSpend ? 142000 : 0
   const total = Math.max(0, subtotal + deliveryCost - bonusDiscount)
   const bonusEarned = Math.floor(total * 0.01)
@@ -191,32 +183,62 @@ export default function CheckoutPage() {
               <div className="bg-white rounded-2xl p-5">
                 <h2 className="font-bold text-navy-900 mb-4">Способ доставки</h2>
 
+                {quotesLoading && (
+                  <div className="flex items-center gap-2 text-sm text-navy-400 mb-3">
+                    <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                    </svg>
+                    Рассчитываем стоимость доставки...
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-2 mb-5">
-                  {DELIVERY_OPTIONS.map(opt => (
+                  {(quotes.length > 0 ? quotes : [
+                    { provider: 'simba_courier', key: 'simba_courier', title: 'Курьер Simba', description: 'Доставка до двери', price: 0, daysMin: 0, daysMax: 0, available: true },
+                    { provider: 'yandex', key: 'yandex', title: 'Яндекс Доставка', description: 'Быстрая доставка', price: 0, daysMin: 0, daysMax: 0, available: true },
+                    { provider: 'cdek', key: 'cdek', title: 'СДЭК', description: 'Пункт выдачи или курьер', price: 0, daysMin: 2, daysMax: 5, available: true },
+                    { provider: 'ozon', key: 'ozon', title: 'Ozon Delivery', description: 'Пункт выдачи Ozon', price: 0, daysMin: 2, daysMax: 4, available: true },
+                    { provider: 'dostavista', key: 'dostavista', title: 'Достависта', description: 'Экспресс за 1 час', price: 29900, daysMin: 0, daysMax: 0, available: true },
+                    { provider: 'post', key: 'post', title: 'Почта России', description: 'Отделение почты', price: 0, daysMin: 5, daysMax: 14, available: true },
+                    { provider: 'pickup', key: 'pickup', title: 'Самовывоз', description: 'Магазин на ул. Ленина, 12', price: 0, daysMin: 0, daysMax: 0, available: true },
+                  ] as DeliveryQuote[]).map(opt => (
                     <button
                       key={opt.key}
-                      onClick={() => setDelivery(opt.key)}
+                      onClick={() => opt.available && setDelivery(opt.provider as DeliveryMethod)}
+                      disabled={!opt.available}
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                        delivery === opt.key
+                        !opt.available ? 'border-blue-50 bg-blue-50 opacity-50 cursor-not-allowed' :
+                        delivery === opt.provider
                           ? 'border-blue-200 bg-blue-50'
                           : 'border-blue-100 bg-white hover:border-blue-200'
                       }`}>
-                      <span className="text-2xl">{opt.icon}</span>
+                      <span className="text-2xl">{PROVIDER_ICONS[opt.provider] ?? '📦'}</span>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-navy-900 text-sm">{opt.title}</span>
-                          {opt.price > 0
-                            ? <span className="text-navy-500 text-xs font-medium">{(opt.price / 100).toLocaleString('ru-RU')} ₽</span>
-                            : <span className="text-green-600 text-xs font-medium">Бесплатно</span>
-                          }
+                          {opt.available ? (
+                            opt.price > 0
+                              ? <span className="text-navy-500 text-xs font-medium">{(opt.price / 100).toLocaleString('ru-RU')} ₽</span>
+                              : <span className="text-green-600 text-xs font-medium">Бесплатно</span>
+                          ) : (
+                            <span className="text-red-400 text-xs">{opt.error}</span>
+                          )}
                         </div>
-                        <p className="text-xs text-navy-400">{opt.desc}</p>
-                        <p className="text-xs text-blue-300 mt-0.5">{opt.time}</p>
+                        <p className="text-xs text-navy-400">{opt.description}</p>
+                        {opt.daysMax > 0 && (
+                          <p className="text-xs text-blue-300 mt-0.5">
+                            {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
+                          </p>
+                        )}
+                        {opt.daysMax === 0 && opt.available && (
+                          <p className="text-xs text-blue-300 mt-0.5">Сегодня</p>
+                        )}
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        delivery === opt.key ? 'border-blue-200 bg-blue-200' : 'border-blue-200'
+                        delivery === opt.provider ? 'border-blue-200 bg-blue-200' : 'border-blue-200'
                       }`}>
-                        {delivery === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
+                        {delivery === opt.provider && <div className="w-2 h-2 rounded-full bg-white" />}
                       </div>
                     </button>
                   ))}
