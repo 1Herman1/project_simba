@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+// ─── HTTP клиент ────────────────────────────────────────────────────────────
+
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
   withCredentials: true,
@@ -16,8 +18,197 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      window.location.href = '/auth'
     }
     return Promise.reject(error)
   }
 )
+
+// ─── Типы ───────────────────────────────────────────────────────────────────
+
+export interface ProductVariant {
+  id: string
+  weight: number
+  price: number
+  oldPrice: number | null
+  stock: number
+  sku: string | null
+}
+
+export interface Product {
+  id: string
+  name: string
+  slug: string
+  description: string
+  brand: { id: string; name: string; slug: string } | null
+  images: string[]
+  isGrainFree: boolean
+  isHypoallergenic: boolean
+  isWeightControl: boolean
+  protein: number | null
+  fat: number | null
+  fiber: number | null
+  ash: number | null
+  ingredients: string | null
+  variants: ProductVariant[]
+  categories: { category: { id: string; name: string; slug: string } }[]
+}
+
+export interface CartItem {
+  id: string
+  productVariantId: string
+  productId: string
+  quantity: number
+  productVariant: ProductVariant & { product: Pick<Product, 'id' | 'name' | 'slug' | 'images'> }
+}
+
+export interface Cart {
+  id: string
+  items: CartItem[]
+}
+
+export interface Order {
+  id: string
+  status: 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
+  deliveryMethod: string
+  subtotal: number
+  total: number
+  bonusUsed: number
+  bonusEarned: number
+  paymentStatus: string
+  createdAt: string
+  items: {
+    id: string
+    productName: string
+    variantWeight: number
+    price: number
+    quantity: number
+  }[]
+}
+
+export interface User {
+  userId: string
+  name: string
+  email: string | null
+  phone: string | null
+  bonusPoints: number
+  bonusLevel: 'newcomer' | 'active' | 'premium'
+  role: string
+}
+
+export interface DeliveryQuote {
+  provider: string
+  key: string
+  title: string
+  description: string
+  price: number
+  daysMin: number
+  daysMax: number
+  available: boolean
+  error?: string
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+export const authApi = {
+  sendOtp: (contact: string, channel: 'email' | 'sms') =>
+    api.post('/api/auth/send-otp', { contact, channel }),
+
+  verifyOtp: (contact: string, code: string) =>
+    api.post<{ token: string; user: User }>('/api/auth/verify-otp', { contact, code }),
+
+  me: () =>
+    api.get<User>('/api/auth/me'),
+}
+
+// ─── Товары ──────────────────────────────────────────────────────────────────
+
+export const productsApi = {
+  list: (params?: {
+    search?: string
+    category?: string
+    brand?: string
+    tags?: string[]
+    sort?: string
+    page?: number
+    limit?: number
+  }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products', { params }),
+
+  bySlug: (slug: string) =>
+    api.get<Product>(`/api/products/${slug}`),
+
+  related: (slug: string) =>
+    api.get<Product[]>(`/api/products/${slug}/related`),
+}
+
+// ─── Категории ───────────────────────────────────────────────────────────────
+
+export const categoriesApi = {
+  tree: () =>
+    api.get('/api/categories/tree'),
+}
+
+// ─── Бренды ──────────────────────────────────────────────────────────────────
+
+export const brandsApi = {
+  list: () =>
+    api.get('/api/brands'),
+}
+
+// ─── Корзина ─────────────────────────────────────────────────────────────────
+
+export const cartApi = {
+  get: () =>
+    api.get<Cart>('/api/cart'),
+
+  addItem: (productVariantId: string, quantity = 1) =>
+    api.post<Cart>('/api/cart/items', { productVariantId, quantity }),
+
+  updateItem: (cartItemId: string, quantity: number) =>
+    api.put<Cart>(`/api/cart/items/${cartItemId}`, { quantity }),
+
+  removeItem: (cartItemId: string) =>
+    api.delete<Cart>(`/api/cart/items/${cartItemId}`),
+
+  clear: () =>
+    api.delete('/api/cart'),
+}
+
+// ─── Заказы ──────────────────────────────────────────────────────────────────
+
+export const ordersApi = {
+  list: () =>
+    api.get<Order[]>('/api/orders'),
+
+  byId: (id: string) =>
+    api.get<Order>(`/api/orders/${id}`),
+
+  create: (data: {
+    deliveryMethod: string
+    deliveryAddress?: object
+    comment?: string
+    hasSpecialPackaging?: boolean
+    bonusUsed?: number
+  }) => api.post<Order>('/api/orders', data),
+}
+
+// ─── Доставка ────────────────────────────────────────────────────────────────
+
+export const deliveryApi = {
+  quotes: (params: {
+    city: string
+    street?: string
+    house?: string
+    postalCode?: string
+    weightKg: number
+  }) => api.post<{ quotes: DeliveryQuote[] }>('/api/delivery/quotes', params),
+
+  createOrder: (data: {
+    provider: string
+    orderId: string
+    address: object
+    weightKg: number
+    recipientName: string
+    recipientPhone: string
+  }) => api.post('/api/delivery/create', data),
+}
