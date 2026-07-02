@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-type DeliveryMethod = 'courier' | 'pickup' | 'cdek'
+type DeliveryMethod = 'courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'online' | 'cash'
 type Step = 'delivery' | 'payment' | 'confirm'
 
@@ -14,18 +14,50 @@ const DELIVERY_OPTIONS = [
   {
     key: 'courier' as DeliveryMethod,
     icon: '🚚',
-    title: 'Курьер',
+    title: 'Курьер Simba',
     desc: 'Доставка до двери',
     price: 0,
     time: 'Сегодня, 18:00–22:00',
   },
   {
+    key: 'yandex' as DeliveryMethod,
+    icon: '🟡',
+    title: 'Яндекс Доставка',
+    desc: 'Быстрая доставка до двери',
+    price: 0,
+    time: 'Сегодня за 1–2 часа',
+  },
+  {
     key: 'cdek' as DeliveryMethod,
     icon: '📦',
     title: 'СДЭК',
-    desc: 'Пункт выдачи',
+    desc: 'Пункт выдачи или курьер',
     price: 0,
     time: '2–3 дня',
+  },
+  {
+    key: 'ozon' as DeliveryMethod,
+    icon: '🔵',
+    title: 'Ozon Delivery',
+    desc: 'Пункт выдачи Ozon',
+    price: 0,
+    time: '2–4 дня',
+  },
+  {
+    key: 'dostavista' as DeliveryMethod,
+    icon: '⚡',
+    title: 'Достависта',
+    desc: 'Экспресс-доставка за 1 час',
+    price: 29900,
+    time: 'В течение 1 часа',
+  },
+  {
+    key: 'post' as DeliveryMethod,
+    icon: '✉️',
+    title: 'Почта России',
+    desc: 'Отделение почты',
+    price: 0,
+    time: '5–14 дней',
   },
   {
     key: 'pickup' as DeliveryMethod,
@@ -62,8 +94,9 @@ export default function CheckoutPage() {
   })
 
   const subtotal = mockCartItems.reduce((s, i) => s + i.price * i.quantity, 0)
+  const deliveryCost = DELIVERY_OPTIONS.find(o => o.key === delivery)?.price ?? 0
   const bonusDiscount = bonusSpend ? 142000 : 0
-  const total = Math.max(0, subtotal - bonusDiscount)
+  const total = Math.max(0, subtotal + deliveryCost - bonusDiscount)
   const bonusEarned = Math.floor(total * 0.01)
 
   const stepIndex = STEPS.findIndex(s => s.key === step)
@@ -172,7 +205,10 @@ export default function CheckoutPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-navy-900 text-sm">{opt.title}</span>
-                          <span className="text-green-600 text-xs font-medium">Бесплатно</span>
+                          {opt.price > 0
+                            ? <span className="text-navy-500 text-xs font-medium">{(opt.price / 100).toLocaleString('ru-RU')} ₽</span>
+                            : <span className="text-green-600 text-xs font-medium">Бесплатно</span>
+                          }
                         </div>
                         <p className="text-xs text-navy-400">{opt.desc}</p>
                         <p className="text-xs text-blue-300 mt-0.5">{opt.time}</p>
@@ -398,7 +434,10 @@ export default function CheckoutPage() {
               <div className="border-t border-blue-100 pt-3 flex flex-col gap-1.5 mb-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-navy-500">Доставка</span>
-                  <span className="text-green-600 font-medium">Бесплатно</span>
+                  {deliveryCost > 0
+                    ? <span className="text-navy-900 font-medium">{(deliveryCost / 100).toLocaleString('ru-RU')} ₽</span>
+                    : <span className="text-green-600 font-medium">Бесплатно</span>
+                  }
                 </div>
                 {bonusSpend && (
                   <div className="flex justify-between text-sm">
