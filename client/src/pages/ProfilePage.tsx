@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { authApi, ordersApi, type User, type Order } from '../lib/api'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -21,13 +22,6 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
 
 const STATUS_STEPS: OrderStatus[] = ['new', 'confirmed', 'in_transit', 'delivered']
 
-const mockUser = {
-  name: 'Анастасия Смирнова',
-  email: 'anastasia@mail.ru',
-  phone: '+7 (936) 505-00-14',
-  bonusPoints: 1420,
-  bonusLevel: 'active' as const,
-}
 
 const BONUS_LEVELS = [
   { key: 'newcomer', label: 'Новичок', min: 0, max: 999, color: 'bg-navy-100 text-navy-500' },
@@ -35,72 +29,46 @@ const BONUS_LEVELS = [
   { key: 'premium', label: 'Премиум', min: 5000, max: Infinity, color: 'bg-amber-100 text-amber-600' },
 ]
 
-const mockOrders = [
-  {
-    id: 'ORD-2026-0041',
-    status: 'in_transit' as OrderStatus,
-    createdAt: '25.06.2026',
-    total: 879700,
-    bonusEarned: 87,
-    deliveryMethod: 'Доставка курьером',
-    items: [
-      { name: 'Royal Canin Renal', weight: 2, quantity: 2, price: 249900 },
-      { name: "Hill's k/d Kidney Care", weight: 1.5, quantity: 1, price: 219900 },
-      { name: 'Purina Pro Plan NF', weight: 1.5, quantity: 1, price: 189900 },
-    ],
-  },
-  {
-    id: 'ORD-2026-0038',
-    status: 'delivered' as OrderStatus,
-    createdAt: '10.06.2026',
-    total: 499800,
-    bonusEarned: 49,
-    deliveryMethod: 'Самовывоз',
-    items: [
-      { name: 'Royal Canin Renal', weight: 4, quantity: 1, price: 419900 },
-      { name: 'Monge Vetsolution Renal', weight: 2, quantity: 1, price: 249900 },
-    ],
-  },
-  {
-    id: 'ORD-2026-0029',
-    status: 'delivered' as OrderStatus,
-    createdAt: '28.05.2026',
-    total: 249900,
-    bonusEarned: 24,
-    deliveryMethod: 'Доставка курьером',
-    items: [
-      { name: 'Royal Canin Renal', weight: 2, quantity: 1, price: 249900 },
-    ],
-  },
-  {
-    id: 'ORD-2026-0021',
-    status: 'cancelled' as OrderStatus,
-    createdAt: '15.05.2026',
-    total: 189900,
-    bonusEarned: 0,
-    deliveryMethod: 'Доставка курьером',
-    items: [
-      { name: 'Purina Pro Plan NF', weight: 1.5, quantity: 1, price: 189900 },
-    ],
-  },
-]
 
 type Tab = 'orders' | 'bonuses' | 'settings'
 
 export default function ProfilePage() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('orders')
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all')
+  const [user, setUser] = useState<User | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loadingUser, setLoadingUser] = useState(true)
 
-  const currentLevel = BONUS_LEVELS.find(l => mockUser.bonusLevel === l.key)!
+  useEffect(() => {
+    authApi.me()
+      .then(res => setUser(res.data))
+      .catch(() => navigate('/auth'))
+      .finally(() => setLoadingUser(false))
+    ordersApi.list()
+      .then(res => setOrders(res.data))
+      .catch(() => setOrders([]))
+  }, [])
+
+  const currentLevel = BONUS_LEVELS.find(l => (user?.bonusLevel ?? 'newcomer') === l.key) ?? BONUS_LEVELS[0]
   const nextLevel = BONUS_LEVELS.find(l => l.min > currentLevel.min)
+  const bonusPoints = user?.bonusPoints ?? 0
   const progressToNext = nextLevel
-    ? Math.min(100, ((mockUser.bonusPoints - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100)
+    ? Math.min(100, ((bonusPoints - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100)
     : 100
 
   const filteredOrders = filterStatus === 'all'
-    ? mockOrders
-    : mockOrders.filter(o => o.status === filterStatus)
+    ? orders
+    : orders.filter(o => o.status === filterStatus)
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -112,8 +80,8 @@ export default function ProfilePage() {
             🐾
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-navy-900 truncate">{mockUser.name}</h1>
-            <p className="text-sm text-navy-400 truncate">{mockUser.phone}</p>
+            <h1 className="text-lg font-bold text-navy-900 truncate">{user?.name ?? '—'}</h1>
+            <p className="text-sm text-navy-400 truncate">{user?.phone ?? user?.email ?? '—'}</p>
           </div>
           <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${currentLevel.color}`}>
             {currentLevel.label}
@@ -177,21 +145,21 @@ export default function ProfilePage() {
               {filteredOrders.map(order => {
                 const isExpanded = expandedOrder === order.id
                 const stepIndex = STATUS_STEPS.indexOf(order.status)
+                const dateStr = new Date(order.createdAt).toLocaleDateString('ru-RU')
 
                 return (
                   <div key={order.id} className="bg-white rounded-2xl overflow-hidden">
-                    {/* Шапка заказа */}
                     <button
                       onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
                       className="w-full px-5 py-4 flex items-center gap-3 hover:bg-blue-50 transition-colors text-left">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="font-bold text-navy-900 text-sm">{order.id}</span>
+                          <span className="font-bold text-navy-900 text-sm">#{order.id.slice(-6).toUpperCase()}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[order.status]}`}>
                             {STATUS_LABEL[order.status]}
                           </span>
                         </div>
-                        <p className="text-xs text-navy-400">{order.createdAt} · {order.deliveryMethod}</p>
+                        <p className="text-xs text-navy-400">{dateStr} · {order.deliveryMethod}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-bold text-navy-900">{(order.total / 100).toLocaleString('ru-RU')} ₽</p>
@@ -250,8 +218,8 @@ export default function ProfilePage() {
                                 🐾
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm text-navy-900 font-medium truncate">{item.name}</p>
-                                <p className="text-xs text-navy-400">{item.weight} кг · {item.quantity} шт.</p>
+                                <p className="text-sm text-navy-900 font-medium truncate">{item.productName}</p>
+                                <p className="text-xs text-navy-400">{item.variantWeight} кг · {item.quantity} шт.</p>
                               </div>
                               <span className="text-sm font-semibold text-navy-900 flex-shrink-0">
                                 {(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
@@ -291,7 +259,7 @@ export default function ProfilePage() {
             {/* Баланс */}
             <div className="bg-white rounded-2xl p-6 text-center">
               <p className="text-sm text-navy-400 mb-1">Ваш бонусный счёт</p>
-              <p className="text-5xl font-black text-amber-400 mb-1">{mockUser.bonusPoints.toLocaleString()}</p>
+              <p className="text-5xl font-black text-amber-400 mb-1">{bonusPoints.toLocaleString()}</p>
               <p className="text-sm text-navy-400">бонусов · 1 бонус = 1 ₽</p>
             </div>
 
@@ -313,7 +281,7 @@ export default function ProfilePage() {
                   </div>
                   <p className="text-xs text-navy-400">
                     До уровня <span className="font-semibold text-navy-700">«{nextLevel.label}»</span>:{' '}
-                    {Math.max(0, nextLevel.min - mockUser.bonusPoints)} бонусов
+                    {Math.max(0, nextLevel.min - bonusPoints)} бонусов
                   </p>
                 </>
               )}
@@ -323,11 +291,11 @@ export default function ProfilePage() {
                   <div
                     key={level.key}
                     className={`rounded-xl p-3 text-center border ${
-                      mockUser.bonusLevel === level.key
+                      user?.bonusLevel === level.key
                         ? 'border-amber-200 bg-amber-50'
                         : 'border-blue-100 bg-blue-50'
                     }`}>
-                    <p className={`text-xs font-bold mb-1 ${mockUser.bonusLevel === level.key ? 'text-amber-600' : 'text-navy-400'}`}>
+                    <p className={`text-xs font-bold mb-1 ${user?.bonusLevel === level.key ? 'text-amber-600' : 'text-navy-400'}`}>
                       {level.label}
                     </p>
                     <p className="text-[10px] text-navy-400">
@@ -342,11 +310,11 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl p-5">
               <h3 className="font-bold text-navy-900 mb-3">История начислений</h3>
               <div className="divide-y divide-blue-50">
-                {mockOrders.filter(o => o.bonusEarned > 0).map(order => (
+                {orders.filter(o => o.bonusEarned > 0).map(order => (
                   <div key={order.id} className="flex items-center justify-between py-3">
                     <div>
-                      <p className="text-sm text-navy-900 font-medium">{order.id}</p>
-                      <p className="text-xs text-navy-400">{order.createdAt}</p>
+                      <p className="text-sm text-navy-900 font-medium">#{order.id.slice(-6).toUpperCase()}</p>
+                      <p className="text-xs text-navy-400">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
                     </div>
                     <span className="text-amber-500 font-bold">+{order.bonusEarned}</span>
                   </div>
@@ -363,9 +331,9 @@ export default function ProfilePage() {
               <h3 className="font-bold text-navy-900 mb-4">Личные данные</h3>
               <div className="flex flex-col gap-3">
                 {[
-                  { label: 'Имя', value: mockUser.name },
-                  { label: 'Телефон', value: mockUser.phone },
-                  { label: 'Email', value: mockUser.email },
+                  { label: 'Имя', value: user?.name ?? '' },
+                  { label: 'Телефон', value: user?.phone ?? '' },
+                  { label: 'Email', value: user?.email ?? '' },
                 ].map(field => (
                   <div key={field.label}>
                     <label className="text-xs text-navy-400 block mb-1">{field.label}</label>
@@ -396,7 +364,9 @@ export default function ProfilePage() {
               ))}
             </div>
 
-            <button className="bg-white text-red-400 font-medium py-3.5 rounded-2xl text-sm hover:bg-red-50 transition-colors border border-red-100">
+            <button
+              onClick={() => { localStorage.removeItem('token'); navigate('/auth') }}
+              className="bg-white text-red-400 font-medium py-3.5 rounded-2xl text-sm hover:bg-red-50 transition-colors border border-red-100">
               Выйти из аккаунта
             </button>
           </div>

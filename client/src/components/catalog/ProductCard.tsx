@@ -1,33 +1,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-
-interface Variant {
-  id: string
-  weight: number
-  price: number
-  oldPrice: number | null
-  stock: number
-}
-
-interface Product {
-  id: string
-  name: string
-  slug: string
-  brand: string
-  variants: Variant[]
-  isGrainFree: boolean
-  isHypoallergenic: boolean
-  isWeightControl: boolean
-  tags: string[]
-}
+import { cartApi, type Product } from '../../lib/api'
 
 export default function ProductCard({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
   const [added, setAdded] = useState(false)
   const [liked, setLiked] = useState(false)
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
+    try {
+      await cartApi.addItem(selectedVariant.id, 1)
+    } catch {
+      // ignore, optimistic UI
+    }
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
   }
@@ -71,7 +57,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Контент */}
       <div className="p-3 flex flex-col flex-1">
-        <p className="text-xs text-navy-300 mb-1">{product.brand}</p>
+        <p className="text-xs text-navy-300 mb-1">{product.brand?.name ?? ''}</p>
         <h3 className="text-sm font-semibold text-navy-900 mb-2 flex-1"
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {product.name}

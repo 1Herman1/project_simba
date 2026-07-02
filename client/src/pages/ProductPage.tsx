@@ -1,84 +1,66 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-
-// Mock данные товара
-const mockProduct = {
-  id: '1',
-  name: 'Royal Canin Renal для взрослых кошек при хронической почечной недостаточности',
-  slug: 'royal-canin-renal',
-  brand: 'Royal Canin',
-  brandSlug: 'royal-canin',
-  sku: '1063004',
-  country: 'Франция',
-  rating: 4.9,
-  reviewCount: 13,
-  images: [], // заглушки
-  isGrainFree: false,
-  isHypoallergenic: false,
-  isWeightControl: false,
-  description: `Royal Canin Renal — полнорационный диетический корм для взрослых кошек при хронической почечной недостаточности (ХПН).
-
-Преимущества:
-• Пониженное содержание фосфора — снижает нагрузку на почки и замедляет прогрессирование болезни
-• Высококачественные белки — поддерживают мышечную массу при ограниченном их количестве
-• Повышенная энергетическая ценность — компенсирует сниженный аппетит
-• Омега-3 жирные кислоты (EPA и DHA) — противовоспалительное действие
-• Антиоксиданты (витамины E и C) — поддержка иммунитета
-
-Срок годности: 18 месяцев с даты производства.`,
-  protein: 25.0,
-  fat: 20.0,
-  fiber: 0.6,
-  ash: 4.5,
-  ingredients: 'Дегидрированная птица, кукуруза, пшеничный глютен, животный жир, рисовая мука, гидролизат белков животного происхождения, свекольный жом, рыбий жир, соевое масло',
-  specs: [
-    { label: 'Артикул', value: '1063004' },
-    { label: 'Бренд', value: 'Royal Canin' },
-    { label: 'Страна-производитель', value: 'Франция' },
-    { label: 'Тип корма', value: 'Сухой' },
-    { label: 'Для кого', value: 'Кошки' },
-    { label: 'Назначение', value: 'Лечебный' },
-    { label: 'Возраст питомца', value: 'Для взрослых от 1 года' },
-    { label: 'Тип упаковки', value: 'Пакет' },
-    { label: 'Особые показания', value: 'Почечная недостаточность' },
-  ],
-  variants: [
-    { id: 'v1', weight: 0.5, price: 89900, oldPrice: 99900, stock: 45, pricePerKg: 179800 },
-    { id: 'v2', weight: 2, price: 249900, oldPrice: 279900, stock: 23, pricePerKg: 124950 },
-    { id: 'v3', weight: 4, price: 419900, oldPrice: null, stock: 12, pricePerKg: 104975 },
-  ],
-  reviews: [
-    { id: '1', author: 'Мила И.', date: '21.04.2026', rating: 5, pros: 'Всё быстро и корректно доставили.', cons: '', comment: '' },
-    { id: '2', author: 'Дмитрий Ш.', date: '18.04.2026', rating: 5, pros: 'Отличный корм, с хорошим содержанием мяса и комплекса витаминов. Перевели кошку с года и продолжаем по сей день.', cons: 'За всё время использования их нет.', comment: 'Рекомендую данный корм.' },
-    { id: '3', author: 'Наталья К.', date: '16.02.2026', rating: 5, pros: 'Приемлемая цена, большая упаковка, всегда в наличии и свежий.', cons: '', comment: '' },
-    { id: '4', author: 'Анастасия С.', date: '25.06.2026', rating: 5, pros: 'Хороший корм, подошёл кошке!', cons: '', comment: '' },
-  ],
-  related: [
-    { id: '2', name: "Hill's k/d Kidney Care", brand: "Hill's", price: 219900, oldPrice: 249900, weight: 1.5, slug: 'hills-kd' },
-    { id: '3', name: 'Purina Pro Plan NF Renal', brand: 'Purina', price: 189900, oldPrice: null, weight: 1.5, slug: 'purina-nf' },
-    { id: '4', name: 'Monge Vetsolution Renal', brand: 'Monge', price: 249900, oldPrice: 279900, weight: 2, slug: 'monge-renal' },
-  ],
-}
+import { productsApi, cartApi, type Product, type ProductVariant } from '../lib/api'
 
 export default function ProductPage() {
-  const { slug } = useParams()
-  const product = mockProduct // позже заменим на API запрос
-
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
+  const { slug } = useParams<{ slug: string }>()
+  const [product, setProduct] = useState<Product | null>(null)
+  const [related, setRelated] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
   const [activeTab, setActiveTab] = useState<'about' | 'specs' | 'reviews'>('about')
   const [liked, setLiked] = useState(false)
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
 
-  const handleAddToCart = () => {
+  useEffect(() => {
+    if (!slug) return
+    setLoading(true)
+    productsApi.bySlug(slug)
+      .then(res => {
+        setProduct(res.data)
+        setSelectedVariant(res.data.variants[0] ?? null)
+      })
+      .catch(() => setProduct(null))
+      .finally(() => setLoading(false))
+    productsApi.related(slug)
+      .then(res => setRelated(res.data))
+      .catch(() => setRelated([]))
+  }, [slug])
+
+  const handleAddToCart = async () => {
+    if (!selectedVariant) return
+    try {
+      await cartApi.addItem(selectedVariant.id, quantity)
+    } catch { /* ignore */ }
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
+
+  if (!product || !selectedVariant) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center gap-4">
+        <div className="text-6xl">😿</div>
+        <p className="text-navy-500 text-lg">Товар не найден</p>
+        <Link to="/catalog" className="text-blue-300 hover:text-blue-400">← В каталог</Link>
+      </div>
+    )
   }
 
   const discount = selectedVariant.oldPrice
     ? Math.round((1 - selectedVariant.price / selectedVariant.oldPrice) * 100)
     : null
+
+  const pricePerKg = Math.round(selectedVariant.price / selectedVariant.weight)
 
   return (
     <div className="min-h-screen bg-blue-50">
@@ -101,22 +83,27 @@ export default function ProductPage() {
           {/* Левая колонка — Галерея */}
           <div className="flex gap-3">
             {/* Миниатюры */}
-            <div className="flex flex-col gap-2">
-              {[0, 1, 2, 3].map(i => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`w-16 h-16 rounded-xl bg-white border-2 flex items-center justify-center text-2xl transition-all ${
-                    activeImage === i ? 'border-blue-200 shadow-md' : 'border-blue-100 opacity-60 hover:opacity-100'
-                  }`}>
-                  🐾
-                </button>
-              ))}
-            </div>
+            {product.images.length > 1 && (
+              <div className="flex flex-col gap-2">
+                {product.images.slice(0, 4).map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImage(i)}
+                    className={`w-16 h-16 rounded-xl bg-white border-2 flex items-center justify-center text-2xl transition-all overflow-hidden ${
+                      activeImage === i ? 'border-blue-200 shadow-md' : 'border-blue-100 opacity-60 hover:opacity-100'
+                    }`}>
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* Большое фото */}
-            <div className="flex-1 bg-white rounded-2xl flex items-center justify-center min-h-[400px] relative">
-              <div className="text-[120px] opacity-20">🐾</div>
+            <div className="flex-1 bg-white rounded-2xl flex items-center justify-center min-h-[400px] relative overflow-hidden">
+              {product.images.length > 0
+                ? <img src={product.images[activeImage] ?? product.images[0]} alt={product.name} className="w-full h-full object-contain p-4" />
+                : <div className="text-[120px] opacity-20">🐾</div>
+              }
 
               {discount && (
                 <span className="absolute top-4 left-4 bg-amber-400 text-white font-bold px-3 py-1 rounded-full text-sm">
@@ -139,33 +126,19 @@ export default function ProductPage() {
           <div className="flex flex-col gap-4">
 
             {/* Бренд */}
-            <Link to={`/catalog?brand=${product.brandSlug}`}
+            {product.brand && (
+            <Link to={`/catalog?brand=${product.brand.slug}`}
               className="text-blue-300 font-semibold text-sm hover:text-blue-400 transition-colors w-fit">
-              {product.brand}
+              {product.brand.name}
             </Link>
+          )}
 
             {/* Название */}
             <h1 className="text-xl font-bold text-navy-900 leading-snug">{product.name}</h1>
 
-            {/* Рейтинг + артикул */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <div className="flex">
-                  {[1,2,3,4,5].map(s => (
-                    <svg key={s} className={`w-4 h-4 ${s <= Math.round(product.rating) ? 'text-amber-400' : 'text-gray-200'}`}
-                      fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                    </svg>
-                  ))}
-                </div>
-                <span className="font-bold text-navy-900">{product.rating}</span>
-                <button onClick={() => setActiveTab('reviews')}
-                  className="text-blue-300 hover:text-blue-400 text-sm transition-colors">
-                  {product.reviewCount} отзывов
-                </button>
-              </div>
-              <span className="text-navy-300 text-sm">Арт. {product.sku}</span>
-            </div>
+            {product.variants[0]?.sku && (
+              <span className="text-navy-300 text-sm">Арт. {product.variants[0].sku}</span>
+            )}
 
             {/* Варианты веса */}
             <div>
@@ -181,7 +154,7 @@ export default function ProductPage() {
                         : 'border-blue-100 bg-white hover:border-blue-200'
                     }`}>
                     <span className="font-bold text-navy-900">{v.weight} кг</span>
-                    <span className="text-xs text-navy-400">{(v.pricePerKg / 100).toLocaleString('ru-RU')} ₽/кг</span>
+                    <span className="text-xs text-navy-400">{(Math.round(v.price / v.weight) / 100).toLocaleString('ru-RU')} ₽/кг</span>
                   </button>
                 ))}
               </div>
@@ -273,7 +246,7 @@ export default function ProductPage() {
             {[
               { key: 'about', label: 'О товаре' },
               { key: 'specs', label: 'Характеристики' },
-              { key: 'reviews', label: `Отзывы (${product.reviewCount})` },
+              { key: 'reviews', label: 'Отзывы' },
             ].map(tab => (
               <button
                 key={tab.key}
@@ -318,7 +291,13 @@ export default function ProductPage() {
 
             {activeTab === 'specs' && (
               <div className="divide-y divide-blue-50">
-                {product.specs.map(spec => (
+                {[
+                  product.brand && { label: 'Бренд', value: product.brand.name },
+                  { label: 'Белки', value: product.protein ? `${product.protein}%` : null },
+                  { label: 'Жиры', value: product.fat ? `${product.fat}%` : null },
+                  { label: 'Клетчатка', value: product.fiber ? `${product.fiber}%` : null },
+                  { label: 'Зола', value: product.ash ? `${product.ash}%` : null },
+                ].filter((s): s is { label: string; value: string } => !!s && !!s.value).map(spec => (
                   <div key={spec.label} className="flex py-3">
                     <span className="text-navy-400 text-sm w-48 flex-shrink-0">{spec.label}</span>
                     <span className="text-navy-900 text-sm font-medium">{spec.value}</span>
@@ -328,86 +307,49 @@ export default function ProductPage() {
             )}
 
             {activeTab === 'reviews' && (
-              <div>
-                {/* Итоговый рейтинг */}
-                <div className="flex items-center gap-6 mb-6 p-4 bg-blue-50 rounded-xl">
-                  <div className="text-center">
-                    <p className="text-5xl font-black text-navy-900">{product.rating}</p>
-                    <div className="flex justify-center mt-1">
-                      {[1,2,3,4,5].map(s => (
-                        <svg key={s} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                        </svg>
-                      ))}
-                    </div>
-                    <p className="text-navy-400 text-xs mt-1">{product.reviewCount} отзывов</p>
-                  </div>
-                  <button className="ml-auto bg-blue-200 text-navy-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-300 transition-colors">
-                    Написать отзыв
-                  </button>
-                </div>
-
-                {/* Список отзывов */}
-                <div className="flex flex-col gap-4">
-                  {product.reviews.map(review => (
-                    <div key={review.id} className="border border-blue-100 rounded-xl p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-navy-900 text-sm">{review.author}</span>
-                        <span className="text-navy-300 text-xs">{review.date}</span>
-                      </div>
-                      <div className="flex mb-3">
-                        {[1,2,3,4,5].map(s => (
-                          <svg key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? 'text-amber-400' : 'text-gray-200'}`}
-                            fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                          </svg>
-                        ))}
-                      </div>
-                      {review.pros && (
-                        <div className="mb-1">
-                          <span className="text-green-600 text-xs font-medium">Достоинства: </span>
-                          <span className="text-navy-700 text-sm">{review.pros}</span>
-                        </div>
-                      )}
-                      {review.cons && (
-                        <div className="mb-1">
-                          <span className="text-red-500 text-xs font-medium">Недостатки: </span>
-                          <span className="text-navy-700 text-sm">{review.cons}</span>
-                        </div>
-                      )}
-                      {review.comment && (
-                        <p className="text-navy-600 text-sm mt-1">{review.comment}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+              <div className="text-center py-10">
+                <div className="text-5xl mb-3">✍️</div>
+                <p className="text-navy-400 mb-4">Отзывы пока не добавлены</p>
+                <button className="bg-blue-200 text-navy-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-300 transition-colors">
+                  Написать первый отзыв
+                </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Похожие товары */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-navy-900 mb-4">Похожие товары</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {product.related.map(r => (
-              <Link key={r.id} to={`/product/${r.slug}`}
-                className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center text-4xl mb-3">🐾</div>
-                <p className="text-xs text-navy-300 mb-1">{r.brand}</p>
-                <p className="text-sm font-semibold text-navy-900 mb-2"
-                  style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {r.name}
-                </p>
-                <p className="text-xs text-navy-400 mb-2">{r.weight} кг</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-bold text-navy-900">{(r.price / 100).toLocaleString('ru-RU')} ₽</span>
-                  {r.oldPrice && <span className="text-xs text-navy-300 line-through">{(r.oldPrice / 100).toLocaleString('ru-RU')} ₽</span>}
-                </div>
-              </Link>
-            ))}
+        {related.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-navy-900 mb-4">Похожие товары</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {related.map(r => {
+                const v = r.variants[0]
+                return (
+                  <Link key={r.id} to={`/product/${r.slug}`}
+                    className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center text-4xl mb-3 overflow-hidden">
+                      {r.images?.[0] ? <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover" /> : '🐾'}
+                    </div>
+                    <p className="text-xs text-navy-300 mb-1">{r.brand?.name ?? ''}</p>
+                    <p className="text-sm font-semibold text-navy-900 mb-2"
+                      style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {r.name}
+                    </p>
+                    {v && (
+                      <>
+                        <p className="text-xs text-navy-400 mb-2">{v.weight} кг</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-bold text-navy-900">{(v.price / 100).toLocaleString('ru-RU')} ₽</span>
+                          {v.oldPrice && <span className="text-xs text-navy-300 line-through">{(v.oldPrice / 100).toLocaleString('ru-RU')} ₽</span>}
+                        </div>
+                      </>
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>

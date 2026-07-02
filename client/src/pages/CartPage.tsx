@@ -1,78 +1,55 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { cartApi, type CartItem } from '../lib/api'
 
-// Порог бесплатной доставки в копейках (2000 ₽)
 const FREE_DELIVERY_THRESHOLD = 200000
-
-// Бонусный процент от суммы заказа
 const BONUS_RATE = 0.01
 
-const mockItems = [
-  {
-    id: '1',
-    productId: '1',
-    slug: 'royal-canin-renal',
-    name: 'Royal Canin Renal для взрослых кошек при хронической почечной недостаточности',
-    brand: 'Royal Canin',
-    weight: 2,
-    price: 249900,
-    oldPrice: 279900,
-    quantity: 1,
-    stock: 23,
-  },
-  {
-    id: '2',
-    productId: '2',
-    slug: 'hills-kd',
-    name: "Hill's Prescription Diet k/d Kidney Care для кошек",
-    brand: "Hill's",
-    weight: 1.5,
-    price: 219900,
-    oldPrice: 249900,
-    quantity: 2,
-    stock: 10,
-  },
-  {
-    id: '3',
-    productId: '3',
-    slug: 'purina-nf',
-    name: 'Purina Pro Plan Veterinary Diets NF Renal Function',
-    brand: 'Purina',
-    weight: 1.5,
-    price: 189900,
-    oldPrice: null,
-    quantity: 1,
-    stock: 5,
-  },
-]
-
 export default function CartPage() {
-  const [items, setItems] = useState(mockItems)
+  const [items, setItems] = useState<CartItem[]>([])
+  const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
 
-  const updateQuantity = (id: string, delta: number) => {
-    setItems(prev =>
-      prev.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, Math.min(item.stock, item.quantity + delta)) }
-          : item
-      )
-    )
+  useEffect(() => {
+    cartApi.get()
+      .then(res => setItems(res.data.items))
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const updateQuantity = async (item: CartItem, delta: number) => {
+    const newQty = Math.max(1, Math.min(item.productVariant.stock, item.quantity + delta))
+    if (newQty === item.quantity) return
+    try {
+      const res = await cartApi.updateItem(item.id, newQty)
+      setItems(res.data.items)
+    } catch { /* ignore */ }
   }
 
-  const removeItem = (id: string) => {
-    setRemovingId(id)
-    setTimeout(() => {
-      setItems(prev => prev.filter(item => item.id !== id))
+  const removeItem = async (itemId: string) => {
+    setRemovingId(itemId)
+    setTimeout(async () => {
+      try {
+        const res = await cartApi.removeItem(itemId)
+        setItems(res.data.items)
+      } catch {
+        setItems(prev => prev.filter(i => i.id !== itemId))
+      }
       setRemovingId(null)
     }, 300)
   }
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const discount = items.reduce((sum, item) =>
-    item.oldPrice ? sum + (item.oldPrice - item.price) * item.quantity : sum, 0)
+  const subtotal = useMemo(() =>
+    items.reduce((sum, item) => sum + item.productVariant.price * item.quantity, 0), [items])
+
+  const discount = useMemo(() =>
+    items.reduce((sum, item) =>
+      item.productVariant.oldPrice
+        ? sum + (item.productVariant.oldPrice - item.productVariant.price) * item.quantity
+        : sum, 0), [items])
+
   const promoDiscount = promoApplied ? Math.round(subtotal * 0.1) : 0
   const total = subtotal - promoDiscount
 
@@ -82,6 +59,14 @@ export default function CartPage() {
 
   const handlePromo = () => {
     if (promoCode.toLowerCase() === 'simba10') setPromoApplied(true)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
+      </div>
+    )
   }
 
   if (items.length === 0) {
@@ -136,74 +121,73 @@ export default function CartPage() {
 
           {/* Список товаров */}
           <div className="lg:col-span-2 flex flex-col gap-3">
-            {items.map(item => (
-              <div
-                key={item.id}
-                className={`bg-white rounded-2xl p-4 flex gap-4 transition-all duration-300 ${
-                  removingId === item.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                }`}
-              >
-                {/* Фото */}
-                <Link to={`/product/${item.slug}`}
-                  className="w-24 h-24 bg-blue-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0 hover:opacity-80 transition-opacity">
-                  🐾
-                </Link>
-
-                {/* Инфо */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-navy-300 mb-0.5">{item.brand}</p>
-                  <Link to={`/product/${item.slug}`}
-                    className="text-sm font-semibold text-navy-900 hover:text-blue-300 transition-colors line-clamp-2 block mb-1">
-                    {item.name}
+            {items.map(item => {
+              const v = item.productVariant
+              const p = v.product
+              return (
+                <div
+                  key={item.id}
+                  className={`bg-white rounded-2xl p-4 flex gap-4 transition-all duration-300 ${
+                    removingId === item.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  }`}
+                >
+                  <Link to={`/product/${p.slug}`}
+                    className="w-24 h-24 bg-blue-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0 hover:opacity-80 transition-opacity overflow-hidden">
+                    {p.images?.[0]
+                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
+                      : '🐾'}
                   </Link>
-                  <p className="text-xs text-navy-400 mb-3">{item.weight} кг</p>
 
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    {/* Счётчик */}
-                    <div className="flex items-center border border-blue-100 rounded-xl overflow-hidden bg-white">
-                      <button
-                        onClick={() => updateQuantity(item.id, -1)}
-                        className="w-9 h-9 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors font-bold text-lg">
-                        −
-                      </button>
-                      <span className="w-8 text-center font-bold text-navy-900 text-sm">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, 1)}
-                        disabled={item.quantity >= item.stock}
-                        className="w-9 h-9 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors font-bold text-lg disabled:opacity-30">
-                        +
-                      </button>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <Link to={`/product/${p.slug}`}
+                      className="text-sm font-semibold text-navy-900 hover:text-blue-300 transition-colors line-clamp-2 block mb-1">
+                      {p.name}
+                    </Link>
+                    <p className="text-xs text-navy-400 mb-3">{v.weight} кг</p>
 
-                    {/* Цена */}
-                    <div className="flex items-baseline gap-2">
-                      <span className="font-bold text-navy-900">
-                        {(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
-                      </span>
-                      {item.oldPrice && (
-                        <span className="text-xs text-navy-300 line-through">
-                          {(item.oldPrice * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center border border-blue-100 rounded-xl overflow-hidden bg-white">
+                        <button
+                          onClick={() => updateQuantity(item, -1)}
+                          className="w-9 h-9 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors font-bold text-lg">
+                          −
+                        </button>
+                        <span className="w-8 text-center font-bold text-navy-900 text-sm">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item, 1)}
+                          disabled={item.quantity >= v.stock}
+                          className="w-9 h-9 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors font-bold text-lg disabled:opacity-30">
+                          +
+                        </button>
+                      </div>
+
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-bold text-navy-900">
+                          {(v.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
                         </span>
-                      )}
-                    </div>
+                        {v.oldPrice && (
+                          <span className="text-xs text-navy-300 line-through">
+                            {(v.oldPrice * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                          </span>
+                        )}
+                      </div>
 
-                    {/* Удалить */}
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="text-navy-300 hover:text-red-400 transition-colors p-1">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                        <path d="M10 11v6M14 11v6"/>
-                        <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
-                      </svg>
-                    </button>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-navy-300 hover:text-red-400 transition-colors p-1">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                          <path d="M10 11v6M14 11v6"/>
+                          <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
-            {/* Продолжить покупки */}
             <Link to="/catalog"
               className="flex items-center gap-2 text-blue-300 hover:text-blue-400 transition-colors text-sm font-medium mt-2 w-fit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -249,7 +233,6 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Промокод */}
               {!promoApplied ? (
                 <div className="flex gap-2 mb-4">
                   <input
@@ -276,7 +259,6 @@ export default function CartPage() {
                 </div>
               )}
 
-              {/* Бонусы */}
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">🎁</span>

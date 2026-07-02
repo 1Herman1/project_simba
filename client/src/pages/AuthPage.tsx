@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { authApi } from '../lib/api'
 
 type Step = 'input' | 'code'
 type Channel = 'email' | 'phone'
@@ -68,11 +69,16 @@ export default function AuthPage() {
     setLoading(true)
     setError('')
 
-    // Заглушка — позже заменим на fetch('/api/auth/send-otp')
-    await new Promise(r => setTimeout(r, 800))
-    setLoading(false)
-    setStep('code')
-    startResendTimer()
+    try {
+      const apiContact = channel === 'phone' ? contact.replace(/\D/g, '') : contact
+      await authApi.sendOtp(apiContact, channel === 'phone' ? 'sms' : 'email')
+      setStep('code')
+      startResendTimer()
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Ошибка отправки кода')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleVerifyCode = async () => {
@@ -84,15 +90,13 @@ export default function AuthPage() {
     setLoading(true)
     setError('')
 
-    // Заглушка — позже заменим на fetch('/api/auth/verify-otp')
-    await new Promise(r => setTimeout(r, 800))
-
-    if (code === '123456') {
-      // Сохранить JWT и перейти в профиль
-      localStorage.setItem('token', 'mock-jwt-token')
+    try {
+      const apiContact = channel === 'phone' ? contact.replace(/\D/g, '') : contact
+      const res = await authApi.verifyOtp(apiContact, code)
+      localStorage.setItem('token', res.data.token)
       navigate('/profile')
-    } else {
-      setError('Неверный код. Попробуйте ещё раз')
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Неверный код. Попробуйте ещё раз')
       setLoading(false)
     }
   }
@@ -101,9 +105,15 @@ export default function AuthPage() {
     setCode('')
     setError('')
     setLoading(true)
-    await new Promise(r => setTimeout(r, 600))
-    setLoading(false)
-    startResendTimer()
+    try {
+      const apiContact = channel === 'phone' ? contact.replace(/\D/g, '') : contact
+      await authApi.sendOtp(apiContact, channel === 'phone' ? 'sms' : 'email')
+      startResendTimer()
+    } catch (err: any) {
+      setError(err?.response?.data?.error || 'Ошибка отправки кода')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -248,11 +258,6 @@ export default function AuthPage() {
                 )}
               </div>
 
-              <div className="mt-4 bg-blue-50 rounded-xl px-3 py-2">
-                <p className="text-xs text-navy-400 text-center">
-                  Для теста используйте код: <span className="font-bold text-navy-700">123456</span>
-                </p>
-              </div>
             </>
           )}
 
