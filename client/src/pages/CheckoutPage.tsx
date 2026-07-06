@@ -52,7 +52,7 @@ export default function CheckoutPage() {
   const [bonusSpend, setBonusSpend] = useState(false)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
-  const [orderId] = useState('ORD-2026-0042')
+  const [orderId, setOrderId] = useState('')
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
 
@@ -117,17 +117,18 @@ export default function CheckoutPage() {
       const promoCode = sessionStorage.getItem('promoCode') ?? undefined
       const cartRes = await fetch('/api/cart', { credentials: 'include' })
       const cart = await cartRes.json() as { id: string }
-      await ordersApi.create({
+      const res = await ordersApi.create({
         cartId: cart.id,
         deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
         deliveryAddress: delivery !== 'pickup' && address.street
-          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: '' }
+          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: address.postalCode }
           : undefined,
         comment: address.comment || undefined,
         bonusUsed: bonusSpend ? bonusDiscount : 0,
         promoCode,
       })
       sessionStorage.removeItem('promoCode')
+      setOrderId(res.data.id)
       setOrderPlaced(true)
     } catch {
       // fallback для dev-режима без реального сервера
@@ -154,7 +155,7 @@ export default function CheckoutPage() {
           </div>
           <h1 className="text-2xl font-black text-navy-900 mb-2">Заказ оформлен!</h1>
           <p className="text-navy-400 text-sm mb-1">Номер заказа:</p>
-          <p className="font-bold text-navy-900 text-lg mb-4">{orderId}</p>
+          <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
               🎁 Начислено <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span> на ваш счёт
@@ -324,6 +325,13 @@ export default function CheckoutPage() {
                           className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
                         />
                       </div>
+                      <input
+                        type="text"
+                        placeholder="Почтовый индекс"
+                        value={address.postalCode}
+                        onChange={e => setAddress(a => ({ ...a, postalCode: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                      />
                       <textarea
                         placeholder="Комментарий к заказу (необязательно)"
                         value={address.comment}

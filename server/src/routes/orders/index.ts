@@ -59,6 +59,22 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
       if (!user || bonusUsed > user.bonusPoints) {
         return reply.status(400).send({ error: 'Недостаточно бонусов' })
       }
+
+      const cartWithItems = await app.prisma.cart.findUnique({
+        where: { id: result.data.cartId },
+        include: { items: { include: { productVariant: true } } },
+      })
+      if (cartWithItems) {
+        const subtotal = cartWithItems.items.reduce(
+          (sum, item) => sum + item.productVariant.price * item.quantity,
+          0
+        )
+        const promoDiscount = result.data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
+        const maxBonus = subtotal - promoDiscount
+        if (bonusUsed > maxBonus) {
+          return reply.status(400).send({ error: 'Нельзя списать бонусов больше суммы заказа' })
+        }
+      }
     }
 
     try {
