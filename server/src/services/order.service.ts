@@ -67,13 +67,12 @@ export async function createOrder(
       }
     }
 
-    const bonusUsed = data.bonusUsed ?? 0
-
     const subtotal = cart.items.reduce(
       (sum, item) => sum + item.productVariant.price * item.quantity,
       0
     )
     const promoDiscount = data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
+    const bonusUsed = Math.min(data.bonusUsed ?? 0, subtotal - promoDiscount)
     const total = Math.max(0, subtotal - promoDiscount - bonusUsed)
     const bonusEarned = Math.floor(total * 0.05)
 
@@ -147,6 +146,8 @@ export async function getOrdersByUser(prisma: PrismaClient, userId: string) {
       deliveryCost: true,
       paymentStatus: true,
       createdAt: true,
+      bonusUsed: true,
+      bonusEarned: true,
       items: {
         select: {
           productName: true,
