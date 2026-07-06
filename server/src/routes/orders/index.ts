@@ -45,6 +45,21 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
       return reply.status(403).send({ error: 'Доступ запрещён' })
     }
 
+    const { bonusUsed } = result.data
+    if (bonusUsed < 0) {
+      return reply.status(400).send({ error: 'Недостаточно бонусов' })
+    }
+
+    if (bonusUsed > 0) {
+      const user = await app.prisma.user.findUnique({
+        where: { id: userId },
+        select: { bonusPoints: true },
+      })
+      if (!user || bonusUsed > user.bonusPoints) {
+        return reply.status(400).send({ error: 'Недостаточно бонусов' })
+      }
+    }
+
     try {
       const order = await createOrder(app.prisma, userId, result.data)
       return reply.status(201).send(order)

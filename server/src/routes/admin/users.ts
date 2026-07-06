@@ -50,8 +50,15 @@ const usersAdminRoute: FastifyPluginAsync = async (app) => {
     const validRoles = ['super_admin', 'orders_manager', 'products_manager', 'customer']
     if (!validRoles.includes(role)) return reply.status(400).send({ error: 'Invalid role' })
 
-    const user = await app.prisma.user.update({ where: { id }, data: { role: role as any } })
-    return reply.send(user)
+    try {
+      const user = await app.prisma.user.update({ where: { id }, data: { role: role as any } })
+      return reply.send(user)
+    } catch (err: any) {
+      if (err?.code === 'P2025') {
+        return reply.status(404).send({ error: 'Пользователь не найден' })
+      }
+      throw err
+    }
   })
 }
 

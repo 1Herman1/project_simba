@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import { getProducts, sortItemsByPrice } from '../../services/product.service'
+import { getProducts } from '../../services/product.service'
 
 const querySchema = z.object({
   category: z.string().optional(),
@@ -39,8 +39,6 @@ export default async function listRoute(app: FastifyInstance) {
       limit: q.limit,
     })
 
-    const sortedItems = sortItemsByPrice(result.items, q.sort)
-
-    return reply.send({ ...result, items: sortedItems })
+    return reply.send(result)
   })
 }
