@@ -1,9 +1,51 @@
 import { FastifyPluginAsync } from 'fastify'
+import * as XLSX from 'xlsx'
 import { checkRole } from '../../middleware/check-role'
 
-// CSV import: name,slug,description,brandSlug,price,oldPrice,stock,weight,sku
+// Supported columns: name,slug,description,brandSlug,price,oldPrice,stock,weight,sku
 const importRoute: FastifyPluginAsync = async (app) => {
   const guard = { preHandler: [app.authenticate, checkRole(['super_admin', 'products_manager'])] }
+
+  function parseCsvLine(line: string): string[] {
+    const result: string[] = []
+    let current = ''
+    let insideQuotes = false
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i]
+      if (ch === '"') {
+        insideQuotes = !insideQuotes
+      } else if (ch === ',' && !insideQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += ch
+      }
+    }
+    result.push(current.trim())
+    return result
+  }
+
+  function parseRows(buffer: Buffer, filename: string): Record<string, string>[] {
+    const ext = filename.split('.').pop()?.toLowerCase()
+
+    if (ext === 'xlsx' || ext === 'xls') {
+      const workbook = XLSX.read(buffer, { type: 'buffer' })
+      const sheet = workbook.Sheets[workbook.SheetNames[0]]
+      return XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: '' })
+    }
+
+    const text = buffer.toString('utf-8')
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+    if (lines.length < 2) return []
+
+    const headers = parseCsvLine(lines[0])
+    return lines.slice(1).map(line => {
+      const values = parseCsvLine(line)
+      const row: Record<string, string> = {}
+      headers.forEach((h, idx) => { row[h] = values[idx] ?? '' })
+      return row
+    })
+  }
 
   app.post('/csv', guard, async (request, reply) => {
     const file = await request.file()
@@ -11,24 +53,31 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
     const chunks: Buffer[] = []
     for await (const chunk of file.file) chunks.push(chunk)
-    const text = Buffer.concat(chunks).toString('utf-8')
+    const buffer = Buffer.concat(chunks)
 
-    const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
-    if (lines.length < 2) return reply.status(400).send({ error: 'Файл пустой или нет данных' })
+    const rows = parseRows(buffer, file.filename)
+    if (rows.length === 0) return reply.status(400).send({ error: 'Файл пустой или нет данных' })
 
-    const headers = lines[0].split(',').map(h => h.trim())
     const created: string[] = []
     const errors: string[] = []
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim())
-      const row: Record<string, string> = {}
-      headers.forEach((h, idx) => { row[h] = values[idx] ?? '' })
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+      const rowNum = i + 2
 
       try {
-        const { name, slug, description, brandSlug, price, oldPrice, stock, weight, sku } = row
+        const name = String(row.name ?? '').trim()
+        const slug = String(row.slug ?? '').trim()
+        const description = String(row.description ?? '').trim()
+        const brandSlug = String(row.brandSlug ?? '').trim()
+        const price = String(row.price ?? '').trim()
+        const oldPrice = String(row.oldPrice ?? '').trim()
+        const stock = String(row.stock ?? '').trim()
+        const weight = String(row.weight ?? '').trim()
+        const sku = String(row.sku ?? '').trim()
+
         if (!name || !slug || !price || !weight) {
-          errors.push(`Строка ${i + 1}: пропущены обязательные поля (name, slug, price, weight)`)
+          errors.push(`Строка ${rowNum}: пропущены обязательные поля (name, slug, price, weight)`)
           continue
         }
 
@@ -40,7 +89,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
         const existing = await app.prisma.product.findUnique({ where: { slug } })
         if (existing) {
-          errors.push(`Строка ${i + 1}: товар со slug "${slug}" уже существует`)
+          errors.push(`Строка ${rowNum}: товар со slug "${slug}" уже существует`)
           continue
         }
 
@@ -64,7 +113,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
         created.push(name)
       } catch (e) {
-        errors.push(`Строка ${i + 1}: ошибка — ${e instanceof Error ? e.message : 'unknown'}`)
+        errors.push(`Строка ${rowNum}: ошибка — ${e instanceof Error ? e.message : 'unknown'}`)
       }
     }
 

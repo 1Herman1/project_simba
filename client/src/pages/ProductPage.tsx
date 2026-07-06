@@ -33,9 +33,9 @@ export default function ProductPage() {
     if (!selectedVariant) return
     try {
       await cartApi.addItem(selectedVariant.id, quantity)
+      setAdded(true)
+      setTimeout(() => setAdded(false), 2000)
     } catch { /* ignore */ }
-    setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
   }
 
   if (loading) {

@@ -30,17 +30,23 @@ export default function ImportPage() {
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Импорт товаров из CSV</h1>
+      <h1 className="text-xl font-bold text-gray-900 mb-6">Импорт товаров</h1>
 
       {/* Format description */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-5 mb-6">
-        <h2 className="font-semibold text-blue-900 mb-2 text-sm">Формат файла CSV</h2>
+        <h2 className="font-semibold text-blue-900 mb-2 text-sm">Формат файла (CSV или Excel)</h2>
         <p className="text-sm text-blue-700 mb-3">
-          Первая строка — заголовки. Обязательные поля: <code className="bg-blue-100 px-1 rounded">name, slug, price, weight</code>
+          Обязательные колонки: <code className="bg-blue-100 px-1 rounded">name, slug, price, weight</code>
         </p>
-        <div className="bg-white rounded-lg border border-blue-100 p-3 overflow-x-auto">
+        <p className="text-sm text-blue-700 mb-2">
+          <span className="font-medium">CSV</span> — первая строка заголовки, значения через запятую:
+        </p>
+        <div className="bg-white rounded-lg border border-blue-100 p-3 overflow-x-auto mb-3">
           <pre className="text-xs text-gray-700 font-mono whitespace-pre">{csvExample}</pre>
         </div>
+        <p className="text-sm text-blue-700 mb-1">
+          <span className="font-medium">Excel (.xlsx / .xls)</span> — те же колонки в первой строке, данные со второй строки.
+        </p>
         <p className="text-xs text-blue-600 mt-2">
           Цены указываются в рублях (не в копейках). brandSlug — slug бренда, если бренд существует в системе.
         </p>
@@ -51,7 +57,7 @@ export default function ImportPage() {
         onClick={() => inputRef.current?.click()}
         className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors mb-4"
       >
-        <input ref={inputRef} type="file" accept=".csv,.txt" onChange={handleFile} className="hidden" />
+        <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
         <div className="text-3xl mb-2">📂</div>
         {file ? (
           <>
@@ -60,8 +66,8 @@ export default function ImportPage() {
           </>
         ) : (
           <>
-            <p className="font-medium text-gray-700">Нажмите для выбора файла</p>
-            <p className="text-sm text-gray-400">CSV или TXT, до 10 МБ</p>
+            <p className="font-medium text-gray-700">Нажмите или перетащите файл</p>
+            <p className="text-sm text-gray-400">CSV, XLSX или XLS, до 10 МБ</p>
           </>
         )}
       </div>

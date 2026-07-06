@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authApi, ordersApi, type User, type Order } from '../lib/api'
+import { authApi, ordersApi, usersApi, type User, type Order } from '../lib/api'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -40,10 +40,21 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [loadingUser, setLoadingUser] = useState(true)
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', email: '' })
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   useEffect(() => {
     authApi.me()
-      .then(res => setUser(res.data))
+      .then(res => {
+        setUser(res.data)
+        setProfileForm({
+          name: res.data.name ?? '',
+          phone: res.data.phone ?? '',
+          email: res.data.email ?? '',
+        })
+      })
       .catch(() => navigate('/auth'))
       .finally(() => setLoadingUser(false))
     ordersApi.list()
@@ -330,22 +341,41 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl p-5">
               <h3 className="font-bold text-navy-900 mb-4">Личные данные</h3>
               <div className="flex flex-col gap-3">
-                {[
-                  { label: 'Имя', value: user?.name ?? '' },
-                  { label: 'Телефон', value: user?.phone ?? '' },
-                  { label: 'Email', value: user?.email ?? '' },
-                ].map(field => (
-                  <div key={field.label}>
+                {([
+                  { label: 'Имя', key: 'name' },
+                  { label: 'Телефон', key: 'phone' },
+                  { label: 'Email', key: 'email' },
+                ] as { label: string; key: keyof typeof profileForm }[]).map(field => (
+                  <div key={field.key}>
                     <label className="text-xs text-navy-400 block mb-1">{field.label}</label>
                     <input
                       type="text"
-                      defaultValue={field.value}
+                      value={profileForm[field.key]}
+                      onChange={e => setProfileForm(prev => ({ ...prev, [field.key]: e.target.value }))}
                       className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
                 ))}
-                <button className="bg-blue-200 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-blue-300 transition-colors mt-1">
-                  Сохранить
+                {saveError && <p className="text-xs text-red-400">{saveError}</p>}
+                {saveSuccess && <p className="text-xs text-green-600">Данные сохранены</p>}
+                <button
+                  disabled={savingProfile}
+                  onClick={async () => {
+                    setSavingProfile(true)
+                    setSaveError(null)
+                    setSaveSuccess(false)
+                    try {
+                      const res = await usersApi.updateProfile(profileForm)
+                      setUser(res.data)
+                      setSaveSuccess(true)
+                    } catch {
+                      setSaveError('Не удалось сохранить. Попробуйте ещё раз.')
+                    } finally {
+                      setSavingProfile(false)
+                    }
+                  }}
+                  className="bg-blue-200 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-blue-300 transition-colors mt-1 disabled:opacity-50">
+                  {savingProfile ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </div>
             </div>

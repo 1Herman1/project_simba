@@ -121,6 +121,13 @@ export const authApi = {
     api.get<User>('/api/auth/me'),
 }
 
+// ─── Пользователи ────────────────────────────────────────────────────────────
+
+export const usersApi = {
+  updateProfile: (data: { name?: string; phone?: string; email?: string }) =>
+    api.put<User>('/api/users/profile', data),
+}
+
 // ─── Товары ──────────────────────────────────────────────────────────────────
 
 export const productsApi = {

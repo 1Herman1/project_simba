@@ -37,8 +37,17 @@ const brandsAdminRoute: FastifyPluginAsync = async (app) => {
 
   app.delete<{ Params: { id: string } }>('/:id', guard, async (request, reply) => {
     const { id } = request.params
-    await app.prisma.brand.delete({ where: { id } })
-    return reply.send({ success: true })
+    try {
+      await app.prisma.brand.delete({ where: { id } })
+      return reply.send({ success: true })
+    } catch (err: any) {
+      if (err?.code === 'P2003' || err?.code === 'P2014') {
+        return reply.status(409).send({
+          error: 'Невозможно удалить бренд: у него есть товары. Сначала переназначьте или удалите товары.',
+        })
+      }
+      throw err
+    }
   })
 }
 
