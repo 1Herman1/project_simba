@@ -319,15 +319,37 @@ export default function ProfilePage() {
 
             {/* История начислений */}
             <div className="bg-white rounded-2xl p-5">
-              <h3 className="font-bold text-navy-900 mb-3">История начисления сибакоинов</h3>
+              <h3 className="font-bold text-navy-900 mb-3">Начислено</h3>
               <div className="divide-y divide-blue-50">
+                {orders.filter(o => o.bonusEarned > 0).length === 0 && (
+                  <p className="text-sm text-navy-400 py-2">Начислений пока нет</p>
+                )}
                 {orders.filter(o => o.bonusEarned > 0).map(order => (
                   <div key={order.id} className="flex items-center justify-between py-3">
                     <div>
                       <p className="text-sm text-navy-900 font-medium">#{order.id.slice(-6).toUpperCase()}</p>
                       <p className="text-xs text-navy-400">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
                     </div>
-                    <span className="text-amber-500 font-bold">+{order.bonusEarned}</span>
+                    <span className="text-green-500 font-bold">+{order.bonusEarned}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* История списаний */}
+            <div className="bg-white rounded-2xl p-5">
+              <h3 className="font-bold text-navy-900 mb-3">Потрачено</h3>
+              <div className="divide-y divide-blue-50">
+                {orders.filter(o => o.bonusUsed > 0).length === 0 && (
+                  <p className="text-sm text-navy-400 py-2">Списаний пока нет</p>
+                )}
+                {orders.filter(o => o.bonusUsed > 0).map(order => (
+                  <div key={order.id} className="flex items-center justify-between py-3">
+                    <div>
+                      <p className="text-sm text-navy-900 font-medium">#{order.id.slice(-6).toUpperCase()}</p>
+                      <p className="text-xs text-navy-400">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
+                    </div>
+                    <span className="text-red-400 font-bold">−{order.bonusUsed}</span>
                   </div>
                 ))}
               </div>

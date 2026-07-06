@@ -8,12 +8,14 @@ import ProfilePage from './pages/ProfilePage'
 import ProductPage from './pages/ProductPage'
 import AuthPage from './pages/AuthPage'
 import CheckoutPage from './pages/CheckoutPage'
+import BonusesPage from './pages/BonusesPage'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/bonuses" element={<BonusesPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalog" element={<CatalogPage />} />

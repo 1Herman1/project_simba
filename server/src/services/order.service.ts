@@ -117,16 +117,15 @@ export async function createOrder(
     })
 
     const newPoints = user.bonusPoints
-    const shouldUpgrade =
-      (user.bonusLevel === 'newcomer' && newPoints >= 1000) ||
-      (user.bonusLevel === 'active' && newPoints >= 5000)
+    const newLevel =
+      newPoints >= 5000 ? 'premium' :
+      newPoints >= 1000 ? 'active' :
+      'newcomer'
 
-    if (shouldUpgrade) {
+    if (newLevel !== user.bonusLevel) {
       await tx.user.update({
         where: { id: userId },
-        data: {
-          bonusLevel: user.bonusLevel === 'newcomer' ? 'active' : 'premium',
-        },
+        data: { bonusLevel: newLevel },
       })
     }
 
