@@ -2,6 +2,11 @@ import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { otpService } from '../../services/otp.service'
 
+const OTP_MAX_ATTEMPTS = 5
+const OTP_WINDOW_MS = 15 * 60 * 1000
+
+const otpAttempts = new Map<string, { attempts: number; lastAttempt: Date }>()
+
 const bodySchema = z
   .object({
     email: z.string().email().optional(),
@@ -20,6 +25,18 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
     }
 
     const { email, phone, code } = result.data
+    const contact = (email ?? phone) as string
+
+    const now = new Date()
+    const record = otpAttempts.get(contact)
+    if (record) {
+      const windowExpired = now.getTime() - record.lastAttempt.getTime() > OTP_WINDOW_MS
+      if (windowExpired) {
+        otpAttempts.delete(contact)
+      } else if (record.attempts >= OTP_MAX_ATTEMPTS) {
+        return reply.status(429).send({ error: 'Слишком много попыток. Попробуйте через 15 минут.' })
+      }
+    }
 
     const user = await app.prisma.user.findFirst({
       where: email ? { email } : { phone },
@@ -31,8 +48,15 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
 
     const isValid = await otpService.verifyOtp(app.prisma, user.id, code)
     if (!isValid) {
+      const current = otpAttempts.get(contact)
+      otpAttempts.set(contact, {
+        attempts: (current?.attempts ?? 0) + 1,
+        lastAttempt: now,
+      })
       return reply.status(400).send({ error: 'Неверный или истёкший код' })
     }
+
+    otpAttempts.delete(contact)
 
     const token = app.jwt.sign(
       { userId: user.id, role: user.role },
