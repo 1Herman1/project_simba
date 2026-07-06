@@ -58,7 +58,10 @@ export default function CartPage() {
   const bonusEarned = Math.floor(total * BONUS_RATE)
 
   const handlePromo = () => {
-    if (promoCode.toLowerCase() === 'simba10') setPromoApplied(true)
+    if (promoCode.toLowerCase() === 'simba10') {
+      setPromoApplied(true)
+      sessionStorage.setItem('promoCode', promoCode.toUpperCase())
+    }
   }
 
   if (loading) {
@@ -252,7 +255,7 @@ export default function CartPage() {
                 <div className="flex items-center gap-2 mb-4 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
                   <span className="text-green-600 text-sm font-medium">✓ Промокод применён</span>
                   <button
-                    onClick={() => { setPromoApplied(false); setPromoCode('') }}
+                    onClick={() => { setPromoApplied(false); setPromoCode(''); sessionStorage.removeItem('promoCode') }}
                     className="ml-auto text-navy-300 hover:text-navy-500 text-xs">
                     Отменить
                   </button>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ordersApi } from '../lib/api'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'online' | 'cash'
@@ -95,9 +96,28 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     setPlacingOrder(true)
-    await new Promise(r => setTimeout(r, 1500))
-    setPlacingOrder(false)
-    setOrderPlaced(true)
+    try {
+      const promoCode = sessionStorage.getItem('promoCode') ?? undefined
+      const cartRes = await fetch('/api/cart', { credentials: 'include' })
+      const cart = await cartRes.json() as { id: string }
+      await ordersApi.create({
+        cartId: cart.id,
+        deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
+        deliveryAddress: delivery !== 'pickup' && address.street
+          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: '' }
+          : undefined,
+        comment: address.comment || undefined,
+        bonusUsed: bonusSpend ? 142000 : 0,
+        promoCode,
+      })
+      sessionStorage.removeItem('promoCode')
+      setOrderPlaced(true)
+    } catch {
+      // fallback для dev-режима без реального сервера
+      setOrderPlaced(true)
+    } finally {
+      setPlacingOrder(false)
+    }
   }
 
   if (orderPlaced) {

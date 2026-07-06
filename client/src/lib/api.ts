@@ -75,6 +75,7 @@ export interface Order {
   total: number
   bonusUsed: number
   bonusEarned: number
+  promoCode?: string
   paymentStatus: string
   createdAt: string
   items: {
@@ -191,11 +192,13 @@ export const ordersApi = {
     api.get<Order>(`/api/orders/${id}`),
 
   create: (data: {
+    cartId: string
     deliveryMethod: string
     deliveryAddress?: object
     comment?: string
     hasSpecialPackaging?: boolean
     bonusUsed?: number
+    promoCode?: string
   }) => api.post<Order>('/api/orders', data),
 }
 

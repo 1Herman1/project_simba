@@ -15,6 +15,7 @@ type CreateOrderData = {
   comment?: string
   hasSpecialPackaging: boolean
   bonusUsed?: number
+  promoCode?: string
 }
 
 const orderItemsInclude = {
@@ -72,7 +73,8 @@ export async function createOrder(
       (sum, item) => sum + item.productVariant.price * item.quantity,
       0
     )
-    const total = Math.max(0, subtotal - bonusUsed)
+    const promoDiscount = data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
+    const total = Math.max(0, subtotal - promoDiscount - bonusUsed)
     const bonusEarned = Math.floor(total * 0.05)
 
     const order = await tx.order.create({

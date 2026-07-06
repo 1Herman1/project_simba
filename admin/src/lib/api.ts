@@ -116,6 +116,7 @@ export interface Order {
   total: number
   bonusUsed: number
   bonusEarned: number
+  promoCode?: string
   paymentStatus: string
   createdAt: string
   user?: { id: string; name?: string; email?: string; phone?: string }

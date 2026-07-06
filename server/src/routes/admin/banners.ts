@@ -4,7 +4,7 @@ import { checkRole } from '../../middleware/check-role'
 
 const schema = z.object({
   title: z.string().min(1),
-  image: z.string().min(1),
+  image: z.string().url(),
   link: z.string().optional(),
   page: z.enum(['home', 'catalog', 'other']),
   position: z.enum(['main_slider', 'promo_strip', 'sidebar']),
