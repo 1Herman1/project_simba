@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ordersApi } from '../lib/api'
+import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'online' | 'cash'
@@ -18,11 +18,6 @@ interface DeliveryQuote {
   error?: string
 }
 
-const mockCartItems = [
-  { id: '1', name: 'Royal Canin Renal', brand: 'Royal Canin', weight: 2, quantity: 1, price: 249900 },
-  { id: '2', name: "Hill's k/d Kidney Care", brand: "Hill's", weight: 1.5, quantity: 2, price: 219900 },
-]
-
 const PROVIDER_ICONS: Record<string, string> = {
   simba_courier: '🚚',
   yandex: '🟡',
@@ -33,7 +28,15 @@ const PROVIDER_ICONS: Record<string, string> = {
   pickup: '🏪',
 }
 
-const totalWeight = mockCartItems.reduce((s, i) => s + i.weight * i.quantity, 0)
+const DELIVERY_LABELS: Record<string, string> = {
+  simba_courier: 'Курьер Simba',
+  yandex: 'Яндекс Доставка',
+  cdek: 'СДЭК',
+  ozon: 'Ozon Delivery',
+  dostavista: 'Достависта',
+  post: 'Почта России',
+  pickup: 'Самовывоз',
+}
 
 const STEPS: { key: Step; label: string }[] = [
   { key: 'delivery', label: 'Доставка' },
@@ -53,13 +56,27 @@ export default function CheckoutPage() {
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
 
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartLoading, setCartLoading] = useState(true)
+  const [userBonusPoints, setUserBonusPoints] = useState(0)
+
   const [address, setAddress] = useState({
     city: 'Москва',
     street: '',
     house: '',
     apartment: '',
     comment: '',
+    postalCode: '',
   })
+
+  useEffect(() => {
+    Promise.all([
+      cartApi.get().then(res => setCartItems(res.data.items)).catch(() => setCartItems([])),
+      authApi.me().then(res => setUserBonusPoints(res.data.bonusPoints)).catch(() => setUserBonusPoints(0)),
+    ]).finally(() => setCartLoading(false))
+  }, [])
+
+  const totalWeight = cartItems.reduce((s, i) => s + i.productVariant.weight * i.quantity, 0)
 
   // Запрашиваем котировки при вводе города
   useEffect(() => {
@@ -85,12 +102,12 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer)
   }, [address.city, address.street, address.house])
 
-  const subtotal = mockCartItems.reduce((s, i) => s + i.price * i.quantity, 0)
+  const subtotal = cartItems.reduce((s, i) => s + i.productVariant.price * i.quantity, 0)
   const selectedQuote = quotes.find(q => q.provider === delivery)
   const deliveryCost = selectedQuote?.price ?? 0
-  const bonusDiscount = bonusSpend ? 142000 : 0
+  const bonusDiscount = bonusSpend ? Math.min(userBonusPoints, subtotal + deliveryCost) : 0
   const total = Math.max(0, subtotal + deliveryCost - bonusDiscount)
-  const bonusEarned = Math.floor(total * 0.01)
+  const bonusEarned = Math.floor(total * 0.05)
 
   const stepIndex = STEPS.findIndex(s => s.key === step)
 
@@ -107,7 +124,7 @@ export default function CheckoutPage() {
           ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: '' }
           : undefined,
         comment: address.comment || undefined,
-        bonusUsed: bonusSpend ? 142000 : 0,
+        bonusUsed: bonusSpend ? bonusDiscount : 0,
         promoCode,
       })
       sessionStorage.removeItem('promoCode')
@@ -118,6 +135,14 @@ export default function CheckoutPage() {
     } finally {
       setPlacingOrder(false)
     }
+  }
+
+  if (cartLoading) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
+      </div>
+    )
   }
 
   if (orderPlaced) {
@@ -132,7 +157,7 @@ export default function CheckoutPage() {
           <p className="font-bold text-navy-900 text-lg mb-4">{orderId}</p>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              🎁 Начислено <span className="font-bold text-amber-500">+{bonusEarned} бонусов</span> на ваш счёт
+              🎁 Начислено <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span> на ваш счёт
             </p>
           </div>
           <p className="text-xs text-navy-400 mb-6">
@@ -362,7 +387,7 @@ export default function CheckoutPage() {
                     <div>
                       <p className="font-semibold text-navy-900 text-sm">Списать бонусы</p>
                       <p className="text-xs text-navy-400">
-                        Доступно: <span className="font-bold text-amber-500">1420 бонусов</span> = 1 420 ₽
+                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} бонусов</span> = {(userBonusPoints / 100).toLocaleString('ru-RU')} ₽
                       </p>
                     </div>
                   </label>
@@ -393,7 +418,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Доставка</span>
                     <span className="font-medium text-navy-900">
-                      {DELIVERY_OPTIONS.find(o => o.key === delivery)?.title} · {DELIVERY_OPTIONS.find(o => o.key === delivery)?.time}
+                      {DELIVERY_LABELS[delivery] ?? delivery}
                     </span>
                   </div>
                   {delivery !== 'pickup' && address.street && (
@@ -415,15 +440,19 @@ export default function CheckoutPage() {
 
                 {/* Товары */}
                 <div className="flex flex-col gap-2 mb-4">
-                  {mockCartItems.map(item => (
+                  {cartItems.map(item => (
                     <div key={item.id} className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0">🐾</div>
+                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                        {item.productVariant.product.images?.[0]
+                          ? <img src={item.productVariant.product.images[0]} alt={item.productVariant.product.name} className="w-full h-full object-cover" />
+                          : '🐾'}
+                      </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-navy-900 truncate">{item.name}</p>
-                        <p className="text-xs text-navy-400">{item.weight} кг · {item.quantity} шт.</p>
+                        <p className="text-sm font-medium text-navy-900 truncate">{item.productVariant.product.name}</p>
+                        <p className="text-xs text-navy-400">{item.productVariant.weight} кг · {item.quantity} шт.</p>
                       </div>
                       <span className="text-sm font-bold text-navy-900 flex-shrink-0">
-                        {(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                        {(item.productVariant.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
                       </span>
                     </div>
                   ))}
@@ -465,10 +494,14 @@ export default function CheckoutPage() {
               <h3 className="font-bold text-navy-900 mb-3">Ваш заказ</h3>
 
               <div className="flex flex-col gap-1.5 mb-3">
-                {mockCartItems.map(item => (
+                {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-navy-500 truncate mr-2">{item.name.split(' ').slice(0, 3).join(' ')}... ×{item.quantity}</span>
-                    <span className="text-navy-900 font-medium flex-shrink-0">{(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽</span>
+                    <span className="text-navy-500 truncate mr-2">
+                      {item.productVariant.product.name.split(' ').slice(0, 3).join(' ')}... ×{item.quantity}
+                    </span>
+                    <span className="text-navy-900 font-medium flex-shrink-0">
+                      {(item.productVariant.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                    </span>
                   </div>
                 ))}
               </div>
@@ -495,7 +528,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">
-                🎁 За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} бонусов</span>
+                🎁 За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span>
               </div>
             </div>
           </div>
