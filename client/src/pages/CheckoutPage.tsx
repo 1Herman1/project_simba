@@ -59,6 +59,7 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [cartLoading, setCartLoading] = useState(true)
   const [userBonusPoints, setUserBonusPoints] = useState(0)
+  const [orderError, setOrderError] = useState<string | null>(null)
 
   const [address, setAddress] = useState({
     city: 'Москва',
@@ -113,12 +114,12 @@ export default function CheckoutPage() {
 
   const handlePlaceOrder = async () => {
     setPlacingOrder(true)
+    setOrderError(null)
     try {
       const promoCode = sessionStorage.getItem('promoCode') ?? undefined
-      const cartRes = await fetch('/api/cart', { credentials: 'include' })
-      const cart = await cartRes.json() as { id: string }
+      const cartRes = await cartApi.get()
       const res = await ordersApi.create({
-        cartId: cart.id,
+        cartId: cartRes.data.id,
         deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
         deliveryAddress: delivery !== 'pickup' && address.street
           ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: address.postalCode }
@@ -130,9 +131,10 @@ export default function CheckoutPage() {
       sessionStorage.removeItem('promoCode')
       setOrderId(res.data.id)
       setOrderPlaced(true)
-    } catch {
-      // fallback для dev-режима без реального сервера
-      setOrderPlaced(true)
+    } catch (err: unknown) {
+      const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
+        ?? 'Не удалось оформить заказ. Попробуйте ещё раз.'
+      setOrderError(message)
     } finally {
       setPlacingOrder(false)
     }
@@ -488,6 +490,9 @@ export default function CheckoutPage() {
                   </button>
                 </div>
 
+                {orderError && (
+                  <p className="text-center text-sm text-red-500 mt-3">{orderError}</p>
+                )}
                 <p className="text-center text-xs text-navy-300 mt-3">
                   Нажимая кнопку, вы соглашаетесь с{' '}
                   <a href="#" className="text-blue-300 hover:underline">условиями оферты</a>

@@ -112,11 +112,16 @@ export interface DeliveryQuote {
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  sendOtp: (contact: string, channel: 'email' | 'sms') =>
-    api.post('/api/auth/send-otp', { contact, channel }),
+  sendOtp: (contact: string, channel: 'email' | 'sms') => {
+    const body = channel === 'email' ? { email: contact, channel } : { phone: contact, channel }
+    return api.post('/api/auth/send-otp', body)
+  },
 
-  verifyOtp: (contact: string, code: string) =>
-    api.post<{ token: string; user: User }>('/api/auth/verify-otp', { contact, code }),
+  verifyOtp: (contact: string, code: string) => {
+    const isEmail = contact.includes('@')
+    const body = isEmail ? { email: contact, code } : { phone: contact, code }
+    return api.post<{ token: string; user: User }>('/api/auth/verify-otp', body)
+  },
 
   me: () =>
     api.get<User>('/api/auth/me'),
@@ -140,7 +145,7 @@ export const productsApi = {
     sort?: string
     page?: number
     limit?: number
-  }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products', { params }),
+  }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products/list', { params }),
 
   bySlug: (slug: string) =>
     api.get<Product>(`/api/products/${slug}`),

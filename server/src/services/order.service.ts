@@ -16,6 +16,7 @@ type CreateOrderData = {
   hasSpecialPackaging: boolean
   bonusUsed?: number
   promoCode?: string
+  deliveryCost?: number
 }
 
 const orderItemsInclude = {
@@ -87,6 +88,7 @@ export async function createOrder(
         total,
         bonusUsed,
         bonusEarned,
+        deliveryCost: data.deliveryCost ?? 0,
         items: {
           create: cart.items.map((item) => ({
             productVariantId: item.productVariantId,
