@@ -31,8 +31,15 @@ const bannersAdminRoute: FastifyPluginAsync = async (app) => {
     const parsed = schema.partial().safeParse(request.body)
     if (!parsed.success) return reply.status(400).send({ error: parsed.error.errors[0].message })
     const { id } = request.params
-    const banner = await app.prisma.banner.update({ where: { id }, data: parsed.data })
-    return reply.send(banner)
+    try {
+      const banner = await app.prisma.banner.update({ where: { id }, data: parsed.data })
+      return reply.send(banner)
+    } catch (err: unknown) {
+      if ((err as { code?: string })?.code === 'P2025') {
+        return reply.status(404).send({ error: 'Баннер не найден' })
+      }
+      throw err
+    }
   })
 
   app.delete<{ Params: { id: string } }>('/:id', guard, async (request, reply) => {

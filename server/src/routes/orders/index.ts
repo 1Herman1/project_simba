@@ -22,6 +22,7 @@ const createOrderSchema = z.object({
   hasSpecialPackaging: z.boolean().default(false),
   bonusUsed: z.number().int().min(0).default(0),
   promoCode: z.string().optional(),
+  deliveryCost: z.number().int().min(0).default(0),
 })
 
 const orderRoutes: FastifyPluginAsync = async (app) => {

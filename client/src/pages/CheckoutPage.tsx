@@ -127,6 +127,7 @@ export default function CheckoutPage() {
         comment: address.comment || undefined,
         bonusUsed: bonusSpend ? bonusDiscount : 0,
         promoCode,
+        deliveryCost,
       })
       sessionStorage.removeItem('promoCode')
       setOrderId(res.data.id)

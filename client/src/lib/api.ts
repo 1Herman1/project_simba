@@ -204,6 +204,7 @@ export const ordersApi = {
     hasSpecialPackaging?: boolean
     bonusUsed?: number
     promoCode?: string
+    deliveryCost?: number
   }) => api.post<Order>('/api/orders', data),
 }
 
