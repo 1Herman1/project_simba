@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { cartApi, type CartItem } from '../lib/api'
 
 const FREE_DELIVERY_THRESHOLD = 200000
-const BONUS_RATE = 0.01
+const BONUS_RATE = 0.05
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([])
@@ -264,10 +264,10 @@ export default function CartPage() {
                   <span className="text-lg">🎁</span>
                   <p className="text-sm font-semibold text-navy-900">
                     За этот заказ вы получите{' '}
-                    <span className="text-amber-500">+{bonusEarned} бонусов</span>
+                    <span className="text-amber-500">+{bonusEarned} сибакоинов</span>
                   </p>
                 </div>
-                <p className="text-xs text-navy-400 mb-2">1 бонус = 1 ₽ скидки на следующий заказ</p>
+                <p className="text-xs text-navy-400 mb-2">1 сибакоин = 1 ₽ скидки на следующий заказ</p>
                 <div className="flex gap-2 text-xs">
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Новичок: 0–999</span>
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Активный: 1000+</span>

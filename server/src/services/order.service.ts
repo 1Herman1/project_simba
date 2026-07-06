@@ -73,7 +73,7 @@ export async function createOrder(
       0
     )
     const total = Math.max(0, subtotal - bonusUsed)
-    const bonusEarned = Math.floor(total * 0.01)
+    const bonusEarned = Math.floor(total * 0.05)
 
     const order = await tx.order.create({
       data: {

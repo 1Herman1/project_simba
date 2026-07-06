@@ -32,6 +32,19 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
 
     const { userId } = request.user
 
+    const cart = await app.prisma.cart.findUnique({
+      where: { id: result.data.cartId },
+      select: { userId: true },
+    })
+
+    if (!cart) {
+      return reply.status(404).send({ error: 'Корзина не найдена' })
+    }
+
+    if (cart.userId !== userId) {
+      return reply.status(403).send({ error: 'Доступ запрещён' })
+    }
+
     try {
       const order = await createOrder(app.prisma, userId, result.data)
       return reply.status(201).send(order)

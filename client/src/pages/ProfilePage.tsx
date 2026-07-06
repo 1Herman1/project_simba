@@ -92,7 +92,7 @@ export default function ProfilePage() {
         <div className="flex bg-white rounded-2xl p-1 mb-4 gap-1">
           {([
             { key: 'orders', label: 'Заказы', icon: '📦' },
-            { key: 'bonuses', label: 'Бонусы', icon: '🎁' },
+            { key: 'bonuses', label: 'Сибакоины', icon: '🐾' },
             { key: 'settings', label: 'Настройки', icon: '⚙️' },
           ] as { key: Tab; label: string; icon: string }[]).map(t => (
             <button
@@ -164,7 +164,7 @@ export default function ProfilePage() {
                       <div className="text-right flex-shrink-0">
                         <p className="font-bold text-navy-900">{(order.total / 100).toLocaleString('ru-RU')} ₽</p>
                         {order.bonusEarned > 0 && (
-                          <p className="text-xs text-amber-500">+{order.bonusEarned} бонусов</p>
+                          <p className="text-xs text-amber-500">+{order.bonusEarned} сибакоинов</p>
                         )}
                       </div>
                       <svg
@@ -253,14 +253,14 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* ── БОНУСЫ ── */}
+        {/* ── СИБАКОИНЫ ── */}
         {tab === 'bonuses' && (
           <div className="flex flex-col gap-4">
             {/* Баланс */}
             <div className="bg-white rounded-2xl p-6 text-center">
-              <p className="text-sm text-navy-400 mb-1">Ваш бонусный счёт</p>
+              <p className="text-sm text-navy-400 mb-1">Ваш счёт сибакоинов</p>
               <p className="text-5xl font-black text-amber-400 mb-1">{bonusPoints.toLocaleString()}</p>
-              <p className="text-sm text-navy-400">бонусов · 1 бонус = 1 ₽</p>
+              <p className="text-sm text-navy-400">сибакоинов · 1 сибакоин = 1 ₽</p>
             </div>
 
             {/* Уровень */}
@@ -281,7 +281,7 @@ export default function ProfilePage() {
                   </div>
                   <p className="text-xs text-navy-400">
                     До уровня <span className="font-semibold text-navy-700">«{nextLevel.label}»</span>:{' '}
-                    {Math.max(0, nextLevel.min - bonusPoints)} бонусов
+                    {Math.max(0, nextLevel.min - bonusPoints)} сибакоинов
                   </p>
                 </>
               )}
@@ -308,7 +308,7 @@ export default function ProfilePage() {
 
             {/* История начислений */}
             <div className="bg-white rounded-2xl p-5">
-              <h3 className="font-bold text-navy-900 mb-3">История начислений</h3>
+              <h3 className="font-bold text-navy-900 mb-3">История начисления сибакоинов</h3>
               <div className="divide-y divide-blue-50">
                 {orders.filter(o => o.bonusEarned > 0).map(order => (
                   <div key={order.id} className="flex items-center justify-between py-3">

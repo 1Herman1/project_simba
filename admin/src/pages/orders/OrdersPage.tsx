@@ -4,7 +4,7 @@ import { ordersApi, type Order } from '../../lib/api'
 
 const STATUSES = [
   { value: '', label: 'Все' },
-  { value: 'pending', label: 'Новые' },
+  { value: 'new', label: 'Новые' },
   { value: 'confirmed', label: 'Подтверждённые' },
   { value: 'in_transit', label: 'В доставке' },
   { value: 'delivered', label: 'Доставленные' },
@@ -12,14 +12,14 @@ const STATUSES = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  pending:    'bg-amber-100 text-amber-700',
+  new:        'bg-amber-100 text-amber-700',
   confirmed:  'bg-blue-100 text-blue-700',
   in_transit: 'bg-purple-100 text-purple-700',
   delivered:  'bg-green-100 text-green-700',
   cancelled:  'bg-red-100 text-red-600',
 }
 const STATUS_LABEL: Record<string, string> = {
-  pending: 'Новый', confirmed: 'Подтверждён', in_transit: 'Доставка',
+  new: 'Новый', confirmed: 'Подтверждён', in_transit: 'Доставка',
   delivered: 'Доставлен', cancelled: 'Отменён',
 }
 

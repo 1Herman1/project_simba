@@ -35,6 +35,18 @@ const updateSchema = createSchema.partial()
 export default async function adminCrudRoute(app: FastifyInstance) {
   const adminGuard = { preHandler: [app.authenticate, checkRole(['super_admin', 'products_manager'])] }
 
+  app.get<{ Params: { id: string } }>('/:id', adminGuard, async (request, reply) => {
+    const { id } = request.params
+    const product = await app.prisma.product.findUnique({
+      where: { id },
+      include: { variants: true, categories: true },
+    })
+    if (!product) {
+      return reply.status(404).send({ error: 'Product not found' })
+    }
+    return reply.send(product)
+  })
+
   app.post('/', adminGuard, async (request, reply) => {
     const parsed = createSchema.safeParse(request.body)
     if (!parsed.success) {

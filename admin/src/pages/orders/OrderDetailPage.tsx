@@ -10,14 +10,14 @@ const STATUSES = [
 ]
 
 const STATUS_STYLE: Record<string, string> = {
-  pending:    'bg-amber-100 text-amber-700',
+  new:        'bg-amber-100 text-amber-700',
   confirmed:  'bg-blue-100 text-blue-700',
   in_transit: 'bg-purple-100 text-purple-700',
   delivered:  'bg-green-100 text-green-700',
   cancelled:  'bg-red-100 text-red-600',
 }
 const STATUS_LABEL: Record<string, string> = {
-  pending: 'Новый', confirmed: 'Подтверждён', in_transit: 'В доставке',
+  new: 'Новый', confirmed: 'Подтверждён', in_transit: 'В доставке',
   delivered: 'Доставлен', cancelled: 'Отменён',
 }
 

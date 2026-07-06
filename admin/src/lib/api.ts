@@ -158,6 +158,7 @@ export const dashboardApi = {
 export const productsApi = {
   list: (params?: Record<string, unknown>) =>
     api.get<Paginated<Product>>('/api/products', { params }),
+  byId: (id: string) => api.get<Product>(`/api/admin/products/${id}`),
   create: (data: unknown) => api.post<Product>('/api/admin/products', data),
   update: (id: string, data: unknown) => api.put<Product>(`/api/admin/products/${id}`, data),
   delete: (id: string) => api.delete(`/api/admin/products/${id}`),

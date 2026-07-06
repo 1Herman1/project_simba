@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { productsApi, categoriesApi, brandsApi, type Product, type Category, type Brand } from '../../lib/api'
-import { productsApi as publicProductsApi } from '../../lib/api'
+import { productsApi, categoriesApi, brandsApi, type Category, type Brand } from '../../lib/api'
 
 interface VariantDraft {
   id?: string
@@ -50,15 +49,35 @@ export default function ProductFormPage() {
 
   useEffect(() => {
     if (!isEdit) return
-    // Fetch product by id via public list filtered - or use a direct slug lookup
-    // Since we have id, we need to find it. Use the admin products list.
-    productsApi.list({ limit: 1, search: id })
-      .then(async () => {
-        // Actually we need to get by id - let's use public API approach
-        // We'll set loading false and show blank for now, or we need a byId endpoint
-        setLoading(false)
+    productsApi.byId(id!)
+      .then(({ data: p }) => {
+        setName(p.name)
+        setSlug(p.slug)
+        setDescription(p.description)
+        setBrandId(p.brandId ?? '')
+        setImages(p.images.join('\n'))
+        setIsGrainFree(p.isGrainFree)
+        setIsHypoallergenic(p.isHypoallergenic)
+        setIsWeightControl(p.isWeightControl)
+        setProtein(p.protein != null ? String(p.protein) : '')
+        setFat(p.fat != null ? String(p.fat) : '')
+        setFiber(p.fiber != null ? String(p.fiber) : '')
+        setAsh(p.ash != null ? String(p.ash) : '')
+        setIngredients(p.ingredients ?? '')
+        setSeoTitle(p.seoTitle ?? '')
+        setSeoDescription(p.seoDescription ?? '')
+        setSelectedCategories(p.categories.map(c => c.categoryId))
+        setVariants(p.variants.map(v => ({
+          id: v.id,
+          weight: String(v.weight),
+          price: String(v.price / 100),
+          oldPrice: v.oldPrice != null ? String(v.oldPrice / 100) : '',
+          stock: String(v.stock),
+          sku: v.sku ?? '',
+        })))
       })
-      .catch(() => setLoading(false))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [id, isEdit])
 
   const autoSlug = (n: string) =>
