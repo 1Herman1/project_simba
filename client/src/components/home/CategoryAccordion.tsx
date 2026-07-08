@@ -103,6 +103,7 @@ export default function CategoryAccordion() {
             className={`transition-all duration-500 ease-in-out rounded-3xl overflow-hidden cursor-pointer ${active === cat.id ? 'flex-[3]' : 'flex-[1]'}`}
             style={{ backgroundColor: cat.bg }}
             onClick={() => setActive(cat.id)}
+          onMouseEnter={() => setActive(cat.id)}
           >
             {active === cat.id ? <ActivePanel cat={cat} /> : <InactivePanel cat={cat} onClick={() => setActive(cat.id)} />}
           </div>
