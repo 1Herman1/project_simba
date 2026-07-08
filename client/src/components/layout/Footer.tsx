@@ -29,14 +29,14 @@ export default function Footer() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
                 type="email"
-                placeholder="Ваш email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="px-3 py-2 rounded-lg border border-blue-100 bg-white focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100 transition-all text-sm text-navy-900 placeholder-navy-300"
               />
               <textarea
-                placeholder="Ваш вопрос..."
+                placeholder="Сообщение"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
@@ -50,7 +50,7 @@ export default function Footer() {
                 Отправить
               </button>
             </form>
-          )}
+          <p className="text-xs text-navy-400 mt-2">*Менеджеры интернет-магазина ответят на ваши вопросы с 9 до 20</p>
         </div>
 
         {/* График и рейтинг */}
@@ -58,31 +58,24 @@ export default function Footer() {
           <h3 className="font-bold text-navy-900 uppercase tracking-wide text-sm mb-4">
             График работы
           </h3>
-          <div className="flex flex-col gap-1 text-navy-700 text-sm mb-5">
-            <div className="flex justify-between">
-              <span>Пн–Вс</span>
-              <span className="font-semibold text-blue-300">Круглосуточно</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Поддержка</span>
-              <span className="font-semibold text-blue-300">24/7</span>
-            </div>
+          <div className="flex flex-col gap-0.5 text-navy-700 text-sm mb-5">
+            <span>Понедельник – воскресенье</span>
+            <span>Круглосуточно</span>
           </div>
 
           <h3 className="font-bold text-navy-900 uppercase tracking-wide text-sm mb-3">
             Наш рейтинг
           </h3>
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-navy-500">Яндекс Маркет</span>
-              <div className="flex text-amber-400">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-                  </svg>
-                ))}
-              </div>
-              <span className="text-sm font-bold text-navy-900">4.9</span>
+          <div className="flex flex-col items-start gap-2">
+            <a href="https://market.yandex.ru/" target="_blank" rel="noopener noreferrer">
+              <img src="/yandex-market.png" alt="Яндекс Маркет" className="h-16 w-auto object-contain" />
+            </a>
+            <div className="flex text-amber-400 gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <svg key={i} width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+                </svg>
+              ))}
             </div>
           </div>
         </div>
