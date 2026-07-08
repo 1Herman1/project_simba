@@ -158,7 +158,6 @@ export default function AuthPage() {
               {/* Как будет отправлен код */}
               {contact.length > 2 && (
                 <div className="flex items-center gap-2 bg-blue-50 rounded-xl px-3 py-2 mb-4">
-                  <span className="text-base">{channel === 'phone' ? '📱' : '📧'}</span>
                   <p className="text-xs text-navy-500">
                     {channel === 'phone'
                       ? 'Отправим SMS с кодом на этот номер'

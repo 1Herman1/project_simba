@@ -19,13 +19,13 @@ interface DeliveryQuote {
 }
 
 const PROVIDER_ICONS: Record<string, string> = {
-  simba_courier: '🚚',
-  yandex: '🟡',
-  cdek: '📦',
-  ozon: '🔵',
-  dostavista: '⚡',
-  post: '✉️',
-  pickup: '🏪',
+  simba_courier: '',
+  yandex: '',
+  cdek: '',
+  ozon: '',
+  dostavista: '',
+  post: '',
+  pickup: '',
 }
 
 const DELIVERY_LABELS: Record<string, string> = {
@@ -153,15 +153,17 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-5">
-            ✅
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
           </div>
           <h1 className="text-2xl font-black text-navy-900 mb-2">Заказ оформлен!</h1>
           <p className="text-navy-400 text-sm mb-1">Номер заказа:</p>
           <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              🎁 Начислено <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span> на ваш счёт
+              Начислено <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span> на ваш счёт
             </p>
           </div>
           <p className="text-xs text-navy-400 mb-6">
@@ -262,7 +264,7 @@ export default function CheckoutPage() {
                           ? 'border-blue-200 bg-blue-50'
                           : 'border-blue-100 bg-white hover:border-blue-200'
                       }`}>
-                      <span className="text-2xl">{PROVIDER_ICONS[opt.provider] ?? '📦'}</span>
+                      {PROVIDER_ICONS[opt.provider] ? <span className="text-2xl">{PROVIDER_ICONS[opt.provider]}</span> : null}
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-navy-900 text-sm">{opt.title}</span>
@@ -349,7 +351,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={() => setStep('payment')}
                   className="w-full mt-5 bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 active:scale-95 transition-all text-sm">
-                  Далее → Оплата
+                  Далее: Оплата
                 </button>
               </div>
             )}
@@ -361,8 +363,8 @@ export default function CheckoutPage() {
 
                 <div className="flex flex-col gap-2 mb-5">
                   {[
-                    { key: 'online' as PaymentMethod, icon: '💳', title: 'Онлайн картой', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
-                    { key: 'cash' as PaymentMethod, icon: '💵', title: 'Наличными', desc: 'При получении курьеру или в пункте выдачи' },
+                    { key: 'online' as PaymentMethod, title: 'Онлайн картой', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
+                    { key: 'cash' as PaymentMethod, title: 'Наличными', desc: 'При получении курьеру или в пункте выдачи' },
                   ].map(opt => (
                     <button
                       key={opt.key}
@@ -372,7 +374,6 @@ export default function CheckoutPage() {
                           ? 'border-blue-200 bg-blue-50'
                           : 'border-blue-100 bg-white hover:border-blue-200'
                       }`}>
-                      <span className="text-2xl">{opt.icon}</span>
                       <div className="flex-1">
                         <p className="font-semibold text-navy-900 text-sm">{opt.title}</p>
                         <p className="text-xs text-navy-400">{opt.desc}</p>
@@ -408,12 +409,12 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => setStep('delivery')}
                     className="flex-1 border border-blue-100 text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm">
-                    ← Назад
+                    Назад
                   </button>
                   <button
                     onClick={() => setStep('confirm')}
                     className="flex-[2] bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 active:scale-95 transition-all text-sm">
-                    Далее → Подтверждение
+                    Далее: Подтверждение
                   </button>
                 </div>
               </div>
@@ -444,7 +445,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Оплата</span>
                     <span className="font-medium text-navy-900">
-                      {payment === 'online' ? '💳 Картой онлайн' : '💵 Наличными'}
+                      {payment === 'online' ? 'Картой онлайн' : 'Наличными'}
                     </span>
                   </div>
                 </div>
@@ -453,10 +454,10 @@ export default function CheckoutPage() {
                 <div className="flex flex-col gap-2 mb-4">
                   {cartItems.map(item => (
                     <div key={item.id} className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
-                        {item.productVariant.product.images?.[0]
-                          ? <img src={item.productVariant.product.images[0]} alt={item.productVariant.product.name} className="w-full h-full object-cover" />
-                          : '🐾'}
+                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        {item.productVariant.product.images?.[0] && (
+                          <img src={item.productVariant.product.images[0]} alt={item.productVariant.product.name} className="w-full h-full object-cover" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-navy-900 truncate">{item.productVariant.product.name}</p>
@@ -473,7 +474,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={() => setStep('payment')}
                     className="flex-1 border border-blue-100 text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm">
-                    ← Назад
+                    Назад
                   </button>
                   <button
                     onClick={handlePlaceOrder}
@@ -487,7 +488,7 @@ export default function CheckoutPage() {
                         </svg>
                         Оформляем...
                       </span>
-                    ) : '✓ Оформить заказ'}
+                    ) : 'Оформить заказ'}
                   </button>
                 </div>
 
@@ -542,7 +543,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">
-                🎁 За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span>
+                За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span>
               </div>
             </div>
           </div>

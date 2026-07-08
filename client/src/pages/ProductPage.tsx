@@ -49,9 +49,8 @@ export default function ProductPage() {
   if (!product || !selectedVariant) {
     return (
       <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center gap-4">
-        <div className="text-6xl">😿</div>
         <p className="text-navy-500 text-lg">Товар не найден</p>
-        <Link to="/catalog" className="text-blue-300 hover:text-blue-400">← В каталог</Link>
+        <Link to="/catalog" className="text-blue-300 hover:text-blue-400">В каталог</Link>
       </div>
     )
   }
@@ -102,7 +101,7 @@ export default function ProductPage() {
             <div className="flex-1 bg-white rounded-2xl flex items-center justify-center min-h-[400px] relative overflow-hidden">
               {product.images.length > 0
                 ? <img src={product.images[activeImage] ?? product.images[0]} alt={product.name} className="w-full h-full object-contain p-4" />
-                : <div className="text-[120px] opacity-20">🐾</div>
+                : null
               }
 
               {discount && (
@@ -196,7 +195,7 @@ export default function ProductPage() {
                 className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
                   added ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-navy-900 hover:bg-blue-300 active:scale-95'
                 }`}>
-                {added ? '✓ Добавлено в корзину' : 'Добавить в корзину'}
+                {added ? 'Добавлено в корзину' : 'Добавить в корзину'}
               </button>
 
               {/* В избранное */}
@@ -211,23 +210,19 @@ export default function ProductPage() {
             </div>
 
             {/* Бонусы */}
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
-              <span className="text-2xl">🎁</span>
-              <div>
-                <p className="text-sm font-semibold text-navy-900">Дарим 100 бонусов за отзыв с фото</p>
-                <p className="text-xs text-navy-400">1 бонус = 1 рубль скидки на следующий заказ</p>
-              </div>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
+              <p className="text-sm font-semibold text-navy-900">Дарим 100 бонусов за отзыв с фото</p>
+              <p className="text-xs text-navy-400">1 бонус = 1 рубль скидки на следующий заказ</p>
             </div>
 
             {/* Доставка */}
             <div className="bg-white rounded-xl border border-blue-100 divide-y divide-blue-50">
               {[
-                { icon: '⚡', title: 'Экспресс', desc: 'Платно, за 1 час' },
-                { icon: '🚚', title: 'Доставка', desc: 'Бесплатно, в интервал' },
-                { icon: '🏪', title: 'Самовывоз', desc: 'Бесплатно, от 30 мин' },
+                { title: 'Экспресс', desc: 'Платно, за 1 час' },
+                { title: 'Доставка', desc: 'Бесплатно, в интервал' },
+                { title: 'Самовывоз', desc: 'Бесплатно, от 30 мин' },
               ].map(d => (
                 <div key={d.title} className="flex items-center gap-3 p-3">
-                  <span className="text-xl">{d.icon}</span>
                   <div className="flex-1">
                     <span className="font-medium text-navy-900 text-sm">{d.title}</span>
                     <span className="text-navy-400 text-xs ml-2">{d.desc}</span>
@@ -308,7 +303,6 @@ export default function ProductPage() {
 
             {activeTab === 'reviews' && (
               <div className="text-center py-10">
-                <div className="text-5xl mb-3">✍️</div>
                 <p className="text-navy-400 mb-4">Отзывы пока не добавлены</p>
                 <button className="bg-blue-200 text-navy-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-300 transition-colors">
                   Написать первый отзыв
@@ -327,8 +321,8 @@ export default function ProductPage() {
                 return (
                   <Link key={r.id} to={`/product/${r.slug}`}
                     className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                    <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center text-4xl mb-3 overflow-hidden">
-                      {r.images?.[0] ? <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover" /> : '🐾'}
+                    <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center mb-3 overflow-hidden">
+                      {r.images?.[0] && <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover" />}
                     </div>
                     <p className="text-xs text-navy-300 mb-1">{r.brand?.name ?? ''}</p>
                     <p className="text-sm font-semibold text-navy-900 mb-2"

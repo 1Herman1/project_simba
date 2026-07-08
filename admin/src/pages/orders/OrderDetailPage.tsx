@@ -64,7 +64,7 @@ export default function OrderDetailPage() {
         onClick={() => navigate('/orders')}
         className="flex items-center gap-1.5 text-gray-500 hover:text-gray-900 text-sm mb-5 transition-colors"
       >
-        ← Назад к заказам
+        Назад к заказам
       </button>
 
       <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">

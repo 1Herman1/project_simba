@@ -87,8 +87,7 @@ export default function ProfilePage() {
 
         {/* Шапка профиля */}
         <div className="bg-white rounded-2xl p-5 mb-4 flex items-center gap-4">
-          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center text-2xl flex-shrink-0">
-            🐾
+          <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-navy-900 truncate">{user?.name ?? '—'}</h1>
@@ -102,10 +101,10 @@ export default function ProfilePage() {
         {/* Табы */}
         <div className="flex bg-white rounded-2xl p-1 mb-4 gap-1">
           {([
-            { key: 'orders', label: 'Заказы', icon: '📦' },
-            { key: 'bonuses', label: 'Сибакоины', icon: '🐾' },
-            { key: 'settings', label: 'Настройки', icon: '⚙️' },
-          ] as { key: Tab; label: string; icon: string }[]).map(t => (
+            { key: 'orders', label: 'Заказы' },
+            { key: 'bonuses', label: 'Сибакоины' },
+            { key: 'settings', label: 'Настройки' },
+          ] as { key: Tab; label: string }[]).map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
@@ -114,7 +113,6 @@ export default function ProfilePage() {
                   ? 'bg-blue-200 text-navy-900 shadow-sm'
                   : 'text-navy-400 hover:text-navy-700'
               }`}>
-              <span>{t.icon}</span>
               <span>{t.label}</span>
             </button>
           ))}
@@ -147,7 +145,6 @@ export default function ProfilePage() {
 
             {filteredOrders.length === 0 && (
               <div className="bg-white rounded-2xl p-10 text-center">
-                <div className="text-5xl mb-3">📦</div>
                 <p className="text-navy-400">Заказов не найдено</p>
               </div>
             )}
@@ -225,8 +222,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col gap-2 mb-4">
                           {order.items.map((item, i) => (
                             <div key={i} className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-lg flex-shrink-0">
-                                🐾
+                              <div className="w-10 h-10 bg-blue-50 rounded-lg flex-shrink-0">
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm text-navy-900 font-medium truncate">{item.productName}</p>

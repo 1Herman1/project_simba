@@ -116,7 +116,7 @@ export default function LoginPage() {
                 onClick={() => { setStep('input'); setCode(''); setError('') }}
                 className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 text-sm mb-4"
               >
-                ← Изменить
+                Назад
               </button>
               <h1 className="text-xl font-bold text-gray-900 mb-1">Введите код</h1>
               <p className="text-sm text-gray-500 mb-6">Отправлен на <span className="font-medium text-gray-700">{contact}</span></p>

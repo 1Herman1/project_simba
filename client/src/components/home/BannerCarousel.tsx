@@ -11,7 +11,6 @@ const banners = [
     bg: 'from-blue-100 to-blue-200',
     textColor: 'text-navy-900',
     accent: 'bg-navy-900 text-white hover:bg-navy-700',
-    emoji: '🐱',
   },
   {
     id: 2,
@@ -22,7 +21,6 @@ const banners = [
     bg: 'from-amber-300 to-amber-400',
     textColor: 'text-navy-900',
     accent: 'bg-navy-900 text-white hover:bg-navy-700',
-    emoji: '🐾',
   },
   {
     id: 3,
@@ -33,7 +31,6 @@ const banners = [
     bg: 'from-navy-700 to-navy-900',
     textColor: 'text-white',
     accent: 'bg-blue-200 text-navy-900 hover:bg-blue-300',
-    emoji: '🎁',
   },
 ]
 
@@ -74,11 +71,8 @@ export default function BannerCarousel() {
               to={banner.href}
               className={`inline-block px-6 py-2.5 rounded-full font-semibold text-sm transition-all ${banner.accent}`}
             >
-              {banner.cta} →
+              {banner.cta}
             </Link>
-          </div>
-          <div className="text-6xl md:text-9xl opacity-30 hidden sm:block select-none">
-            {banner.emoji}
           </div>
         </div>
       </div>

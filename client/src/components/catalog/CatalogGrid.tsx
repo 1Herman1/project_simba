@@ -48,7 +48,6 @@ export default function CatalogGrid({ search, activeTag, category }: Props) {
   if (products.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="text-6xl mb-4">🔍</div>
         <p className="text-navy-500 text-lg mb-2">Ничего не найдено</p>
         <p className="text-navy-300 text-sm">Попробуйте другой запрос или выберите другую категорию</p>
       </div>

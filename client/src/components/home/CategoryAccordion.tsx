@@ -11,7 +11,6 @@ const categories = [
     href: '/catalog?category=cats-food',
     bg: '#A4D4FC',
     textColor: '#1A3A5C',
-    emoji: '🐱',
   },
   {
     id: 'dogs-food',
@@ -20,7 +19,6 @@ const categories = [
     href: '/catalog?category=dogs-food',
     bg: '#B8E6C8',
     textColor: '#1A3A2C',
-    emoji: '🐶',
   },
   {
     id: 'treats',
@@ -29,7 +27,6 @@ const categories = [
     href: '/catalog?category=treats',
     bg: '#FFD9B0',
     textColor: '#3A1A00',
-    emoji: '🍖',
   },
   {
     id: 'accessories',
@@ -38,7 +35,6 @@ const categories = [
     href: '/catalog?category=accessories',
     bg: '#C8C8E6',
     textColor: '#1A1A3A',
-    emoji: '🎾',
   },
   {
     id: 'pharmacy',
@@ -47,7 +43,6 @@ const categories = [
     href: '/catalog?category=pharmacy',
     bg: '#F5E6C8',
     textColor: '#3A2A00',
-    emoji: '💊',
   },
 ]
 
@@ -71,9 +66,6 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
             </svg>
           </button>
         </Link>
-      </div>
-      <div className="absolute bottom-0 right-0 text-[120px] opacity-20 select-none leading-none">
-        {cat.emoji}
       </div>
     </div>
   )
@@ -130,7 +122,6 @@ export default function CategoryAccordion() {
               <p className="text-xs opacity-60" style={{ color: cat.textColor }}>{cat.subtitle}</p>
               <h3 className="text-lg font-bold" style={{ color: cat.textColor }}>{cat.label}</h3>
             </div>
-            <span className="text-4xl">{cat.emoji}</span>
           </Link>
         ))}
       </div>

@@ -58,7 +58,6 @@ export default function ImportPage() {
         className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-blue-300 hover:bg-blue-50/30 transition-colors mb-4"
       >
         <input ref={inputRef} type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
-        <div className="text-3xl mb-2">📂</div>
         {file ? (
           <>
             <p className="font-medium text-gray-900">{file.name}</p>
@@ -84,7 +83,7 @@ export default function ImportPage() {
         <div className={`rounded-xl border p-5 ${result.created > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
           <p className={`font-semibold mb-2 ${result.created > 0 ? 'text-green-800' : 'text-red-800'}`}>
             {result.created > 0
-              ? `✓ Успешно импортировано: ${result.created} товаров`
+              ? `Успешно импортировано: ${result.created} товаров`
               : 'Импорт не удался'}
           </p>
           {result.errors.length > 0 && (

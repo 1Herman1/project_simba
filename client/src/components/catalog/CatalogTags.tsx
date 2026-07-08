@@ -1,14 +1,14 @@
 const tags = [
-  { id: 'kidney', label: 'При болезнях почек', emoji: '🫘' },
-  { id: 'allergy', label: 'Без аллергенов', emoji: '🌿' },
-  { id: 'kitten', label: 'Для котят', emoji: '🐱' },
-  { id: 'puppy', label: 'Для щенков', emoji: '🐶' },
-  { id: 'weight', label: 'Контроль веса', emoji: '⚖️' },
-  { id: 'urinary', label: 'Мочекаменная', emoji: '💧' },
-  { id: 'digestion', label: 'Пищеварение', emoji: '🌾' },
-  { id: 'senior', label: 'Пожилые питомцы', emoji: '🐾' },
-  { id: 'grain-free', label: 'Без зерна', emoji: '🚫' },
-  { id: 'holistic', label: 'Холистик', emoji: '✨' },
+  { id: 'kidney', label: 'При болезнях почек' },
+  { id: 'allergy', label: 'Без аллергенов' },
+  { id: 'kitten', label: 'Для котят' },
+  { id: 'puppy', label: 'Для щенков' },
+  { id: 'weight', label: 'Контроль веса' },
+  { id: 'urinary', label: 'Мочекаменная' },
+  { id: 'digestion', label: 'Пищеварение' },
+  { id: 'senior', label: 'Пожилые питомцы' },
+  { id: 'grain-free', label: 'Без зерна' },
+  { id: 'holistic', label: 'Холистик' },
 ]
 
 interface Props {
@@ -28,7 +28,6 @@ export default function CatalogTags({ activeTag, onTagClick }: Props) {
               ? 'bg-blue-200 text-navy-900 shadow-sm scale-105'
               : 'bg-white border border-blue-100 text-navy-700 hover:border-blue-200 hover:bg-blue-50'
           }`}>
-          <span>{tag.emoji}</span>
           <span>{tag.label}</span>
         </button>
       ))}

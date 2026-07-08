@@ -35,7 +35,7 @@ export default function BonusesPage() {
         {/* Заголовок */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-black text-navy-900 mb-3">
-            Программа лояльности Сибакоины 🐾
+            Программа лояльности Сибакоины
           </h1>
           <p className="text-navy-400 text-base">
             Покупайте — копите — экономьте. Каждый заказ приносит вам сибакоины, которые можно тратить как скидку.
@@ -46,26 +46,17 @@ export default function BonusesPage() {
         <div className="bg-white rounded-2xl p-6 mb-6">
           <h2 className="font-bold text-navy-900 text-lg mb-4">Как это работает</h2>
           <div className="flex flex-col gap-4">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl flex-shrink-0">🛒</div>
-              <div>
-                <p className="font-semibold text-navy-900 text-sm">Делаете заказ</p>
-                <p className="text-navy-400 text-sm">5% от суммы заказа автоматически зачисляется на ваш бонусный счёт</p>
-              </div>
+            <div>
+              <p className="font-semibold text-navy-900 text-sm">Делаете заказ</p>
+              <p className="text-navy-400 text-sm">5% от суммы заказа автоматически зачисляется на ваш бонусный счёт</p>
             </div>
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl flex-shrink-0">🐾</div>
-              <div>
-                <p className="font-semibold text-navy-900 text-sm">Копите сибакоины</p>
-                <p className="text-navy-400 text-sm">1 сибакоин = 1 рубль скидки. Чем больше заказов — тем выше уровень</p>
-              </div>
+            <div>
+              <p className="font-semibold text-navy-900 text-sm">Копите сибакоины</p>
+              <p className="text-navy-400 text-sm">1 сибакоин = 1 рубль скидки. Чем больше заказов — тем выше уровень</p>
             </div>
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-xl flex-shrink-0">💰</div>
-              <div>
-                <p className="font-semibold text-navy-900 text-sm">Тратите на скидку</p>
-                <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько сибакоинов списать</p>
-              </div>
+            <div>
+              <p className="font-semibold text-navy-900 text-sm">Тратите на скидку</p>
+              <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько сибакоинов списать</p>
             </div>
           </div>
         </div>

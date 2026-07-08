@@ -9,7 +9,6 @@ const articles = [
     category: 'Здоровье',
     readTime: '5 мин',
     date: '15 июня 2026',
-    emoji: '🐱',
     bgColor: '#E8F4FD',
   },
   {
@@ -20,7 +19,6 @@ const articles = [
     category: 'Питание',
     readTime: '7 мин',
     date: '10 июня 2026',
-    emoji: '🌿',
     bgColor: '#E8F5E9',
   },
   {
@@ -31,7 +29,6 @@ const articles = [
     category: 'Советы',
     readTime: '3 мин',
     date: '5 июня 2026',
-    emoji: '📦',
     bgColor: '#FFF8E1',
   },
 ]
@@ -49,7 +46,7 @@ export default function BlogSection() {
             onMouseEnter={e => (e.currentTarget.style.color = '#7AB8E8')}
             onMouseLeave={e => (e.currentTarget.style.color = '#A4D4FC')}
           >
-            Все статьи →
+            Все статьи
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -60,11 +57,9 @@ export default function BlogSection() {
               className="bg-white rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 block"
             >
               <div
-                className="h-36 flex items-center justify-center text-6xl"
+                className="h-36"
                 style={{ backgroundColor: article.bgColor }}
-              >
-                {article.emoji}
-              </div>
+              />
               <div className="p-5">
                 <span className="inline-block bg-blue-100 text-blue-500 text-xs font-medium px-3 py-1 rounded-full mb-3">
                   {article.category}

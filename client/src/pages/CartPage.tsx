@@ -75,7 +75,6 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center gap-6 px-4">
-        <div className="text-8xl">🛒</div>
         <h2 className="text-2xl font-bold text-navy-900">Корзина пуста</h2>
         <p className="text-navy-400 text-center">Добавьте товары из каталога, чтобы оформить заказ</p>
         <Link to="/catalog"
@@ -115,7 +114,7 @@ export default function CartPage() {
               <div className="h-2 bg-green-100 rounded-full flex-1 overflow-hidden">
                 <div className="h-full bg-green-400 rounded-full w-full" />
               </div>
-              <span className="text-green-600 text-sm font-semibold whitespace-nowrap">🚚 Доставка бесплатна!</span>
+              <span className="text-green-600 text-sm font-semibold whitespace-nowrap">Доставка бесплатна!</span>
             </div>
           )}
         </div>
@@ -135,10 +134,8 @@ export default function CartPage() {
                   }`}
                 >
                   <Link to={`/product/${p.slug}`}
-                    className="w-24 h-24 bg-blue-50 rounded-xl flex items-center justify-center text-4xl flex-shrink-0 hover:opacity-80 transition-opacity overflow-hidden">
-                    {p.images?.[0]
-                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
-                      : '🐾'}
+                    className="w-24 h-24 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity overflow-hidden">
+                    {p.images?.[0] && <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />}
                   </Link>
 
                   <div className="flex-1 min-w-0">
@@ -253,7 +250,7 @@ export default function CartPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2 mb-4 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
-                  <span className="text-green-600 text-sm font-medium">✓ Промокод применён</span>
+                  <span className="text-green-600 text-sm font-medium">Промокод применён</span>
                   <button
                     onClick={() => { setPromoApplied(false); setPromoCode(''); sessionStorage.removeItem('promoCode') }}
                     className="ml-auto text-navy-300 hover:text-navy-500 text-xs">
@@ -264,7 +261,6 @@ export default function CartPage() {
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">🎁</span>
                   <p className="text-sm font-semibold text-navy-900">
                     За этот заказ вы получите{' '}
                     <span className="text-amber-500">+{bonusEarned} сибакоинов</span>

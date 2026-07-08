@@ -28,8 +28,6 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Изображение */}
       <div className="relative bg-blue-50 h-44 flex items-center justify-center">
-        <div className="text-6xl opacity-30">🐾</div>
-
         {discount && (
           <span className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
             -{discount}%

@@ -102,7 +102,6 @@ function ProductCard({ product }: { product: Product }) {
     <div className="flex-shrink-0 w-52 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden border border-blue-50">
       {/* Изображение */}
       <div className="relative h-44 bg-blue-50 flex items-center justify-center">
-        <span className="text-5xl opacity-30">🐾</span>
 
         {/* Бейджики */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">

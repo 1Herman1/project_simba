@@ -73,8 +73,6 @@ function ProductCard({ product, onRemove }: {
     <div className="bg-white rounded-2xl overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
       {/* Фото */}
       <Link to={`/product/${product.slug}`} className="relative block bg-blue-50 h-44 flex items-center justify-center">
-        <div className="text-6xl opacity-25">🐾</div>
-
         {discount && (
           <span className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
             -{discount}%
@@ -145,7 +143,7 @@ function ProductCard({ product, onRemove }: {
               ? 'bg-green-100 text-green-700'
               : 'bg-blue-200 text-navy-900 hover:bg-blue-300 active:scale-95'
           }`}>
-          {added ? '✓ Добавлено' : 'В корзину'}
+          {added ? 'Добавлено' : 'В корзину'}
         </button>
       </div>
     </div>
@@ -188,12 +186,9 @@ export default function FavoritesPage() {
         {/* Пустое состояние */}
         {favorites.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-5">
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-5xl shadow-sm">
-              🤍
-            </div>
             <div className="text-center">
               <h2 className="text-xl font-bold text-navy-900 mb-2">Здесь пока пусто</h2>
-              <p className="text-navy-400 text-sm">Добавляйте товары в избранное — нажмите ❤️ на карточке</p>
+              <p className="text-navy-400 text-sm">Добавляйте товары в избранное — нажмите на сердечко на карточке</p>
             </div>
             <Link
               to="/catalog"
@@ -230,7 +225,7 @@ export default function FavoritesPage() {
 
             {/* Подсказка снизу */}
             <p className="text-center text-xs text-navy-300 mt-8">
-              Нажмите ❤️ на карточке товара чтобы убрать из избранного
+              Нажмите на сердечко на карточке товара чтобы убрать из избранного
             </p>
           </>
         )}
