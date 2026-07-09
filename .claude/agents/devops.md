@@ -1,3 +1,10 @@
+---
+name: devops
+description: Настройка CI/CD, деплой, инфраструктура — Nginx, PM2, Docker, GitHub Actions. Используй при деплое на VPS, настройке сервера или проблемах с инфраструктурой. Стек: Timeweb VPS + PM2 + Nginx.
+tools: Read, Glob, Grep, Bash
+model: sonnet
+---
+
 # Агент: DevOps
 
 ## Роль
