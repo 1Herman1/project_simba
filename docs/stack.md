@@ -2,7 +2,57 @@
 
 Обновляй этот файл при добавлении/замене технологий в проектах.
 
-## Текущий стек по умолчанию
+---
+
+## 🐾 РЕАЛЬНЫЙ стек Симбы (simbazoo.ru)
+
+> Это то, на чём написан текущий проект. Источник истины. Стек «по умолчанию»
+> ниже — для НОВЫХ проектов Гермеса, а не для Симбы.
+
+### Frontend (`client/` — магазин, `admin/` — панель)
+| Категория | Технология |
+|-----------|-----------|
+| Framework | **React 18 + Vite** (SPA, НЕ Next.js) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Routing | React Router |
+| State | Zustand / React Context |
+| Forms | React Hook Form + Zod |
+
+### Backend (`server/`)
+| Категория | Технология |
+|-----------|-----------|
+| Runtime | Node.js |
+| API | **Fastify** (роуты в `server/src/routes/**`) |
+| ORM | Prisma |
+| Validation | Zod |
+| Auth | Свой **OTP** (email/SMS) + **JWT** (в localStorage) |
+| Защита роутов | `preHandler: [authenticate]` |
+
+### База данных и хранилище
+| Категория | Технология |
+|-----------|-----------|
+| Primary | **PostgreSQL** (self-hosted в Docker) |
+| Storage | **MinIO** (S3-совместимое) — изображения товаров |
+| Cache/Queue | ❌ Redis НЕ подключён (нет в docker-compose) |
+
+### Инфраструктура
+| Категория | Технология |
+|-----------|-----------|
+| Hosting | **Timeweb VPS** |
+| Process manager | **PM2** |
+| Reverse proxy | **Nginx** |
+| Деплой | `git pull` → `prisma migrate deploy` → сборка → `pm2 reload` |
+| CI/CD | ❌ пока нет `.github/workflows/` |
+
+### Чего в Симбе НЕТ (не предлагать без установки)
+- Next.js, Vercel, Railway, Fly.io
+- NextAuth.js, Clerk, Supabase, Neon
+- Redis, BullMQ, Stripe (оплата пока не интегрирована)
+
+---
+
+## Текущий стек по умолчанию (для НОВЫХ проектов, НЕ для Симбы)
 
 ### Frontend
 | Категория | Технология | Версия |

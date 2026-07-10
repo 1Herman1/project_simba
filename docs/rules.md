@@ -6,8 +6,8 @@
 - Компоненты React: `PascalCase.tsx` (`UserCard.tsx`)
 - Хуки: `camelCase.ts` с префиксом `use` (`useAuth.ts`)
 - Утилиты: `camelCase.ts` (`formatDate.ts`)
-- Страницы (App Router): `page.tsx`, `layout.tsx`, `loading.tsx`
-- API роуты: `route.ts` в папке с именем эндпоинта
+- Страницы (React Router): `PascalCase.tsx` в `client/src/pages/` (`CartPage.tsx`)
+- API роуты (Fastify): по домену в `server/src/routes/` (`orders.ts`, `auth.ts`)
 - Типы: `types.ts` или `*.types.ts`
 
 ### Переменные и функции
@@ -64,45 +64,50 @@ export function UserCard({ userId, onSuccess }: Props) {
 }
 ```
 
-## API роуты (Next.js)
+## API роуты (Fastify)
 
 ```typescript
-// app/api/users/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
+// server/src/routes/users.ts
+import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 
-const schema = z.object({
+const updateSchema = z.object({
   name: z.string().min(1).max(100),
 })
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const session = await getServerSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function userRoutes(server: FastifyInstance) {
+  // preHandler: [authenticate] — проверка JWT до входа в хендлер
+  server.patch('/users/:id', { preHandler: [authenticate] }, async (req, reply) => {
+    const parsed = updateSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return reply.code(400).send({ success: false, error: parsed.error.flatten() })
+    }
 
-  const body = await req.json()
-  const data = schema.safeParse(body)
-  if (!data.success) return NextResponse.json({ error: data.error }, { status: 400 })
+    // фильтр по req.user.userId — пользователь меняет только своё (защита от IDOR)
+    const { id } = req.params as { id: string }
+    if (id !== req.user.userId) {
+      return reply.code(403).send({ success: false, error: 'Forbidden' })
+    }
 
-  const user = await updateUser(params.id, data.data)
-  return NextResponse.json(user)
+    const user = await updateUser(id, parsed.data)
+    return reply.send({ success: true, data: user })
+  })
 }
 ```
+
+Стандарт ответа API: `{ success: boolean, data?, error?, pagination? }`.
 
 ## Работа с БД
 
 ```typescript
-// Всегда через абстракцию в lib/db/
-// Не писать Prisma запросы прямо в компонентах или API роутах
+// Всегда через абстракцию в server/src/services/
+// Не писать Prisma запросы прямо в хендлерах роутов или компонентах
 
-// lib/db/users.ts
+// server/src/services/users.ts
 export async function getUserById(id: string) {
   return prisma.user.findUnique({
     where: { id, deletedAt: null },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, bonusPoints: true },
   })
 }
 ```
@@ -110,24 +115,27 @@ export async function getUserById(id: string) {
 ## Переменные окружения
 
 ```
-# .env.local (никогда не коммитить)
-DATABASE_URL=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-RESEND_API_KEY=
+# .env (никогда не коммитить)
+DATABASE_URL=            # postgresql://... (локальный Docker, не Supabase)
+JWT_SECRET=              # секрет для подписи JWT
+MINIO_ENDPOINT=          # хост MinIO
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
+MINIO_BUCKET=            # bucket для изображений товаров
+OTP_TTL_SECONDS=         # срок жизни OTP-кода
+# SMTP/SMS провайдер для отправки OTP (когда подключат)
 
 # .env.example (коммитить — без значений)
 DATABASE_URL=
-NEXTAUTH_SECRET=
+JWT_SECRET=
+MINIO_ENDPOINT=
 ...
 ```
 
 ## Обработка ошибок
 
 - Не оборачивать в try/catch то что не может упасть
-- На уровне API: возвращать стандартные HTTP коды
-- На уровне UI: показывать toast / error state пользователю
-- В продакшне: логировать в Sentry
-- В фоновых задачах: retry + алерт при исчерпании попыток
+- На уровне API (Fastify): возвращать стандартные HTTP коды + `{ success: false, error }`
+- На уровне UI: показывать toast / error state пользователю (три состояния: loading / error / data)
+- В продакшне: логи через `pm2 logs simba-server` (Sentry пока не подключён)
+- Пустой `catch {}` запрещён — либо обработать, либо пробросить (см. `silent-failure-hunter`)
