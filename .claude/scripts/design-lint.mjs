@@ -85,6 +85,12 @@ const RULES = [
     hint: "не появляться из нуля — scale(0.95)+opacity",
     level: "ERROR",
   },
+  {
+    name: "marketing-filler",
+    test: /\b(Революционн|Инновационн|Уникальн\w* в своём роде|Просто и удобно|Элитн|Не имеет аналогов)\w*/i,
+    hint: "маркетинговый штамп — переписать конкретикой",
+    level: "WARNING",
+  },
 ];
 
 function lintFile(filePath) {
