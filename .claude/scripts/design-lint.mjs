@@ -51,8 +51,12 @@ const RULES = [
   },
   {
     name: "price-without-division",
+    // value={...price} — поле ввода формы (там перевод копеек в другом месте), не показ цены
     test: (line) =>
-      /[Pp]rice\}/.test(line) && !/\/\s*100/.test(line) && !/toFixed/.test(line),
+      /[Pp]rice\}/.test(line) &&
+      !/value=\{/.test(line) &&
+      !/\/\s*100/.test(line) &&
+      !/toFixed/.test(line),
     hint: "цена может выводиться в копейках без /100",
     level: "WARNING",
   },
