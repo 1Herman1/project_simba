@@ -27,11 +27,11 @@ model: sonnet
 ## Формат вывода
 
 ```
-🟠 ВАЖНО (дублирование)
+ВАЖНО (дублирование)
 client/src/pages/CartPage.tsx:12 и client/src/pages/CheckoutPage.tsx:8 — одинаковая функция formatPrice
 → Вынести в client/src/lib/utils.ts
 
-🟡 НА ЗАМЕТКУ (мёртвый код)
+НА ЗАМЕТКУ (мёртвый код)
 client/src/components/OldBanner.tsx — компонент нигде не используется
 → Удалить файл
 ```

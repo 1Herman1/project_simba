@@ -41,11 +41,11 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 client/src/components/ProductCard.tsx:34 — dangerouslySetInnerHTML с description из API
 → Использовать DOMPurify.sanitize() или рендерить как текст
 
-🟠 ВАЖНО
+ВАЖНО
 client/src/pages/CatalogPage.tsx:67 — useEffect без зависимостей вызывает бесконечный fetch
 → Добавить [searchParams] в массив зависимостей
 ```

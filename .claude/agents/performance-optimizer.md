@@ -34,11 +34,11 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО (блокирует LCP)
+КРИТИЧНО (блокирует LCP)
 client/src/App.tsx:5 — нет lazy loading роутов, весь код грузится сразу
 → const CatalogPage = lazy(() => import('./pages/CatalogPage'))
 
-🟠 ВАЖНО
+ВАЖНО
 server/src/routes/products/list.ts:34 — N+1: для каждого товара отдельный запрос категории
 → Добавить include: { category: true } в основной запрос
 ```

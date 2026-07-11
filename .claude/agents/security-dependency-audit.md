@@ -19,15 +19,15 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 lodash@4.17.15 — известная RCE-уязвимость (CVE-XXXX)
 → npm install lodash@latest
 
-🟠 ВАЖНО
+ВАЖНО
 axios@0.21.0 — устарел на 15 минорных версий, есть исправления безопасности
 → npm update axios
 
-🟡 НА ЗАМЕТКУ
+НА ЗАМЕТКУ
 package-lock.json не закоммичен — сборка может отличаться между машинами
 → добавить в git, убрать из .gitignore если попал туда случайно
 ```
@@ -40,7 +40,7 @@ package-lock.json не закоммичен — сборка может отли
 
 ---
 
-## 📝 Адаптация для monorepo (Simba / npm workspaces)
+## Адаптация для monorepo (Simba / npm workspaces)
 
 **Monorepo с npm workspaces** (`server/`, `client/`, `admin/`) — проверять каждый воркспейс:
 

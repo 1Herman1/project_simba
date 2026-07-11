@@ -42,11 +42,11 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 server/src/routes/orders/index.ts:45 — SQL injection: параметр из req.body напрямую в запрос
 → Использовать параметризованный запрос Prisma
 
-🟠 ВАЖНО  
+ВАЖНО  
 client/src/pages/CartPage.tsx:23 — await внутри forEach, должен быть Promise.all()
 → await Promise.all(items.map(async item => ...))
 ```

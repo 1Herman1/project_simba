@@ -36,10 +36,10 @@ model: sonnet
 | Обработка файлов | Node.js streams / Sharp (изображения) |
 | Парсинг данных | Cheerio / Playwright |
 | Интеграции | n8n / Zapier (no-code) или кастомный код |
-| Очереди задач | BullMQ + Redis ⚠️ |
+| Очереди задач | BullMQ + Redis |
 | CRM интеграции | REST API / Webhooks |
 
-> ⚠️ **Redis в Симбе НЕ подключён** (нет в `docker-compose.yml`). BullMQ требует Redis —
+> **Redis в Симбе НЕ подключён** (нет в `docker-compose.yml`). BullMQ требует Redis —
 > прежде чем предлагать очереди, нужно сначала добавить Redis-сервис в docker-compose
 > и переменные подключения. Для простых периодических задач без Redis — обычный `cron`
 > на Timeweb VPS или `node-cron` внутри процесса. Не предлагать BullMQ как готовое решение.

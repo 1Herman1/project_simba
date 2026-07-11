@@ -23,13 +23,13 @@ model: sonnet
 ## Стандарты кода
 
 ```typescript
-// ✅ Правильно — явные типы, async/await, понятные имена
+// Правильно — явные типы, async/await, понятные имена
 export async function createOrder(userId: string, items: OrderItem[]): Promise<Order> {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   return db.order.create({ data: { userId, total, items: { create: items } } })
 }
 
-// ❌ Неправильно — any, then-цепочки, неясные имена
+// Неправильно — any, then-цепочки, неясные имена
 export function doStuff(id: any, data: any) {
   return db.create(data).then(r => r).catch(e => console.log(e))
 }

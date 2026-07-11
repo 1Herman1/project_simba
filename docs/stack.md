@@ -4,7 +4,7 @@
 
 ---
 
-## 🐾 РЕАЛЬНЫЙ стек Симбы (simbazoo.ru)
+## РЕАЛЬНЫЙ стек Симбы (simbazoo.ru)
 
 > Это то, на чём написан текущий проект. Источник истины. Стек «по умолчанию»
 > ниже — для НОВЫХ проектов Гермеса, а не для Симбы.
@@ -34,7 +34,7 @@
 |-----------|-----------|
 | Primary | **PostgreSQL** (self-hosted в Docker) |
 | Storage | **MinIO** (S3-совместимое) — изображения товаров |
-| Cache/Queue | ❌ Redis НЕ подключён (нет в docker-compose) |
+| Cache/Queue | Redis НЕ подключён (нет в docker-compose) |
 
 ### Инфраструктура
 | Категория | Технология |
@@ -43,7 +43,7 @@
 | Process manager | **PM2** |
 | Reverse proxy | **Nginx** |
 | Деплой | `git pull` → `prisma migrate deploy` → сборка → `pm2 reload` |
-| CI/CD | ❌ пока нет `.github/workflows/` |
+| CI/CD | пока нет `.github/workflows/` |
 
 ### Чего в Симбе НЕТ (не предлагать без установки)
 - Next.js, Vercel, Railway, Fly.io

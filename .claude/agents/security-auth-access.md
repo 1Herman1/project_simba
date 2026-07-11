@@ -23,12 +23,12 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 server/src/routes/orders.ts:14 — запрос ищет заказ только по id, без проверки userId
 → Пользователь может получить чужой заказ по угаданному id (IDOR)
 → Исправить: prisma.order.findFirst({ where: { id: req.params.id, userId: req.user.userId } })
 
-🟠 ВАЖНО
+ВАЖНО
 server/src/lib/auth.ts:8 — JWT_SECRET захардкожен в коде
 → Перенести в переменную окружения JWT_SECRET
 ```

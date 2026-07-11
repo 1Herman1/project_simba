@@ -43,7 +43,7 @@ model: sonnet
 
 ---
 
-## 📝 Адаптация источников логов для Timeweb VPS (Simba)
+## Адаптация источников логов для Timeweb VPS (Simba)
 
 Оригинальный агент упоминает Sentry/Vercel/Axiom. На **Timeweb VPS с PM2 + Nginx** логи смотрятся иначе:
 

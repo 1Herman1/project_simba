@@ -24,12 +24,12 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 server/src/index.ts — @fastify/helmet не зарегистрирован
 → Ответы уходят без CSP/X-Frame-Options — риск clickjacking и XSS
 → Добавить: server.register(require('@fastify/helmet'), { contentSecurityPolicy: {...} })
 
-🟠 ВАЖНО
+ВАЖНО
 docker-compose.yml:12 — порт "5432:5432" публикует PostgreSQL наружу
 → В проде убрать проброс порта, оставить доступ только внутри сети Docker
 ```

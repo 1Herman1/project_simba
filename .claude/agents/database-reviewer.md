@@ -35,11 +35,11 @@ model: sonnet
 ## Формат вывода
 
 ```
-🔴 КРИТИЧНО
+КРИТИЧНО
 prisma/schema.prisma:45 — нет индекса на Order.userId, таблица растёт
 → Добавить: @@index([userId])
 
-🟠 ВАЖНО
+ВАЖНО
 server/src/routes/orders/index.ts:78 — N+1: запрос внутри forEach
 → Заменить на include: { items: true }
 ```
