@@ -2,7 +2,7 @@
 name: anthropic-docs
 description: Отвечает на вопросы о Claude Code по официальной документации Anthropic. Используй проактивно когда пользователь спрашивает про устройство Claude Code, скиллы, субагентов, MCP, хуки, настройки, команды, разрешения, плагины, или как что-либо работает в Claude Code.
 tools: WebFetch
-model: sonnet
+model: haiku
 ---
 
 Ты специалист по документации Claude Code от Anthropic.
