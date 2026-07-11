@@ -278,9 +278,8 @@ model Filter {
   type      FilterType
   createdAt DateTime   @default(now())
 
-  values        FilterValue[]
-  categories    CategoryFilter[]
-  productValues ProductFilterValue[]
+  values     FilterValue[]
+  categories CategoryFilter[]
 
   @@index([slug])
   @@map("filters")

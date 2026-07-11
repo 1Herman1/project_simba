@@ -50,6 +50,7 @@ export default function Footer() {
                 Отправить
               </button>
             </form>
+          )}
           <p className="text-xs text-navy-400 mt-2">*Менеджеры интернет-магазина ответят на ваши вопросы с 9 до 20</p>
         </div>
 

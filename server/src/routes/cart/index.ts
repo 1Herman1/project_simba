@@ -9,13 +9,6 @@ import {
   calculateCartTotal,
 } from '../../services/cart.service'
 
-declare module '@fastify/jwt' {
-  interface FastifyJWT {
-    payload: { userId: string; role: string }
-    user: { userId: string; role: string }
-  }
-}
-
 function formatCart(cart: Awaited<ReturnType<typeof getOrCreateCart>>) {
   const { subtotal, itemsCount } = calculateCartTotal(cart.items)
   return { ...cart, subtotal, itemsCount }
