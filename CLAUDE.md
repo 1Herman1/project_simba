@@ -78,6 +78,24 @@ project_simba/
 - Обрабатывать ошибки только там где это реально важно
 - Не добавлять избыточный error handling для невозможных сценариев
 
+### Дизайн (UI)
+
+Перед любой UI-задачей (компонент, страница, лендинг, письмо) — прочитать
+`docs/design.md`: бренд Симбы и список anti-references. Не генерировать «типовой
+красивый» интерфейс — держать характер бренда и не повторять шаблонные ошибки ИИ.
+
+Anti-patterns («AI slop»), которых избегать всегда:
+- Шрифт `Inter`/`Arial`/системный по умолчанию как основной бренд-шрифт
+- Фиолетово-синий градиент (`from-purple-* to-blue-*`) — маркер AI-slop
+- Серый текст на цветном фоне (контраст < 4.5:1), чистый чёрный для текста
+- Вложенные карточки (карточка в карточке), боковые полоски-бордеры как декор
+- Ряды одинаковых иконка-тайлов как единственный приём
+- `bounce`/`elastic` easing; анимация без `prefers-reduced-motion`
+- Тач-таргеты < 44px, поля без `<label>`, иконки-кнопки без `aria-label`
+
+Ревью визуального качества — агент `design-reviewer`. Финальная шлифовка UI —
+команда `/polish`. Полный чеклист и позитивные ориентиры — в `docs/design.md`.
+
 ---
 
 ## Технологический стек (по умолчанию для новых проектов)
@@ -191,7 +209,8 @@ Agent(researcher, "составь тест-план по всему сайту")
 | `*.ts`, `*.js` (server, lib) | `typescript-reviewer` |
 | `prisma/schema.prisma`, `prisma/migrations/**` | `database-reviewer` |
 | `server/src/routes/**` | `typescript-reviewer` + `code-reviewer` |
-| `client/src/pages/**` | `react-reviewer` |
+| `client/src/pages/**` | `react-reviewer` + `design-reviewer` |
+| UI: вёрстка, стили, лендинги, письма | `design-reviewer` |
 | `.github/workflows/**` | `devops` |
 | `README.md`, `docs/**` | `documenter` |
 | Любые изменения перед деплоем | `performance-optimizer` + `silent-failure-hunter` |
@@ -207,6 +226,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 | Bundle size, LCP, ре-рендеры React | `performance-optimizer` | — |
 | Типы `any`, async/await ошибки | `typescript-reviewer` | code-reviewer |
 | XSS, `dangerouslySetInnerHTML`, хуки | `react-reviewer` | code-reviewer |
+| Дизайн-качество, AI-slop, типографика, контраст | `design-reviewer` | react-reviewer, code-reviewer |
 | Секреты в открытом коде | `security-secrets-scanner` | code-reviewer, typescript-reviewer |
 | JWT / OTP / сессии / IDOR | `security-auth-access` | code-reviewer |
 | CORS / заголовки / env / хранилище файлов | `security-infra-cloud` | — |
@@ -250,6 +270,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 | `code-reviewer` | Общий ревью: безопасность, производительность, баги |
 | `typescript-reviewer` | TypeScript — типы, async, безопасность Node.js |
 | `react-reviewer` | React — хуки, рендеры, XSS, доступность |
+| `design-reviewer` | Визуальное качество UI — типографика, цвет, layout, AI-slop |
 | `database-reviewer` | PostgreSQL + Prisma — индексы, N+1, схема |
 
 Качество:
@@ -310,6 +331,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 | `/bugfix [симптом]` | Починка бага: debugger → coder → проверка |
 | `/deploy` | Чеклист деплоя в продакшн |
 | `/review` | Ревью текущих изменений нужными специалистами (без дублей) |
+| `/polish` | Финальная шлифовка UI: типографика, layout, цвет, доступность |
 | `/secure` | Аудит безопасности через security-department |
 | `/summary` | Записать резюме сессии в `docs/session-log/` — чтобы следующий чат не терял контекст |
 

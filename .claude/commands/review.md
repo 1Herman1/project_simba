@@ -7,7 +7,7 @@ description: Ревью текущих изменений нужными спе�
 Подбери ревьюеров по типу изменённых файлов и запусти их **параллельно**,
 соблюдая разделение ответственности из `CLAUDE.md` (каждый репортит свою зону):
 
-- `*.tsx` в `client/`/`admin/` → `react-reviewer`
+- `*.tsx` в `client/`/`admin/` → `react-reviewer` (код) + `design-reviewer` (вид)
 - `*.ts` в `server/` → `typescript-reviewer`
 - `prisma/schema.prisma`, миграции → `database-reviewer`
 - роуты с данными пользователя → `security-auth-access`
