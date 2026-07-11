@@ -49,7 +49,7 @@ const categories = [
 function ActivePanel({ cat }: { cat: typeof categories[0] }) {
   return (
     <div
-      className="relative overflow-hidden rounded-3xl p-8 flex flex-col justify-between min-h-[420px]"
+      className="relative overflow-hidden rounded-2xl p-8 flex flex-col justify-between min-h-[420px]"
       style={{ backgroundColor: cat.bg }}
     >
       <div>
@@ -74,7 +74,7 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
 function InactivePanel({ cat, onClick }: { cat: typeof categories[0]; onClick: () => void }) {
   return (
     <div
-      className="cursor-pointer rounded-3xl flex items-end justify-center pb-8 min-h-[420px]"
+      className="cursor-pointer rounded-2xl flex items-end justify-center pb-8 min-h-[420px]"
       style={{ backgroundColor: cat.bg }}
       onClick={onClick}
     >
@@ -100,7 +100,7 @@ export default function CategoryAccordion() {
         {categories.map(cat => (
           <div
             key={cat.id}
-            className={`transition-all duration-500 ease-in-out rounded-3xl overflow-hidden cursor-pointer ${active === cat.id ? 'flex-[3]' : 'flex-[1]'}`}
+            className={`transition-[flex-grow] duration-300 ease-out rounded-2xl overflow-hidden cursor-pointer ${active === cat.id ? 'flex-[3]' : 'flex-[1]'}`}
             style={{ backgroundColor: cat.bg }}
             onClick={() => setActive(cat.id)}
           onMouseEnter={() => setActive(cat.id)}

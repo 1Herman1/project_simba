@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -13,5 +14,13 @@
 @layer base {
   body {
     @apply bg-blue-50 text-navy-900 font-sans;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transform: none !important;
+    transition-property: opacity, color, background-color !important;
+    animation-duration: 0.01ms !important;
   }
 }

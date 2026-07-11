@@ -303,6 +303,7 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         placeholder="Город"
+                        aria-label="Город"
                         value={address.city}
                         onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
@@ -310,6 +311,7 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         placeholder="Улица"
+                        aria-label="Улица"
                         value={address.street}
                         onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
@@ -318,6 +320,7 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="Дом"
+                          aria-label="Дом"
                           value={address.house}
                           onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
                           className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
@@ -325,6 +328,7 @@ export default function CheckoutPage() {
                         <input
                           type="text"
                           placeholder="Квартира"
+                          aria-label="Квартира"
                           value={address.apartment}
                           onChange={e => setAddress(a => ({ ...a, apartment: e.target.value }))}
                           className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
@@ -333,12 +337,14 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         placeholder="Почтовый индекс"
+                        aria-label="Почтовый индекс"
                         value={address.postalCode}
                         onChange={e => setAddress(a => ({ ...a, postalCode: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
                       />
                       <textarea
                         placeholder="Комментарий к заказу (необязательно)"
+                        aria-label="Комментарий к заказу"
                         value={address.comment}
                         onChange={e => setAddress(a => ({ ...a, comment: e.target.value }))}
                         rows={2}

@@ -53,7 +53,7 @@ export default function MobileBottomNav() {
             to={path}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center py-2 pb-3 transition-all ${
-                isActive ? 'text-blue-300' : 'text-navy-300'
+                isActive ? 'text-blue-500' : 'text-navy-300'
               }`
             }
           >

@@ -24,7 +24,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link to={`/product/${product.slug}`}
-      className="group bg-white rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
+      className="group bg-white rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-200 ease-out flex flex-col">
 
       {/* Изображение */}
       <div className="relative bg-blue-50 h-44 flex items-center justify-center">
@@ -45,7 +45,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={e => { e.preventDefault(); setLiked(!liked) }}
-          className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform">
+          aria-label={liked ? 'Убрать из избранного' : 'В избранное'}
+          className="absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform">
           <svg className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
             viewBox="0 0 24 24" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -55,7 +56,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
       {/* Контент */}
       <div className="p-3 flex flex-col flex-1">
-        <p className="text-xs text-navy-300 mb-1">{product.brand?.name ?? ''}</p>
+        <p className="text-xs text-navy-500 mb-1">{product.brand?.name ?? ''}</p>
         <h3 className="text-sm font-semibold text-navy-900 mb-2 flex-1"
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
           {product.name}

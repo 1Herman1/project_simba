@@ -189,7 +189,7 @@ export default function CartPage() {
             })}
 
             <Link to="/catalog"
-              className="flex items-center gap-2 text-blue-300 hover:text-blue-400 transition-colors text-sm font-medium mt-2 w-fit">
+              className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors text-sm font-medium mt-2 w-fit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"/>
                 <polyline points="12 19 5 12 12 5"/>
@@ -281,7 +281,7 @@ export default function CartPage() {
 
               <p className="text-center text-xs text-navy-300 mt-3">
                 Нажимая кнопку, вы соглашаетесь с{' '}
-                <a href="#" className="text-blue-300 hover:underline">условиями оферты</a>
+                <a href="#" className="text-blue-500 hover:underline">условиями оферты</a>
               </p>
             </div>
           </div>
