@@ -44,7 +44,8 @@ const RULES = [
   },
   {
     name: "too-round-corners",
-    test: /rounded-\[(1[7-9]|[2-9]\d)px\]|rounded-(3xl|full)/,
+    // rounded-full исключён: круглые элементы (аватары, иконки-кнопки, pill) — намеренны
+    test: /rounded-\[(1[7-9]|[2-9]\d)px\]|rounded-3xl/,
     hint: "радиус > 16px — слишком круглые углы",
     level: "ERROR",
   },
