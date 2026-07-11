@@ -56,6 +56,31 @@ const RULES = [
     hint: "цена может выводиться в копейках без /100",
     level: "WARNING",
   },
+  {
+    name: "transition-all",
+    test: /transition:\s*all\b/,
+    hint: "transition: all — указывай конкретное свойство (transform/opacity)",
+    level: "ERROR",
+  },
+  {
+    name: "ease-in-on-ui",
+    test: /\bease-in\b(?!-out)/,
+    hint: "ease-in на UI тормозит начало — используй ease-out",
+    level: "ERROR",
+  },
+  {
+    name: "animate-layout-prop",
+    test: (line) =>
+      /transition|animate/.test(line) && /\b(width|height|margin|padding)\b.*\d/.test(line),
+    hint: "анимация width/height/margin/padding грузит layout — только transform/opacity",
+    level: "WARNING",
+  },
+  {
+    name: "scale-from-zero",
+    test: /scale\(0\)|scale-0\b/,
+    hint: "не появляться из нуля — scale(0.95)+opacity",
+    level: "ERROR",
+  },
 ];
 
 function lintFile(filePath) {
