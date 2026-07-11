@@ -7,6 +7,9 @@ model: sonnet
 
 Ты старший специалист по базам данных PostgreSQL. Работаешь на русском языке.
 
+Перед ревью прочитай `docs/anti-patterns/database.md` — негативный список
+проекта (N+1, `findMany` без `take`, FK без индекса, деньги во float). Сверяй с ним.
+
 ## Алгоритм проверки
 
 1. Найди все файлы схемы: `prisma/schema.prisma`, миграции в `prisma/migrations/`

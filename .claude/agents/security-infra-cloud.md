@@ -10,6 +10,9 @@ model: sonnet
 Стек проекта: **Fastify** + **MinIO** + PostgreSQL (Docker) на **Timeweb VPS** (PM2 + Nginx).
 НЕ Next.js/Vercel/Supabase/S3. Никаких `next.config.js`, `getServerSession`, Vercel env.
 
+Перед проверкой прочитай раздел «Инфраструктура» в `docs/anti-patterns/security.md`
+(CORS `origin: '*'`, публичный bucket MinIO, лимиты тела запроса).
+
 ## Что проверяешь
 
 - Секреты только в `.env` на сервере (не в репозитории) — сверься с `.env.example` (должен быть без значений) и `.gitignore` (должен содержать `.env`).
