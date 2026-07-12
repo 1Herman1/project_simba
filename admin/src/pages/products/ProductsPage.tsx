@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { productsApi, type Product } from '../../lib/api'
+import { formatPrice } from '../../lib/format'
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -92,7 +93,7 @@ export default function ProductsPage() {
                     <td className="px-5 py-3 text-gray-600">{p.variants.length}</td>
                     <td className="px-5 py-3 font-medium text-gray-900">
                       {p.variants.length > 0
-                        ? `${(Math.min(...p.variants.map(v => v.price)) / 100).toLocaleString('ru-RU')} ₽`
+                        ? formatPrice(Math.min(...p.variants.map(v => v.price)))
                         : '—'}
                     </td>
                     <td className="px-5 py-3">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi, ordersApi, usersApi, type User, type Order } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -170,7 +171,7 @@ export default function ProfilePage() {
                         <p className="text-xs text-navy-400">{dateStr} · {order.deliveryMethod}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-navy-900">{(order.total / 100).toLocaleString('ru-RU')} ₽</p>
+                        <p className="font-bold text-navy-900">{formatPrice(order.total)}</p>
                         {order.bonusEarned > 0 && (
                           <p className="text-xs text-amber-500">+{order.bonusEarned} сибакоинов</p>
                         )}
@@ -229,7 +230,7 @@ export default function ProfilePage() {
                                 <p className="text-xs text-navy-400">{item.variantWeight} кг · {item.quantity} шт.</p>
                               </div>
                               <span className="text-sm font-semibold text-navy-900 flex-shrink-0">
-                                {(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                                {formatPrice(item.price * item.quantity)}
                               </span>
                             </div>
                           ))}

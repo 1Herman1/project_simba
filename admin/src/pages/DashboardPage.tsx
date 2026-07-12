@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { dashboardApi, type DashboardStats } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending:    { label: 'Новый',       color: 'bg-amber-100 text-amber-700' },
@@ -52,8 +53,8 @@ export default function DashboardPage() {
         />
         <StatCard
           label="Выручка сегодня"
-          value={`${(stats.revenueToday / 100).toLocaleString('ru-RU')} ₽`}
-          sub={`За месяц: ${(stats.revenueMonth / 100).toLocaleString('ru-RU')} ₽`}
+          value={formatPrice(stats.revenueToday)}
+          sub={`За месяц: ${formatPrice(stats.revenueMonth)}`}
         />
         <StatCard
           label="Всего пользователей"
@@ -97,7 +98,7 @@ export default function DashboardPage() {
                       {order.user?.name || order.user?.email || order.user?.phone || '—'}
                     </td>
                     <td className="px-5 py-3 font-medium text-gray-900">
-                      {(order.total / 100).toLocaleString('ru-RU')} ₽
+                      {formatPrice(order.total)}
                     </td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.color}`}>{s.label}</span>

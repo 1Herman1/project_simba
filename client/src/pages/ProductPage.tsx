@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { productsApi, cartApi, type Product, type ProductVariant } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -162,11 +163,11 @@ export default function ProductPage() {
             {/* Цена */}
             <div className="flex items-baseline gap-3">
               <span className="text-3xl font-black text-navy-900">
-                {(selectedVariant.price / 100).toLocaleString('ru-RU')} ₽
+                {formatPrice(selectedVariant.price)}
               </span>
               {selectedVariant.oldPrice && (
                 <span className="text-lg text-navy-300 line-through">
-                  {(selectedVariant.oldPrice / 100).toLocaleString('ru-RU')} ₽
+                  {formatPrice(selectedVariant.oldPrice)}
                 </span>
               )}
               {discount && (
@@ -333,8 +334,8 @@ export default function ProductPage() {
                       <>
                         <p className="text-xs text-navy-400 mb-2">{v.weight} кг</p>
                         <div className="flex items-baseline gap-2">
-                          <span className="font-bold text-navy-900">{(v.price / 100).toLocaleString('ru-RU')} ₽</span>
-                          {v.oldPrice && <span className="text-xs text-navy-300 line-through">{(v.oldPrice / 100).toLocaleString('ru-RU')} ₽</span>}
+                          <span className="font-bold text-navy-900">{formatPrice(v.price)}</span>
+                          {v.oldPrice && <span className="text-xs text-navy-300 line-through">{formatPrice(v.oldPrice)}</span>}
                         </div>
                       </>
                     )}

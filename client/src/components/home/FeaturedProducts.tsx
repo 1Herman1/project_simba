@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { formatPrice } from '../../lib/format'
 
 interface Variant {
   id: string
@@ -153,11 +154,11 @@ function ProductCard({ product }: { product: Product }) {
         {/* Цена */}
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-black text-navy-900">
-            {(selectedVariant.price / 100).toLocaleString('ru-RU')} ₽
+            {formatPrice(selectedVariant.price)}
           </span>
           {selectedVariant.oldPrice && (
             <span className="text-xs text-navy-300 line-through">
-              {(selectedVariant.oldPrice / 100).toLocaleString('ru-RU')} ₽
+              {formatPrice(selectedVariant.oldPrice)}
             </span>
           )}
         </div>

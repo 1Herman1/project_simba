@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'online' | 'cash'
@@ -270,7 +271,7 @@ export default function CheckoutPage() {
                           <span className="font-semibold text-navy-900 text-sm">{opt.title}</span>
                           {opt.available ? (
                             opt.price > 0
-                              ? <span className="text-navy-500 text-xs font-medium">{(opt.price / 100).toLocaleString('ru-RU')} ₽</span>
+                              ? <span className="text-navy-500 text-xs font-medium">{formatPrice(opt.price)}</span>
                               : <span className="text-green-600 text-xs font-medium">Бесплатно</span>
                           ) : (
                             <span className="text-red-400 text-xs">{opt.error}</span>
@@ -405,7 +406,7 @@ export default function CheckoutPage() {
                     <div>
                       <p className="font-semibold text-navy-900 text-sm">Списать бонусы</p>
                       <p className="text-xs text-navy-400">
-                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} бонусов</span> = {(userBonusPoints / 100).toLocaleString('ru-RU')} ₽
+                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} бонусов</span> = {formatPrice(userBonusPoints)}
                       </p>
                     </div>
                   </label>
@@ -470,7 +471,7 @@ export default function CheckoutPage() {
                         <p className="text-xs text-navy-400">{item.productVariant.weight} кг · {item.quantity} шт.</p>
                       </div>
                       <span className="text-sm font-bold text-navy-900 flex-shrink-0">
-                        {(item.productVariant.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                        {formatPrice(item.productVariant.price * item.quantity)}
                       </span>
                     </div>
                   ))}
@@ -521,7 +522,7 @@ export default function CheckoutPage() {
                       {item.productVariant.product.name.split(' ').slice(0, 3).join(' ')}... ×{item.quantity}
                     </span>
                     <span className="text-navy-900 font-medium flex-shrink-0">
-                      {(item.productVariant.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                      {formatPrice(item.productVariant.price * item.quantity)}
                     </span>
                   </div>
                 ))}
@@ -531,21 +532,21 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-navy-500">Доставка</span>
                   {deliveryCost > 0
-                    ? <span className="text-navy-900 font-medium">{(deliveryCost / 100).toLocaleString('ru-RU')} ₽</span>
+                    ? <span className="text-navy-900 font-medium">{formatPrice(deliveryCost)}</span>
                     : <span className="text-green-600 font-medium">Бесплатно</span>
                   }
                 </div>
                 {bonusSpend && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Бонусы</span>
-                    <span className="text-amber-500 font-medium">−{(bonusDiscount / 100).toLocaleString('ru-RU')} ₽</span>
+                    <span className="text-amber-500 font-medium">−{formatPrice(bonusDiscount)}</span>
                   </div>
                 )}
               </div>
 
               <div className="border-t border-blue-100 pt-3 flex justify-between mb-3">
                 <span className="font-bold text-navy-900">Итого</span>
-                <span className="font-black text-xl text-navy-900">{(total / 100).toLocaleString('ru-RU')} ₽</span>
+                <span className="font-black text-xl text-navy-900">{formatPrice(total)}</span>
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">

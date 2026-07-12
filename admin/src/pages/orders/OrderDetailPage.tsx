@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ordersApi, type Order } from '../../lib/api'
+import { formatPrice } from '../../lib/format'
 
 const STATUSES = [
   { value: 'confirmed',  label: 'Подтверждён' },
@@ -107,7 +108,7 @@ export default function OrderDetailPage() {
           )}
           <div className="flex justify-between text-sm mb-1">
             <span className="text-gray-500">Товары</span>
-            <span className="text-gray-700">{(order.subtotal / 100).toLocaleString('ru-RU')} ₽</span>
+            <span className="text-gray-700">{formatPrice(order.subtotal)}</span>
           </div>
           {order.bonusUsed > 0 && (
             <div className="flex justify-between text-sm mb-1">
@@ -117,7 +118,7 @@ export default function OrderDetailPage() {
           )}
           <div className="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100 mt-2">
             <span className="text-gray-900">Итого</span>
-            <span className="text-gray-900">{(order.total / 100).toLocaleString('ru-RU')} ₽</span>
+            <span className="text-gray-900">{formatPrice(order.total)}</span>
           </div>
         </div>
       </div>
@@ -135,7 +136,7 @@ export default function OrderDetailPage() {
                 <p className="text-xs text-gray-500">{item.variantWeight} кг × {item.quantity} шт.</p>
               </div>
               <p className="text-sm font-medium text-gray-900 whitespace-nowrap">
-                {(item.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                {formatPrice(item.price * item.quantity)}
               </p>
             </div>
           ))}

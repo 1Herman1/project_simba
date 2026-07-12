@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { cartApi, type CartItem } from '../lib/api'
+import { formatPrice } from '../lib/format'
 
 const FREE_DELIVERY_THRESHOLD = 200000
 const BONUS_RATE = 0.05
@@ -98,9 +99,9 @@ export default function CartPage() {
             <>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-navy-700 font-medium">
-                  До бесплатной доставки: <span className="text-blue-300 font-bold">{(toFreeDelivery / 100).toLocaleString('ru-RU')} ₽</span>
+                  До бесплатной доставки: <span className="text-blue-300 font-bold">{formatPrice(toFreeDelivery)}</span>
                 </span>
-                <span className="text-navy-400 text-xs">от {(FREE_DELIVERY_THRESHOLD / 100).toLocaleString('ru-RU')} ₽</span>
+                <span className="text-navy-400 text-xs">от {formatPrice(FREE_DELIVERY_THRESHOLD)}</span>
               </div>
               <div className="h-2 bg-blue-50 rounded-full overflow-hidden">
                 <div
@@ -163,11 +164,11 @@ export default function CartPage() {
 
                       <div className="flex items-baseline gap-2">
                         <span className="font-bold text-navy-900">
-                          {(v.price * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                          {formatPrice(v.price * item.quantity)}
                         </span>
                         {v.oldPrice && (
                           <span className="text-xs text-navy-300 line-through">
-                            {(v.oldPrice * item.quantity / 100).toLocaleString('ru-RU')} ₽
+                            {formatPrice(v.oldPrice * item.quantity)}
                           </span>
                         )}
                       </div>
@@ -206,18 +207,18 @@ export default function CartPage() {
               <div className="flex flex-col gap-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-navy-500">Товары ({items.reduce((s, i) => s + i.quantity, 0)} шт.)</span>
-                  <span className="text-navy-900">{(subtotal / 100).toLocaleString('ru-RU')} ₽</span>
+                  <span className="text-navy-900">{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Скидка</span>
-                    <span className="text-green-600">−{(discount / 100).toLocaleString('ru-RU')} ₽</span>
+                    <span className="text-green-600">−{formatPrice(discount)}</span>
                   </div>
                 )}
                 {promoApplied && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Промокод SIMBA10</span>
-                    <span className="text-green-600">−{(promoDiscount / 100).toLocaleString('ru-RU')} ₽</span>
+                    <span className="text-green-600">−{formatPrice(promoDiscount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -229,7 +230,7 @@ export default function CartPage() {
               <div className="border-t border-blue-100 pt-3 mb-4">
                 <div className="flex justify-between">
                   <span className="font-bold text-navy-900">К оплате</span>
-                  <span className="font-black text-xl text-navy-900">{(total / 100).toLocaleString('ru-RU')} ₽</span>
+                  <span className="font-black text-xl text-navy-900">{formatPrice(total)}</span>
                 </div>
               </div>
 

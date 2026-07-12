@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { cartApi, type Product } from '../../lib/api'
+import { formatPrice } from '../../lib/format'
 
 export default function ProductCard({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
@@ -79,11 +80,11 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <div className="flex items-baseline gap-2 mb-3">
           <span className="text-lg font-bold text-navy-900">
-            {(selectedVariant.price / 100).toLocaleString('ru-RU')} ₽
+            {formatPrice(selectedVariant.price)}
           </span>
           {selectedVariant.oldPrice && (
             <span className="text-sm text-navy-300 line-through">
-              {(selectedVariant.oldPrice / 100).toLocaleString('ru-RU')} ₽
+              {formatPrice(selectedVariant.oldPrice)}
             </span>
           )}
         </div>

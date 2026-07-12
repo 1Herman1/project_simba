@@ -55,7 +55,7 @@ async function start() {
 
   const port = Number(process.env.PORT) || 3000
   await app.listen({ port, host: '0.0.0.0' })
-  console.log(`Server running on http://localhost:${port}`)
+  app.log.info(`Server running on http://localhost:${port}`)
 }
 
-start().catch(console.error)
+start().catch(err => app.log.error(err))

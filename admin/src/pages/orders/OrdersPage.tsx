@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ordersApi, type Order } from '../../lib/api'
+import { formatPrice } from '../../lib/format'
 
 const STATUSES = [
   { value: '', label: 'Все' },
@@ -93,7 +94,7 @@ export default function OrdersPage() {
                       {order.user?.name || order.user?.email || order.user?.phone || '—'}
                     </td>
                     <td className="px-5 py-3 font-medium text-gray-900">
-                      {(order.total / 100).toLocaleString('ru-RU')} ₽
+                      {formatPrice(order.total)}
                     </td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[order.status] ?? 'bg-gray-100 text-gray-600'}`}>
