@@ -44,8 +44,9 @@
 - Language: TypeScript
 - Styling: Tailwind CSS
 - Routing: React Router
-- State: Zustand / React Context
-- Forms: React Hook Form + Zod
+- State: React Context (Zustand планируется)
+- Forms: Zod (React Hook Form планируется)
+- Data Fetching: Axios + TanStack Query
 - Воркспейсы: `client/` (магазин) и `admin/` (панель управления)
 
 ### Backend
