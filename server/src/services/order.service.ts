@@ -73,7 +73,17 @@ export async function createOrder(
       0
     )
     const promoDiscount = data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
-    const bonusUsed = Math.min(data.bonusUsed ?? 0, subtotal - promoDiscount)
+
+    const currentUser = await tx.user.findUnique({
+      where: { id: userId },
+      select: { bonusPoints: true },
+    })
+    const availableBonus = currentUser?.bonusPoints ?? 0
+
+    const bonusUsed = Math.max(
+      0,
+      Math.min(data.bonusUsed ?? 0, subtotal - promoDiscount, availableBonus)
+    )
     const total = Math.max(0, subtotal - promoDiscount - bonusUsed)
     const bonusEarned = Math.floor(total * 0.05)
 
