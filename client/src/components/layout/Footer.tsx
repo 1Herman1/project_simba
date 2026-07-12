@@ -30,6 +30,7 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Email"
+                aria-label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -37,6 +38,7 @@ export default function Footer() {
               />
               <textarea
                 placeholder="Сообщение"
+                aria-label="Сообщение"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required

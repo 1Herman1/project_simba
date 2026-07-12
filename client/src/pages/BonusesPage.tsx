@@ -89,7 +89,7 @@ export default function BonusesPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             to="/auth"
-            className="flex-1 bg-amber-400 text-white font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-amber-500 transition-colors">
+            className="flex-1 bg-blue-200 text-navy-900 font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-blue-300 transition-colors">
             Войти и начать копить
           </Link>
           <Link

@@ -75,7 +75,7 @@ function ProductCard({ product, onRemove }: {
       {/* Фото */}
       <Link to={`/product/${product.slug}`} className="relative block bg-blue-50 h-44 flex items-center justify-center">
         {discount && (
-          <span className="absolute top-2 left-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+          <span className="absolute top-2 left-2 bg-amber-400 text-navy-900 text-xs font-bold px-2 py-0.5 rounded-full">
             -{discount}%
           </span>
         )}

@@ -106,7 +106,7 @@ export default function ProductPage() {
               }
 
               {discount && (
-                <span className="absolute top-4 left-4 bg-amber-400 text-white font-bold px-3 py-1 rounded-full text-sm">
+                <span className="absolute top-4 left-4 bg-amber-400 text-navy-900 font-bold px-3 py-1 rounded-full text-sm">
                   -{discount}%
                 </span>
               )}

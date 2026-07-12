@@ -60,7 +60,7 @@ export default function MobileBottomNav() {
             <div className="relative">
               <Icon />
               {badge !== null && (
-                <span className="absolute -top-1 -right-1 bg-amber-400 text-white text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5">
+                <span className="absolute -top-1 -right-1 bg-amber-400 text-navy-900 text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5">
                   {badge}
                 </span>
               )}
