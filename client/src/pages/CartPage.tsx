@@ -56,7 +56,7 @@ export default function CartPage() {
 
   const toFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal)
   const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100)
-  const bonusEarned = Math.floor(total * BONUS_RATE)
+  const bonusEarned = Math.floor((total / 100) * BONUS_RATE)
 
   const handlePromo = () => {
     if (promoCode.toLowerCase() === 'simba10') {
@@ -265,10 +265,10 @@ export default function CartPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-sm font-semibold text-navy-900">
                     За этот заказ вы получите{' '}
-                    <span className="text-amber-500">+{bonusEarned} сибакоинов</span>
+                    <span className="text-amber-500">+{bonusEarned} scoins</span>
                   </p>
                 </div>
-                <p className="text-xs text-navy-400 mb-2">1 сибакоин = 1 ₽ скидки на следующий заказ</p>
+                <p className="text-xs text-navy-400 mb-2">1 scoin = 1 ₽ скидки на следующий заказ</p>
                 <div className="flex gap-2 text-xs">
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Новичок: 0–999</span>
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Активный: 1000+</span>

@@ -4,26 +4,26 @@ const LEVELS = [
   {
     key: 'newcomer',
     label: 'Новичок',
-    range: '0 — 999 сибакоинов',
+    range: '0 — 999 scoins',
     color: 'bg-blue-50 border-blue-100',
     badge: 'bg-navy-100 text-navy-500',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа сибакоинами: 1 = 1 ₽'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽'],
   },
   {
     key: 'active',
     label: 'Активный',
-    range: '1 000 — 4 999 сибакоинов',
+    range: '1 000 — 4 999 scoins',
     color: 'bg-amber-50 border-amber-100',
     badge: 'bg-blue-100 text-blue-500',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа сибакоинами: 1 = 1 ₽', 'Приоритетная поддержка'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽', 'Приоритетная поддержка'],
   },
   {
     key: 'premium',
     label: 'Премиум',
-    range: 'от 5 000 сибакоинов',
+    range: 'от 5 000 scoins',
     color: 'bg-amber-100 border-amber-200',
     badge: 'bg-amber-100 text-amber-600',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа сибакоинами: 1 = 1 ₽', 'Приоритетная поддержка', 'Эксклюзивные акции'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽', 'Приоритетная поддержка', 'Эксклюзивные акции'],
   },
 ]
 
@@ -35,10 +35,10 @@ export default function BonusesPage() {
         {/* Заголовок */}
         <div className="text-center mb-10">
           <h1 className="text-3xl font-black text-navy-900 mb-3">
-            Программа лояльности Сибакоины
+            Программа лояльности Scoins
           </h1>
           <p className="text-navy-400 text-base">
-            Покупайте — копите — экономьте. Каждый заказ приносит вам сибакоины, которые можно тратить как скидку.
+            Покупайте — копите — экономьте. Каждый заказ приносит вам scoins, которые можно тратить как скидку.
           </p>
         </div>
 
@@ -51,12 +51,12 @@ export default function BonusesPage() {
               <p className="text-navy-400 text-sm">5% от суммы заказа автоматически зачисляется на ваш бонусный счёт</p>
             </div>
             <div>
-              <p className="font-semibold text-navy-900 text-sm">Копите сибакоины</p>
-              <p className="text-navy-400 text-sm">1 сибакоин = 1 рубль скидки. Чем больше заказов — тем выше уровень</p>
+              <p className="font-semibold text-navy-900 text-sm">Копите scoins</p>
+              <p className="text-navy-400 text-sm">1 scoin = 1 рубль скидки. Чем больше заказов — тем выше уровень</p>
             </div>
             <div>
               <p className="font-semibold text-navy-900 text-sm">Тратите на скидку</p>
-              <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько сибакоинов списать</p>
+              <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько scoins списать</p>
             </div>
           </div>
         </div>

@@ -113,7 +113,7 @@ export default function OrderDetailPage() {
           {order.bonusUsed > 0 && (
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500">Бонусы</span>
-              <span className="text-red-500">−{order.bonusUsed} бонусов</span>
+              <span className="text-red-500">−{order.bonusUsed} scoins</span>
             </div>
           )}
           <div className="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100 mt-2">

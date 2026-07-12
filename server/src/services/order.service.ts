@@ -80,12 +80,14 @@ export async function createOrder(
     })
     const availableBonus = currentUser?.bonusPoints ?? 0
 
+    // scoin хранится в рублях: 1 scoin = 1 ₽ = 100 копеек скидки. Цены — в копейках.
+    const maxRedeemableScoins = Math.floor((subtotal - promoDiscount) / 100)
     const bonusUsed = Math.max(
       0,
-      Math.min(data.bonusUsed ?? 0, subtotal - promoDiscount, availableBonus)
+      Math.min(data.bonusUsed ?? 0, maxRedeemableScoins, availableBonus)
     )
-    const total = Math.max(0, subtotal - promoDiscount - bonusUsed)
-    const bonusEarned = Math.floor(total * 0.05)
+    const total = Math.max(0, subtotal - promoDiscount - bonusUsed * 100)
+    const bonusEarned = Math.floor((total / 100) * 0.05)
 
     const order = await tx.order.create({
       data: {

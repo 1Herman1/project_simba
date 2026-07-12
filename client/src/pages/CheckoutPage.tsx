@@ -107,9 +107,11 @@ export default function CheckoutPage() {
   const subtotal = cartItems.reduce((s, i) => s + i.productVariant.price * i.quantity, 0)
   const selectedQuote = quotes.find(q => q.provider === delivery)
   const deliveryCost = selectedQuote?.price ?? 0
-  const bonusDiscount = bonusSpend ? Math.min(userBonusPoints, subtotal + deliveryCost) : 0
+  // scoin = рубль: списание в scoin, скидка в копейках = scoin * 100. Цены — в копейках.
+  const bonusUsedScoins = bonusSpend ? Math.min(userBonusPoints, Math.floor((subtotal + deliveryCost) / 100)) : 0
+  const bonusDiscount = bonusUsedScoins * 100
   const total = Math.max(0, subtotal + deliveryCost - bonusDiscount)
-  const bonusEarned = Math.floor(total * 0.05)
+  const bonusEarned = Math.floor((total / 100) * 0.05)
 
   const stepIndex = STEPS.findIndex(s => s.key === step)
 
@@ -126,7 +128,7 @@ export default function CheckoutPage() {
           ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: address.postalCode }
           : undefined,
         comment: address.comment || undefined,
-        bonusUsed: bonusSpend ? bonusDiscount : 0,
+        bonusUsed: bonusUsedScoins,
         promoCode,
         deliveryCost,
       })
@@ -164,7 +166,7 @@ export default function CheckoutPage() {
           <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              Начислено <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span> на ваш счёт
+              Начислено <span className="font-bold text-amber-500">+{bonusEarned} scoins</span> на ваш счёт
             </p>
           </div>
           <p className="text-xs text-navy-400 mb-6">
@@ -406,7 +408,7 @@ export default function CheckoutPage() {
                     <div>
                       <p className="font-semibold text-navy-900 text-sm">Списать бонусы</p>
                       <p className="text-xs text-navy-400">
-                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} бонусов</span> = {formatPrice(userBonusPoints)}
+                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} scoins</span> = {userBonusPoints.toLocaleString('ru-RU')} ₽
                       </p>
                     </div>
                   </label>
@@ -550,7 +552,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">
-                За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} сибакоинов</span>
+                За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} scoins</span>
               </div>
             </div>
           </div>

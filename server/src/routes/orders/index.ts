@@ -71,7 +71,7 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
           0
         )
         const promoDiscount = result.data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
-        const maxBonus = subtotal - promoDiscount
+        const maxBonus = Math.floor((subtotal - promoDiscount) / 100)
         if (bonusUsed > maxBonus) {
           return reply.status(400).send({ error: 'Нельзя списать бонусов больше суммы заказа' })
         }
