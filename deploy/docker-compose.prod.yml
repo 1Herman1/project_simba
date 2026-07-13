@@ -1,0 +1,34 @@
+# Прод-версия для VPS: Postgres и MinIO слушают ТОЛЬКО localhost (127.0.0.1),
+# чтобы БД и хранилище не были доступны из интернета на публичном IP.
+# Пароли берутся из переменных окружения (см. .env рядом или экспортировать перед up).
+# Запуск: docker compose -f deploy/docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5432:5432"
+    environment:
+      POSTGRES_DB: simba
+      POSTGRES_USER: simba
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: simba
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:?set MINIO_PASSWORD}
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  minio_data:
