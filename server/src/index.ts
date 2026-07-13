@@ -6,6 +6,7 @@ import prismaPlugin from './plugins/prisma'
 import authenticatePlugin from './plugins/authenticate'
 import authRoutes from './routes/auth/index'
 import productRoutes from './routes/products'
+import adminProductRoutes from './routes/products/admin-crud'
 import categoryRoutes from './routes/categories'
 import brandRoutes from './routes/brands'
 import cartRoutes from './routes/cart/index'
@@ -41,6 +42,7 @@ async function start() {
   app.get('/health', async () => ({ status: 'ok' }))
 
   await app.register(productRoutes, { prefix: '/api/products' })
+  await app.register(adminProductRoutes, { prefix: '/api/admin/products' })
   await app.register(categoryRoutes, { prefix: '/api/categories' })
   await app.register(brandRoutes, { prefix: '/api/brands' })
   await app.register(cartRoutes, { prefix: '/api/cart' })
