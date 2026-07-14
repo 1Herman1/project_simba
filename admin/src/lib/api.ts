@@ -145,15 +145,11 @@ export interface Paginated<T> {
 // ─── API methods ──────────────────────────────────────────────────────────────
 
 export const authApi = {
-  sendOtp: (contact: string, channel: 'sms' | 'email') => {
-    const body = channel === 'email' ? { email: contact, channel } : { phone: contact, channel }
-    return api.post('/api/auth/send-otp', body)
-  },
-  verifyOtp: (contact: string, code: string) => {
-    const isEmail = contact.includes('@')
-    const body = isEmail ? { email: contact, code } : { phone: contact, code }
-    return api.post<{ token: string; user: { role: string } }>('/api/auth/verify-otp', body)
-  },
+  adminLogin: (username: string, password: string) =>
+    api.post<{
+      token: string
+      user: { id: string; email?: string; phone?: string; name: string; role: string; bonusPoints: number; bonusLevel: string }
+    }>('/api/auth/admin-login', { username, password }),
   me: () => api.get<{ userId: string; role: string; name?: string }>('/api/auth/me'),
 }
 
