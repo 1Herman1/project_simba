@@ -8,7 +8,7 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed:admin": "tsx prisma/seed-admin.ts",
+    "db:seed:admin": "tsx --env-file=.env prisma/seed-admin.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {
