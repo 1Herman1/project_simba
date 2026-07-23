@@ -152,6 +152,8 @@ export const authApi = {
       user: { id: string; email?: string; phone?: string; name: string; role: string; bonusPoints: number; bonusLevel: string }
     }>('/api/auth/admin-login', { username, password }),
   me: () => api.get<{ userId: string; role: string; name?: string }>('/api/auth/me'),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    api.post('/api/auth/change-password', { currentPassword, newPassword }),
 }
 
 export const dashboardApi = {
@@ -201,6 +203,8 @@ export const usersApi = {
     api.get<Paginated<User>>('/api/admin/users', { params }),
   updateRole: (id: string, role: string) =>
     api.put(`/api/admin/users/${id}/role`, { role }),
+  resetPassword: (id: string, newPassword: string) =>
+    api.put(`/api/admin/users/${id}/password`, { newPassword }),
 }
 
 export const bannersApi = {

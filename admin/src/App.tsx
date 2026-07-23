@@ -13,6 +13,7 @@ import UsersPage from './pages/users/UsersPage'
 import CategoriesPage from './pages/categories/CategoriesPage'
 import BrandsPage from './pages/brands/BrandsPage'
 import BannersPage from './pages/banners/BannersPage'
+import SettingsPage from './pages/SettingsPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'ok' | 'fail'>('loading')
@@ -69,6 +70,7 @@ export default function App() {
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/brands" element={<BrandsPage />} />
               <Route path="/banners" element={<BannersPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Layout>

@@ -22,6 +22,9 @@ export default function UsersPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [resetPasswordId, setResetPasswordId] = useState<string | null>(null)
+  const [resetPasswordValue, setResetPasswordValue] = useState('')
+  const [resetMessage, setResetMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   const load = (p = page, s = search) => {
     setLoading(true)
@@ -45,6 +48,31 @@ export default function UsersPage() {
       await usersApi.updateRole(userId, role)
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role } : u))
     } finally { setUpdatingId(null) }
+  }
+
+  const handleResetPassword = async (userId: string) => {
+    if (!resetPasswordValue.trim()) {
+      setResetMessage({ type: 'error', text: 'Введите новый пароль' })
+      return
+    }
+
+    if (resetPasswordValue.length < 8) {
+      setResetMessage({ type: 'error', text: 'Пароль минимум 8 символов' })
+      return
+    }
+
+    setUpdatingId(userId)
+    try {
+      await usersApi.resetPassword(userId, resetPasswordValue)
+      setResetMessage({ type: 'success', text: 'Пароль успешно сброшен' })
+      setResetPasswordId(null)
+      setResetPasswordValue('')
+    } catch (err: any) {
+      const errorText = err.response?.data?.error || 'Ошибка при сбросе пароля'
+      setResetMessage({ type: 'error', text: errorText })
+    } finally {
+      setUpdatingId(null)
+    }
   }
 
   const totalPages = Math.ceil(total / 20)
@@ -81,6 +109,7 @@ export default function UsersPage() {
                   <th className="px-5 py-3 font-medium">Бонусы</th>
                   <th className="px-5 py-3 font-medium">Роль</th>
                   <th className="px-5 py-3 font-medium">Дата</th>
+                  <th className="px-5 py-3 font-medium">Действия</th>
                 </tr>
               </thead>
               <tbody>
@@ -114,11 +143,20 @@ export default function UsersPage() {
                     <td className="px-5 py-3 text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString('ru-RU')}
                     </td>
+                    <td className="px-5 py-3">
+                      <button
+                        onClick={() => { setResetPasswordId(user.id); setResetPasswordValue(''); setResetMessage(null) }}
+                        disabled={updatingId === user.id}
+                        className="text-xs px-2 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 transition-colors"
+                      >
+                        Сбросить пароль
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-gray-400">
+                    <td colSpan={7} className="px-5 py-12 text-center text-gray-400">
                       {search ? 'Ничего не найдено' : 'Пользователей пока нет'}
                     </td>
                   </tr>
@@ -141,6 +179,55 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      {resetPasswordId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Сбросить пароль</h3>
+
+            {resetMessage && (
+              <div
+                className={`px-4 py-3 rounded-lg text-sm font-medium mb-4 ${
+                  resetMessage.type === 'success'
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
+                {resetMessage.text}
+              </div>
+            )}
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Новый пароль</label>
+              <input
+                type="password"
+                value={resetPasswordValue}
+                onChange={e => setResetPasswordValue(e.target.value)}
+                disabled={updatingId === resetPasswordId}
+                placeholder="Минимум 8 символов"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:opacity-50"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => setResetPasswordId(null)}
+                disabled={updatingId === resetPasswordId}
+                className="flex-1 px-4 py-2 rounded-lg border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              >
+                Отмена
+              </button>
+              <button
+                onClick={() => handleResetPassword(resetPasswordId)}
+                disabled={updatingId === resetPasswordId}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {updatingId === resetPasswordId ? 'Загрузка...' : 'Сбросить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

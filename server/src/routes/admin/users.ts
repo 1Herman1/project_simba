@@ -1,4 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
+import { z } from 'zod'
+import * as bcrypt from 'bcryptjs'
 import { checkRole } from '../../middleware/check-role'
 
 const usersAdminRoute: FastifyPluginAsync = async (app) => {
@@ -60,6 +62,38 @@ const usersAdminRoute: FastifyPluginAsync = async (app) => {
       throw err
     }
   })
+
+  const passwordSchema = z.object({
+    newPassword: z.string().min(8, 'Пароль минимум 8 символов'),
+  })
+
+  app.put<{ Params: { id: string } }>(
+    '/:id/password',
+    guard,
+    async (request, reply) => {
+      const { id } = request.params
+      const result = passwordSchema.safeParse(request.body)
+      if (!result.success) {
+        return reply.status(400).send({ error: result.error.errors[0].message })
+      }
+
+      const { newPassword } = result.data
+
+      try {
+        const passwordHash = await bcrypt.hash(newPassword, 10)
+        await app.prisma.user.update({
+          where: { id },
+          data: { passwordHash },
+        })
+        return reply.send({ message: 'Пароль успешно сброшен' })
+      } catch (err: any) {
+        if (err?.code === 'P2025') {
+          return reply.status(404).send({ error: 'Пользователь не найден' })
+        }
+        throw err
+      }
+    }
+  )
 }
 
 export default usersAdminRoute
