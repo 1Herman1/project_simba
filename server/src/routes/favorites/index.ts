@@ -26,7 +26,14 @@ const favoritesRoutes: FastifyPluginAsync = async (app) => {
 
   app.post('/:productId', { preHandler: app.authenticate }, async (request, reply) => {
     const { userId } = request.user
-    const { productId } = request.params as { productId: string }
+
+    let productId: string
+    try {
+      const parsed = addSchema.parse(request.params)
+      productId = parsed.productId
+    } catch (e) {
+      return reply.status(400).send({ error: 'Invalid productId' })
+    }
 
     const product = await app.prisma.product.findUnique({ where: { id: productId } })
     if (!product) {
@@ -52,7 +59,14 @@ const favoritesRoutes: FastifyPluginAsync = async (app) => {
 
   app.delete('/:productId', { preHandler: app.authenticate }, async (request, reply) => {
     const { userId } = request.user
-    const { productId } = request.params as { productId: string }
+
+    let productId: string
+    try {
+      const parsed = addSchema.parse(request.params)
+      productId = parsed.productId
+    } catch (e) {
+      return reply.status(400).send({ error: 'Invalid productId' })
+    }
 
     await app.prisma.favorite.deleteMany({
       where: { userId, productId },

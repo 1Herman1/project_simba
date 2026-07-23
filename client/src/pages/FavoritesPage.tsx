@@ -41,7 +41,8 @@ function ProductCard({ favorite, onRemove }: {
 
         <button
           onClick={e => { e.preventDefault(); onRemove(product.id) }}
-          className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform group">
+          aria-label="Убрать из избранного"
+          className="absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform group">
           <svg className="w-4 h-4 fill-red-400 stroke-red-400 group-hover:fill-red-500" viewBox="0 0 24 24" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
@@ -101,6 +102,7 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<Favorite[]>([])
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     favoritesApi.getAll()
@@ -111,21 +113,35 @@ export default function FavoritesPage() {
 
   const handleRemove = async (productId: string) => {
     setRemovingId(productId)
+    setError('')
     try {
       await favoritesApi.remove(productId)
       setTimeout(() => {
         setFavorites(prev => prev.filter(f => f.productId !== productId))
         setRemovingId(null)
       }, 300)
-    } catch {
+    } catch (err: any) {
       setRemovingId(null)
+      setError(err?.response?.data?.error || 'Ошибка при удалении из избранного')
     }
   }
 
   const handleClearAll = async () => {
+    const prevFavorites = favorites
     setFavorites([])
-    for (const fav of favorites) {
-      await favoritesApi.remove(fav.productId).catch(() => {})
+    setError('')
+
+    const results = await Promise.allSettled(
+      prevFavorites.map(fav => favoritesApi.remove(fav.productId))
+    )
+
+    const failed = results
+      .map((result, idx) => result.status === 'rejected' ? prevFavorites[idx] : null)
+      .filter((fav): fav is Favorite => fav !== null)
+
+    if (failed.length > 0) {
+      setFavorites(failed)
+      setError(`Не удалось удалить ${failed.length} товаров`)
     }
   }
 
@@ -136,6 +152,12 @@ export default function FavoritesPage() {
   return (
     <div className="min-h-screen bg-blue-50 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center justify-between">
+            <span>{error}</span>
+            <button onClick={() => setError('')} className="text-red-500 hover:text-red-700">×</button>
+          </div>
+        )}
 
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-navy-900">

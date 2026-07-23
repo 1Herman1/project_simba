@@ -113,7 +113,8 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
         {/* Избранное */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 transition-all hover:scale-110"
+          aria-label={isFavorited ? 'Убрать из избранного' : 'Добавить в избранное'}
+          className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center transition-all hover:scale-110 rounded-full"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorited ? '#FFB347' : 'none'} stroke={isFavorited ? '#FFB347' : '#8FA8C0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -197,6 +198,8 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
   const [products, setProducts] = useState<Product[]>(passedProducts || mockProducts)
   const [favorites, setFavorites] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(!passedProducts)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!passedProducts) {
@@ -222,29 +225,54 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
   }
 
   async function handleToggleFavorite(productId: string) {
+    // Блокировка повторного клика
+    if (pendingIds.has(productId)) return
+
     const isFav = favorites.has(productId)
+    const prevFavorites = new Set(favorites)
+
+    // Оптимистичное обновление
+    setPendingIds(prev => new Set(prev).add(productId))
+    setFavorites(prev => {
+      const next = new Set(prev)
+      isFav ? next.delete(productId) : next.add(productId)
+      return next
+    })
+    setError('')
+
     try {
       if (isFav) {
         await favoritesApi.remove(productId)
-        setFavorites(prev => {
-          const next = new Set(prev)
-          next.delete(productId)
-          return next
-        })
       } else {
         await favoritesApi.add(productId)
-        setFavorites(prev => new Set(prev).add(productId))
       }
-    } catch {
+    } catch (err: any) {
+      // Откат при ошибке
+      setFavorites(prevFavorites)
+
       // Если не авторизован, перенаправим на логин
       if (!localStorage.getItem('token')) {
         window.location.href = '/auth'
+      } else {
+        setError(err?.response?.data?.error || 'Ошибка при изменении избранного')
       }
+    } finally {
+      setPendingIds(prev => {
+        const next = new Set(prev)
+        next.delete(productId)
+        return next
+      })
     }
   }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-6">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center justify-between">
+          <span>{error}</span>
+          <button onClick={() => setError('')} className="text-red-500 hover:text-red-700">×</button>
+        </div>
+      )}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-navy-900">{title}</h2>
         <div className="flex gap-2">
