@@ -56,6 +56,7 @@ export interface Product {
   isGrainFree: boolean
   isHypoallergenic: boolean
   isWeightControl: boolean
+  isFeatured: boolean
   protein?: number
   fat?: number
   fiber?: number

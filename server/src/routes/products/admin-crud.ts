@@ -19,6 +19,7 @@ const createSchema = z.object({
   isGrainFree: z.boolean().default(false),
   isHypoallergenic: z.boolean().default(false),
   isWeightControl: z.boolean().default(false),
+  isFeatured: z.boolean().default(false),
   protein: z.number().positive().optional(),
   fat: z.number().positive().optional(),
   fiber: z.number().positive().optional(),

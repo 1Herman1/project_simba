@@ -31,6 +31,7 @@ export default function ProductFormPage() {
   const [isGrainFree, setIsGrainFree] = useState(false)
   const [isHypoallergenic, setIsHypoallergenic] = useState(false)
   const [isWeightControl, setIsWeightControl] = useState(false)
+  const [isFeatured, setIsFeatured] = useState(false)
   const [protein, setProtein] = useState('')
   const [fat, setFat] = useState('')
   const [fiber, setFiber] = useState('')
@@ -59,6 +60,7 @@ export default function ProductFormPage() {
         setIsGrainFree(p.isGrainFree)
         setIsHypoallergenic(p.isHypoallergenic)
         setIsWeightControl(p.isWeightControl)
+        setIsFeatured(p.isFeatured || false)
         setProtein(p.protein != null ? String(p.protein) : '')
         setFat(p.fat != null ? String(p.fat) : '')
         setFiber(p.fiber != null ? String(p.fiber) : '')
@@ -122,6 +124,7 @@ export default function ProductFormPage() {
         isGrainFree,
         isHypoallergenic,
         isWeightControl,
+        isFeatured,
         protein: protein ? parseFloat(protein) : undefined,
         fat: fat ? parseFloat(fat) : undefined,
         fiber: fiber ? parseFloat(fiber) : undefined,
@@ -291,6 +294,7 @@ export default function ProductFormPage() {
               { label: 'Без зерна', value: isGrainFree, set: setIsGrainFree },
               { label: 'Гипоаллергенный', value: isHypoallergenic, set: setIsHypoallergenic },
               { label: 'Контроль веса', value: isWeightControl, set: setIsWeightControl },
+              { label: 'Рекомендуемый', value: isFeatured, set: setIsFeatured },
             ].map(f => (
               <label key={f.label} className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={f.value} onChange={e => f.set(e.target.checked)}

@@ -1,21 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { formatPrice } from '../../lib/format'
-
-interface Variant {
-  id: string
-  weight: number
-  price: number
-  oldPrice: number | null
-}
-
-interface Product {
-  id: string
-  name: string
-  brand: string
-  variants: Variant[]
-  isGrainFree: boolean
-  isHypoallergenic: boolean
-}
+import { productsApi, favoritesApi, type Product } from '../../lib/api'
 
 const mockProducts: Product[] = [
   {
@@ -87,9 +72,12 @@ const mockProducts: Product[] = [
   },
 ]
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, isFavorited, onToggleFavorite }: {
+  product: Product
+  isFavorited: boolean
+  onToggleFavorite: (productId: string) => void
+}) {
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0].id)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
 
   const selectedVariant = product.variants.find((v) => v.id === selectedVariantId)!
@@ -97,6 +85,10 @@ function ProductCard({ product }: { product: Product }) {
   function handleAddToCart() {
     setAddedToCart(true)
     setTimeout(() => setAddedToCart(false), 1500)
+  }
+
+  function handleFavoriteClick() {
+    onToggleFavorite(product.id)
   }
 
   return (
@@ -120,10 +112,10 @@ function ProductCard({ product }: { product: Product }) {
 
         {/* Избранное */}
         <button
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={handleFavoriteClick}
           className="absolute top-2 right-2 transition-all hover:scale-110"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite ? '#FFB347' : 'none'} stroke={isFavorite ? '#FFB347' : '#8FA8C0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorited ? '#FFB347' : 'none'} stroke={isFavorited ? '#FFB347' : '#8FA8C0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
         </button>
@@ -197,10 +189,29 @@ function ProductCard({ product }: { product: Product }) {
 
 interface FeaturedProductsProps {
   title: string
+  products?: Product[]
 }
 
-export default function FeaturedProducts({ title }: FeaturedProductsProps) {
+export default function FeaturedProducts({ title, products: passedProducts }: FeaturedProductsProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [products, setProducts] = useState<Product[]>(passedProducts || mockProducts)
+  const [favorites, setFavorites] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(!passedProducts)
+
+  useEffect(() => {
+    if (!passedProducts) {
+      productsApi.list({ featured: 'true' })
+        .then(res => setProducts(res.data.items))
+        .catch(() => setProducts(mockProducts))
+        .finally(() => setLoading(false))
+    }
+
+    favoritesApi.getAll()
+      .then(res => {
+        setFavorites(new Set(res.data.map(f => f.productId)))
+      })
+      .catch(() => {})
+  }, [passedProducts])
 
   function scrollLeft() {
     scrollRef.current?.scrollBy({ left: -220, behavior: 'smooth' })
@@ -208,6 +219,28 @@ export default function FeaturedProducts({ title }: FeaturedProductsProps) {
 
   function scrollRight() {
     scrollRef.current?.scrollBy({ left: 220, behavior: 'smooth' })
+  }
+
+  async function handleToggleFavorite(productId: string) {
+    const isFav = favorites.has(productId)
+    try {
+      if (isFav) {
+        await favoritesApi.remove(productId)
+        setFavorites(prev => {
+          const next = new Set(prev)
+          next.delete(productId)
+          return next
+        })
+      } else {
+        await favoritesApi.add(productId)
+        setFavorites(prev => new Set(prev).add(productId))
+      }
+    } catch {
+      // Если не авторизован, перенаправим на логин
+      if (!localStorage.getItem('token')) {
+        window.location.href = '/auth'
+      }
+    }
   }
 
   return (
@@ -235,8 +268,13 @@ export default function FeaturedProducts({ title }: FeaturedProductsProps) {
       </div>
 
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-2 scroll-smooth" style={{ scrollbarWidth: 'none' }}>
-        {mockProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isFavorited={favorites.has(product.id)}
+            onToggleFavorite={handleToggleFavorite}
+          />
         ))}
       </div>
     </section>

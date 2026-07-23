@@ -1,62 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { formatPrice } from '../lib/format'
+import { favoritesApi, type Favorite } from '../lib/api'
 
-const mockFavorites = [
-  {
-    id: '1',
-    slug: 'royal-canin-renal',
-    name: 'Royal Canin Renal для взрослых кошек при хронической почечной недостаточности',
-    brand: 'Royal Canin',
-    variants: [
-      { id: 'v1', weight: 0.5, price: 89900, oldPrice: 99900 },
-      { id: 'v2', weight: 2, price: 249900, oldPrice: 279900 },
-      { id: 'v3', weight: 4, price: 419900, oldPrice: null },
-    ],
-    isGrainFree: false,
-    isHypoallergenic: false,
-  },
-  {
-    id: '2',
-    slug: 'hills-kd',
-    name: "Hill's Prescription Diet k/d Kidney Care для кошек",
-    brand: "Hill's",
-    variants: [
-      { id: 'v1', weight: 1.5, price: 219900, oldPrice: 249900 },
-      { id: 'v2', weight: 3, price: 389900, oldPrice: null },
-    ],
-    isGrainFree: false,
-    isHypoallergenic: true,
-  },
-  {
-    id: '3',
-    slug: 'farmina-nd-cat',
-    name: 'Farmina N&D Grain Free беззерновой для кошек с уткой и тыквой',
-    brand: 'Farmina',
-    variants: [
-      { id: 'v1', weight: 1.5, price: 179900, oldPrice: null },
-      { id: 'v2', weight: 5, price: 499900, oldPrice: 549900 },
-    ],
-    isGrainFree: true,
-    isHypoallergenic: false,
-  },
-  {
-    id: '4',
-    slug: 'purina-nf',
-    name: 'Purina Pro Plan Veterinary Diets NF Renal Function для кошек',
-    brand: 'Purina',
-    variants: [
-      { id: 'v1', weight: 1.5, price: 189900, oldPrice: null },
-    ],
-    isGrainFree: false,
-    isHypoallergenic: false,
-  },
-]
-
-function ProductCard({ product, onRemove }: {
-  product: typeof mockFavorites[0]
-  onRemove: (id: string) => void
+function ProductCard({ favorite, onRemove }: {
+  favorite: Favorite
+  onRemove: (productId: string) => void
 }) {
+  const product = favorite.product
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
   const [added, setAdded] = useState(false)
 
@@ -72,7 +23,6 @@ function ProductCard({ product, onRemove }: {
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-      {/* Фото */}
       <Link to={`/product/${product.slug}`} className="relative block bg-blue-50 h-44 flex items-center justify-center">
         {discount && (
           <span className="absolute top-2 left-2 bg-amber-400 text-navy-900 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -89,7 +39,6 @@ function ProductCard({ product, onRemove }: {
           )}
         </div>
 
-        {/* Кнопка удалить из избранного */}
         <button
           onClick={e => { e.preventDefault(); onRemove(product.id) }}
           className="absolute bottom-2 right-2 w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform group">
@@ -99,9 +48,8 @@ function ProductCard({ product, onRemove }: {
         </button>
       </Link>
 
-      {/* Контент */}
       <div className="p-3 flex flex-col flex-1">
-        <p className="text-xs text-navy-300 mb-1">{product.brand}</p>
+        <p className="text-xs text-navy-300 mb-1">{product.brand?.name || 'Без бренда'}</p>
         <Link to={`/product/${product.slug}`}>
           <h3 className="text-sm font-semibold text-navy-900 mb-2 hover:text-blue-300 transition-colors"
             style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -109,7 +57,6 @@ function ProductCard({ product, onRemove }: {
           </h3>
         </Link>
 
-        {/* Варианты веса */}
         <div className="flex flex-wrap gap-1 mb-3">
           {product.variants.map(v => (
             <button
@@ -125,7 +72,6 @@ function ProductCard({ product, onRemove }: {
           ))}
         </div>
 
-        {/* Цена */}
         <div className="flex items-baseline gap-2 mb-3">
           <span className="text-lg font-bold text-navy-900">
             {formatPrice(selectedVariant.price)}
@@ -152,22 +98,45 @@ function ProductCard({ product, onRemove }: {
 }
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState(mockFavorites)
+  const [favorites, setFavorites] = useState<Favorite[]>([])
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const handleRemove = (id: string) => {
-    setRemovingId(id)
-    setTimeout(() => {
-      setFavorites(prev => prev.filter(p => p.id !== id))
+  useEffect(() => {
+    favoritesApi.getAll()
+      .then(res => setFavorites(res.data))
+      .catch(() => setFavorites([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleRemove = async (productId: string) => {
+    setRemovingId(productId)
+    try {
+      await favoritesApi.remove(productId)
+      setTimeout(() => {
+        setFavorites(prev => prev.filter(f => f.productId !== productId))
+        setRemovingId(null)
+      }, 300)
+    } catch {
       setRemovingId(null)
-    }, 300)
+    }
+  }
+
+  const handleClearAll = async () => {
+    setFavorites([])
+    for (const fav of favorites) {
+      await favoritesApi.remove(fav.productId).catch(() => {})
+    }
+  }
+
+  if (loading) {
+    return <div className="min-h-screen bg-blue-50 flex items-center justify-center">Загрузка...</div>
   }
 
   return (
     <div className="min-h-screen bg-blue-50 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto px-4 py-6">
 
-        {/* Заголовок */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-navy-900">
             Избранное
@@ -177,14 +146,13 @@ export default function FavoritesPage() {
           </h1>
           {favorites.length > 0 && (
             <button
-              onClick={() => setFavorites([])}
+              onClick={handleClearAll}
               className="text-sm text-navy-400 hover:text-red-400 transition-colors">
               Очистить всё
             </button>
           )}
         </div>
 
-        {/* Пустое состояние */}
         {favorites.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-5">
             <div className="text-center">
@@ -199,10 +167,8 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {/* Сетка товаров */}
         {favorites.length > 0 && (
           <>
-            {/* Быстрые действия */}
             <div className="flex items-center gap-3 mb-4 overflow-x-auto pb-1">
               <button className="whitespace-nowrap bg-white text-navy-700 text-sm font-medium px-4 py-2 rounded-xl hover:bg-blue-50 transition-colors border border-blue-100">
                 Все в корзину
@@ -213,18 +179,17 @@ export default function FavoritesPage() {
             <div
               className="grid gap-4"
               style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
-              {favorites.map(product => (
+              {favorites.map(favorite => (
                 <div
-                  key={product.id}
+                  key={favorite.productId}
                   className={`transition-all duration-300 ${
-                    removingId === product.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                    removingId === favorite.productId ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}>
-                  <ProductCard product={product} onRemove={handleRemove} />
+                  <ProductCard favorite={favorite} onRemove={handleRemove} />
                 </div>
               ))}
             </div>
 
-            {/* Подсказка снизу */}
             <p className="text-center text-xs text-navy-300 mt-8">
               Нажмите на сердечко на карточке товара чтобы убрать из избранного
             </p>

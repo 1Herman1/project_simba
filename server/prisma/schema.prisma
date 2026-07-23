@@ -110,6 +110,7 @@ model User {
   otpCodes      OtpCode[]
   chatMessages  ChatMessage[]
   comparison    Comparison?
+  favorites     Favorite[]
 
   @@index([email])
   @@index([phone])
@@ -242,6 +243,8 @@ model Product {
   cartItems     CartItem[]
   comparisons   ComparisonProduct[]
   subscriptions Subscription[]
+  favorites     Favorite[]
+  isFeatured    Boolean              @default(false)
 
   @@index([slug])
   @@index([brandId])
@@ -481,6 +484,22 @@ model ComparisonProduct {
 
   @@id([comparisonId, productId])
   @@map("comparison_products")
+}
+
+// ─── ИЗБРАННОЕ ───────────────────────────────────────────────────────────────
+
+/// Избранные товары пользователя
+model Favorite {
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("favorites")
 }
 
 // ─── АНКЕТА ──────────────────────────────────────────────────────────────────

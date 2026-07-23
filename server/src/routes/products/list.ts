@@ -10,6 +10,7 @@ const querySchema = z.object({
   maxPrice: z.coerce.number().positive().optional(),
   search: z.string().optional(),
   sort: z.enum(['price_asc', 'price_desc', 'newest', 'popular']).optional(),
+  featured: z.enum(['true', 'false']).optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
 })
@@ -35,6 +36,7 @@ export default async function listRoute(app: FastifyInstance) {
       maxPrice: q.maxPrice !== undefined ? q.maxPrice * 100 : undefined,
       search: q.search,
       sortBy: q.sort,
+      featured: q.featured === 'true',
       page: q.page,
       limit: q.limit,
     })

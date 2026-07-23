@@ -8,6 +8,7 @@ export interface ProductFilters {
   maxPrice?: number
   search?: string
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular'
+  featured?: boolean
   page?: number
   limit?: number
 }
@@ -49,6 +50,10 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
         ...(filters.maxPrice !== undefined && { price: { lte: filters.maxPrice } }),
       },
     }
+  }
+
+  if (filters.featured) {
+    where.isFeatured = true
   }
 
   const orderBy = buildOrderBy(filters.sortBy)

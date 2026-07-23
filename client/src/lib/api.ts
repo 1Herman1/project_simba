@@ -45,6 +45,7 @@ export interface Product {
   isGrainFree: boolean
   isHypoallergenic: boolean
   isWeightControl: boolean
+  isFeatured: boolean
   protein: number | null
   fat: number | null
   fiber: number | null
@@ -166,6 +167,26 @@ export const categoriesApi = {
 export const brandsApi = {
   list: () =>
     api.get('/api/brands'),
+}
+
+// ─── Избранное ───────────────────────────────────────────────────────────────
+
+export interface Favorite {
+  userId: string
+  productId: string
+  createdAt: string
+  product: Product
+}
+
+export const favoritesApi = {
+  getAll: () =>
+    api.get<Favorite[]>('/api/favorites'),
+
+  add: (productId: string) =>
+    api.post<Favorite>(`/api/favorites/${productId}`),
+
+  remove: (productId: string) =>
+    api.delete(`/api/favorites/${productId}`),
 }
 
 // ─── Корзина ─────────────────────────────────────────────────────────────────
