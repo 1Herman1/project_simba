@@ -96,21 +96,46 @@ const RULES = [
 // --- Слой 2: сверка с зафиксированной дизайн-системой проекта ---
 // Читает docs/projects/*/design-system/MASTER.md. Если его нет — правила молча
 // пропускаются, поведение скрипта не меняется.
-function loadDesignSystem() {
-  const roots = ["docs/projects"];
-  let masterPath = null;
+// Активный проект: env ACTIVE_PROJECT → docs/projects/.active → единственный
+// найденный. При нескольких кандидатах без явного указателя — предупредить и
+// не сверять (иначе линтер молча сверит код с чужой палитрой).
+function resolveActiveProject() {
+  const root = "docs/projects";
+  if (!fs.existsSync(root)) return null;
 
-  for (const root of roots) {
-    if (!fs.existsSync(root)) continue;
-    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
-      if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
-      const candidate = path.join(root, entry.name, "design-system", "MASTER.md");
-      if (fs.existsSync(candidate)) {
-        masterPath = candidate;
-        break;
-      }
+  const projects = fs
+    .readdirSync(root, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !e.name.startsWith("_"))
+    .map((e) => e.name)
+    .filter((n) => fs.existsSync(path.join(root, n, "design-system", "MASTER.md")));
+
+  if (projects.length === 0) return null;
+
+  const explicit =
+    process.env.ACTIVE_PROJECT ||
+    (fs.existsSync(path.join(root, ".active"))
+      ? fs.readFileSync(path.join(root, ".active"), "utf8").trim()
+      : null);
+
+  if (explicit) {
+    if (!projects.includes(explicit)) {
+      console.error(`design-lint: активный проект "${explicit}" не найден или без MASTER.md`);
+      return null;
     }
+    return path.join(root, explicit, "design-system", "MASTER.md");
   }
+
+  if (projects.length > 1) {
+    console.error(
+      `design-lint: найдено несколько проектов (${projects.join(", ")}) — укажи активный в docs/projects/.active или ACTIVE_PROJECT. Сверка с MASTER.md пропущена.`,
+    );
+    return null;
+  }
+  return path.join(root, projects[0], "design-system", "MASTER.md");
+}
+
+function loadDesignSystem() {
+  const masterPath = resolveActiveProject();
   if (!masterPath) return null;
 
   const master = fs.readFileSync(masterPath, "utf8");

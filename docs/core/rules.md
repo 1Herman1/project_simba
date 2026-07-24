@@ -141,5 +141,5 @@ MINIO_ENDPOINT=
 - Не оборачивать в try/catch то что не может упасть
 - На уровне API (Fastify): возвращать стандартные HTTP коды + `{ success: false, error }`
 - На уровне UI: показывать toast / error state пользователю (три состояния: loading / error / data)
-- В продакшне: логи через `pm2 logs simba-server` (Sentry пока не подключён)
+- В продакшне: логи через process manager проекта (см. `docs/projects/<проект>/project.md`)
 - Пустой `catch {}` запрещён — либо обработать, либо пробросить (см. `silent-failure-hunter`)

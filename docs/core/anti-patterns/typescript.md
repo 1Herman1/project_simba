@@ -1,4 +1,4 @@
-# Anti-patterns: TypeScript / Node.js (Симба)
+# Anti-patterns: TypeScript / Node.js
 
 Негативный список — то, к чему модель тянется по умолчанию и что в Симбе
 делать НЕЛЬЗЯ. Работает по принципу Impeccable: отрицательные примеры сильнее

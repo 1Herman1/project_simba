@@ -1,4 +1,4 @@
-# Anti-patterns: безопасность (Симба)
+# Anti-patterns: безопасность
 
 Негативный список того, что модель по привычке пишет «небезопасно средне».
 Читается security-ревьюерами (`security-auth-access`, `security-secrets-scanner`,

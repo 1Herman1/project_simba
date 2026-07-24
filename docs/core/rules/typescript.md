@@ -1,6 +1,7 @@
-# Правила TypeScript — проект Симба
+# Правила TypeScript
 
-Стек: Fastify + Node.js + TypeScript + Prisma
+Универсальная база для TypeScript/Node-проектов. Реальный стек проекта —
+в `docs/projects/<проект>/project.md` (он приоритетнее).
 
 ## Обязательные правила
 
