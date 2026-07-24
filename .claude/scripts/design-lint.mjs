@@ -67,6 +67,12 @@ const RULES = [
     level: "ERROR",
   },
   {
+    name: "blanket-will-change",
+    test: /will-change:\s*(?!auto)|\bwill-change-(transform|opacity|top|left)\b/,
+    hint: "will-change только на реально анимируемых элементах — иначе лишние композиторные слои",
+    level: "WARNING",
+  },
+  {
     name: "ease-in-on-ui",
     test: /\bease-in\b(?!-out)/,
     hint: "ease-in на UI тормозит начало — используй ease-out",
