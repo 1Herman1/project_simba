@@ -217,7 +217,8 @@ UI-специалистов с единым отчётом по приорите
 - Code review перед коммитом → `code-reviewer`
 - Отладка бага → `debugger`
 - Планирование архитектуры → `architect` или `planner`
-- Тестирование функций → `researcher` с заданием QA
+- Тестирование функций, тест-план, покрытие → `qa-engineer`
+- Перед применением миграции БД на проде → `migration-guard`
 
 Правила запуска:
 - Независимые задачи запускать параллельно (несколько агентов в одном вызове)
@@ -257,6 +258,8 @@ Agent(researcher, "составь тест-план по всему сайту")
 | Написать новый код | `coder` | Новая фича, компонент, эндпоинт |
 | Проверить код | `code-reviewer` | Перед коммитом крупных изменений |
 | Найти баг | `debugger` | Ошибка в консоли, тест падает |
+| Написать/починить тесты | `qa-engineer` | Покрытие фичи, падающий тест, план проверки |
+| Выкатка миграции БД | `migration-guard` | Перед `migrate deploy` на проде |
 | Спланировать архитектуру | `architect` или `planner` | Новая фича на уровне БД/API |
 | Написать документацию | `documenter` | README, API docs |
 | Безопасность | `security-department` | Аудит, подозрение на взлом |
@@ -282,7 +285,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 |-------|-------|
 | `*.tsx`, `*.jsx`, `components/**` | `react-reviewer` |
 | `*.ts`, `*.js` (server, lib) | `typescript-reviewer` |
-| `prisma/schema.prisma`, `prisma/migrations/**` | `database-reviewer` |
+| `prisma/schema.prisma`, `prisma/migrations/**` | `database-reviewer` + `migration-guard` |
 | `server/src/routes/**` | `typescript-reviewer` + `code-reviewer` |
 | `client/src/pages/**` | `react-reviewer` + `design-reviewer` |
 | UI: вёрстка, стили, лендинги, письма | `design-reviewer` |
@@ -307,6 +310,8 @@ Agent(researcher, "составь тест-план по всему сайту")
 | JWT / OTP / сессии / IDOR | `security-auth-access` | code-reviewer |
 | CORS / заголовки / env / хранилище файлов | `security-infra-cloud` | — |
 | Проглоченные ошибки, пустой catch | `silent-failure-hunter` | — |
+| Риск выкатки миграции, потеря данных | `migration-guard` | database-reviewer |
+| Покрытие тестами, качество тестов | `qa-engineer` | code-reviewer |
 
 `code-reviewer` — универсал: подключается когда узкого специалиста не запускали.
 Если специалист уже проверил область — code-reviewer её не дублирует.
@@ -361,6 +366,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 | `design-reviewer` | Визуальное качество UI — типографика, цвет, layout, AI-slop |
 | `design-department` | Отдел дизайна/UX — оркеструет UI-специалистов, единый отчёт P1–P10 |
 | `database-reviewer` | PostgreSQL + Prisma — индексы, N+1, схема |
+| `migration-guard` | Риск выкатки миграций БД: потеря данных, блокировки, порядок деплоя |
 
 Качество:
 | Агент | Назначение |
@@ -368,6 +374,7 @@ Agent(researcher, "составь тест-план по всему сайту")
 | `performance-optimizer` | LCP, bundle size, N+1, React ре-рендеры |
 | `silent-failure-hunter` | Пустые catch, проглоченные ошибки |
 | `refactor-cleaner` | Мёртвый код, дубликаты, лишние зависимости |
+| `qa-engineer` | Тесты: тест-план, написание, покрытие критичных сценариев |
 | `agent-evaluator` | Оценка качества вывода одного агента на задаче |
 | `agent-auditor` | Аудит всей системы агентов/команд/скиллов — консистентность, пробелы, пересечения |
 | `strategist` | Наблюдатель-стратег — синтез находок, креативные выводы, product-риски «сверху» |
