@@ -146,6 +146,7 @@ export const productsApi = {
     sort?: string
     page?: number
     limit?: number
+    featured?: 'true' | 'false'
   }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products/list', { params }),
 
   bySlug: (slug: string) =>

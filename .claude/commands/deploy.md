@@ -9,6 +9,8 @@ description: Чеклист деплоя Симбы на Timeweb VPS (PM2 + Ngin
 - `npm run build` проходит в `client/`, `admin/`, `server/`
 - Нет секретов в коде (`security-secrets-scanner`)
 - Миграции протестированы локально
+- Если есть новые миграции — прогнать `migration-guard` (риск потери данных,
+  блокировки, порядок выкатки). Деструктивная миграция без свежего бэкапа — блокер
 
 На сервере (SSH): `git reset --hard origin/...` → `prisma migrate deploy` →
 сборка → `pm2 reload simba-server`. Стек: Timeweb VPS + PM2 + Nginx (НЕ Vercel).

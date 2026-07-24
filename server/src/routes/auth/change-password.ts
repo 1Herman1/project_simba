@@ -18,7 +18,7 @@ const changePassword: FastifyPluginAsync = async (app) => {
       }
 
       const { currentPassword, newPassword } = result.data
-      const userId = request.user.id
+      const { userId } = request.user
 
       const user = await app.prisma.user.findUnique({ where: { id: userId } })
 

@@ -2,70 +2,90 @@ import { useState, useRef, useEffect } from 'react'
 import { formatPrice } from '../../lib/format'
 import { productsApi, favoritesApi, type Product } from '../../lib/api'
 
+const mockDefaults = {
+  slug: '',
+  description: '',
+  images: [] as string[],
+  isWeightControl: false,
+  isFeatured: true,
+  protein: null,
+  fat: null,
+  fiber: null,
+  ash: null,
+  ingredients: null,
+  categories: [] as Product['categories'],
+}
+
 const mockProducts: Product[] = [
   {
+    ...mockDefaults,
     id: '1',
     name: 'Royal Canin Renal для кошек',
-    brand: 'Royal Canin',
+    brand: { id: 'b-royal-canin', name: "Royal Canin", slug: 'royal-canin' },
     variants: [
-      { id: 'v1', weight: 0.5, price: 89900, oldPrice: 99900 },
-      { id: 'v2', weight: 2, price: 249900, oldPrice: 279900 },
-      { id: 'v3', weight: 4, price: 419900, oldPrice: null },
+      { id: 'v1', weight: 0.5, price: 89900, oldPrice: 99900 , stock: 10, sku: null },
+      { id: 'v2', weight: 2, price: 249900, oldPrice: 279900 , stock: 10, sku: null },
+      { id: 'v3', weight: 4, price: 419900, oldPrice: null , stock: 10, sku: null },
     ],
     isGrainFree: false,
     isHypoallergenic: false,
   },
   {
+    ...mockDefaults,
     id: '2',
     name: "Hill's Science Plan Adult для собак",
-    brand: "Hill's",
+    brand: { id: 'b-hills', name: "Hill's", slug: 'hills' },
     variants: [
-      { id: 'v4', weight: 1.5, price: 159900, oldPrice: 179900 },
-      { id: 'v5', weight: 6, price: 489900, oldPrice: 549900 },
+      { id: 'v4', weight: 1.5, price: 159900, oldPrice: 179900 , stock: 10, sku: null },
+      { id: 'v5', weight: 6, price: 489900, oldPrice: 549900 , stock: 10, sku: null },
     ],
     isGrainFree: false,
     isHypoallergenic: true,
   },
   {
+    ...mockDefaults,
     id: '3',
     name: 'Farmina N&D Grain Free Ancestral',
-    brand: 'Farmina',
+    brand: { id: 'b-farmina', name: "Farmina", slug: 'farmina' },
     variants: [
-      { id: 'v6', weight: 1.5, price: 219900, oldPrice: null },
-      { id: 'v7', weight: 5, price: 589900, oldPrice: 649900 },
+      { id: 'v6', weight: 1.5, price: 219900, oldPrice: null , stock: 10, sku: null },
+      { id: 'v7', weight: 5, price: 589900, oldPrice: 649900 , stock: 10, sku: null },
     ],
     isGrainFree: true,
     isHypoallergenic: false,
   },
   {
+    ...mockDefaults,
     id: '4',
     name: 'Purina Pro Plan Sensitive для кошек',
-    brand: 'Purina Pro Plan',
+    brand: { id: 'b-purina-pro-plan', name: "Purina Pro Plan", slug: 'purina-pro-plan' },
     variants: [
-      { id: 'v8', weight: 0.4, price: 69900, oldPrice: 79900 },
-      { id: 'v9', weight: 3, price: 329900, oldPrice: null },
+      { id: 'v8', weight: 0.4, price: 69900, oldPrice: 79900 , stock: 10, sku: null },
+      { id: 'v9', weight: 3, price: 329900, oldPrice: null , stock: 10, sku: null },
     ],
     isGrainFree: false,
     isHypoallergenic: true,
   },
   {
+    ...mockDefaults,
     id: '5',
     name: 'Monge BWild Grain Free Rabbit',
-    brand: 'Monge',
+    brand: { id: 'b-monge', name: "Monge", slug: 'monge' },
     variants: [
-      { id: 'v10', weight: 1.5, price: 189900, oldPrice: 209900 },
-      { id: 'v11', weight: 12, price: 989900, oldPrice: null },
+      { id: 'v10', weight: 1.5, price: 189900, oldPrice: 209900 , stock: 10, sku: null },
+      { id: 'v11', weight: 12, price: 989900, oldPrice: null , stock: 10, sku: null },
     ],
     isGrainFree: true,
     isHypoallergenic: true,
   },
   {
+    ...mockDefaults,
     id: '6',
     name: 'Brit Premium Adult для собак крупных пород',
-    brand: 'Brit',
+    brand: { id: 'b-brit', name: "Brit", slug: 'brit' },
     variants: [
-      { id: 'v12', weight: 3, price: 189900, oldPrice: 219900 },
-      { id: 'v13', weight: 15, price: 779900, oldPrice: 849900 },
+      { id: 'v12', weight: 3, price: 189900, oldPrice: 219900 , stock: 10, sku: null },
+      { id: 'v13', weight: 15, price: 779900, oldPrice: 849900 , stock: 10, sku: null },
     ],
     isGrainFree: false,
     isHypoallergenic: false,
@@ -124,7 +144,7 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
 
       {/* Контент */}
       <div className="p-3 flex flex-col gap-2 flex-1">
-        <p className="text-[10px] text-navy-300 font-medium uppercase tracking-wide">{product.brand}</p>
+        <p className="text-[10px] text-navy-300 font-medium uppercase tracking-wide">{product.brand?.name}</p>
         <p className="text-sm font-semibold text-navy-900 leading-tight line-clamp-2">{product.name}</p>
 
         {/* Выбор веса */}
