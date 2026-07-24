@@ -1,5 +1,5 @@
 ---
-description: Финальный проход по UI — типографика, layout, цвет, доступность, микроанимации (по anti-references из docs/design.md)
+description: Финальный проход по UI — типографика, layout, цвет, доступность, микроанимации (по anti-references из docs/core/design-principles.md)
 ---
 
 Финальная шлифовка готового интерфейса перед коммитом. Не про баги кода
@@ -7,9 +7,9 @@ description: Финальный проход по UI — типографика,
 
 Порядок:
 
-1. Прочитай `docs/design.md` — бренд Симбы и anti-references. Для анимаций —
-   `docs/motion.md` (easing, длительности, гейт «надо ли анимировать») и
-   `docs/apple-patterns.md`.
+1. Прочитай `docs/core/design-principles.md` — бренд Симбы и anti-references. Для анимаций —
+   `docs/core/motion.md` (easing, длительности, гейт «надо ли анимировать») и
+   `docs/core/apple-patterns.md`.
 2. Запусти `node .claude/scripts/design-lint.mjs` — он ловит `transition: all`,
    `ease-in`, `scale(0)`/`scale-0` и анимацию layout-свойств.
 3. Запусти агента `design-reviewer` по текущим изменениям (`git diff`).
@@ -19,7 +19,7 @@ description: Финальный проход по UI — типографика,
    - **Layout** — отступы, воздух, убрать вложенные карточки
    - **Цвет** — палитра бренда вместо стоковой, контраст ≥ 4.5:1
    - **Доступность** — тач-таргеты ≥ 44px, label'ы, aria, заголовки
-   - **Микроанимация** — сверить с `docs/motion.md`: easing (`--ease-out`
+   - **Микроанимация** — сверить с `docs/core/motion.md`: easing (`--ease-out`
      по умолчанию, никогда `ease-in`), длительности < 300мс, анимировать
      только `transform`/`opacity`, уважать `prefers-reduced-motion`
 5. Собери короткий отчёт: что поправлено и почему (простым языком — для Гермеса).

@@ -7,7 +7,7 @@ const RULES = [
   {
     name: "forbidden-font",
     test: /\b(Inter|Arial)\b/,
-    hint: "запрещённый шрифт (AI-slop), см docs/design.md",
+    hint: "запрещённый шрифт (AI-slop), см docs/core/design-principles.md",
     level: "ERROR",
   },
   {
@@ -93,13 +93,83 @@ const RULES = [
   },
 ];
 
+// --- Слой 2: сверка с зафиксированной дизайн-системой проекта ---
+// Читает docs/projects/*/design-system/MASTER.md. Если его нет — правила молча
+// пропускаются, поведение скрипта не меняется.
+function loadDesignSystem() {
+  const roots = ["docs/projects"];
+  let masterPath = null;
+
+  for (const root of roots) {
+    if (!fs.existsSync(root)) continue;
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
+      const candidate = path.join(root, entry.name, "design-system", "MASTER.md");
+      if (fs.existsSync(candidate)) {
+        masterPath = candidate;
+        break;
+      }
+    }
+  }
+  if (!masterPath) return null;
+
+  const master = fs.readFileSync(masterPath, "utf8");
+  const hexes = new Set(
+    (master.match(/#[0-9A-Fa-f]{6}\b/g) || []).map((h) => h.toUpperCase()),
+  );
+  const fonts = new Set();
+  const fontBlock = master.match(/fontFamily:\s*\{[\s\S]*?\}/);
+  if (fontBlock) {
+    for (const m of fontBlock[0].matchAll(/['"]([A-Za-z][\w\s-]*)['"]/g)) {
+      fonts.add(m[1].replace(/^["']|["']$/g, ""));
+    }
+  }
+  return { masterPath, hexes, fonts };
+}
+
+const DS = loadDesignSystem();
+
+const MASTER_RULES = [
+  {
+    name: "offbrand-hex",
+    test: (line) => {
+      if (!DS || DS.hexes.size === 0) return false;
+      const found = line.match(/#[0-9A-Fa-f]{6}\b/g);
+      if (!found) return false;
+      return found.some((h) => !DS.hexes.has(h.toUpperCase()));
+    },
+    hint: "цвет вне палитры проекта — сверься с design-system/MASTER.md",
+    level: "WARNING",
+  },
+  {
+    name: "offbrand-font",
+    test: (line) => {
+      if (!DS || DS.fonts.size === 0) return false;
+      const m = line.match(/font-\[['"]?([A-Za-z][\w\s-]*)/);
+      if (!m) return false;
+      return !DS.fonts.has(m[1].trim());
+    },
+    hint: "шрифт вне дизайн-системы — сверься с design-system/MASTER.md",
+    level: "WARNING",
+  },
+  {
+    name: "arbitrary-spacing",
+    test: (line) => {
+      const m = [...line.matchAll(/\b(?:p|m|gap|space)[xytrbl]?-\[(\d+)px\]/g)];
+      return m.some((x) => Number(x[1]) % 4 !== 0);
+    },
+    hint: "отступ вне шкалы (кратность 4px) — сверься с design-system/MASTER.md",
+    level: "WARNING",
+  },
+];
+
 function lintFile(filePath) {
   const content = fs.readFileSync(filePath, "utf8");
   const lines = content.split("\n");
   const findings = [];
 
   lines.forEach((line, idx) => {
-    for (const rule of RULES) {
+    for (const rule of [...RULES, ...MASTER_RULES]) {
       const matched = typeof rule.test === "function" ? rule.test(line) : rule.test.test(line);
       if (matched) {
         findings.push({

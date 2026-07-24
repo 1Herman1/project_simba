@@ -18,7 +18,7 @@
 - ❌ Внешний ключ (`*Id`) без `@@index` — медленные join'ы и фильтры
 - ❌ Поле, по которому часто ищут (`slug`, `email`), без `@unique`/`@@index`
 - ❌ Relation-поле без обратной стороны (Prisma не сгенерируется, P1012)
-- ❌ Отсутствие `createdAt`/`updatedAt` на новой таблице (см. docs/rules.md)
+- ❌ Отсутствие `createdAt`/`updatedAt` на новой таблице (см. docs/core/rules.md)
 - ❌ Хранение денег во float → цены в копейках `Int` (`249900` = 2499 ₽)
 - ❌ Каскад `onDelete` не продуман — либо `Cascade`, либо явный `Restrict`
 

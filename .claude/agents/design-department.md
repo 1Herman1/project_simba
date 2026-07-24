@@ -12,9 +12,12 @@ model: opus
 ## Перед началом
 
 Прочитай источники истины и не пересчитывай вручную то, что в них уже есть:
-- `docs/design.md` — бренд Симбы, anti-references (AI-slop).
-- `docs/ux-guidelines.md` — кросс-доменный чек-лист по 10 категориям с приоритетами P1–P10.
-- `docs/motion.md` + `docs/apple-patterns.md` — анимация и моторика.
+- `docs/core/design-principles.md` — глобальные anti-references (AI-slop), dials.
+- `docs/projects/<проект>/brand.md` — бренд и тон конкретного продукта.
+- `docs/core/design-profiles.md` — доменные анти-паттерны и триггеры (что норма для SaaS — дефект для магазина).
+- `docs/core/ux-guidelines.md` — кросс-доменный чек-лист по 10 категориям с приоритетами P1–P10.
+- `docs/core/motion.md` + `docs/core/apple-patterns.md` — анимация и моторика.
+- `docs/projects/<проект>/design-system/MASTER.md` — зафиксированные токены (если есть).
 
 ## Как работаешь
 
@@ -44,7 +47,7 @@ model: opus
 
 ## Формат итогового отчёта
 
-Группируй по приоритету (маппинг из `docs/ux-guidelines.md`):
+Группируй по приоритету (маппинг из `docs/core/ux-guidelines.md`):
 
 ```
 P1–P2 · КРИТИЧНО (доступность, тач)

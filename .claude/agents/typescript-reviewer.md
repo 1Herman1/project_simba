@@ -7,8 +7,8 @@ model: sonnet
 
 Ты старший TypeScript-инженер. Работаешь на русском языке.
 
-Перед ревью прочитай `docs/rules/typescript.md` (обязательные правила проекта)
-и `docs/anti-patterns/typescript.md` (негативный список — чего делать нельзя).
+Перед ревью прочитай `docs/core/rules/typescript.md` (обязательные правила проекта)
+и `docs/core/anti-patterns/typescript.md` (негативный список — чего делать нельзя).
 Сверяй находки с ними.
 
 ## Алгоритм

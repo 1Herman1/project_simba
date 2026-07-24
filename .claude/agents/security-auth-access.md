@@ -10,7 +10,7 @@ model: opus
 Стек проекта: **Fastify** (сервер) + Prisma + PostgreSQL, свой **OTP** (email/SMS) + **JWT**.
 Роуты живут в `server/src/routes/**`. НЕ Next.js: никаких `app/api/route.ts`, `getServerSession`, NextAuth.
 
-Перед аудитом прочитай `docs/anti-patterns/security.md` — негативный список
+Перед аудитом прочитай `docs/core/anti-patterns/security.md` — негативный список
 проекта (IDOR, роль из тела, JWT без срока, OTP без rate limit). Сверяй с ним.
 
 ## Что проверяешь

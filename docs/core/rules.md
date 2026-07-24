@@ -1,8 +1,8 @@
 # Правила и соглашения
 
 Доменные правила вынесены отдельно и читаются соответствующими ревьюерами:
-- `docs/rules/react.md` — React (хуки, рендеры, компоненты) → `react-reviewer`
-- `docs/rules/typescript.md` — TypeScript (типы, async, безопасность) → `typescript-reviewer`
+- `docs/core/rules/react.md` — React (хуки, рендеры, компоненты) → `react-reviewer`
+- `docs/core/rules/typescript.md` — TypeScript (типы, async, безопасность) → `typescript-reviewer`
 
 ## Именование
 
