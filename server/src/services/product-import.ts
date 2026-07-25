@@ -134,16 +134,113 @@ export function parseAttributes(raw: Record<string, string>): { name: string; va
 }
 
 /**
+ * Парсит вес из названия товара
+ * Ищет хвостовой суффикс вида " - <число><единица>" с опциональным мультипаком
+ * Ловушка: размеры типа "40х60" не считаются весом, возвращает исходное имя целиком
+ */
+export function parseWeightFromName(name: string): { baseName: string; weightKg?: number } {
+  // Регулярное выражение для парсинга веса из конца строки
+  // Ищем: " - <число> <единица>" опционально с мультипаком
+  // Единицы: кг, г, гр, мл, л
+  const weightPattern = /\s*-\s*([\d,\.]+)\s*(кг|г|гр|мл|л)(?:\s*[*хx]\s*(\d+)\s*(?:шт)?)?\s*$/i
+
+  const match = name.match(weightPattern)
+  if (!match) {
+    // Нет распознанного паттерна веса, возвращаем исходное имя целиком
+    return { baseName: name, weightKg: undefined }
+  }
+
+  const numberStr = match[1]
+  const unit = match[2].toLowerCase()
+  const multiplier = match[3] ? parseInt(match[3]) : 1
+
+  // Парсим число (заменяем запятую на точку)
+  let value = parseFloat(numberStr.replace(',', '.'))
+  if (isNaN(value)) {
+    return { baseName: name, weightKg: undefined }
+  }
+
+  // Применяем мультипак
+  value = value * multiplier
+
+  // Переводим в килограммы
+  let weightKg: number
+  if (unit === 'кг') {
+    weightKg = value
+  } else if (unit === 'г' || unit === 'гр') {
+    weightKg = value / 1000
+  } else if (unit === 'л') {
+    // Для жидкостей считаем 1 л ≈ 1 кг
+    weightKg = value
+  } else if (unit === 'мл') {
+    // мл → л → кг: 1 мл = 0.001 л ≈ 0.001 кг
+    weightKg = value / 1000
+  } else {
+    return { baseName: name, weightKg: undefined }
+  }
+
+  // Обрезаем базовое имя: убираем " - <вес>"
+  const baseName = name.replace(weightPattern, '').trim()
+
+  return { baseName, weightKg }
+}
+
+/**
+ * Определяет бренд по названию товара
+ * Список брендов проверяется по началу названия (регистронезависимо)
+ * Порядок важен: длинные названия раньше коротких
+ * Пропускает слово "Корм" в начале если оно есть
+ */
+export function detectBrand(name: string): string | undefined {
+  const brands = [
+    'Happy Cat',
+    'Happy Dog',
+    "Hill's",
+    'Farmina',
+    'Monge',
+    'Grandorf',
+    'Forza10',
+    'Forza 10',
+    'Alleva',
+    'ZILLII',
+    'Craftia',
+    'AlphaPet',
+    'Muzzle',
+    'Royal Canin',
+  ]
+
+  let searchName = name.toLowerCase()
+
+  // Пропускаем слово "Корм" в начале если оно есть
+  searchName = searchName.replace(/^корм\s+/i, '')
+
+  for (const brand of brands) {
+    if (searchName.startsWith(brand.toLowerCase())) {
+      return brand
+    }
+  }
+
+  return undefined
+}
+
+/**
  * Маппит сырую строку в структурированный ImportRow
- * Определяет формат по наличию "Имя" (русский) или "name" (английский)
+ * Определяет формат по наличию "Имя", "Наименование" или ключа вида "Название атрибута N"
  */
 export function mapRow(raw: Record<string, string>): ImportRow {
-  // Определяем формат
-  const isRussian = 'Имя' in raw
+  // Определяем формат по наличию русских ключей
+  const isRussian = 'Имя' in raw || 'Наименование' in raw || Object.keys(raw).some(k => /^Название атрибута \d+$/.test(k))
 
   if (isRussian) {
     // Русский WooCommerce формат
-    const name = (raw['Имя'] ?? '').trim()
+    // Имя: берём из "Имя", если пусто — из "Наименование"
+    let name = (raw['Имя'] ?? '').trim()
+    const hasNameFromIme = !!name
+    if (!name) {
+      name = (raw['Наименование'] ?? '').trim()
+    }
+
+    // Описание: если есть отдельное поле "Наименование" и используется как имя — оно же и описание
     const sku = (raw['Артикул'] ?? '').trim() || undefined
     const description = (raw['Наименование'] ?? '').trim() || name || ''
 

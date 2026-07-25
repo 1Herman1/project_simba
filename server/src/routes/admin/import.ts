@@ -5,6 +5,8 @@ import {
   parseRows,
   mapRow,
   transliterate,
+  parseWeightFromName,
+  detectBrand,
   type ImportRow,
 } from '../../services/product-import'
 
@@ -25,6 +27,8 @@ const importRoute: FastifyPluginAsync = async (app) => {
     const created: string[] = []
     const updated: string[] = []
     const skippedNoPrice: string[] = []
+    const skippedEmpty: number[] = []
+    const variantsWithoutPrice: number[] = []
     const createdBrands: string[] = []
     const createdCategories: string[] = []
     const errors: string[] = []
@@ -42,16 +46,34 @@ const importRoute: FastifyPluginAsync = async (app) => {
       try {
         const row = mapRow(rawRow)
 
-        // 1. Проверка обязательного поля name
-        if (!row.name) {
-          errors.push(`Строка ${rowNum}: пропущено обязательное поле «Имя»`)
+        // 1. Пропуск пустых строк молча (имя пусто И все атрибуты пусты)
+        if (!row.name && row.attributes.length === 0) {
+          skippedEmpty.push(rowNum)
           continue
         }
 
-        // 2. Генерация/проверка slug
+        // 2. Проверка обязательного поля name (если есть атрибуты, но нет имени)
+        if (!row.name) {
+          errors.push(`Строка ${rowNum}: пропущено обязательное поле «Имя» (есть атрибуты)`)
+          continue
+        }
+
+        // 3. Парсим вес из имени товара (для группировки фасовок)
+        const { baseName, weightKg } = parseWeightFromName(row.name)
+
+        // 4. Определяем бренд по названию (если не указан в файле)
+        let brandNameToUse = row.brandName
+        if (!brandNameToUse) {
+          const detectedBrand = detectBrand(row.name)
+          if (detectedBrand) {
+            brandNameToUse = detectedBrand
+          }
+        }
+
+        // 5. Генерация/проверка slug (используем baseName для группировки фасовок)
         let slug = row.slug
         if (!slug) {
-          slug = transliterate(row.name)
+          slug = transliterate(baseName)
         }
         if (!slug) {
           // Название без букв и цифр (эмодзи, знаки препинания) — транслитерация
@@ -76,8 +98,8 @@ const importRoute: FastifyPluginAsync = async (app) => {
             break
           }
 
-          if (existing.name === row.name) {
-            // Тот же товар, обновим его
+          if (existing.name === baseName) {
+            // Тот же товар (другая фасовка) — обновим его
             break
           }
 
@@ -88,10 +110,10 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
         slug = finalSlug
 
-        // 3. Бренд
+        // 6. Бренд
         let brandId: string | undefined
-        if (row.brandName || row.brandSlug) {
-          const brandSlug = row.brandSlug || transliterate(row.brandName!)
+        if (brandNameToUse || row.brandSlug) {
+          const brandSlug = row.brandSlug || transliterate(brandNameToUse!)
           const cachedId = brandCache.get(brandSlug)
 
           if (cachedId) {
@@ -109,19 +131,19 @@ const importRoute: FastifyPluginAsync = async (app) => {
               // Создаём бренд
               const newBrand = await app.prisma.brand.create({
                 data: {
-                  name: row.brandName || row.brandSlug || '',
+                  name: brandNameToUse || row.brandSlug || '',
                   slug: brandSlug,
                 },
                 select: { id: true },
               })
               brandId = newBrand.id
               brandCache.set(brandSlug, brandId)
-              createdBrands.push(row.brandName || row.brandSlug || '')
+              createdBrands.push(brandNameToUse || row.brandSlug || '')
             }
           }
         }
 
-        // 4. Товар (upsert)
+        // 7. Товар (upsert)
         const existingProduct = await app.prisma.product.findUnique({
           where: { slug },
           include: { variants: true },
@@ -134,9 +156,9 @@ const importRoute: FastifyPluginAsync = async (app) => {
           // Создаём новый товар
           const product = await app.prisma.product.create({
             data: {
-              name: row.name,
+              name: baseName,
               slug,
-              description: row.description || row.name,
+              description: row.description || baseName,
               brandId,
               images: row.images,
               isActive: false, // Станет true если будет цена и вес
@@ -150,8 +172,8 @@ const importRoute: FastifyPluginAsync = async (app) => {
           await app.prisma.product.update({
             where: { slug },
             data: {
-              name: row.name,
-              description: row.description || row.name,
+              name: baseName,
+              description: row.description || baseName,
               brandId,
               images: row.images,
             },
@@ -159,10 +181,12 @@ const importRoute: FastifyPluginAsync = async (app) => {
           productId = existingProduct.id
         }
 
-        // 5. Вариант (только если есть цена и вес)
+        // 8. Вариант (создаём если есть цена и вес, или если есть только вес)
         let hasVariant = false
+        const finalWeight = weightKg ?? row.weight
+        const finalPrice = row.price
 
-        if (row.price !== undefined && row.weight !== undefined) {
+        if (finalPrice !== undefined && finalWeight !== undefined) {
           let variant = null
 
           if (row.sku) {
@@ -182,16 +206,16 @@ const importRoute: FastifyPluginAsync = async (app) => {
             })
           } else {
             variant = await app.prisma.productVariant.findFirst({
-              where: { productId, weight: row.weight },
+              where: { productId, weight: finalWeight },
             })
           }
 
           if (variant) {
-            // Обновляем вариант
+            // Обновляем вариант (только если файл содержит реальную цену)
             await app.prisma.productVariant.update({
               where: { id: variant.id },
               data: {
-                price: Math.round(row.price * 100),
+                price: Math.round(finalPrice * 100),
                 oldPrice: row.oldPrice ? Math.round(row.oldPrice * 100) : undefined,
                 stock: row.stock || 0,
                 sku: row.sku,
@@ -202,8 +226,8 @@ const importRoute: FastifyPluginAsync = async (app) => {
             await app.prisma.productVariant.create({
               data: {
                 productId,
-                weight: row.weight,
-                price: Math.round(row.price * 100),
+                weight: finalWeight,
+                price: Math.round(finalPrice * 100),
                 oldPrice: row.oldPrice ? Math.round(row.oldPrice * 100) : undefined,
                 stock: row.stock || 0,
                 sku: row.sku,
@@ -213,11 +237,30 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
           hasVariant = true
 
-          // Активируем товар только если есть вариант
+          // Активируем товар только если есть вариант с ценой
           await app.prisma.product.update({
             where: { id: productId },
             data: { isActive: true },
           })
+        } else if (finalWeight !== undefined && finalPrice === undefined) {
+          // Есть вес но нет цены — создаём вариант с price: 0, stock: 0
+          const variantByWeight = await app.prisma.productVariant.findFirst({
+            where: { productId, weight: finalWeight },
+          })
+
+          if (!variantByWeight) {
+            // Создаём вариант с нулевой ценой
+            await app.prisma.productVariant.create({
+              data: {
+                productId,
+                weight: finalWeight,
+                price: 0,
+                stock: 0,
+                sku: row.sku,
+              },
+            })
+            variantsWithoutPrice.push(rowNum)
+          }
         }
 
         if (!hasVariant) {
@@ -235,7 +278,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           }
         }
 
-        // 6. Категории
+        // 9. Категории
         for (const categoryName of row.categories) {
           const categorySlug = transliterate(categoryName)
           const cachedId = categoryCache.get(categorySlug)
@@ -277,7 +320,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           })
         }
 
-        // 7. Атрибуты (фильтры и значения)
+        // 10. Атрибуты (фильтры и значения)
         for (const attr of row.attributes) {
           const filterSlug = transliterate(attr.name)
           const cachedFilterId = filterCache.get(filterSlug)
@@ -367,7 +410,9 @@ const importRoute: FastifyPluginAsync = async (app) => {
     return reply.send({
       created: created.length,
       updated: updated.length,
+      skippedEmpty: skippedEmpty.length,
       skippedNoPrice,
+      variantsWithoutPrice: variantsWithoutPrice.length,
       createdBrands,
       createdCategories,
       errors,
