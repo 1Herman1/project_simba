@@ -68,8 +68,8 @@ const RULES = [
   },
   {
     name: "blanket-will-change",
-    test: /will-change:\s*(?!auto)|\bwill-change-(transform|opacity|top|left)\b/,
-    hint: "will-change только на реально анимируемых элементах — иначе лишние композиторные слои",
+    test: /will-change:\s*(?!auto)|\bwill-change-(transform|scroll|contents)\b/,
+    hint: "проверь: элемент реально анимируется и will-change снимается после (иначе лишние слои)",
     level: "WARNING",
   },
   {

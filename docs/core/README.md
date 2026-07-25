@@ -30,10 +30,14 @@
 
 Универсальную базу (`docs/core/`) при этом **не трогать** — она общая.
 
-> Что ещё требует ручной адаптации под новый проект: `.claude/commands/`
-> (`deploy.md`, `feature.md`, `review.md` содержат специфику хостинга, стека и
-> ветки) и `CLAUDE.md` в части активного проекта. Агенты и `docs/core/` —
-> переносимы как есть.
+> Что требует ручной адаптации под новый проект:
+> - `.claude/commands/` — `deploy.md`, `feature.md`, `review.md` содержат специфику хостинга, стека и ветки;
+> - `.claude/hooks/session-start.sh` — имя ветки захардкожено;
+> - `.claude/settings.json` — переносить обязательно: без `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` отделы не работают;
+> - `CLAUDE.md` — в части активного проекта;
+> - часть агентов (`devops`, `react-reviewer`, `typescript-reviewer`, `database-reviewer`, `seo-specialist`) упоминают стек прямо в `description` — сверить под новый проект.
+>
+> Переносимо без правок: `docs/core/` и агенты, не привязанные к стеку.
 
 ## Правило разделения
 
