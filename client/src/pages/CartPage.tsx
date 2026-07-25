@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { calcOrderTotals } from '@simba/shared'
 import { cartApi, type CartItem } from '../lib/api'
 import { formatPrice } from '../lib/format'
 
 const FREE_DELIVERY_THRESHOLD = 200000
-const BONUS_RATE = 0.05
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([])
@@ -51,12 +51,21 @@ export default function CartPage() {
         ? sum + (item.productVariant.oldPrice - item.productVariant.price) * item.quantity
         : sum, 0), [items])
 
-  const promoDiscount = promoApplied ? Math.round(subtotal * 0.1) : 0
-  const total = subtotal - promoDiscount
+  // Корзина — предварительная оценка: доставка ещё не выбрана, бонусы списываются на кассе.
+  const totals = calcOrderTotals({
+    items: items.map(item => ({
+      price: item.productVariant.price,
+      quantity: item.quantity,
+    })),
+    promoCode: promoApplied ? 'SIMBA10' : undefined,
+    availableBonus: 0,
+  })
+  const promoDiscount = totals.promoDiscount
+  const total = totals.total
 
   const toFreeDelivery = Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal)
   const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100)
-  const bonusEarned = Math.floor((total / 100) * BONUS_RATE)
+  const bonusEarned = totals.bonusEarned
 
   const handlePromo = () => {
     if (promoCode.toLowerCase() === 'simba10') {

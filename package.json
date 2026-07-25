@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": ["shared", "server", "client", "admin"],
   "scripts": {
+    "build": "npm run build --workspaces --if-present",
     "build:shared": "npm run build --workspace=shared",
     "dev:server": "npm run dev --workspace=server",
     "dev:client": "npm run dev --workspace=client",
