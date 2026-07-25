@@ -41,3 +41,11 @@ export type DeliveryProvider =
   | 'dostavista'
   | 'post'
   | 'pickup'
+
+export type DeliveryMethod =
+  | 'yandex'
+  | 'cdek'
+  | 'ozon'
+  | 'dostavista'
+  | 'post'
+  | 'pickup'

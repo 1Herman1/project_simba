@@ -1,5 +1,7 @@
 import { DeliveryMethod, PrismaClient } from '@prisma/client'
 import { calcOrderTotals, type OrderCalcInput, type OrderTotals } from '@simba/shared'
+import { getQuoteForMethod } from './delivery/delivery.service.js'
+import type { DeliveryAddress as DeliveryServiceAddress } from './delivery/types.js'
 
 type DeliveryAddress = {
   city: string
@@ -17,7 +19,14 @@ type CreateOrderData = {
   hasSpecialPackaging: boolean
   bonusUsed?: number
   promoCode?: string
-  deliveryCost?: number
+  expectedDeliveryCost?: number
+}
+
+// Ошибка при расхождении цены доставки
+export class DeliveryCostMismatchError extends Error {
+  constructor(public actualCost: number) {
+    super('Стоимость доставки изменилась, обновите расчёт')
+  }
 }
 
 // Re-export for backward compatibility
@@ -37,11 +46,60 @@ const orderItemsInclude = {
   },
 }
 
+async function resolveDeliveryCost(
+  prisma: PrismaClient,
+  userId: string,
+  data: CreateOrderData
+): Promise<number> {
+  let serverDeliveryCost = 0
+
+  if (data.deliveryMethod !== 'pickup') {
+    if (!data.deliveryAddress) {
+      throw new Error('Для выбранного способа доставки нужен адрес')
+    }
+
+    // Вес берём из БД, а не из запроса — иначе доставку можно занизить.
+    const cart = await prisma.cart.findUnique({
+      where: { id: data.cartId, userId },
+      include: { items: { include: { productVariant: true } } },
+    })
+
+    if (!cart || cart.items.length === 0) {
+      throw new Error('Корзина пуста или не найдена')
+    }
+
+    const totalWeightKg = cart.items.reduce(
+      (sum, item) => sum + item.productVariant.weight * item.quantity,
+      0
+    )
+
+    const quote = await getQuoteForMethod(
+      data.deliveryMethod,
+      data.deliveryAddress as DeliveryServiceAddress,
+      { weightKg: totalWeightKg }
+    )
+
+    serverDeliveryCost = quote.price
+  }
+
+  const clientCost = data.expectedDeliveryCost ?? 0
+  const tolerance = Math.max(5000, Math.round(serverDeliveryCost * 0.01))
+  if (Math.abs(clientCost - serverDeliveryCost) > tolerance) {
+    throw new DeliveryCostMismatchError(serverDeliveryCost)
+  }
+
+  return serverDeliveryCost
+}
+
 export async function createOrder(
   prisma: PrismaClient,
   userId: string,
   data: CreateOrderData
 ) {
+  // Котировка доставки — до открытия транзакции: это HTTP-запрос к внешней
+  // службе, держать на нём открытую транзакцию с блокировками нельзя.
+  const serverDeliveryCost = await resolveDeliveryCost(prisma, userId, data)
+
   return prisma.$transaction(async (tx) => {
     const cart = await tx.cart.findUnique({
       where: { id: data.cartId, userId },
@@ -85,7 +143,7 @@ export async function createOrder(
       promoCode: data.promoCode,
       bonusRequested: data.bonusUsed,
       availableBonus: currentUser?.bonusPoints ?? 0,
-      deliveryCost: data.deliveryCost,
+      deliveryCost: serverDeliveryCost,
     })
 
     const order = await tx.order.create({
@@ -99,7 +157,7 @@ export async function createOrder(
         total,
         bonusUsed,
         bonusEarned,
-        deliveryCost: data.deliveryCost ?? 0,
+        deliveryCost: serverDeliveryCost,
         items: {
           create: cart.items.map((item) => ({
             productVariantId: item.productVariantId,

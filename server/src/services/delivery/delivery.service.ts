@@ -1,4 +1,4 @@
-import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider } from './types.js'
+import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider, DeliveryMethod } from './types.js'
 import * as simba from './providers/simba.js'
 import * as yandex from './providers/yandex.js'
 import * as cdek from './providers/cdek.js'
@@ -18,6 +18,45 @@ function getPickupQuote(): DeliveryQuote {
     daysMax: 0,
     available: true,
   }
+}
+
+// Получить котировку для выбранного способа доставки
+export async function getQuoteForMethod(
+  method: DeliveryMethod,
+  address: DeliveryAddress,
+  pkg: DeliveryPackage
+): Promise<DeliveryQuote> {
+  if (method === 'pickup') {
+    return getPickupQuote()
+  }
+
+  let quote: DeliveryQuote
+
+  switch (method) {
+    case 'yandex':
+      quote = await yandex.getQuote(address, pkg)
+      break
+    case 'cdek':
+      quote = await cdek.getQuote(address, pkg)
+      break
+    case 'ozon':
+      quote = await ozon.getQuote(address, pkg)
+      break
+    case 'dostavista':
+      quote = await dostavista.getQuote(address, pkg)
+      break
+    case 'post':
+      quote = await post.getQuote(address, pkg)
+      break
+    default:
+      throw new Error(`Неизвестный способ доставки: ${method}`)
+  }
+
+  if (!quote.available) {
+    throw new Error('Выбранный способ доставки недоступен')
+  }
+
+  return quote
 }
 
 // Получить котировки от всех провайдеров параллельно

@@ -5,6 +5,7 @@ import {
   createOrder,
   getOrdersByUser,
   getOrderById,
+  DeliveryCostMismatchError,
 } from '../../services/order.service'
 
 const deliveryAddressSchema = z.object({
@@ -61,32 +62,22 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
       if (!user || bonusUsed > user.bonusPoints) {
         return reply.status(400).send({ error: 'Недостаточно бонусов' })
       }
-
-      const cartWithItems = await app.prisma.cart.findUnique({
-        where: { id: result.data.cartId },
-        include: { items: { include: { productVariant: true } } },
-      })
-      if (cartWithItems) {
-        const totals = calcOrderTotals({
-          items: cartWithItems.items.map(item => ({
-            price: item.productVariant.price,
-            quantity: item.quantity,
-          })),
-          promoCode: result.data.promoCode,
-          bonusRequested: bonusUsed,
-          availableBonus: user.bonusPoints,
-          deliveryCost: result.data.deliveryCost,
-        })
-        if (totals.bonusUsed < bonusUsed) {
-          return reply.status(400).send({ error: 'Нельзя списать бонусов больше суммы заказа' })
-        }
-      }
     }
 
     try {
-      const order = await createOrder(app.prisma, userId, result.data)
+      const order = await createOrder(app.prisma, userId, {
+        ...result.data,
+        expectedDeliveryCost: result.data.deliveryCost,
+      })
       return reply.status(201).send(order)
     } catch (err) {
+      if (err instanceof DeliveryCostMismatchError) {
+        return reply.status(409).send({
+          error: 'Стоимость доставки изменилась, обновите расчёт',
+          code: 'DELIVERY_COST_CHANGED',
+          actualDeliveryCost: err.actualCost,
+        })
+      }
       const message = err instanceof Error ? err.message : 'Ошибка создания заказа'
       return reply.status(400).send({ error: message })
     }
