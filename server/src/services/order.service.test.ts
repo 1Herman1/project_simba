@@ -81,14 +81,40 @@ describe('calcOrderTotals', () => {
     expect(r.total).toBe(100000)
   })
 
-  it('ФАКТИЧЕСКОЕ поведение: deliveryCost НЕ входит в total', () => {
+  it('deliveryCost входит в total, но не даёт кэшбэк', () => {
     const r = calcOrderTotals({
       items: [{ price: 100000, quantity: 1 }],
       availableBonus: 0,
       deliveryCost: 35000,
     })
 
-    // Зафиксировано как есть. Ожидаемое по бизнес-логике: total = 135000.
-    expect(r.total).toBe(100000)
+    expect(r.total).toBe(135000)
+    expect(r.bonusEarned).toBe(50)
+  })
+
+  it('бонусы покрывают товар и часть доставки, кэшбэк = 0', () => {
+    const r = calcOrderTotals({
+      items: [{ price: 100000, quantity: 1 }],
+      deliveryCost: 50000,
+      bonusRequested: 1200,
+      availableBonus: 1200,
+    })
+
+    expect(r.bonusUsed).toBe(1200)
+    expect(r.total).toBe(30000)
+    expect(r.bonusEarned).toBe(0)
+  })
+
+  it('промокод + доставка: кэшбэк только от товаров', () => {
+    const r = calcOrderTotals({
+      items: [{ price: 100000, quantity: 1 }],
+      promoCode: 'SIMBA10',
+      deliveryCost: 30000,
+      availableBonus: 0,
+    })
+
+    expect(r.promoDiscount).toBe(10000)
+    expect(r.total).toBe(120000)
+    expect(r.bonusEarned).toBe(45)
   })
 })
