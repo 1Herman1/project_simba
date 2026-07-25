@@ -1,11 +1,13 @@
 {
   "name": "simba",
   "private": true,
-  "workspaces": ["server", "client", "admin"],
+  "workspaces": ["shared", "server", "client", "admin"],
   "scripts": {
+    "build:shared": "npm run build --workspace=shared",
     "dev:server": "npm run dev --workspace=server",
     "dev:client": "npm run dev --workspace=client",
     "dev:admin": "npm run dev --workspace=admin",
     "test": "npm run test --workspace=server"
   }
 }
+

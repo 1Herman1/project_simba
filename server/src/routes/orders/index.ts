@@ -1,5 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
+import { calcOrderTotals } from '@simba/shared'
 import {
   createOrder,
   getOrdersByUser,
@@ -66,15 +67,17 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
         include: { items: { include: { productVariant: true } } },
       })
       if (cartWithItems) {
-        const subtotal = cartWithItems.items.reduce(
-          (sum, item) => sum + item.productVariant.price * item.quantity,
-          0
-        )
-        const promoDiscount = result.data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
-        const maxBonus = Math.floor(
-          Math.max(0, subtotal - promoDiscount + result.data.deliveryCost) / 100
-        )
-        if (bonusUsed > maxBonus) {
+        const totals = calcOrderTotals({
+          items: cartWithItems.items.map(item => ({
+            price: item.productVariant.price,
+            quantity: item.quantity,
+          })),
+          promoCode: result.data.promoCode,
+          bonusRequested: bonusUsed,
+          availableBonus: user.bonusPoints,
+          deliveryCost: result.data.deliveryCost,
+        })
+        if (totals.bonusUsed < bonusUsed) {
           return reply.status(400).send({ error: 'Нельзя списать бонусов больше суммы заказа' })
         }
       }

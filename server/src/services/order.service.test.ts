@@ -117,4 +117,27 @@ describe('calcOrderTotals', () => {
     expect(r.total).toBe(120000)
     expect(r.bonusEarned).toBe(45)
   })
+
+  it('промокод + бонусы + доставка: все три компонента одновременно', () => {
+    const r = calcOrderTotals({
+      items: [{ price: 100000, quantity: 1 }],
+      promoCode: 'SIMBA10',
+      deliveryCost: 30000,
+      bonusRequested: 500,
+      availableBonus: 500,
+    })
+
+    // subtotal 100000, скидка 10000, доставка 30000
+    // к оплате: 100000 - 10000 + 30000 = 120000
+    // максимум бонусов: floor(120000 / 100) = 1200, запрос 500 < 1200 и < баланс 500 -> используем 500
+    // итого: 120000 - 500*100 = 70000
+    // кэшбэк: только с товаров (без доставки, после бонусов)
+    // товаров оплачено: 100000 - 10000 - 500*100 = 40000
+    // кэшбэк: floor((40000 / 100) * 0.05) = floor(20) = 20
+    expect(r.subtotal).toBe(100000)
+    expect(r.promoDiscount).toBe(10000)
+    expect(r.bonusUsed).toBe(500)
+    expect(r.total).toBe(70000)
+    expect(r.bonusEarned).toBe(20)
+  })
 })

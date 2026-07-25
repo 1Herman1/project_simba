@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { calcOrderTotals } from '@simba/shared'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 import { formatPrice } from '../lib/format'
 
@@ -54,6 +55,7 @@ export default function CheckoutPage() {
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId, setOrderId] = useState('')
+  const [orderBonusEarned, setOrderBonusEarned] = useState(0)
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
 
@@ -104,14 +106,24 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer)
   }, [address.city, address.street, address.house])
 
-  const subtotal = cartItems.reduce((s, i) => s + i.productVariant.price * i.quantity, 0)
   const selectedQuote = quotes.find(q => q.provider === delivery)
   const deliveryCost = selectedQuote?.price ?? 0
-  // scoin = рубль: списание в scoin, скидка в копейках = scoin * 100. Цены — в копейках.
-  const bonusUsedScoins = bonusSpend ? Math.min(userBonusPoints, Math.floor((subtotal + deliveryCost) / 100)) : 0
+  const promoCode = sessionStorage.getItem('promoCode') ?? undefined
+
+  const totals = calcOrderTotals({
+    items: cartItems.map(i => ({ price: i.productVariant.price, quantity: i.quantity })),
+    promoCode,
+    bonusRequested: bonusSpend ? userBonusPoints : 0,
+    availableBonus: userBonusPoints,
+    deliveryCost,
+  })
+
+  const subtotal = totals.subtotal
+  const promoDiscount = totals.promoDiscount
+  const bonusUsedScoins = totals.bonusUsed
   const bonusDiscount = bonusUsedScoins * 100
-  const total = Math.max(0, subtotal + deliveryCost - bonusDiscount)
-  const bonusEarned = Math.floor((total / 100) * 0.05)
+  const total = totals.total
+  const bonusEarned = totals.bonusEarned
 
   const stepIndex = STEPS.findIndex(s => s.key === step)
 
@@ -134,6 +146,7 @@ export default function CheckoutPage() {
       })
       sessionStorage.removeItem('promoCode')
       setOrderId(res.data.id)
+      setOrderBonusEarned(res.data.bonusEarned)
       setOrderPlaced(true)
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
@@ -157,7 +170,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20,6 9,17 4,12"/>
             </svg>
           </div>
@@ -166,7 +179,7 @@ export default function CheckoutPage() {
           <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              Начислено <span className="font-bold text-amber-500">+{bonusEarned} scoins</span> на ваш счёт
+              Начислено <span className="font-bold text-amber-500">+{orderBonusEarned} scoins</span> на ваш счёт
             </p>
           </div>
           <p className="text-xs text-navy-400 mb-6">
@@ -538,6 +551,12 @@ export default function CheckoutPage() {
                     : <span className="text-green-600 font-medium">Бесплатно</span>
                   }
                 </div>
+                {promoDiscount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-navy-500">Промокод</span>
+                    <span className="text-amber-500 font-medium">−{formatPrice(promoDiscount)}</span>
+                  </div>
+                )}
                 {bonusSpend && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Бонусы</span>
