@@ -219,6 +219,8 @@ const importRoute: FastifyPluginAsync = async (app) => {
                 oldPrice: row.oldPrice ? Math.round(row.oldPrice * 100) : undefined,
                 stock: row.stock || 0,
                 sku: row.sku,
+                // Фасовка могла быть заведена без цены и скрыта — цена пришла, возвращаем в продажу.
+                isActive: true,
               },
             })
           } else {
