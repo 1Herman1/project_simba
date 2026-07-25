@@ -268,6 +268,13 @@ const importRoute: FastifyPluginAsync = async (app) => {
           }
         }
 
+        if (finalPrice !== undefined && finalWeight === undefined) {
+          // Цена в каталоге живёт у фасовки, а не у товара — вешать её не на что.
+          errors.push(
+            `Строка ${rowNum}: цена указана, но не определён вес — добавьте колонку «Вес» или фасовку в название («- 2 кг»)`
+          )
+        }
+
         if (!hasVariant) {
           // Файл без цены не должен снимать с продажи товар, у которого цена уже есть.
           const variantCount = await app.prisma.productVariant.count({
