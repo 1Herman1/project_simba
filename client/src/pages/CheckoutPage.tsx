@@ -144,10 +144,10 @@ export default function CheckoutPage() {
         promoCode,
         deliveryCost,
       })
-      sessionStorage.removeItem('promoCode')
       setOrderId(res.data.id)
       setOrderBonusEarned(res.data.bonusEarned)
       setOrderPlaced(true)
+      sessionStorage.removeItem('promoCode')
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error
         ?? 'Не удалось оформить заказ. Попробуйте ещё раз.'
