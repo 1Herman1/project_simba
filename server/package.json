@@ -9,7 +9,8 @@
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:admin": "tsx --env-file=.env prisma/seed-admin.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "vitest run"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",
@@ -30,6 +31,7 @@
     "@types/nodemailer": "^6.4.16",
     "prisma": "^5.22.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.10"
   }
 }

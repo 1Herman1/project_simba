@@ -19,6 +19,42 @@ type CreateOrderData = {
   deliveryCost?: number
 }
 
+export type OrderCalcInput = {
+  items: { price: number; quantity: number }[]
+  promoCode?: string
+  bonusRequested?: number
+  availableBonus: number
+  deliveryCost?: number
+}
+
+export type OrderTotals = {
+  subtotal: number
+  promoDiscount: number
+  bonusUsed: number
+  total: number
+  bonusEarned: number
+}
+
+export function calcOrderTotals(input: OrderCalcInput): OrderTotals {
+  const subtotal = input.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+  const promoDiscount =
+    input.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
+
+  // scoin хранится в рублях: 1 scoin = 1 ₽ = 100 копеек скидки. Цены — в копейках.
+  const maxRedeemableScoins = Math.floor((subtotal - promoDiscount) / 100)
+  const bonusUsed = Math.max(
+    0,
+    Math.min(input.bonusRequested ?? 0, maxRedeemableScoins, input.availableBonus)
+  )
+  const total = Math.max(0, subtotal - promoDiscount - bonusUsed * 100)
+  const bonusEarned = Math.floor((total / 100) * 0.05)
+
+  return { subtotal, promoDiscount, bonusUsed, total, bonusEarned }
+}
+
 const orderItemsInclude = {
   items: {
     select: {
@@ -68,26 +104,21 @@ export async function createOrder(
       }
     }
 
-    const subtotal = cart.items.reduce(
-      (sum, item) => sum + item.productVariant.price * item.quantity,
-      0
-    )
-    const promoDiscount = data.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
-
     const currentUser = await tx.user.findUnique({
       where: { id: userId },
       select: { bonusPoints: true },
     })
-    const availableBonus = currentUser?.bonusPoints ?? 0
 
-    // scoin хранится в рублях: 1 scoin = 1 ₽ = 100 копеек скидки. Цены — в копейках.
-    const maxRedeemableScoins = Math.floor((subtotal - promoDiscount) / 100)
-    const bonusUsed = Math.max(
-      0,
-      Math.min(data.bonusUsed ?? 0, maxRedeemableScoins, availableBonus)
-    )
-    const total = Math.max(0, subtotal - promoDiscount - bonusUsed * 100)
-    const bonusEarned = Math.floor((total / 100) * 0.05)
+    const { subtotal, bonusUsed, total, bonusEarned } = calcOrderTotals({
+      items: cart.items.map((item) => ({
+        price: item.productVariant.price,
+        quantity: item.quantity,
+      })),
+      promoCode: data.promoCode,
+      bonusRequested: data.bonusUsed,
+      availableBonus: currentUser?.bonusPoints ?? 0,
+      deliveryCost: data.deliveryCost,
+    })
 
     const order = await tx.order.create({
       data: {
