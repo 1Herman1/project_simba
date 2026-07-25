@@ -59,6 +59,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
     if (rows.length === 0) return reply.status(400).send({ error: 'Файл пустой или нет данных' })
 
     const created: string[] = []
+    const updated: string[] = []
     const errors: string[] = []
 
     for (let i = 0; i < rows.length; i++) {
@@ -87,37 +88,88 @@ const importRoute: FastifyPluginAsync = async (app) => {
           if (brand) brandId = brand.id
         }
 
-        const existing = await app.prisma.product.findUnique({ where: { slug } })
-        if (existing) {
-          errors.push(`Строка ${rowNum}: товар со slug "${slug}" уже существует`)
-          continue
-        }
+        const existing = await app.prisma.product.findUnique({
+          where: { slug },
+          include: { variants: true },
+        })
 
-        await app.prisma.product.create({
-          data: {
-            name,
-            slug,
-            description: description || name,
-            brandId,
-            variants: {
-              create: [{
+        if (!existing) {
+          // Create new product
+          await app.prisma.product.create({
+            data: {
+              name,
+              slug,
+              description: description || name,
+              brandId,
+              variants: {
+                create: [{
+                  weight: parseFloat(weight),
+                  price: Math.round(parseFloat(price) * 100),
+                  oldPrice: oldPrice ? Math.round(parseFloat(oldPrice) * 100) : undefined,
+                  stock: parseInt(stock) || 0,
+                  sku: sku || undefined,
+                }],
+              },
+            },
+          })
+          created.push(name)
+        } else {
+          // Update existing product
+          await app.prisma.product.update({
+            where: { slug },
+            data: {
+              name,
+              description: description || name,
+              brandId,
+            },
+          })
+
+          // Find or create variant
+          let variant = null
+          if (sku) {
+            const skuOwner = await app.prisma.productVariant.findUnique({ where: { sku } })
+            if (skuOwner && skuOwner.productId !== existing.id) {
+              errors.push(`Строка ${rowNum}: SKU "${sku}" принадлежит другому товару`)
+              continue
+            }
+            variant = existing.variants.find(v => v.sku === sku) ?? null
+          } else {
+            variant = existing.variants.find(v => v.weight === parseFloat(weight)) ?? null
+          }
+
+          if (variant) {
+            // Update existing variant
+            await app.prisma.productVariant.update({
+              where: { id: variant.id },
+              data: {
+                price: Math.round(parseFloat(price) * 100),
+                oldPrice: oldPrice ? Math.round(parseFloat(oldPrice) * 100) : undefined,
+                stock: parseInt(stock) || 0,
+                sku: sku ? (sku || undefined) : variant.sku,
+              },
+            })
+          } else {
+            // Create new variant for existing product
+            await app.prisma.productVariant.create({
+              data: {
+                productId: existing.id,
                 weight: parseFloat(weight),
                 price: Math.round(parseFloat(price) * 100),
                 oldPrice: oldPrice ? Math.round(parseFloat(oldPrice) * 100) : undefined,
                 stock: parseInt(stock) || 0,
                 sku: sku || undefined,
-              }],
-            },
-          },
-        })
+              },
+            })
+          }
 
-        created.push(name)
+          updated.push(name)
+        }
       } catch (e) {
         errors.push(`Строка ${rowNum}: ошибка — ${e instanceof Error ? e.message : 'unknown'}`)
       }
     }
 
-    return reply.send({ created: created.length, errors })
+    return reply.send({ created: created.length, updated: updated.length, errors })
   })
 }
 
