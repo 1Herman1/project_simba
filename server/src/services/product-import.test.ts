@@ -5,6 +5,8 @@ import {
   mapRow,
   parseCsvLine,
   parseRows,
+  parseWeightFromName,
+  detectBrand,
 } from './product-import'
 
 describe('transliterate', () => {
@@ -303,6 +305,156 @@ describe('mapRow — старый английский формат (защит�
     expect(row.stock).toBe(0)
     expect(row.sku).toBeUndefined()
     expect(row.slug).toBeUndefined()
+  })
+})
+
+describe('parseWeightFromName — вес из хвоста названия', () => {
+  it('читает граммы и переводит в килограммы', () => {
+    expect(parseWeightFromName('Grandorf Adult Indoor - 400 гр')).toEqual({
+      baseName: 'Grandorf Adult Indoor',
+      weightKg: 0.4,
+    })
+  })
+
+  it('читает килограммы', () => {
+    expect(parseWeightFromName('Grandorf Adult Indoor - 8 кг').weightKg).toBe(8)
+  })
+
+  it('понимает запятую как десятичный разделитель', () => {
+    expect(parseWeightFromName('Monge Cat Sterilised - 1,5 кг').weightKg).toBe(1.5)
+    expect(parseWeightFromName('Muzzle Шампунь - 0,8 кг').weightKg).toBe(0.8)
+  })
+
+  it('умножает мультипак через звёздочку', () => {
+    expect(parseWeightFromName('Влажный корм - 100 гр*12').weightKg).toBe(1.2)
+  })
+
+  it('умножает мультипак через кириллическую «х» со словом «шт»', () => {
+    expect(parseWeightFromName('Влажный корм - 85 гр х 12 шт').weightKg).toBe(1.02)
+  })
+
+  it('умножает мультипак через латинскую «x» со словом «шт»', () => {
+    expect(parseWeightFromName('Влажный корм - 300 гр x 6 шт').weightKg).toBe(1.8)
+  })
+
+  it('считает литр за килограмм', () => {
+    expect(parseWeightFromName('Шампунь для собак - 1 л').weightKg).toBe(1)
+  })
+
+  it('переводит миллилитры в килограммы', () => {
+    expect(parseWeightFromName('Лосьон для ушей - 250 мл').weightKg).toBe(0.25)
+    expect(parseWeightFromName('Капли на холку - 30 мл').weightKg).toBe(0.03)
+  })
+
+  it('без весового суффикса возвращает имя целиком и weightKg undefined', () => {
+    const name = 'Grandorf Kitten (Ягненок, индейка)'
+    expect(parseWeightFromName(name)).toEqual({ baseName: name, weightKg: undefined })
+  })
+
+  it.each([
+    'Многоразовая впитывающая пеленка для собак и кошек - 40х60',
+    'Когтеточка деревянная - 605х205х225',
+    'Muzzle Ошейник для собак - синий',
+    'Muzzle Демисезонный дождевик для собак - горчица',
+    'Muzzle Антипаразитарный биоошейник для собак и кошек - оранжевый',
+  ])('не принимает за вес хвост «%s»', (name) => {
+    expect(parseWeightFromName(name)).toEqual({ baseName: name, weightKg: undefined })
+  })
+
+  it('даёт один baseName для всех фасовок одного корма', () => {
+    const expected = 'Grandorf Adult Indoor (Ягненок, индейка)'
+    const variants = [
+      'Grandorf Adult Indoor (Ягненок, индейка)',
+      'Grandorf Adult Indoor (Ягненок, индейка) - 400 гр',
+      'Grandorf Adult Indoor (Ягненок, индейка) - 2 кг',
+      'Grandorf Adult Indoor (Ягненок, индейка) - 8 кг',
+    ]
+    const baseNames = variants.map(v => parseWeightFromName(v).baseName)
+    expect(baseNames).toEqual([expected, expected, expected, expected])
+    expect(new Set(baseNames).size).toBe(1)
+  })
+
+  it('режет только хвостовой вес, вес в середине названия сохраняет', () => {
+    expect(parseWeightFromName('Farmina Vet Life Neutered + 10 кг Dog - 2 кг')).toEqual({
+      baseName: 'Farmina Vet Life Neutered + 10 кг Dog',
+      weightKg: 2,
+    })
+  })
+})
+
+describe('detectBrand — бренд по названию', () => {
+  it.each([
+    ['Farmina N&D Pumpkin GF Adult Mini (Тыква, ягненок, черника) - 7 кг', 'Farmina'],
+    ['Happy Cat VET Diet Intestinal - 4 кг', 'Happy Cat'],
+    ['Happy Dog Sensible Toscana (Утка, лосось)', 'Happy Dog'],
+    ["Hill's Science Plan Adult Maxi (курица) - 14 кг", "Hill's"],
+    ['Корм Farmina N&D LG Ocean Cat (Треска, тыква)', 'Farmina'],
+    ['Monge Cat Sterilised - 1,5 кг', 'Monge'],
+    ['Grandorf Kitten (Ягненок, индейка)', 'Grandorf'],
+    ['ZILLII Puppy (Индейка, ягненок) - 3 кг', 'ZILLII'],
+    ['Craftia Natura Adult Mini (Курица, индейка) - 2 кг', 'Craftia'],
+    ['AlphaPet Vet Diet Cat Gastro - 1,5 кг', 'AlphaPet'],
+    ['Alleva Holistic Chicken & Duck Puppy Mini - 2 кг', 'Alleva'],
+    ['Forza10 Cat Maintenance Fish - 2 кг', 'Forza10'],
+  ])('«%s» → %s', (name, brand) => {
+    expect(detectBrand(name)).toBe(brand)
+  })
+
+  it.each([
+    'Многоразовая впитывающая пеленка для собак и кошек - 60х90',
+    'Dog Puppy Medium/Large Pol/Pat',
+    'F10MANT DogMedAdu Cerv/PatDRY12kg 1pz',
+  ])('не выдумывает бренд для «%s»', (name) => {
+    expect(detectBrand(name)).toBeUndefined()
+  })
+
+  it('не путает Happy Cat и Happy Dog между собой', () => {
+    expect(detectBrand('Happy Cat Sensitive Grainfree - 4 кг')).toBe('Happy Cat')
+    expect(detectBrand('Happy Dog Supreme Mini Neuseeland - 4 кг')).toBe('Happy Dog')
+  })
+})
+
+describe('mapRow — файл без колонки «Имя» (реальная выгрузка)', () => {
+  const row = (name: string, values: string[]) => {
+    const raw: Record<string, string> = { 'Наименование': name }
+    const names = ['вид', 'вкус', 'Возраст питомца', 'Патология', 'Страна-изготовитель']
+    names.forEach((attrName, i) => {
+      raw[`Название атрибута ${i + 1}`] = attrName
+      raw[`Значение атрибута ${i + 1}`] = values[i] ?? ''
+      raw[`Глобальный атрибут ${i + 1}`] = '1'
+      raw[`Видимость атрибута ${i + 1}`] = '1'
+    })
+    return raw
+  }
+
+  const values = ['кошки', 'курица', 'взрослые', 'ЖКТ', 'Италия']
+  const name = 'Farmina N&D Pumpkin GF Adult Mini (Тыква, ягненок, черника) - 7 кг'
+
+  it('берёт имя из «Наименование», раз колонки «Имя» нет', () => {
+    expect(mapRow(row(name, values)).name).toBe(name)
+  })
+
+  it('распознаёт все пять атрибутов и игнорирует служебные колонки', () => {
+    expect(mapRow(row(name, values)).attributes).toEqual([
+      { name: 'вид', value: 'кошки' },
+      { name: 'вкус', value: 'курица' },
+      { name: 'Возраст питомца', value: 'взрослые' },
+      { name: 'Патология', value: 'ЖКТ' },
+      { name: 'Страна-изготовитель', value: 'Италия' },
+    ])
+  })
+
+  it('без колонок цены и веса отдаёт undefined, а не 0', () => {
+    const mapped = mapRow(row(name, values))
+    expect(mapped.price).toBeUndefined()
+    expect(mapped.oldPrice).toBeUndefined()
+    expect(mapped.weight).toBeUndefined()
+  })
+
+  it('строка-пустышка даёт пустое имя и пустые атрибуты (роут её пропустит)', () => {
+    const mapped = mapRow(row('', []))
+    expect(mapped.name).toBe('')
+    expect(mapped.attributes).toEqual([])
   })
 })
 

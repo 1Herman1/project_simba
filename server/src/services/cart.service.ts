@@ -47,6 +47,11 @@ export async function addToCart(
     throw new Error('Товар не найден')
   }
 
+  // Импорт заводит фасовки без цены (price: 0) — продавать их нельзя.
+  if (variant.price <= 0) {
+    throw new Error('Товар недоступен для заказа')
+  }
+
   const cart = await getOrCreateCart(prisma, userId)
 
   const existingItem = cart.items.find(

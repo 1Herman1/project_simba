@@ -257,6 +257,9 @@ const importRoute: FastifyPluginAsync = async (app) => {
                 price: 0,
                 stock: 0,
                 sku: row.sku,
+                // Цены нет — фасовка не должна появиться в карточке товара,
+                // даже если сам товар уже продаётся.
+                isActive: false,
               },
             })
             variantsWithoutPrice.push(rowNum)
