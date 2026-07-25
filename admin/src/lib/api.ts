@@ -170,7 +170,14 @@ export const productsApi = {
   importCsv: (file: File) => {
     const form = new FormData()
     form.append('file', file)
-    return api.post<{ created: number; errors: string[] }>('/api/admin/import/csv', form, {
+    return api.post<{
+      created: number
+      updated: number
+      skippedNoPrice: string[]
+      createdBrands: string[]
+      createdCategories: string[]
+      errors: string[]
+    }>('/api/admin/import/csv', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
