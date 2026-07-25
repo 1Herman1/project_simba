@@ -26,7 +26,13 @@ export function parseCsvLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i]
     if (ch === '"') {
-      insideQuotes = !insideQuotes
+      // Удвоенная кавычка внутри поля — экранированная: "он сказал ""да"""
+      if (insideQuotes && line[i + 1] === '"') {
+        current += '"'
+        i++
+      } else {
+        insideQuotes = !insideQuotes
+      }
     } else if (ch === ',' && !insideQuotes) {
       result.push(current.trim())
       current = ''
@@ -89,8 +95,8 @@ export function transliterate(text: string): string {
   // Обрезаем дефисы по краям
   result = result.replace(/^-+|-+$/g, '')
 
-  // Сокращаем до 80 символов
-  result = result.substring(0, 80)
+  // Сокращаем до 80 символов; срез может попасть на дефис — убираем его снова
+  result = result.substring(0, 80).replace(/-+$/, '')
 
   return result
 }
@@ -150,9 +156,12 @@ export function mapRow(raw: Record<string, string>): ImportRow {
 
     const prices = [basePrice, salePrice].filter(p => !isNaN(p))
     if (prices.length === 2) {
-      // Две цены: меньшая → price, большая → oldPrice
+      // Две цены: меньшая → price, большая → зачёркнутая oldPrice.
+      // Равные цены — не скидка, зачёркивать нечего.
       price = Math.min(basePrice, salePrice)
-      oldPrice = Math.max(basePrice, salePrice)
+      if (basePrice !== salePrice) {
+        oldPrice = Math.max(basePrice, salePrice)
+      }
     } else if (prices.length === 1) {
       // Одна цена
       price = prices[0]

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { FastifyPluginAsync } from 'fastify'
 import { checkRole } from '../../middleware/check-role'
 import {
@@ -51,6 +52,14 @@ const importRoute: FastifyPluginAsync = async (app) => {
         let slug = row.slug
         if (!slug) {
           slug = transliterate(row.name)
+        }
+        if (!slug) {
+          // Название без букв и цифр (эмодзи, знаки препинания) — транслитерация
+          // даёт пустоту, а slug уникальный и участвует в URL карточки.
+          // Хэш от названия устойчив: повторный импорт узнает тот же товар.
+          slug =
+            transliterate(row.sku ?? '') ||
+            `product-${createHash('sha1').update(row.name).digest('hex').slice(0, 8)}`
         }
 
         // Проверка уникальности slug
