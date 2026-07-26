@@ -221,3 +221,63 @@ export const bannersApi = {
   update: (id: string, data: unknown) => api.put<Banner>(`/api/admin/banners/${id}`, data),
   delete: (id: string) => api.delete(`/api/admin/banners/${id}`),
 }
+
+export interface SyncRunExample {
+  variantId: string
+  name: string
+  oldPrice: number
+  newPrice: number
+  oldStock: number
+  newStock: number
+  skipReason?: string
+}
+
+export interface SyncRunReport {
+  aborted?: boolean
+  abortReason?: string
+  receivedFromMs: number
+  matched: number
+  pricesUpdated: number
+  stocksUpdated: number
+  productsActivated: number
+  skippedZeroPrice: number
+  skippedPriceDrop: number
+  notFoundInMs: number
+  examples: {
+    skippedZeroPrice: SyncRunExample[]
+    skippedPriceDrop: SyncRunExample[]
+    notFoundInMs: Array<{ variantId: string; name: string }>
+    onlyInMs: Array<{ variantId: string; name: string }>
+    ambiguous: Array<{ variantId: string; name: string; matches: string[] }>
+  }
+}
+
+export interface SyncRun {
+  id: string
+  trigger: 'cron' | 'admin' | 'manual'
+  status: 'running' | 'success' | 'failed' | 'aborted'
+  dryRun: boolean
+  startedAt: string
+  finishedAt?: string
+  itemsFromMs: number
+  matched: number
+  priceUpdated: number
+  stockUpdated: number
+  productsActivated: number
+  missingInMs: number
+  skipped: number
+  error?: string
+  report?: SyncRunReport
+}
+
+export interface SyncStatusResponse {
+  last?: SyncRun
+  lastSuccess?: SyncRun
+  history: SyncRun[]
+}
+
+export const syncApi = {
+  status: () => api.get<SyncStatusResponse>('/api/admin/sync/moysklad'),
+  run: (dryRun: boolean) => api.post<{ runId: string }>('/api/admin/sync/moysklad', { dryRun }),
+  get: (id: string) => api.get<SyncRun>(`/api/admin/sync/moysklad/${id}`),
+}

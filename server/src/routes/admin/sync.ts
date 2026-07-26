@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { checkRole } from '../../middleware/check-role'
 import { runMoyskladSyncTracked } from '../../services/moysklad/run'
-import { SyncAlreadyRunningError } from '../../services/moysklad/history'
+import { startRun, SyncAlreadyRunningError } from '../../services/moysklad/history'
 
 const bodySchema = z.object({
   dryRun: z.boolean().default(true),
@@ -20,42 +20,28 @@ const syncRoutes: FastifyPluginAsync = async (app) => {
 
     const apply = !result.data.dryRun
 
-    const running = await app.prisma.syncRun.findFirst({
-      where: { status: 'running' },
-      orderBy: { startedAt: 'desc' },
-      select: { id: true },
-    })
-    if (running) {
-      return reply.status(409).send({ error: 'Синхронизация уже выполняется', runId: running.id })
-    }
-
+    // Слот занимаем ЗДЕСЬ, до ответа: иначе пришлось бы угадывать id только что
+    // созданной записи и можно вернуть клиенту чужой, предыдущий прогон.
     let runId: string
     try {
-      const started = runMoyskladSyncTracked({
-        prisma: app.prisma,
-        apply,
-        force: false,
-        trigger: 'admin',
-      })
-
-      // Ошибку внутри прогона фиксирует сам runMoyskladSyncTracked — здесь только
-      // гасим необработанное отклонение, чтобы процесс не падал.
-      started.catch((err) => {
-        app.log.error({ err }, 'Синхронизация с МойСклад завершилась ошибкой')
-      })
-
-      // Ждём только появления записи прогона, а не его окончания.
-      const created = await app.prisma.syncRun.findFirst({
-        orderBy: { startedAt: 'desc' },
-        select: { id: true },
-      })
-      runId = created?.id ?? ''
+      runId = await startRun(app.prisma, 'admin', !apply)
     } catch (err) {
       if (err instanceof SyncAlreadyRunningError) {
         return reply.status(409).send({ error: err.message, runId: err.runId })
       }
       throw err
     }
+
+    // Прогон идёт минуты — не ждём его, клиент опрашивает GET /:id.
+    runMoyskladSyncTracked({
+      prisma: app.prisma,
+      apply,
+      force: false,
+      trigger: 'admin',
+      runId,
+    }).catch((err) => {
+      app.log.error({ err }, 'Синхронизация с МойСклад завершилась ошибкой')
+    })
 
     return reply.status(202).send({ runId })
   })

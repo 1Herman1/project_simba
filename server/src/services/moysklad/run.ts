@@ -23,8 +23,10 @@ export async function runMoyskladSyncTracked(opts: {
   apply: boolean
   force: boolean
   trigger: SyncTrigger
+  /** Уже занятый слот прогона. Роут занимает его заранее, чтобы вернуть id клиенту. */
+  runId?: string
 }): Promise<{ runId: string; report: SyncReport }> {
-  const runId = await startRun(opts.prisma, opts.trigger, !opts.apply)
+  const runId = opts.runId ?? (await startRun(opts.prisma, opts.trigger, !opts.apply))
 
   try {
     const report = await runMoyskladSync(opts)
