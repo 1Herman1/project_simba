@@ -141,15 +141,53 @@ curl -I http://147.45.157.11/robots.txt            # Disallow /
 ```bash
 cd /var/www/simba-src
 git pull origin claude/greeting-nnz368
-npm install
-cd server && npx prisma migrate deploy && cd ..
-npm run build --workspace=server
-VITE_API_URL=http://147.45.157.11 npm run build --workspace=client
-VITE_API_URL=http://147.45.157.11 npm run build --workspace=admin
+npm install                                   # линкует воркспейсы, в т.ч. shared
+cd server && npx prisma migrate deploy        # применяет новые миграции
+npx prisma generate                           # обязательно: иначе tsc не увидит новые модели
+npm run build && cd ..
+npm run build --workspace=client
+npm run build --workspace=admin
+rm -rf /var/www/simba/client/* /var/www/simba/admin/*   # старая сборка остаётся, если не удалить
 cp -r client/dist/* /var/www/simba/client/
 cp -r admin/dist/*  /var/www/simba/admin/
 pm2 reload simba-server
 ```
+
+Порядок обязателен: **схема → prisma generate → сборка → рестарт**. Наоборот нельзя —
+код с новым клиентом на старой базе падает на каждом запросе.
+
+Проверка после обновления:
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000/api/products/list   # 200
+pm2 logs simba-server --lines 20 --nostream                                          # без ошибок запуска
+grep -rl "localhost:3000" /var/www/simba/client /var/www/simba/admin                 # пусто
+```
+
+### Адрес API вшивается в сборку
+`VITE_API_URL` читается на этапе сборки, не в рантайме. Он лежит в `client/.env` и
+`admin/.env` на сервере. Если файла нет, подставится `http://localhost:3000`, сайт
+соберётся без ошибок и будет выглядеть рабочим — но браузер посетителя будет стучаться
+сам в себя, и вход в админку отвалится с «Ошибка входа». Проверять командой с `grep` выше.
+
+### Резервная копия перед изменениями схемы
+```bash
+docker exec deploy-postgres-1 pg_dump -U simba simba > ~/simba-backup-$(date +%F-%H%M).sql
+ls -lh ~/simba-backup-*.sql        # размер не должен быть нулевым
+```
+`pg_dump` в системе не установлен — работать только через контейнер `deploy-postgres-1`.
+
+### Миграции: только migrate deploy, никогда db push
+`prisma db push` на проде запрещён: он сравнивает схему целиком, решает сам и может
+сделать больше, чем вы ожидаете, без предварительного показа. Если база и схема разошлись
+— сначала посмотреть разницу, потом применять:
+```bash
+cd /var/www/simba-src/server
+set -a; . ./.env; set +a
+npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script > /tmp/drift.sql
+cat /tmp/drift.sql                # прочитать глазами: нет ли DROP
+docker exec -i deploy-postgres-1 psql -U simba -d simba -v ON_ERROR_STOP=1 -1 < /tmp/drift.sql
+```
+Флаг `-1` выполняет всё одной транзакцией: при любой ошибке откатится целиком.
 
 ## Когда купишь домен simbazoo.ru
 1. A-запись домена → 147.45.157.11.

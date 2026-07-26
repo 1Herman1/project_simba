@@ -7,6 +7,7 @@ import {
   transliterate,
   parseWeightFromName,
   detectBrand,
+  isNonProductRow,
   type ImportRow,
 } from '../../services/product-import'
 
