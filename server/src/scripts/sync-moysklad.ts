@@ -11,7 +11,7 @@
  *   npx tsx server/src/scripts/sync-moysklad.ts --apply --force
  */
 import { PrismaClient } from '@prisma/client'
-import { runMoyskladSync } from '../services/moysklad/run.js'
+import { runMoyskladSync, runMoyskladSyncTracked } from '../services/moysklad/run.js'
 
 const prisma = new PrismaClient()
 const apply = process.argv.includes('--apply')
@@ -99,10 +99,13 @@ async function main() {
   try {
     console.log('🔄 Синхронизация МойСклад...\n')
 
-    const report = await runMoyskladSync({
+    // Через обёртку с историей: прогон из cron должен быть виден в админке,
+    // иначе плашка «цены обновлены N минут назад» никогда не загорится.
+    const { report } = await runMoyskladSyncTracked({
       prisma,
       apply,
       force,
+      trigger: process.env.SYNC_TRIGGER === 'cron' ? 'cron' : 'manual',
     })
 
     console.log(formatReport(report))
