@@ -247,6 +247,7 @@ export function detectBrand(name: string): string | undefined {
  */
 export function isNonProductRow(name: string): boolean {
   const trimmed = name.trim()
+  const lowerName = trimmed.toLowerCase()
 
   // Ключевые слова для отсева (регистронезависимо, по границе слова в начале)
   const nonProductKeywords = [
@@ -262,20 +263,20 @@ export function isNonProductRow(name: string): boolean {
     'стрейч',
   ]
 
-  // Проверка начала названия
-  const lowerName = trimmed.toLowerCase()
+  // Проверка начала названия: ищем ключевое слово в начале, за которым идёт граница слова
   for (const keyword of nonProductKeywords) {
-    // Используем регулярное выражение с границей слова, чтобы не матчить
-    // часть другого слова (например, "впп" не должна матчить "впитывающая")
-    const regex = new RegExp(`^${keyword}\\b`, 'i')
-    if (regex.test(trimmed)) {
-      return true
+    if (lowerName.startsWith(keyword)) {
+      // После ключевого слова должна быть граница (пробел, конец строки, или не-буква)
+      const afterKeyword = lowerName[keyword.length]
+      if (!afterKeyword || afterKeyword === ' ' || afterKeyword === '-' || /[^а-яёa-z0-9]/.test(afterKeyword)) {
+        return true
+      }
     }
   }
 
-  // Проверка на отдельное слово БРАК (в любом регистре)
-  const brakRegex = /\bбрак\b/i
-  if (brakRegex.test(trimmed)) {
+  // Проверка на отдельное слово БРАК: разбиваем на слова и проверяем
+  const words = lowerName.split(/[\s\-]+/).map(w => w.replace(/[^\wа-яё]/gi, ''))
+  if (words.includes('брак')) {
     return true
   }
 

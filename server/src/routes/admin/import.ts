@@ -29,6 +29,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
     const updated: string[] = []
     const skippedNoPrice: string[] = []
     const skippedEmpty: number[] = []
+    const skippedNonProduct: string[] = []
     const variantsWithoutPrice: number[] = []
     const createdBrands: string[] = []
     const createdCategories: string[] = []
@@ -59,10 +60,16 @@ const importRoute: FastifyPluginAsync = async (app) => {
           continue
         }
 
-        // 3. Парсим вес из имени товара (для группировки фасовок)
+        // 3. Отсев складских/хозяйственных материалов (не товары магазина)
+        if (isNonProductRow(row.name)) {
+          skippedNonProduct.push(row.name)
+          continue
+        }
+
+        // 4. Парсим вес из имени товара (для группировки фасовок)
         const { baseName, weightKg } = parseWeightFromName(row.name)
 
-        // 4. Определяем бренд по названию (если не указан в файле)
+        // 5. Определяем бренд по названию (если не указан в файле)
         let brandNameToUse = row.brandName
         if (!brandNameToUse) {
           const detectedBrand = detectBrand(row.name)
@@ -71,7 +78,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           }
         }
 
-        // 5. Генерация/проверка slug (используем baseName для группировки фасовок)
+        // 6. Генерация/проверка slug (используем baseName для группировки фасовок)
         let slug = row.slug
         if (!slug) {
           slug = transliterate(baseName)
@@ -111,7 +118,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
 
         slug = finalSlug
 
-        // 6. Бренд
+        // 7. Бренд
         let brandId: string | undefined
         if (brandNameToUse || row.brandSlug) {
           const brandSlug = row.brandSlug || transliterate(brandNameToUse!)
@@ -144,7 +151,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           }
         }
 
-        // 7. Товар (upsert)
+        // 8. Товар (upsert)
         const existingProduct = await app.prisma.product.findUnique({
           where: { slug },
           include: { variants: true },
@@ -182,7 +189,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           productId = existingProduct.id
         }
 
-        // 8. Вариант (создаём если есть цена и вес, или если есть только вес)
+        // 9. Вариант (создаём если есть цена и вес, или если есть только вес)
         let hasVariant = false
         const finalWeight = weightKg ?? row.weight
         const finalPrice = row.price
@@ -291,7 +298,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           }
         }
 
-        // 9. Категории
+        // 10. Категории
         for (const categoryName of row.categories) {
           const categorySlug = transliterate(categoryName)
           const cachedId = categoryCache.get(categorySlug)
@@ -333,7 +340,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
           })
         }
 
-        // 10. Атрибуты (фильтры и значения)
+        // 11. Атрибуты (фильтры и значения)
         for (const attr of row.attributes) {
           const filterSlug = transliterate(attr.name)
           const cachedFilterId = filterCache.get(filterSlug)
@@ -425,6 +432,7 @@ const importRoute: FastifyPluginAsync = async (app) => {
       updated: updated.length,
       skippedEmpty: skippedEmpty.length,
       skippedNoPrice,
+      skippedNonProduct,
       variantsWithoutPrice: variantsWithoutPrice.length,
       createdBrands,
       createdCategories,

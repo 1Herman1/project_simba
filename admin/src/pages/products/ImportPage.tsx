@@ -8,6 +8,7 @@ export default function ImportPage() {
     created: number
     updated: number
     skippedNoPrice: string[]
+    skippedNonProduct: string[]
     createdBrands: string[]
     createdCategories: string[]
     errors: string[]
@@ -31,6 +32,7 @@ export default function ImportPage() {
         created: 0,
         updated: 0,
         skippedNoPrice: [],
+        skippedNonProduct: [],
         createdBrands: [],
         createdCategories: [],
         errors: [e?.response?.data?.error || 'Ошибка загрузки'],
@@ -125,6 +127,18 @@ export default function ImportPage() {
               </p>
               <ul className="text-sm text-orange-700 space-y-1">
                 {result.skippedNoPrice.map((name, i) => <li key={i}>• {name}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {/* Skipped (non-product) */}
+          {result.skippedNonProduct.length > 0 && (
+            <div className="rounded-xl border border-purple-200 bg-purple-50 p-5">
+              <p className="font-semibold text-purple-800 mb-2">
+                Пропущено как не-товар ({result.skippedNonProduct.length}):
+              </p>
+              <ul className="text-sm text-purple-700 space-y-1">
+                {result.skippedNonProduct.map((name, i) => <li key={i}>• {name}</li>)}
               </ul>
             </div>
           )}

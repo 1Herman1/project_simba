@@ -174,6 +174,7 @@ export const productsApi = {
       created: number
       updated: number
       skippedNoPrice: string[]
+      skippedNonProduct: string[]
       createdBrands: string[]
       createdCategories: string[]
       errors: string[]
