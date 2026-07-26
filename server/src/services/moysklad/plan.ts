@@ -137,7 +137,8 @@ export function matchVariants(
     const key = normalizeArticle(variant.sku)
     if (key) {
       const candidates = msKeyMap.get(key)
-      if (candidates && candidates.length === 1 && candidates[0]) {
+      // Пустой id записать нельзя: колонка moyskladId уникальна, вторая пустая строка уронит прогон.
+      if (candidates && candidates.length === 1 && candidates[0]?.id) {
         matched = candidates[0]
         result.links.push({ variantId: variant.id, moyskladId: matched.id })
         result.matched.push({ variant, ms: matched })
