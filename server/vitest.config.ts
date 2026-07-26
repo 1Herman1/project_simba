@@ -9,5 +9,9 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // Интеграционные тесты делят одну тестовую базу и чистят её между кейсами —
+    // параллельный запуск файлов сделал бы их недетерминированными.
+    fileParallelism: false,
+    testTimeout: 20000,
   },
 })
