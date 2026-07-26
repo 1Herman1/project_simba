@@ -45,22 +45,22 @@ const navItems = [
 
 export default function MobileBottomNav() {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-blue-100 z-50">
-      <div className="flex">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-line z-50">
+      <div className="flex pb-[env(safe-area-inset-bottom)]">
         {navItems.map(({ Icon, label, path, badge }) => (
           <NavLink
             key={path}
             to={path}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center py-2 pb-3 transition-all ${
-                isActive ? 'text-blue-500' : 'text-navy-300'
+              `flex-1 flex flex-col items-center py-2 pb-3 transition-colors duration-100 ease ${
+                isActive ? 'text-primary-hover' : 'text-navy-500'
               }`
             }
           >
             <div className="relative">
               <Icon />
               {badge !== null && (
-                <span className="absolute -top-1 -right-1 bg-amber-400 text-navy-900 text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5">
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5">
                   {badge}
                 </span>
               )}

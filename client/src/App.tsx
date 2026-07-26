@@ -9,6 +9,10 @@ import ProductPage from './pages/ProductPage'
 import AuthPage from './pages/AuthPage'
 import CheckoutPage from './pages/CheckoutPage'
 import BonusesPage from './pages/BonusesPage'
+import DeliveryPage from './pages/DeliveryPage'
+import ReturnsPage from './pages/ReturnsPage'
+import FaqPage from './pages/FaqPage'
+import QuestionnairePage from './pages/QuestionnairePage'
 
 export default function App() {
   return (
@@ -23,6 +27,10 @@ export default function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/delivery" element={<DeliveryPage />} />
+        <Route path="/returns" element={<ReturnsPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/questionnaire" element={<QuestionnairePage />} />
       </Route>
     </Routes>
   )
