@@ -240,11 +240,11 @@ export interface SyncRunReport {
   pricesUpdated: number
   stocksUpdated: number
   productsActivated: number
-  skippedZeroPrice: number
-  skippedPriceDrop: number
+  skippedZeroPriceCount: number
+  skippedPriceDropCount: number
   notFoundInMs: number
   examples: {
-    skippedZeroPrice: SyncRunExample[]
+    zeroCost: Array<{ variantId: string; name: string }>
     skippedPriceDrop: SyncRunExample[]
     notFoundInMs: Array<{ variantId: string; name: string }>
     onlyInMs: Array<{ variantId: string; name: string }>

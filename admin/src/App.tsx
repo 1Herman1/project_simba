@@ -14,6 +14,7 @@ import CategoriesPage from './pages/categories/CategoriesPage'
 import BrandsPage from './pages/brands/BrandsPage'
 import BannersPage from './pages/banners/BannersPage'
 import SettingsPage from './pages/SettingsPage'
+import SyncPage from './pages/SyncPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'ok' | 'fail'>('loading')
@@ -66,6 +67,7 @@ export default function App() {
               <Route path="/products/new" element={<ProductFormPage />} />
               <Route path="/products/:id" element={<ProductFormPage />} />
               <Route path="/import" element={<ImportPage />} />
+              <Route path="/sync" element={<SyncPage />} />
               <Route path="/users" element={<UsersPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/brands" element={<BrandsPage />} />

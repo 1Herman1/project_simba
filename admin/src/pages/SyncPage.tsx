@@ -239,8 +239,8 @@ export default function SyncPage() {
             <div className="space-y-3">
               <ExpandableList
                 title="Пропущены по нулевой цене"
-                count={displayRun.report.skippedZeroPrice}
-                items={displayRun.report.examples.skippedZeroPrice}
+                count={displayRun.report.skippedZeroPriceCount}
+                items={displayRun.report.examples.zeroCost}
                 renderItem={(item) => (
                   <>
                     <p className="font-medium">{item.name}</p>
@@ -251,13 +251,13 @@ export default function SyncPage() {
 
               <ExpandableList
                 title="Пропущены по падению цены"
-                count={displayRun.report.skippedPriceDrop}
+                count={displayRun.report.skippedPriceDropCount}
                 items={displayRun.report.examples.skippedPriceDrop}
                 renderItem={(item) => (
                   <>
                     <p className="font-medium">{item.name}</p>
                     <p className="text-xs text-gray-500">
-                      {formatPrice(item.oldPrice)} → {formatPrice(item.newPrice)}
+                      {(item.oldPrice / 100).toLocaleString('ru-RU')} ₽ → {(item.newPrice / 100).toLocaleString('ru-RU')} ₽
                     </p>
                   </>
                 )}

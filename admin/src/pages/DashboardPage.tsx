@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { dashboardApi, type DashboardStats } from '../lib/api'
+import { dashboardApi, syncApi, type DashboardStats, type SyncStatusResponse } from '../lib/api'
 import { formatPrice } from '../lib/format'
+import SyncStatusBadge from '../components/SyncStatusBadge'
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   pending:    { label: 'Новый',       color: 'bg-amber-100 text-amber-700' },
@@ -23,12 +24,14 @@ function StatCard({ label, value, sub }: { label: string; value: string; sub?: s
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [syncStatus, setSyncStatus] = useState<SyncStatusResponse | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    dashboardApi.stats()
-      .then(r => setStats(r.data))
-      .finally(() => setLoading(false))
+    Promise.all([
+      dashboardApi.stats().then(r => setStats(r.data)),
+      syncApi.status().then(r => setSyncStatus(r.data)),
+    ]).finally(() => setLoading(false))
   }, [])
 
   if (loading) {
@@ -44,6 +47,13 @@ export default function DashboardPage() {
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-900 mb-6">Дашборд</h1>
+
+      {/* Sync status */}
+      {syncStatus && (
+        <div className="mb-6">
+          <SyncStatusBadge lastSuccess={syncStatus.lastSuccess} lastFailed={syncStatus.last} compact />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard
