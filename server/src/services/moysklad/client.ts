@@ -89,6 +89,10 @@ export async function fetchAssortment(): Promise<MsAssortmentItem[]> {
 }
 
 export async function fetchStockCurrent(): Promise<MsStockRow[]> {
-  const response = await msRequest<MsStockResponse>('/report/stock/all/current?stockType=stock')
-  return response.rows
+  // Краткий отчёт об остатках приходит ПЛОСКИМ массивом, в отличие от остальных
+  // ответов МойСклад с обёрткой { rows: [...] }. Принимаем обе формы.
+  const response = await msRequest<MsStockResponse | MsStockRow[]>(
+    '/report/stock/all/current?stockType=stock'
+  )
+  return Array.isArray(response) ? response : (response.rows ?? [])
 }

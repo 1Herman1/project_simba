@@ -196,6 +196,9 @@ async function main() {
     console.log('\n' + '='.repeat(80))
     console.log('6. СРАВНЕНИЕ 5 СМАТЧЕННЫХ ПОЗИЦИЙ\n')
 
+    // Остатки по id позиции — обращение по ключу вместо перебора на каждой строке
+    const stockById = new Map(stocks.map(s => [s.assortmentId, s.stock]))
+
     let comparisonCount = 0
     msMap.forEach((msItems, normalized) => {
       if (comparisonCount >= 5) return
@@ -206,9 +209,10 @@ async function main() {
       const ourV = ourItem[0]
       const msItem = msItems[0]
       const msPrice = msItem.salePrices?.[0]?.value ?? null
+      const msStock = stockById.get(msItem.id) ?? '—'
 
       console.log(
-        `${msItem.name} | наша цена ${ourV.price} (копейки) | МС ${msPrice} | наш остаток ${ourV.stock} | МС ${stocks.find((s) => s.assortmentId === msItem.id)?.stock ?? '?'}`
+        `${msItem.name} | наша цена ${ourV.price} (копейки) | МС ${msPrice} | наш остаток ${ourV.stock} | МС ${msStock}`
       )
 
       comparisonCount++
@@ -221,8 +225,8 @@ async function main() {
     console.log('\n' + '='.repeat(80))
     console.log('7. ФОРМАТ ОТВЕТА ОСТАТКОВ (ПЕРВЫЕ 3 ЭЛЕМЕНТА)\n')
 
-    const sample = stocks.slice(0, 3)
-    console.log(JSON.stringify(sample, null, 2))
+    console.log(`Получено строк остатков: ${stocks.length}`)
+    console.log(JSON.stringify(stocks.slice(0, 3), null, 2))
   } catch (error) {
     if (error instanceof Error) {
       console.error('❌ Ошибка:', error.message)
