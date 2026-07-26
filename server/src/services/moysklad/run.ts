@@ -133,7 +133,12 @@ export async function runMoyskladSync(opts: {
       const productId = productIdByVariant.get(entry.variantId)
       if (productId) wouldActivate.add(productId)
     })
-    report.productsActivated = wouldActivate.size
+    // В предпросмотре — сколько товаров СТАНЕТ видно, то есть только скрытые сейчас.
+    const hiddenIds = await prisma.product.findMany({
+      where: { id: { in: Array.from(wouldActivate) }, isActive: false },
+      select: { id: true },
+    })
+    report.productsActivated = hiddenIds.length
 
     // Порог аномалии проверяем и в предпросмотре: иначе боевой прогон
     // остановится, а человек не поймёт почему.
@@ -220,18 +225,16 @@ export async function runMoyskladSync(opts: {
     report.stocksUpdated += batch.filter(u => u.stockChanged).length
   }
 
-  // Активация товаров
+  // Активация товаров. Считаем только те, что были скрыты: иначе отчёт каждые
+  // полчаса рапортует «активировано 520» и настоящее событие в нём потеряется.
   if (productActivations.size > 0) {
-    await prisma.$transaction(
-      Array.from(productActivations).map((productId) =>
-        prisma.product.update({
-          where: { id: productId },
-          data: { isActive: true },
-        })
-      )
-    )
+    const ids = Array.from(productActivations)
+    const activated = await prisma.product.updateMany({
+      where: { id: { in: ids }, isActive: false },
+      data: { isActive: true },
+    })
 
-    report.productsActivated = productActivations.size
+    report.productsActivated = activated.count
   }
 
   // Посчитаем пропущенные
