@@ -56,6 +56,9 @@ export type PlanEntry = {
 }
 
 export type SyncReport = {
+  /** true — сработала защита (порог аномалии или мало позиций), изменения НЕ применены */
+  aborted?: boolean
+  abortReason?: string
   receivedFromMs: number
   matched: number
   pricesUpdated: number

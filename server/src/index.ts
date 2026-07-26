@@ -19,6 +19,7 @@ import adminUsers from './routes/admin/users'
 import adminBrands from './routes/admin/brands'
 import adminBanners from './routes/admin/banners'
 import adminImport from './routes/admin/import'
+import adminSync from './routes/admin/sync'
 
 const app = Fastify({ logger: true })
 
@@ -55,6 +56,7 @@ async function start() {
   await app.register(adminBrands, { prefix: '/api/admin/brands' })
   await app.register(adminBanners, { prefix: '/api/admin/banners' })
   await app.register(adminImport, { prefix: '/api/admin/import' })
+  await app.register(adminSync, { prefix: '/api/admin/sync' })
   await app.register(deliveryRoutes, { prefix: '/api/delivery' })
 
   const port = Number(process.env.PORT) || 3000

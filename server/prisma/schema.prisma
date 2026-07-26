@@ -33,6 +33,13 @@ enum PetSpecies {
   other
 }
 
+enum SyncStatus {
+  running
+  success
+  failed
+  aborted
+}
+
 enum FilterType {
   checkbox
   range
@@ -187,8 +194,8 @@ model Category {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  parent   Category?        @relation("CategoryTree", fields: [parentId], references: [id])
-  children Category[]       @relation("CategoryTree")
+  parent   Category?         @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[]        @relation("CategoryTree")
   products ProductCategory[]
   filters  CategoryFilter[]
 
@@ -559,4 +566,29 @@ model ChatMessage {
   @@index([sessionId])
   @@index([createdAt])
   @@map("chat_messages")
+}
+
+/// История прогонов синхронизации с МойСклад.
+/// Запись со статусом running служит защитой от параллельного запуска.
+model SyncRun {
+  id                String     @id @default(uuid())
+  source            String     @default("moysklad")
+  trigger           String
+  status            SyncStatus @default(running)
+  dryRun            Boolean    @default(false)
+  startedAt         DateTime   @default(now())
+  finishedAt        DateTime?
+  itemsFromMs       Int        @default(0)
+  matched           Int        @default(0)
+  priceUpdated      Int        @default(0)
+  stockUpdated      Int        @default(0)
+  productsActivated Int        @default(0)
+  missingInMs       Int        @default(0)
+  skipped           Int        @default(0)
+  error             String?
+  report            Json?
+
+  @@index([startedAt])
+  @@index([status])
+  @@map("sync_runs")
 }

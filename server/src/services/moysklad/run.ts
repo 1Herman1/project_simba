@@ -1,4 +1,5 @@
 import type { PrismaClient } from '@prisma/client'
+import { startRun, finishRun, failRun, type SyncTrigger } from './history'
 import { fetchAssortment, fetchStockCurrent } from './client.js'
 import {
   buildPlan,
@@ -15,6 +16,26 @@ const MOYSKLAD_MIN_ITEMS = parseInt(process.env.MOYSKLAD_MIN_ITEMS || '300', 10)
 const MOYSKLAD_MAX_CHANGE_PERCENT = parseInt(process.env.MOYSKLAD_MAX_CHANGE_PERCENT || '30', 10)
 const MOYSKLAD_MAX_PRICE_DROP_PERCENT = parseInt(process.env.MOYSKLAD_MAX_PRICE_DROP_PERCENT || '50', 10)
 const MOYSKLAD_PRICE_TYPE = process.env.MOYSKLAD_PRICE_TYPE || 'Цена (Сайт)'
+
+/** Прогон с записью в историю: занимает лок, пишет результат, помечает падение. */
+export async function runMoyskladSyncTracked(opts: {
+  prisma: PrismaClient
+  apply: boolean
+  force: boolean
+  trigger: SyncTrigger
+}): Promise<{ runId: string; report: SyncReport }> {
+  const runId = await startRun(opts.prisma, opts.trigger, !opts.apply)
+
+  try {
+    const report = await runMoyskladSync(opts)
+    // Порог аномалии сработал — прогон остановлен, изменения не применены.
+    await finishRun(opts.prisma, runId, report.aborted ? 'aborted' : 'success', report)
+    return { runId, report }
+  } catch (error) {
+    await failRun(opts.prisma, runId, error)
+    throw error
+  }
+}
 
 export async function runMoyskladSync(opts: {
   prisma: PrismaClient
@@ -111,7 +132,11 @@ export async function runMoyskladSync(opts: {
   // ─── ФАЗА 6: ПРОВЕРКА АНОМАЛИИ (БЛОКИРУЮЩАЯ) ──────────────────────────────
 
   if (!anomaly.ok && !force) {
-    // Возвращаем отчёт с информацией о превышении
+    report.aborted = true
+    report.abortReason =
+      `Изменилось бы ${anomaly.changed} цен из ${anomaly.total} (${anomaly.changedPercent.toFixed(0)}%) — ` +
+      `больше допустимого порога. Изменения НЕ применены. Проверьте цены в МойСклад ` +
+      `или запустите с флагом --force, если это ожидаемо.`
     report.examples.skippedZeroPrice = plan.filter((e) => e.skipReason === 'zeroPrice').slice(0, 20)
     report.examples.skippedPriceDrop = plan.filter((e) => e.skipReason === 'priceDrop').slice(0, 20)
 
@@ -145,9 +170,6 @@ export async function runMoyskladSync(opts: {
       const productId = productIdByVariant.get(entry.variantId)
       if (productId) productActivations.add(productId)
     }
-
-    if (entry.skipReason === 'zeroPrice') report.skippedZeroPrice++
-    if (entry.skipReason === 'priceDrop') report.skippedPriceDrop++
 
     variantUpdates.push({
       id: entry.variantId,
