@@ -173,10 +173,19 @@ export async function createOrder(
     })
 
     for (const item of cart.items) {
-      await tx.productVariant.update({
-        where: { id: item.productVariantId },
+      // Условное списание: база сама проверит, что остатка хватает. Проверка
+      // отдельным запросом выше не спасает — между ней и списанием второй
+      // покупатель успевает забрать последний мешок, и склад уходит в минус.
+      const decremented = await tx.productVariant.updateMany({
+        where: { id: item.productVariantId, stock: { gte: item.quantity } },
         data: { stock: { decrement: item.quantity } },
       })
+
+      if (decremented.count === 0) {
+        throw new Error(
+          `Недостаточно товара на складе: ${item.productVariant.product.name}`
+        )
+      }
     }
 
     const user = await tx.user.update({
@@ -199,7 +208,14 @@ export async function createOrder(
       })
     }
 
-    await tx.cartItem.deleteMany({ where: { cartId: cart.id } })
+    // Очистка корзины — она же признак дубля. Два одновременных нажатия
+    // «Оформить» дойдут сюда оба, но вычистит корзину только первый; второй
+    // увидит ноль строк и откатится, вместо второго заказа и двойного списания.
+    const cleared = await tx.cartItem.deleteMany({ where: { cartId: cart.id } })
+
+    if (cleared.count === 0) {
+      throw new Error('Заказ уже оформлен')
+    }
 
     return order
   })
