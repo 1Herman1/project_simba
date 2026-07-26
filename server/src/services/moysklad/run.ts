@@ -124,6 +124,27 @@ export async function runMoyskladSync(opts: {
       if (entry.newStock !== entry.oldStock) report.stocksUpdated++
     })
 
+    // Сколько товаров стало бы видно покупателям: без этого числа предпросмотр
+    // выглядит как «ничего не произойдёт».
+    const productIdByVariant = new Map(variantsForSync.map(v => [v.id, v.productId]))
+    const wouldActivate = new Set<string>()
+    plan.forEach((entry) => {
+      if (entry.skipReason || entry.newPrice === null || entry.newPrice <= 0) return
+      const productId = productIdByVariant.get(entry.variantId)
+      if (productId) wouldActivate.add(productId)
+    })
+    report.productsActivated = wouldActivate.size
+
+    // Порог аномалии проверяем и в предпросмотре: иначе боевой прогон
+    // остановится, а человек не поймёт почему.
+    if (!anomaly.ok) {
+      report.aborted = true
+      report.abortReason =
+        `Изменится ${anomaly.changed} цен из ${anomaly.total} (${anomaly.changedPercent.toFixed(0)}%) — ` +
+        `выше порога ${MOYSKLAD_MAX_CHANGE_PERCENT}%. Боевой прогон будет остановлен защитой. ` +
+        `Если это ожидаемо (первое проставление цен) — запускайте с флагом --force.`
+    }
+
     // Заполним примеры
     report.examples.skippedZeroPrice = plan.filter((e) => e.skipReason === 'zeroPrice').slice(0, 50)
     report.examples.skippedPriceDrop = plan.filter((e) => e.skipReason === 'priceDrop').slice(0, 50)

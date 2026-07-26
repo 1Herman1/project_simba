@@ -28,6 +28,12 @@ function formatReport(report: Awaited<ReturnType<typeof runMoyskladSync>>) {
   lines.push(`✅ Обновлено цен: ${report.pricesUpdated}`)
   lines.push(`📦 Обновлено остатков: ${report.stocksUpdated}`)
   lines.push(`🏪 Активировано товаров: ${report.productsActivated}`)
+
+  if (report.aborted && report.abortReason) {
+    lines.push('')
+    lines.push('⚠️  СРАБОТАЛА ЗАЩИТА')
+    lines.push(report.abortReason)
+  }
   lines.push(`⏭️  Пропущено (нулевая цена): ${report.skippedZeroPrice}`)
   lines.push(`⏭️  Пропущено (падение цены): ${report.skippedPriceDrop}`)
   lines.push(`❌ Не найдены в МойСладе: ${report.notFoundInMs}`)
@@ -104,7 +110,8 @@ async function main() {
     if (!apply) {
       console.log('\n✅ СУХОЙ ЗАПУСК — никакие данные не изменены.\n')
       console.log('Запустите с флагом --apply чтобы применить изменения:\n')
-      console.log('  npx tsx server/src/scripts/sync-moysklad.ts --apply\n')
+      const flags = report.aborted ? '--apply --force' : '--apply'
+      console.log(`  npx tsx --env-file=.env src/scripts/sync-moysklad.ts ${flags}\n`)
     } else if (report.pricesUpdated === 0 && report.stocksUpdated === 0) {
       console.log('\n⚠️  Нечего обновлять.\n')
     } else {
