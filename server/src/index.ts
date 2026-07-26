@@ -21,9 +21,13 @@ import adminBanners from './routes/admin/banners'
 import adminImport from './routes/admin/import'
 import adminSync from './routes/admin/sync'
 
-const app = Fastify({ logger: true })
+/**
+ * Собирает приложение, но НЕ слушает порт — чтобы тесты могли поднять его
+ * через app.inject() без сети. Запуск сервера — в start() ниже.
+ */
+export async function buildApp(opts: { logger?: boolean } = {}) {
+  const app = Fastify({ logger: opts.logger ?? true })
 
-async function start() {
   await app.register(cors, {
     origin: [process.env.CLIENT_URL!, process.env.ADMIN_URL!],
     credentials: true,
@@ -59,9 +63,20 @@ async function start() {
   await app.register(adminSync, { prefix: '/api/admin/sync' })
   await app.register(deliveryRoutes, { prefix: '/api/delivery' })
 
+  return app
+}
+
+async function start() {
+  const app = await buildApp()
   const port = Number(process.env.PORT) || 3000
   await app.listen({ port, host: '0.0.0.0' })
   app.log.info(`Server running on http://localhost:${port}`)
 }
 
-start().catch(err => app.log.error(err))
+// Из тестов файл импортируется ради buildApp — сервер при этом подниматься не должен.
+if (process.env.NODE_ENV !== 'test') {
+  start().catch((err) => {
+    console.error('Не удалось запустить сервер:', err)
+    process.exit(1)
+  })
+}
