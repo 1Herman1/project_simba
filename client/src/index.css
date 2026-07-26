@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,6 +13,12 @@
 @layer base {
   body {
     @apply bg-blue-50 text-navy-900 font-sans;
+  }
+
+  /* Клавиатурный фокус: до этого ни одна кнопка магазина его не показывала. */
+  *:focus-visible {
+    outline: 2px solid theme('colors.primary.soft');
+    outline-offset: 2px;
   }
 }
 
