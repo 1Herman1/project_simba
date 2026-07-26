@@ -29,7 +29,7 @@ const LEVELS = [
 
 export default function BonusesPage() {
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-[100dvh] bg-blue-50">
       <div className="max-w-2xl mx-auto px-4 py-10">
 
         {/* Заголовок */}
@@ -89,12 +89,12 @@ export default function BonusesPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             to="/auth"
-            className="flex-1 bg-blue-200 text-navy-900 font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-blue-300 transition-colors">
+            className="flex-1 bg-primary text-white font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-primary-hover transition-colors duration-100 ease">
             Войти и начать копить
           </Link>
           <Link
             to="/catalog"
-            className="flex-1 bg-white border border-blue-100 text-navy-700 font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-blue-50 transition-colors">
+            className="flex-1 bg-white border border-line text-navy-700 font-bold py-3.5 rounded-2xl text-center text-sm hover:bg-blue-50 transition-colors duration-100 ease">
             Смотреть каталог
           </Link>
         </div>

@@ -112,7 +112,7 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
   }
 
   return (
-    <div className="flex-shrink-0 w-52 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 flex flex-col overflow-hidden border border-blue-50">
+    <div className="flex-shrink-0 w-52 bg-white rounded-card shadow-sm hover:shadow-card hover:-translate-y-0.5 transition-[transform,box-shadow] duration-100 flex flex-col overflow-hidden border border-line">
       {/* Изображение */}
       <div className="relative h-44 bg-blue-50 flex items-center justify-center">
 
@@ -124,7 +124,7 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
             </span>
           )}
           {product.isHypoallergenic && (
-            <span className="bg-blue-100 text-blue-500 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+            <span className="bg-blue-100 text-primary-hover text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
               Гипоалл.
             </span>
           )}
@@ -134,9 +134,9 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
         <button
           onClick={handleFavoriteClick}
           aria-label={isFavorited ? 'Убрать из избранного' : 'Добавить в избранное'}
-          className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center transition-all hover:scale-110 rounded-full"
+          className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center transition-transform hover:scale-110 rounded-full"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorited ? '#FFB347' : 'none'} stroke={isFavorited ? '#FFB347' : '#8FA8C0'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorited ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isFavorited ? 'text-amber-400' : 'text-navy-300'}>
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
           </svg>
         </button>
@@ -144,7 +144,7 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
 
       {/* Контент */}
       <div className="p-3 flex flex-col gap-2 flex-1">
-        <p className="text-[10px] text-navy-300 font-medium uppercase tracking-wide">{product.brand?.name}</p>
+        <p className="text-[10px] text-navy-500 font-medium uppercase tracking-wide">{product.brand?.name}</p>
         <p className="text-sm font-semibold text-navy-900 leading-tight line-clamp-2">{product.name}</p>
 
         {/* Выбор веса */}
@@ -153,10 +153,10 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
             <button
               key={v.id}
               onClick={() => setSelectedVariantId(v.id)}
-              className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-all ${
+              className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-[background-color,border-color] duration-100 ${
                 v.id === selectedVariantId
-                  ? 'bg-blue-200 border-blue-200 text-navy-900'
-                  : 'border-blue-100 text-navy-500 hover:border-blue-200'
+                  ? 'bg-primary-tint border-primary-soft text-navy-900'
+                  : 'border-line text-navy-500 hover:border-primary-soft'
               }`}
             >
               {v.weight < 1 ? `${v.weight * 1000}г` : `${v.weight}кг`}
@@ -179,10 +179,10 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
         {/* Кнопка в корзину */}
         <button
           onClick={handleAddToCart}
-          className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition-[background-color,transform] duration-100 ${
             addedToCart
               ? 'bg-green-100 text-green-700'
-              : 'bg-blue-200 hover:bg-blue-300 text-navy-900 hover:scale-[1.02]'
+              : 'bg-primary text-white hover:bg-primary-hover hover:scale-[1.02]'
           }`}
         >
           {addedToCart ? (
@@ -298,7 +298,7 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
         <div className="flex gap-2">
           <button
             onClick={scrollLeft}
-            className="w-8 h-8 rounded-full bg-white border border-blue-100 shadow-sm hover:shadow-md flex items-center justify-center text-navy-500 hover:text-blue-300 transition-all hover:scale-110"
+            className="w-8 h-8 rounded-full bg-white border border-line shadow-sm hover:shadow-md flex items-center justify-center text-navy-500 hover:text-primary-hover transition-[color,box-shadow] hover:scale-110"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15,18 9,12 15,6"/>
@@ -306,7 +306,7 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
           </button>
           <button
             onClick={scrollRight}
-            className="w-8 h-8 rounded-full bg-white border border-blue-100 shadow-sm hover:shadow-md flex items-center justify-center text-navy-500 hover:text-blue-300 transition-all hover:scale-110"
+            className="w-8 h-8 rounded-full bg-white border border-line shadow-sm hover:shadow-md flex items-center justify-center text-navy-500 hover:text-primary-hover transition-[color,box-shadow] hover:scale-110"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9,18 15,12 9,6"/>

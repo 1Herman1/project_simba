@@ -25,7 +25,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link to={`/product/${product.slug}`}
-      className="group bg-white rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-200 ease-out flex flex-col">
+      className="group bg-white rounded-card overflow-hidden hover:shadow-card hover:-translate-y-0.5 transition-[transform,box-shadow,border-color] duration-100 ease flex flex-col">
 
       {/* Изображение */}
       <div className="relative bg-blue-50 h-44 flex items-center justify-center">
@@ -68,10 +68,10 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               key={v.id}
               onClick={e => { e.preventDefault(); setSelectedVariant(v) }}
-              className={`text-xs px-2 py-0.5 rounded-full border transition-all ${
+              className={`text-xs px-2 py-0.5 rounded-full border transition-colors duration-100 ease ${
                 selectedVariant.id === v.id
-                  ? 'bg-blue-200 border-blue-200 text-navy-900 font-medium'
-                  : 'border-blue-100 text-navy-500 hover:border-blue-200'
+                  ? 'bg-white border-primary-soft text-primary-hover font-medium'
+                  : 'border-line text-navy-500 hover:border-primary-soft'
               }`}>
               {v.weight}кг
             </button>
@@ -91,10 +91,10 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={handleAddToCart}
-          className={`w-full py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+          className={`w-full py-2 rounded-xl text-sm font-medium transition-colors duration-100 ease ${
             added
               ? 'bg-green-100 text-green-700'
-              : 'bg-blue-200 text-navy-900 hover:bg-blue-300 active:scale-95'
+              : 'bg-primary text-white hover:bg-primary-hover active:scale-95'
           }`}>
           {added ? '✓ Добавлено' : 'В корзину'}
         </button>

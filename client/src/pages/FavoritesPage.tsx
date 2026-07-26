@@ -52,7 +52,7 @@ function ProductCard({ favorite, onRemove }: {
       <div className="p-3 flex flex-col flex-1">
         <p className="text-xs text-navy-300 mb-1">{product.brand?.name || 'Без бренда'}</p>
         <Link to={`/product/${product.slug}`}>
-          <h3 className="text-sm font-semibold text-navy-900 mb-2 hover:text-blue-300 transition-colors"
+          <h3 className="text-sm font-semibold text-navy-900 mb-2 hover:text-primary-hover transition-colors"
             style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </h3>
@@ -63,10 +63,10 @@ function ProductCard({ favorite, onRemove }: {
             <button
               key={v.id}
               onClick={() => setSelectedVariant(v)}
-              className={`text-xs px-2 py-0.5 rounded-full border transition-all ${
+              className={`text-xs px-2 py-0.5 rounded-full border transition-colors duration-100 ease ${
                 selectedVariant.id === v.id
-                  ? 'bg-blue-200 border-blue-200 text-navy-900 font-medium'
-                  : 'border-blue-100 text-navy-500 hover:border-blue-200'
+                  ? 'bg-white border-primary-soft text-primary-hover font-medium'
+                  : 'border-line text-navy-500 hover:border-primary-soft'
               }`}>
               {v.weight}кг
             </button>
@@ -146,11 +146,11 @@ export default function FavoritesPage() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-blue-50 flex items-center justify-center">Загрузка...</div>
+    return <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center">Загрузка...</div>
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 pb-24 md:pb-6">
+    <div className="min-h-[100dvh] bg-blue-50 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto px-4 py-6">
         {error && (
           <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center justify-between">
@@ -183,7 +183,7 @@ export default function FavoritesPage() {
             </div>
             <Link
               to="/catalog"
-              className="bg-blue-200 text-navy-900 font-bold px-8 py-3 rounded-xl hover:bg-blue-300 transition-colors">
+              className="bg-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease">
               Перейти в каталог
             </Link>
           </div>

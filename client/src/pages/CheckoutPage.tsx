@@ -159,7 +159,7 @@ export default function CheckoutPage() {
 
   if (cartLoading) {
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
       </div>
     )
@@ -167,7 +167,7 @@ export default function CheckoutPage() {
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
+      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -187,11 +187,11 @@ export default function CheckoutPage() {
           </p>
           <div className="flex flex-col gap-2">
             <Link to="/profile"
-              className="block bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 transition-colors text-sm">
+              className="block bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease text-sm">
               Мои заказы
             </Link>
             <Link to="/"
-              className="block border border-blue-100 text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm">
+              className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
               На главную
             </Link>
           </div>
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 pb-6">
+    <div className="min-h-[100dvh] bg-blue-50 pb-6">
       <div className="max-w-4xl mx-auto px-4 py-6">
 
         {/* Шапка */}
@@ -222,10 +222,10 @@ export default function CheckoutPage() {
               <button
                 onClick={() => i < stepIndex && setStep(s.key)}
                 className={`flex items-center gap-2 ${i < stepIndex ? 'cursor-pointer' : 'cursor-default'}`}>
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                  i < stepIndex ? 'bg-green-400 text-white' :
-                  i === stepIndex ? 'bg-blue-200 text-navy-900' :
-                  'bg-blue-100 text-navy-400'
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-100 ease ${
+                  i < stepIndex ? 'bg-primary text-white' :
+                  i === stepIndex ? 'bg-primary text-white' :
+                  'bg-primary-tint text-navy-500'
                 }`}>
                   {i < stepIndex ? '✓' : i + 1}
                 </div>
@@ -274,11 +274,11 @@ export default function CheckoutPage() {
                       key={opt.key}
                       onClick={() => opt.available && setDelivery(opt.provider as DeliveryMethod)}
                       disabled={!opt.available}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                        !opt.available ? 'border-blue-50 bg-blue-50 opacity-50 cursor-not-allowed' :
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
+                        !opt.available ? 'border-line bg-blue-50 opacity-50 cursor-not-allowed' :
                         delivery === opt.provider
-                          ? 'border-blue-200 bg-blue-50'
-                          : 'border-blue-100 bg-white hover:border-blue-200'
+                          ? 'border-primary-soft bg-primary-tint'
+                          : 'border-line bg-white hover:border-primary-soft'
                       }`}>
                       {PROVIDER_ICONS[opt.provider] ? <span className="text-2xl">{PROVIDER_ICONS[opt.provider]}</span> : null}
                       <div className="flex-1">
@@ -294,16 +294,16 @@ export default function CheckoutPage() {
                         </div>
                         <p className="text-xs text-navy-400">{opt.description}</p>
                         {opt.daysMax > 0 && (
-                          <p className="text-xs text-blue-300 mt-0.5">
+                          <p className="text-xs text-primary-hover mt-0.5">
                             {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
                           </p>
                         )}
                         {opt.daysMax === 0 && opt.available && (
-                          <p className="text-xs text-blue-300 mt-0.5">Сегодня</p>
+                          <p className="text-xs text-primary-hover mt-0.5">Сегодня</p>
                         )}
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        delivery === opt.provider ? 'border-blue-200 bg-blue-200' : 'border-blue-200'
+                        delivery === opt.provider ? 'border-primary-soft bg-primary-soft' : 'border-line'
                       }`}>
                         {delivery === opt.provider && <div className="w-2 h-2 rounded-full bg-white" />}
                       </div>
@@ -322,7 +322,7 @@ export default function CheckoutPage() {
                         aria-label="Город"
                         value={address.city}
                         onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                       />
                       <input
                         type="text"
@@ -330,7 +330,7 @@ export default function CheckoutPage() {
                         aria-label="Улица"
                         value={address.street}
                         onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                       />
                       <div className="grid grid-cols-2 gap-3">
                         <input
@@ -339,7 +339,7 @@ export default function CheckoutPage() {
                           aria-label="Дом"
                           value={address.house}
                           onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                          className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                         />
                         <input
                           type="text"
@@ -347,7 +347,7 @@ export default function CheckoutPage() {
                           aria-label="Квартира"
                           value={address.apartment}
                           onChange={e => setAddress(a => ({ ...a, apartment: e.target.value }))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                          className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                         />
                       </div>
                       <input
@@ -356,7 +356,7 @@ export default function CheckoutPage() {
                         aria-label="Почтовый индекс"
                         value={address.postalCode}
                         onChange={e => setAddress(a => ({ ...a, postalCode: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                       />
                       <textarea
                         placeholder="Комментарий к заказу (необязательно)"
@@ -364,7 +364,7 @@ export default function CheckoutPage() {
                         value={address.comment}
                         onChange={e => setAddress(a => ({ ...a, comment: e.target.value }))}
                         rows={2}
-                        className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100 resize-none"
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100 resize-none"
                       />
                     </div>
                   </div>
@@ -372,7 +372,7 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={() => setStep('payment')}
-                  className="w-full mt-5 bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 active:scale-95 transition-all text-sm">
+                  className="w-full mt-5 bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
                   Далее: Оплата
                 </button>
               </div>
@@ -391,17 +391,17 @@ export default function CheckoutPage() {
                     <button
                       key={opt.key}
                       onClick={() => setPayment(opt.key)}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
                         payment === opt.key
-                          ? 'border-blue-200 bg-blue-50'
-                          : 'border-blue-100 bg-white hover:border-blue-200'
+                          ? 'border-primary-soft bg-primary-tint'
+                          : 'border-line bg-white hover:border-primary-soft'
                       }`}>
                       <div className="flex-1">
                         <p className="font-semibold text-navy-900 text-sm">{opt.title}</p>
                         <p className="text-xs text-navy-400">{opt.desc}</p>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        payment === opt.key ? 'border-blue-200 bg-blue-200' : 'border-blue-200'
+                        payment === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
                       }`}>
                         {payment === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
                       </div>
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Бонусы */}
-                <div className={`rounded-xl border-2 p-4 mb-5 transition-all ${bonusSpend ? 'border-amber-200 bg-amber-50' : 'border-blue-100'}`}>
+                <div className={`rounded-xl border p-4 mb-5 transition-all duration-100 ease ${bonusSpend ? 'border-amber-200 bg-amber-50' : 'border-line'}`}>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
@@ -430,12 +430,12 @@ export default function CheckoutPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setStep('delivery')}
-                    className="flex-1 border border-blue-100 text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm">
+                    className="flex-1 border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
                     Назад
                   </button>
                   <button
                     onClick={() => setStep('confirm')}
-                    className="flex-[2] bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 active:scale-95 transition-all text-sm">
+                    className="flex-[2] bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
                     Далее: Подтверждение
                   </button>
                 </div>
@@ -448,7 +448,7 @@ export default function CheckoutPage() {
                 <h2 className="font-bold text-navy-900 mb-4">Проверьте заказ</h2>
 
                 {/* Краткая сводка */}
-                <div className="flex flex-col gap-3 mb-4 p-4 bg-blue-50 rounded-xl">
+                <div className="flex flex-col gap-3 mb-4 p-4 bg-primary-tint rounded-xl">
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Доставка</span>
                     <span className="font-medium text-navy-900">
@@ -495,13 +495,13 @@ export default function CheckoutPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setStep('payment')}
-                    className="flex-1 border border-blue-100 text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors text-sm">
+                    className="flex-1 border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
                     Назад
                   </button>
                   <button
                     onClick={handlePlaceOrder}
                     disabled={placingOrder}
-                    className="flex-[2] bg-blue-200 text-navy-900 font-bold py-3 rounded-xl hover:bg-blue-300 active:scale-95 transition-all text-sm disabled:opacity-60">
+                    className="flex-[2] bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm disabled:opacity-60">
                     {placingOrder ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -519,7 +519,7 @@ export default function CheckoutPage() {
                 )}
                 <p className="text-center text-xs text-navy-300 mt-3">
                   Нажимая кнопку, вы соглашаетесь с{' '}
-                  <a href="#" className="text-blue-300 hover:underline">условиями оферты</a>
+                  <a href="#" className="text-primary-hover hover:underline">условиями оферты</a>
                 </p>
               </div>
             )}
@@ -543,7 +543,7 @@ export default function CheckoutPage() {
                 ))}
               </div>
 
-              <div className="border-t border-blue-100 pt-3 flex flex-col gap-1.5 mb-3">
+              <div className="border-t border-line pt-3 flex flex-col gap-1.5 mb-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-navy-500">Доставка</span>
                   {deliveryCost > 0
@@ -565,7 +565,7 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              <div className="border-t border-blue-100 pt-3 flex justify-between mb-3">
+              <div className="border-t border-line pt-3 flex justify-between mb-3">
                 <span className="font-bold text-navy-900">Итого</span>
                 <span className="font-black text-xl text-navy-900">{formatPrice(total)}</span>
               </div>

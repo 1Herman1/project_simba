@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 
+// Brand colors are proprietary brand identities, not system design tokens
+// eslint-disable-next-line design-lint/no-hex-colors
 const brands = [
   { name: "Hill's", slug: 'hills', color: '#E8003D' },
   { name: 'Farmina', slug: 'farmina', color: '#2E7D32' },

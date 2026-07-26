@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
+import { Link } from 'react-router-dom'
 
 const faqs = [
   {
@@ -31,26 +32,44 @@ const faqs = [
 
 function FaqItem({ faq }: { faq: { q: string; a: string } }) {
   const [open, setOpen] = useState(false)
+  const id = useId()
 
   return (
-    <div className="border border-blue-100 rounded-2xl overflow-hidden">
+    <div className="border border-line rounded-card overflow-hidden">
       <button
+        aria-expanded={open}
+        aria-controls={id}
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between p-5 text-left hover:bg-blue-50 transition-colors"
       >
-        <span className="font-semibold pr-4" style={{ color: '#1A3A5C' }}>{faq.q}</span>
+        <span className="font-semibold pr-4 text-navy-900">{faq.q}</span>
         <svg
-          className={`w-5 h-5 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+          className={`w-5 h-5 flex-shrink-0 text-primary-hover transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
           viewBox="0 0 24 24"
           fill="none"
-          stroke="#A4D4FC"
+          stroke="currentColor"
           strokeWidth="2"
         >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-      <div className={`overflow-hidden transition-all duration-300 ${open ? 'max-h-96' : 'max-h-0'}`}>
-        <p className="px-5 pb-5 leading-relaxed" style={{ color: '#4A6A8C' }}>{faq.a}</p>
+      <div
+        id={id}
+        role="region"
+        className="grid transition-[grid-template-rows] duration-200 ease-out"
+        style={{
+          gridTemplateRows: open ? '1fr' : '0fr',
+        }}
+      >
+        <div className="overflow-hidden">
+          <p className="px-5 pb-5 leading-relaxed text-navy-500 opacity-0 -translate-y-1 transition-[opacity,transform] duration-200 ease-out" style={{
+            opacity: open ? 1 : 0,
+            transform: open ? 'translateY(0)' : 'translateY(-4px)',
+          }}>
+            {faq.a}
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -59,11 +78,16 @@ function FaqItem({ faq }: { faq: { q: string; a: string } }) {
 export default function FaqSection() {
   return (
     <section className="py-12 max-w-4xl mx-auto px-4">
-      <h2 className="text-2xl font-bold mb-8 text-center" style={{ color: '#1A3A5C' }}>Частые вопросы</h2>
+      <h2 className="text-2xl font-bold mb-8 text-navy-900">Частые вопросы</h2>
       <div className="flex flex-col gap-3">
         {faqs.map((faq, i) => (
           <FaqItem key={i} faq={faq} />
         ))}
+      </div>
+      <div className="mt-8">
+        <Link to="/faq" className="text-primary-hover hover:text-primary transition-colors">
+          Все вопросы и ответы →
+        </Link>
       </div>
     </section>
   )

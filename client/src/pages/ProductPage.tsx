@@ -49,9 +49,9 @@ export default function ProductPage() {
 
   if (!product || !selectedVariant) {
     return (
-      <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center gap-4">
+      <div className="min-h-[100dvh] bg-blue-50 flex flex-col items-center justify-center gap-4">
         <p className="text-navy-500 text-lg">Товар не найден</p>
-        <Link to="/catalog" className="text-blue-300 hover:text-blue-400">В каталог</Link>
+        <Link to="/catalog" className="text-primary-hover hover:text-primary-hover">В каталог</Link>
       </div>
     )
   }
@@ -63,16 +63,16 @@ export default function ProductPage() {
   const pricePerKg = Math.round(selectedVariant.price / selectedVariant.weight)
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-[100dvh] bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-4">
 
         {/* Хлебные крошки */}
         <nav className="flex items-center gap-2 text-sm text-navy-300 mb-6 flex-wrap">
-          <Link to="/" className="hover:text-blue-300 transition-colors">Главная</Link>
+          <Link to="/" className="hover:text-primary-hover transition-colors">Главная</Link>
           <span>/</span>
-          <Link to="/catalog" className="hover:text-blue-300 transition-colors">Каталог</Link>
+          <Link to="/catalog" className="hover:text-primary-hover transition-colors">Каталог</Link>
           <span>/</span>
-          <Link to="/catalog?category=cats-food" className="hover:text-blue-300 transition-colors">Корм для кошек</Link>
+          <Link to="/catalog?category=cats-food" className="hover:text-primary-hover transition-colors">Корм для кошек</Link>
           <span>/</span>
           <span className="text-navy-700 truncate max-w-xs">{product.name}</span>
         </nav>
@@ -89,8 +89,8 @@ export default function ProductPage() {
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`w-16 h-16 rounded-xl bg-white border-2 flex items-center justify-center text-2xl transition-all overflow-hidden ${
-                      activeImage === i ? 'border-blue-200 shadow-md' : 'border-blue-100 opacity-60 hover:opacity-100'
+                    className={`w-16 h-16 rounded-xl bg-white border flex items-center justify-center text-2xl transition-all overflow-hidden ${
+                      activeImage === i ? 'border-primary-soft shadow-md' : 'border-line opacity-60 hover:opacity-100'
                     }`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -128,7 +128,7 @@ export default function ProductPage() {
             {/* Бренд */}
             {product.brand && (
             <Link to={`/catalog?brand=${product.brand.slug}`}
-              className="text-blue-300 font-semibold text-sm hover:text-blue-400 transition-colors w-fit">
+              className="text-primary-hover font-semibold text-sm hover:text-primary-hover transition-colors w-fit">
               {product.brand.name}
             </Link>
           )}
@@ -148,10 +148,10 @@ export default function ProductPage() {
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v)}
-                    className={`flex flex-col items-center px-4 py-2 rounded-xl border-2 transition-all ${
+                    className={`flex flex-col items-center px-4 py-2 rounded-xl border transition-all ${
                       selectedVariant.id === v.id
-                        ? 'border-blue-200 bg-blue-50 shadow-sm'
-                        : 'border-blue-100 bg-white hover:border-blue-200'
+                        ? 'bg-white border-primary-soft text-primary-hover font-semibold'
+                        : 'bg-white border-line text-navy-500 hover:border-primary-soft'
                     }`}>
                     <span className="font-bold text-navy-900">{v.weight} кг</span>
                     <span className="text-xs text-navy-400">{(Math.round(v.price / v.weight) / 100).toLocaleString('ru-RU')} ₽/кг</span>
@@ -193,8 +193,8 @@ export default function ProductPage() {
               {/* В корзину */}
               <button
                 onClick={handleAddToCart}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
-                  added ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-navy-900 hover:bg-blue-300 active:scale-95'
+                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-colors duration-100 ease ${
+                  added ? 'bg-green-100 text-green-700' : 'bg-primary text-white hover:bg-primary-hover active:scale-95'
                 }`}>
                 {added ? 'Добавлено в корзину' : 'Добавить в корзину'}
               </button>
@@ -217,7 +217,7 @@ export default function ProductPage() {
             </div>
 
             {/* Доставка */}
-            <div className="bg-white rounded-xl border border-blue-100 divide-y divide-blue-50">
+            <div className="bg-white rounded-xl border border-line divide-y divide-blue-50">
               {[
                 { title: 'Экспресс', desc: 'Платно, за 1 час' },
                 { title: 'Доставка', desc: 'Бесплатно, в интервал' },
@@ -228,7 +228,7 @@ export default function ProductPage() {
                     <span className="font-medium text-navy-900 text-sm">{d.title}</span>
                     <span className="text-navy-400 text-xs ml-2">{d.desc}</span>
                   </div>
-                  <button className="text-blue-300 text-xs hover:text-blue-400 transition-colors">Указать адрес</button>
+                  <Link to="/delivery" className="text-primary-hover text-xs hover:text-primary-hover transition-colors">Подробнее об условиях доставки</Link>
                 </div>
               ))}
             </div>
@@ -238,7 +238,7 @@ export default function ProductPage() {
 
         {/* Табы */}
         <div className="bg-white rounded-2xl overflow-hidden mb-8">
-          <div className="flex border-b border-blue-100">
+          <div className="flex border-b border-line">
             {[
               { key: 'about', label: 'О товаре' },
               { key: 'specs', label: 'Характеристики' },
@@ -247,9 +247,9 @@ export default function ProductPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as 'about' | 'specs' | 'reviews')}
-                className={`px-6 py-4 text-sm font-medium transition-all border-b-2 ${
+                className={`px-6 py-4 text-sm font-medium transition-colors duration-100 ease border-b-2 ${
                   activeTab === tab.key
-                    ? 'border-blue-200 text-blue-400'
+                    ? 'border-primary-soft text-primary-hover'
                     : 'border-transparent text-navy-500 hover:text-navy-700'
                 }`}>
                 {tab.label}
@@ -286,7 +286,7 @@ export default function ProductPage() {
             )}
 
             {activeTab === 'specs' && (
-              <div className="divide-y divide-blue-50">
+              <div className="divide-y divide-line">
                 {[
                   product.brand && { label: 'Бренд', value: product.brand.name },
                   { label: 'Белки', value: product.protein ? `${product.protein}%` : null },
@@ -305,7 +305,7 @@ export default function ProductPage() {
             {activeTab === 'reviews' && (
               <div className="text-center py-10">
                 <p className="text-navy-400 mb-4">Отзывы пока не добавлены</p>
-                <button className="bg-blue-200 text-navy-900 px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-blue-300 transition-colors">
+                <button className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-primary-hover transition-colors duration-100 ease">
                   Написать первый отзыв
                 </button>
               </div>

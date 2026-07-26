@@ -25,7 +25,7 @@ export default function CatalogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-[100dvh] bg-blue-50">
       <div className="bg-white border-b border-blue-100 sticky top-[73px] z-30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
@@ -66,7 +66,7 @@ function SortSelect() {
     <select
       value={sort}
       onChange={e => setSort(e.target.value)}
-      className="text-sm border border-blue-100 rounded-xl px-3 py-2 bg-white text-navy-700 focus:outline-none focus:border-blue-200 cursor-pointer">
+      className="text-sm border border-line rounded-xl px-3 py-2 bg-white text-navy-700 focus:outline-none focus:border-line cursor-pointer">
       <option value="popular">По популярности</option>
       <option value="price_asc">Сначала дешевле</option>
       <option value="price_desc">Сначала дороже</option>

@@ -76,7 +76,7 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
       </div>
     )
@@ -84,11 +84,11 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center gap-6 px-4">
+      <div className="min-h-[100dvh] bg-blue-50 flex flex-col items-center justify-center gap-6 px-4">
         <h2 className="text-2xl font-bold text-navy-900">Корзина пуста</h2>
         <p className="text-navy-400 text-center">Добавьте товары из каталога, чтобы оформить заказ</p>
         <Link to="/catalog"
-          className="bg-blue-200 text-navy-900 font-bold px-8 py-3 rounded-xl hover:bg-blue-300 transition-colors">
+          className="bg-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease">
           Перейти в каталог
         </Link>
       </div>
@@ -96,7 +96,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-[100dvh] bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold text-navy-900 mb-4">
           Корзина <span className="text-navy-300 font-normal text-lg">({items.length} товара)</span>
@@ -114,7 +114,7 @@ export default function CartPage() {
               </div>
               <div className="h-2 bg-blue-50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-200 rounded-full transition-all duration-500"
+                  className="h-full bg-blue-200 rounded-full transition-all duration-300"
                   style={{ width: `${deliveryProgress}%` }}
                 />
               </div>
@@ -150,13 +150,13 @@ export default function CartPage() {
 
                   <div className="flex-1 min-w-0">
                     <Link to={`/product/${p.slug}`}
-                      className="text-sm font-semibold text-navy-900 hover:text-blue-300 transition-colors line-clamp-2 block mb-1">
+                      className="text-sm font-semibold text-navy-900 hover:text-primary-hover transition-colors line-clamp-2 block mb-1">
                       {p.name}
                     </Link>
                     <p className="text-xs text-navy-400 mb-3">{v.weight} кг</p>
 
                     <div className="flex items-center justify-between flex-wrap gap-3">
-                      <div className="flex items-center border border-blue-100 rounded-xl overflow-hidden bg-white">
+                      <div className="flex items-center border border-line rounded-xl overflow-hidden bg-white">
                         <button
                           onClick={() => updateQuantity(item, -1)}
                           className="w-9 h-9 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors font-bold text-lg">
@@ -199,7 +199,7 @@ export default function CartPage() {
             })}
 
             <Link to="/catalog"
-              className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition-colors text-sm font-medium mt-2 w-fit">
+              className="flex items-center gap-2 text-primary-hover hover:text-primary-hover transition-colors text-sm font-medium mt-2 w-fit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"/>
                 <polyline points="12 19 5 12 12 5"/>
@@ -236,7 +236,7 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="border-t border-blue-100 pt-3 mb-4">
+              <div className="border-t border-line pt-3 mb-4">
                 <div className="flex justify-between">
                   <span className="font-bold text-navy-900">К оплате</span>
                   <span className="font-black text-xl text-navy-900">{formatPrice(total)}</span>
@@ -251,11 +251,11 @@ export default function CartPage() {
                     onChange={e => setPromoCode(e.target.value)}
                     placeholder="Промокод"
                     aria-label="Промокод"
-                    className="flex-1 px-3 py-2 rounded-xl border border-blue-100 text-sm focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                    className="flex-1 px-3 py-2 rounded-xl border border-line text-sm focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                   />
                   <button
                     onClick={handlePromo}
-                    className="px-4 py-2 bg-blue-100 text-navy-700 rounded-xl text-sm font-medium hover:bg-blue-200 transition-colors">
+                    className="px-4 py-2 bg-blue-100 text-navy-700 rounded-xl text-sm font-medium hover:bg-blue-200 transition-colors duration-100 ease">
                     Применить
                   </button>
                 </div>
@@ -286,13 +286,13 @@ export default function CartPage() {
               </div>
 
               <Link to="/checkout"
-                className="block w-full bg-blue-200 text-navy-900 font-bold py-3.5 rounded-xl text-center hover:bg-blue-300 active:scale-95 transition-all text-sm">
+                className="block w-full bg-primary text-white font-bold py-3.5 rounded-xl text-center hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
                 Оформить заказ
               </Link>
 
               <p className="text-center text-xs text-navy-300 mt-3">
                 Нажимая кнопку, вы соглашаетесь с{' '}
-                <a href="#" className="text-blue-500 hover:underline">условиями оферты</a>
+                <a href="#" className="text-primary-hover hover:underline">условиями оферты</a>
               </p>
             </div>
           </div>

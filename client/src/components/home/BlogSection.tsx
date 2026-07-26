@@ -9,7 +9,6 @@ const articles = [
     category: 'Здоровье',
     readTime: '5 мин',
     date: '15 июня 2026',
-    bgColor: '#E8F4FD',
   },
   {
     id: '2',
@@ -19,7 +18,6 @@ const articles = [
     category: 'Питание',
     readTime: '7 мин',
     date: '10 июня 2026',
-    bgColor: '#E8F5E9',
   },
   {
     id: '3',
@@ -29,7 +27,6 @@ const articles = [
     category: 'Советы',
     readTime: '3 мин',
     date: '5 июня 2026',
-    bgColor: '#FFF8E1',
   },
 ]
 
@@ -38,13 +35,10 @@ export default function BlogSection() {
     <section className="py-12 bg-blue-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold" style={{ color: '#1A3A5C' }}>Полезные статьи</h2>
+          <h2 className="text-2xl font-bold text-navy-900">Полезные статьи</h2>
           <Link
             to="/blog"
-            className="font-medium transition-colors text-sm"
-            style={{ color: '#A4D4FC' }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#7AB8E8')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#A4D4FC')}
+            className="font-medium text-sm text-primary-hover hover:text-primary transition-colors duration-100"
           >
             Все статьи
           </Link>
@@ -54,20 +48,16 @@ export default function BlogSection() {
             <Link
               key={article.id}
               to={`/blog/${article.slug}`}
-              className="bg-white rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300 block"
+              className="bg-white rounded-card overflow-hidden hover:-translate-y-0.5 hover:shadow-card transition-[transform,box-shadow] duration-100 block border border-line"
             >
-              <div
-                className="h-36"
-                style={{ backgroundColor: article.bgColor }}
-              />
+              <div className="h-36 bg-primary-tint" />
               <div className="p-5">
-                <span className="inline-block bg-blue-100 text-blue-500 text-xs font-medium px-3 py-1 rounded-full mb-3">
+                <span className="inline-block bg-blue-100 text-primary-hover text-xs font-medium px-3 py-1 rounded-full mb-3">
                   {article.category}
                 </span>
                 <h3
-                  className="font-bold mb-2 leading-snug"
+                  className="font-bold mb-2 leading-snug text-navy-900"
                   style={{
-                    color: '#1A3A5C',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
@@ -77,9 +67,8 @@ export default function BlogSection() {
                   {article.title}
                 </h3>
                 <p
-                  className="text-sm mb-4"
+                  className="text-sm mb-4 text-navy-500"
                   style={{
-                    color: '#4A6A8C',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
@@ -88,7 +77,7 @@ export default function BlogSection() {
                 >
                   {article.excerpt}
                 </p>
-                <div className="flex items-center gap-3 text-xs" style={{ color: '#8AAABF' }}>
+                <div className="flex items-center gap-3 text-xs text-navy-500">
                   <span>{article.date}</span>
                   <span>·</span>
                   <span>{article.readTime} чтения</span>

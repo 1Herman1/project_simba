@@ -76,14 +76,14 @@ export default function ProfilePage() {
 
   if (loadingUser) {
     return (
-      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-[100dvh] bg-blue-50">
       <div className="max-w-4xl mx-auto px-4 py-6">
 
         {/* Шапка профиля */}
@@ -109,9 +109,9 @@ export default function ProfilePage() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-colors duration-100 ease ${
                 tab === t.key
-                  ? 'bg-blue-200 text-navy-900 shadow-sm'
+                  ? 'bg-primary text-white shadow-sm'
                   : 'text-navy-400 hover:text-navy-700'
               }`}>
               <span>{t.label}</span>
@@ -194,10 +194,10 @@ export default function ProfilePage() {
                             <div className="relative flex items-center justify-between mb-2">
                               {STATUS_STEPS.map((s, i) => (
                                 <div key={s} className="flex flex-col items-center flex-1">
-                                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold z-10 ${
+                                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold z-10 transition-colors duration-100 ease ${
                                     i <= stepIndex
-                                      ? 'bg-blue-200 text-navy-900'
-                                      : 'bg-blue-50 text-navy-300'
+                                      ? 'bg-primary text-white'
+                                      : 'bg-primary-tint text-navy-500'
                                   }`}>
                                     {i < stepIndex ? '✓' : i === stepIndex ? '●' : '○'}
                                   </div>
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                                 {STATUS_STEPS.slice(0, -1).map((_, i) => (
                                   <div
                                     key={i}
-                                    className={`flex-1 h-0.5 ${i < stepIndex ? 'bg-blue-200' : 'bg-blue-100'}`}
+                                    className={`flex-1 h-0.5 transition-colors duration-100 ease ${i < stepIndex ? 'bg-primary' : 'bg-line'}`}
                                   />
                                 ))}
                               </div>
@@ -239,11 +239,11 @@ export default function ProfilePage() {
                         {/* Кнопки */}
                         <div className="flex gap-2 flex-wrap">
                           {order.status === 'delivered' && (
-                            <button className="flex-1 bg-blue-200 text-navy-900 font-medium py-2 rounded-xl text-sm hover:bg-blue-300 transition-colors">
+                            <button className="flex-1 bg-primary text-white font-medium py-2 rounded-xl text-sm hover:bg-primary-hover transition-colors duration-100 ease">
                               Повторить заказ
                             </button>
                           )}
-                          <button className="flex-1 border border-blue-100 text-navy-500 font-medium py-2 rounded-xl text-sm hover:bg-blue-50 transition-colors">
+                          <button className="flex-1 border border-line text-navy-500 font-medium py-2 rounded-xl text-sm hover:bg-blue-50 transition-colors duration-100 ease">
                             Детали заказа
                           </button>
                           {(order.status === 'new' || order.status === 'confirmed') && (
@@ -283,7 +283,7 @@ export default function ProfilePage() {
                 <>
                   <div className="h-2 bg-blue-50 rounded-full overflow-hidden mb-2">
                     <div
-                      className="h-full bg-amber-400 rounded-full transition-all duration-700"
+                      className="h-full bg-amber-400 rounded-full transition-all duration-300"
                       style={{ width: `${progressToNext}%` }}
                     />
                   </div>
@@ -301,7 +301,7 @@ export default function ProfilePage() {
                     className={`rounded-xl p-3 text-center border ${
                       user?.bonusLevel === level.key
                         ? 'border-amber-200 bg-amber-50'
-                        : 'border-blue-100 bg-blue-50'
+                        : 'border-line bg-blue-50'
                     }`}>
                     <p className={`text-xs font-bold mb-1 ${user?.bonusLevel === level.key ? 'text-amber-600' : 'text-navy-400'}`}>
                       {level.label}
@@ -317,7 +317,7 @@ export default function ProfilePage() {
             {/* История начислений */}
             <div className="bg-white rounded-2xl p-5">
               <h3 className="font-bold text-navy-900 mb-3">Начислено</h3>
-              <div className="divide-y divide-blue-50">
+              <div className="divide-y divide-line">
                 {orders.filter(o => o.bonusEarned > 0).length === 0 && (
                   <p className="text-sm text-navy-400 py-2">Начислений пока нет</p>
                 )}
@@ -336,7 +336,7 @@ export default function ProfilePage() {
             {/* История списаний */}
             <div className="bg-white rounded-2xl p-5">
               <h3 className="font-bold text-navy-900 mb-3">Потрачено</h3>
-              <div className="divide-y divide-blue-50">
+              <div className="divide-y divide-line">
                 {orders.filter(o => o.bonusUsed > 0).length === 0 && (
                   <p className="text-sm text-navy-400 py-2">Списаний пока нет</p>
                 )}
@@ -371,7 +371,7 @@ export default function ProfilePage() {
                       type="text"
                       value={profileForm[field.key]}
                       onChange={e => setProfileForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                      className="w-full px-4 py-2.5 rounded-xl border border-blue-100 text-sm text-navy-900 focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100"
+                      className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                     />
                   </div>
                 ))}
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                       setSavingProfile(false)
                     }
                   }}
-                  className="bg-blue-200 text-navy-900 font-bold py-2.5 rounded-xl text-sm hover:bg-blue-300 transition-colors mt-1 disabled:opacity-50">
+                  className="bg-primary text-white font-bold py-2.5 rounded-xl text-sm hover:bg-primary-hover transition-colors duration-100 ease mt-1 disabled:opacity-50">
                   {savingProfile ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </div>
@@ -408,7 +408,7 @@ export default function ProfilePage() {
                 <label key={item.label} className="flex items-center justify-between py-2.5 cursor-pointer">
                   <span className="text-sm text-navy-700">{item.label}</span>
                   <input type="checkbox" defaultChecked={item.defaultChecked}
-                    className="w-4 h-4 accent-blue-300" />
+                    className="w-4 h-4 accent-primary" />
                 </label>
               ))}
             </div>

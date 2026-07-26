@@ -23,10 +23,10 @@ export default function CatalogTags({ activeTag, onTagClick }: Props) {
         <button
           key={tag.id}
           onClick={() => onTagClick(tag.id)}
-          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+          className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-colors duration-100 ease ${
             activeTag === tag.id
-              ? 'bg-blue-200 text-navy-900 shadow-sm scale-105'
-              : 'bg-white border border-blue-100 text-navy-700 hover:border-blue-200 hover:bg-blue-50'
+              ? 'bg-white border-primary-soft text-primary-hover font-semibold shadow-sm'
+              : 'bg-white border border-line text-navy-700 hover:border-primary-soft hover:bg-blue-50'
           }`}>
           <span>{tag.label}</span>
         </button>
