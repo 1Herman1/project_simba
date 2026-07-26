@@ -66,7 +66,8 @@ export POSTGRES_PASSWORD='ПАРОЛЬ_БД'
 export MINIO_PASSWORD='ПАРОЛЬ_MINIO'
 
 docker compose -f deploy/docker-compose.prod.yml up -d
-docker ps   # должны крутиться simba-src-postgres-1 и simba-src-minio-1
+docker ps   # имя контейнера БД смотреть здесь: на текущем сервере это deploy-postgres-1
+            # (префикс зависит от того, из какой папки поднимался docker compose)
 ```
 
 ## 5. Установить зависимости и собрать
@@ -168,6 +169,33 @@ grep -rl "localhost:3000" /var/www/simba/client /var/www/simba/admin            
 `admin/.env` на сервере. Если файла нет, подставится `http://localhost:3000`, сайт
 соберётся без ошибок и будет выглядеть рабочим — но браузер посетителя будет стучаться
 сам в себя, и вход в админку отвалится с «Ошибка входа». Проверять командой с `grep` выше.
+
+### Разовый переход на миграции (делается один раз)
+Если проект ещё жил без папки `prisma/migrations`, сначала убедиться, что боевая
+база в точности совпадает со схемой, и только потом регистрировать `0_init`:
+```bash
+cd /var/www/simba-src/server
+set -a; . ./.env; set +a
+npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script
+```
+Ответ должен быть `-- This is an empty migration.` — расхождений нет.
+**Если выводится SQL — сначала привести базу в соответствие (см. раздел про миграции
+ниже), и только потом:**
+```bash
+npx prisma migrate resolve --applied 0_init   # база не меняется,только отметка в _prisma_migrations
+npx prisma migrate status                      # должно быть «Database schema is up to date»
+```
+Порядок важен: отметка «применено» без совпадения схемы приведёт к падению следующего
+`migrate deploy` на проде.
+
+### Чистка складских позиций, попавших в каталог
+```bash
+cd /var/www/simba-src/server
+npx tsx --env-file=.env src/scripts/cleanup-non-products.ts            # только показать
+npx tsx --env-file=.env src/scripts/cleanup-non-products.ts --apply    # удалить
+```
+Товары, которые уже были в заказах, скрипт не удаляет — только скрывает: история
+заказов на них ссылается.
 
 ### Резервная копия перед изменениями схемы
 ```bash
