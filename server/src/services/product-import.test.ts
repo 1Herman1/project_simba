@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+import * as XLSX from 'xlsx'
 import {
   transliterate,
   parseAttributes,
@@ -498,5 +499,48 @@ describe('parseRows (CSV)', () => {
 
   it('на файле только с заголовками возвращает пустой массив', () => {
     expect(parseRows(Buffer.from('Имя,Артикул\n', 'utf-8'), 'import.csv')).toEqual([])
+  })
+})
+
+describe('числа из Excel не ломают разбор', () => {
+  it('parseRows приводит числовые ячейки к строкам', () => {
+    const sheet = XLSX.utils.json_to_sheet([
+      {
+        'Наименование': 'Farmina N&D Prime GF Adult Mini (Кабан и яблоко) - 2,5 кг',
+        'Артикул': 1234567,
+        'Название атрибута 1': 'вид',
+        'Значение атрибута 1': 'Сухой',
+        'Название атрибута 2': 'вкус',
+        'Значение атрибута 2': 2024,
+      },
+    ])
+    const book = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(book, sheet, 'Sheet1')
+    const buffer = XLSX.write(book, { type: 'buffer', bookType: 'xlsx' }) as Buffer
+
+    const rows = parseRows(buffer, 'catalog.xlsx')
+
+    expect(rows).toHaveLength(1)
+    expect(rows[0]['Артикул']).toBe('1234567')
+    expect(rows[0]['Значение атрибута 2']).toBe('2024')
+  })
+
+  it('mapRow не падает на числовом артикуле', () => {
+    const raw = {
+      'Наименование': 'Grandorf Adult Indoor (Ягненок, индейка) - 400 гр',
+      'Артикул': 1234567,
+    } as unknown as Record<string, string>
+
+    expect(() => mapRow(raw)).not.toThrow()
+    expect(mapRow(raw).sku).toBe('1234567')
+  })
+
+  it('parseAttributes не падает на числовом значении атрибута', () => {
+    const raw = {
+      'Название атрибута 1': 'Год выпуска',
+      'Значение атрибута 1': 2024,
+    } as unknown as Record<string, string>
+
+    expect(parseAttributes(raw)).toEqual([{ name: 'Год выпуска', value: '2024' }])
   })
 })

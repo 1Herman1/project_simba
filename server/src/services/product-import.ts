@@ -16,6 +16,12 @@ export type ImportRow = {
   attributes: { name: string; value: string }[]
 }
 
+/** Значение из файла может прийти числом или датой — приводим к строке. */
+function toText(value: unknown): string {
+  if (value === null || value === undefined) return ''
+  return typeof value === 'string' ? value : String(value)
+}
+
 /**
  * Парсит одну строку CSV, обрабатывая кавычки
  */
@@ -53,7 +59,14 @@ export function parseRows(buffer: Buffer, filename: string): Record<string, stri
   if (ext === 'xlsx' || ext === 'xls') {
     const workbook = XLSX.read(buffer, { type: 'buffer' })
     const sheet = workbook.Sheets[workbook.SheetNames[0]]
-    return XLSX.utils.sheet_to_json<Record<string, string>>(sheet, { defval: '' })
+    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' })
+    // Excel отдаёт числовые ячейки числами (артикул, цена, вес) — приводим к строкам,
+    // иначе строковые операции ниже падают на каждой такой строке.
+    return rows.map(row => {
+      const normalized: Record<string, string> = {}
+      for (const [key, value] of Object.entries(row)) normalized[key] = toText(value)
+      return normalized
+    })
   }
 
   const text = buffer.toString('utf-8')
@@ -117,8 +130,8 @@ export function parseAttributes(raw: Record<string, string>): { name: string; va
     if (!match) continue
 
     const n = match[1]
-    const attrName = raw[key]?.trim() ?? ''
-    const attrValue = raw[`Значение атрибута ${n}`]?.trim() ?? ''
+    const attrName = toText(raw[key]).trim()
+    const attrValue = toText(raw[`Значение атрибута ${n}`]).trim()
 
     // Отбрасываем пустые пары или дубли
     if (!attrName || !attrValue) continue
@@ -234,22 +247,22 @@ export function mapRow(raw: Record<string, string>): ImportRow {
   if (isRussian) {
     // Русский WooCommerce формат
     // Имя: берём из "Имя", если пусто — из "Наименование"
-    let name = (raw['Имя'] ?? '').trim()
+    let name = toText(raw['Имя']).trim()
     const hasNameFromIme = !!name
     if (!name) {
-      name = (raw['Наименование'] ?? '').trim()
+      name = toText(raw['Наименование']).trim()
     }
 
     // Описание: если есть отдельное поле "Наименование" и используется как имя — оно же и описание
-    const sku = (raw['Артикул'] ?? '').trim() || undefined
-    const description = (raw['Наименование'] ?? '').trim() || name || ''
+    const sku = toText(raw['Артикул']).trim() || undefined
+    const description = toText(raw['Наименование']).trim() || name || ''
 
     // Цены
     let price: number | undefined
     let oldPrice: number | undefined
 
-    const basePrice = parseFloat((raw['Базовая цена'] ?? raw['Цена'] ?? '').toString().replace(',', '.'))
-    const salePrice = parseFloat((raw['Акционная цена'] ?? '').toString().replace(',', '.'))
+    const basePrice = parseFloat(toText(raw['Базовая цена'] || raw['Цена']).replace(',', '.'))
+    const salePrice = parseFloat(toText(raw['Акционная цена']).replace(',', '.'))
 
     const prices = [basePrice, salePrice].filter(p => !isNaN(p))
     if (prices.length === 2) {
@@ -265,25 +278,25 @@ export function mapRow(raw: Record<string, string>): ImportRow {
     }
 
     // Вес
-    const weight = parseFloat((raw['Вес (kg)'] ?? raw['Вес'] ?? '').toString().replace(',', '.'))
+    const weight = parseFloat(toText(raw['Вес (kg)'] || raw['Вес']).replace(',', '.'))
 
     // Остаток
-    const stock = parseInt((raw['Запасы'] ?? raw['Остаток'] ?? '0').toString()) || 0
+    const stock = parseInt((toText(raw['Запасы'] || raw['Остаток']) || '0')) || 0
 
     // Категории
-    const categories = (raw['Категории'] ?? '')
+    const categories = toText(raw['Категории'])
       .split(',')
       .map(c => c.trim())
       .filter(Boolean)
 
     // Изображения
-    const images = (raw['Изображения'] ?? '')
+    const images = toText(raw['Изображения'])
       .split(',')
       .map(c => c.trim())
       .filter(Boolean)
 
     // Бренд
-    const brandName = (raw['Бренд'] ?? raw['Производитель'] ?? '').trim() || undefined
+    const brandName = toText(raw['Бренд'] || raw['Производитель']).trim() || undefined
 
     // Атрибуты
     const attributes = parseAttributes(raw)
@@ -303,16 +316,16 @@ export function mapRow(raw: Record<string, string>): ImportRow {
     }
   } else {
     // Английский формат
-    const name = (raw['name'] ?? '').trim()
-    const slug = (raw['slug'] ?? '').trim() || undefined
-    const description = (raw['description'] ?? '').trim() || name || ''
-    const brandSlug = (raw['brandSlug'] ?? '').trim() || undefined
+    const name = toText(raw['name']).trim()
+    const slug = toText(raw['slug']).trim() || undefined
+    const description = toText(raw['description']).trim() || name || ''
+    const brandSlug = toText(raw['brandSlug']).trim() || undefined
 
     const price = parseFloat((raw['price'] ?? '').toString().replace(',', '.'))
     const oldPrice = parseFloat((raw['oldPrice'] ?? '').toString().replace(',', '.'))
     const stock = parseInt((raw['stock'] ?? '0').toString()) || 0
     const weight = parseFloat((raw['weight'] ?? '').toString().replace(',', '.'))
-    const sku = (raw['sku'] ?? '').trim() || undefined
+    const sku = toText(raw['sku']).trim() || undefined
 
     return {
       name,
