@@ -21,7 +21,7 @@ export async function getQuote(
     daysMin: 2,
     daysMax: 4,
     available: !!process.env.OZON_API_KEY,
-    error: process.env.OZON_API_KEY ? undefined : 'Требуется подключение к Ozon Seller',
+    error: process.env.OZON_API_KEY ? undefined : 'Служба доставки не подключена',
   }
 }
 

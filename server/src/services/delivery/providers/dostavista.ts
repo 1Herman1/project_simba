@@ -2,8 +2,14 @@ import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } f
 
 // Достависта API
 // Документация: https://dostavista.ru/api
+// Тестовый контур: https://apitest.dostavista.ru/api/business/1.3
 
-const BASE_URL = 'https://robot.dostavista.ru/api/business/1.3'
+const PROD_URL = 'https://robot.dostavista.ru/api/business/1.3'
+const SANDBOX_URL = 'https://apitest.dostavista.ru/api/business/1.3'
+
+function getBaseUrl(): string {
+  return process.env.DOSTAVISTA_SANDBOX === 'true' ? SANDBOX_URL : PROD_URL
+}
 
 export async function getQuote(
   address: DeliveryAddress,
@@ -21,11 +27,11 @@ export async function getQuote(
   }
 
   if (!process.env.DOSTAVISTA_TOKEN) {
-    return { ...base, available: true }
+    return { ...base, available: false, price: 0, error: 'Служба доставки не подключена' }
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/calculate-order`, {
+    const res = await fetch(`${getBaseUrl()}/calculate-order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +70,7 @@ export async function createOrder(
     return { externalId: `DV-MOCK-${orderId}` }
   }
 
-  const res = await fetch(`${BASE_URL}/create-order`, {
+  const res = await fetch(`${getBaseUrl()}/create-order`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

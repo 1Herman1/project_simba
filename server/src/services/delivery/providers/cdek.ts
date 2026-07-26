@@ -44,9 +44,9 @@ export async function getQuote(
     available: false,
   }
 
-  if (!process.env.CDEK_CLIENT_ID) {
-    // API не настроен — возвращаем заглушку
-    return { ...base, available: true, price: 0, error: undefined }
+  if (!process.env.CDEK_CLIENT_ID || !process.env.CDEK_CLIENT_SECRET) {
+    // API не настроен — служба недоступна
+    return { ...base, available: false, error: 'Служба доставки не подключена' }
   }
 
   try {

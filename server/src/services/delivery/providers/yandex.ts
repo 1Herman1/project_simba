@@ -21,8 +21,8 @@ export async function getQuote(
   }
 
   if (!process.env.YANDEX_DELIVERY_TOKEN) {
-    // Заглушка пока API не подключён
-    return { ...base, available: true, price: 0 }
+    // API не настроен — служба недоступна
+    return { ...base, available: false, error: 'Служба доставки не подключена' }
   }
 
   try {

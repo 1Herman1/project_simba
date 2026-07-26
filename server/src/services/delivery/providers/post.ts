@@ -20,8 +20,8 @@ export async function getQuote(
     available: false,
   }
 
-  if (!process.env.POST_RU_TOKEN || !address.postalCode) {
-    return { ...base, available: true, price: 0 }
+  if (!process.env.POST_RU_TOKEN || !process.env.POST_RU_USER_KEY || !address.postalCode) {
+    return { ...base, available: false, error: 'Служба доставки не подключена' }
   }
 
   try {
