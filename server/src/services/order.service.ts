@@ -22,6 +22,13 @@ type CreateOrderData = {
   expectedDeliveryCost?: number
 }
 
+/** Повторная отправка того же заказа — конфликт с уже произошедшим, не ошибка данных. */
+export class DuplicateOrderError extends Error {
+  constructor() {
+    super('Заказ уже оформлен')
+  }
+}
+
 // Ошибка при расхождении цены доставки
 export class DeliveryCostMismatchError extends Error {
   constructor(public actualCost: number) {
@@ -118,9 +125,13 @@ export async function createOrder(
       throw new Error('Корзина пуста или не найдена')
     }
 
+    // Быстрый отказ до создания заказа — НЕ защита от гонки: остаток может
+    // измениться между этой проверкой и списанием ниже. Защита там, в условном
+    // updateMany. Здесь просто чтобы не делать лишнюю работу в обычном случае.
     for (const item of cart.items) {
       const variant = await tx.productVariant.findUnique({
         where: { id: item.productVariantId },
+        select: { stock: true },
       })
 
       if (!variant || variant.stock < item.quantity) {
@@ -214,7 +225,7 @@ export async function createOrder(
     const cleared = await tx.cartItem.deleteMany({ where: { cartId: cart.id } })
 
     if (cleared.count === 0) {
-      throw new Error('Заказ уже оформлен')
+      throw new DuplicateOrderError()
     }
 
     return order

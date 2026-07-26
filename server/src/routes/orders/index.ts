@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { calcOrderTotals } from '@simba/shared'
 import {
   createOrder,
+  DuplicateOrderError,
   getOrdersByUser,
   getOrderById,
   DeliveryCostMismatchError,
@@ -71,6 +72,9 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
       })
       return reply.status(201).send(order)
     } catch (err) {
+      if (err instanceof DuplicateOrderError) {
+        return reply.status(409).send({ error: err.message, code: 'DUPLICATE_ORDER' })
+      }
       if (err instanceof DeliveryCostMismatchError) {
         return reply.status(409).send({
           error: 'Стоимость доставки изменилась, обновите расчёт',
