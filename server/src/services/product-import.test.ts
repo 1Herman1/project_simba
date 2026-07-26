@@ -620,3 +620,23 @@ describe('isNonProductRow', () => {
     expect(isNonProductRow('Скотчбрайт-щётка для лотка')).toBe(false)
   })
 })
+
+describe('пометка БРАК без пробела (реальные строки из базы)', () => {
+  it.each([
+    'БРАК Farmina Vet Life Struvite Dog',
+    'БРАК! Monge Dog Speciality Adult All Breeds (Лосось, рис)',
+    'БРАК!!!Monge Dog Speciality Adult All Breeds (Лосось, рис)',
+    'БРАК!Monge Dog',
+    'брак!!!Monge Dog',
+  ])('отсекает %s', name => {
+    expect(isNonProductRow(name)).toBe(true)
+  })
+
+  it.each([
+    'Бракованный ошейник',
+    'Собачий ошейник с бракетом',
+    'Monge Dog Speciality Adult All Breeds (Лосось, рис)',
+  ])('не трогает %s', name => {
+    expect(isNonProductRow(name)).toBe(false)
+  })
+})
