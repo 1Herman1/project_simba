@@ -8,6 +8,7 @@ import {
   parseRows,
   parseWeightFromName,
   detectBrand,
+  isNonProductRow,
 } from './product-import'
 
 describe('transliterate', () => {
@@ -542,5 +543,80 @@ describe('числа из Excel не ломают разбор', () => {
     } as unknown as Record<string, string>
 
     expect(parseAttributes(raw)).toEqual([{ name: 'Год выпуска', value: '2024' }])
+  })
+})
+
+describe('isNonProductRow', () => {
+  it.each([
+    'Коробка картонная 300*300*200',
+    'Коробка картонная 600*400*150 мм',
+    'Коробки',
+    'Скотч прозрачный 48мм*50м*45мкм',
+    'Скотч прозрачный 72мм*100м*45мкм',
+    'Стеллаж',
+    'Фонды',
+    'ВПП двухслойная Стандарт 100*0,5',
+  ])('отсеивает складскую строку из выгрузки: %s', (name) => {
+    expect(isNonProductRow(name)).toBe(true)
+  })
+
+  it.each([
+    'Паллет европейский',
+    'Палета деревянная',
+    'Ценник самоклеящийся 30*20',
+    'Стрейч-плёнка 500мм',
+  ])('отсеивает заложенные складские слова без примеров в выгрузке: %s', (name) => {
+    expect(isNonProductRow(name)).toBe(true)
+  })
+
+  it.each([
+    'Muzzle Крахмальные пакеты для выгула собак',
+    'Muzzle Диспенсер для пакетов для выгула собак - синий',
+    'Muzzle Ветеринарный паспорт для домашних животных',
+    'Многоразовая впитывающая пеленка для собак и кошек - 40х60',
+    'Многоразовая впитывающая пеленка для собак и кошек - 60х90',
+    'Когтеточка деревянная - 605х205х225',
+    "Hill's Prescription Diet l/d Liver Care - 1,5 кг",
+    'Farmina N&D Ocean Adult (Треска, киноа) - 1,5 кг',
+    'Monge Cat Adult (Лосось) - 400 гр',
+    'Grandorf Adult Indoor (Ягненок, индейка) - 400 гр',
+    'Happy Cat Sensitive Stomach - 1,3 кг',
+  ])('не трогает реальный товар каталога: %s', (name) => {
+    expect(isNonProductRow(name)).toBe(false)
+  })
+
+  it.each(['КОРОБКА картонная', 'коробка картонная', 'Коробка картонная'])(
+    'отсеивает независимо от регистра: %s',
+    (name) => {
+      expect(isNonProductRow(name)).toBe(true)
+    }
+  )
+
+  it('отсеивает пометку БРАК в конце названия', () => {
+    expect(isNonProductRow("Hill's Prescription Diet l/d Liver Care - 1,5 кг БРАК")).toBe(true)
+  })
+
+  it('отсеивает пометку БРАК в начале названия', () => {
+    expect(isNonProductRow('БРАК Monge Cat Adult (Лосось) - 400 гр')).toBe(true)
+  })
+
+  it('отсеивает пометку БРАК в середине названия', () => {
+    expect(isNonProductRow('Monge Cat БРАК Adult (Лосось) - 400 гр')).toBe(true)
+  })
+
+  it.each([
+    'Игрушка с бракетом для собак',
+    'Ошейник бракованный тип не подходит',
+  ])('не отсеивает, когда "брак" — часть другого слова: %s', (name) => {
+    expect(isNonProductRow(name)).toBe(false)
+  })
+
+  it('не отсеивает, когда складское слово стоит в середине названия', () => {
+    expect(isNonProductRow('Игрушка коробка для кошек')).toBe(false)
+  })
+
+  it('не отсеивает товар, чьё название лишь начинается с тех же букв, что и складское слово', () => {
+    expect(isNonProductRow('Коробочка-домик для кошки')).toBe(false)
+    expect(isNonProductRow('Скотчбрайт-щётка для лотка')).toBe(false)
   })
 })
