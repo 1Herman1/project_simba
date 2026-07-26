@@ -1,0 +1,206 @@
+import type { PrismaClient } from '@prisma/client'
+import { fetchAssortment, fetchStockCurrent } from './client.js'
+import {
+  buildPlan,
+  checkAnomaly,
+  extractPrice,
+  matchVariants,
+  normalizeArticle,
+  type PlanEntry,
+  type SyncReport,
+  type VariantForSync,
+} from './plan.js'
+
+const MOYSKLAD_MIN_ITEMS = parseInt(process.env.MOYSKLAD_MIN_ITEMS || '300', 10)
+const MOYSKLAD_MAX_CHANGE_PERCENT = parseInt(process.env.MOYSKLAD_MAX_CHANGE_PERCENT || '30', 10)
+const MOYSKLAD_MAX_PRICE_DROP_PERCENT = parseInt(process.env.MOYSKLAD_MAX_PRICE_DROP_PERCENT || '50', 10)
+const MOYSKLAD_PRICE_TYPE = process.env.MOYSKLAD_PRICE_TYPE || 'Цена (Сайт)'
+
+export async function runMoyskladSync(opts: {
+  prisma: PrismaClient
+  apply: boolean
+  force: boolean
+}): Promise<SyncReport> {
+  const { prisma, apply, force } = opts
+
+  // ─── ФАЗА 1: ЧТЕНИЕ ───────────────────────────────────────────────────────
+
+  const msItems = await fetchAssortment()
+  const msStocks = await fetchStockCurrent()
+  const stockById = new Map(msStocks.map((s) => [s.assortmentId, s.stock]))
+
+  // ─── ФАЗА 2: ВАЛИДАЦИЯ ───────────────────────────────────────────────────
+
+  if (msItems.length < MOYSKLAD_MIN_ITEMS) {
+    throw new Error(
+      `МойСклад вернул ${msItems.length} позиций, что ниже минимума ${MOYSKLAD_MIN_ITEMS}. Возможна проблема с API.`
+    )
+  }
+
+  // ─── ФАЗА 3: ЧТЕНИЕ НАШИХ ВАРИАНТОВ ──────────────────────────────────────
+
+  const ourVariants = await prisma.productVariant.findMany({
+    select: {
+      id: true,
+      productId: true,
+      sku: true,
+      moyskladId: true,
+      price: true,
+      stock: true,
+    },
+  })
+
+  const variantsForSync: VariantForSync[] = ourVariants.map((v) => ({
+    id: v.id,
+    sku: v.sku,
+    moyskladId: v.moyskladId,
+    price: v.price,
+    stock: v.stock,
+    productId: v.productId,
+  }))
+
+  // ─── ФАЗА 4: МАТЧИНГ И ПЛАН ──────────────────────────────────────────────
+
+  const matchResult = matchVariants(variantsForSync, msItems)
+
+  const plan = buildPlan(matchResult.matched, stockById, MOYSKLAD_PRICE_TYPE, MOYSKLAD_MAX_PRICE_DROP_PERCENT)
+
+  // ─── ФАЗА 5: ПРОВЕРКА АНОМАЛИИ ───────────────────────────────────────────
+
+  const anomaly = checkAnomaly(plan, MOYSKLAD_MAX_CHANGE_PERCENT)
+
+  const report: SyncReport = {
+    receivedFromMs: msItems.length,
+    matched: matchResult.matched.length,
+    pricesUpdated: 0,
+    stocksUpdated: 0,
+    productsActivated: 0,
+    skippedZeroPrice: 0,
+    skippedPriceDrop: 0,
+    notFoundInMs: matchResult.unmatchedOurs.length,
+    examples: {
+      skippedZeroPrice: [],
+      skippedPriceDrop: [],
+      notFoundInMs: matchResult.unmatchedOurs.slice(0, 50),
+      onlyInMs: matchResult.onlyInMs.slice(0, 50),
+      ambiguous: matchResult.ambiguous,
+    },
+  }
+
+  // Если не apply — возвращаем отчёт прямо сейчас
+  if (!apply) {
+    // Посчитаем что бы произошло
+    plan.forEach((entry) => {
+      if (entry.skipReason === 'zeroPrice') report.skippedZeroPrice++
+      if (entry.skipReason === 'priceDrop') report.skippedPriceDrop++
+
+      // Считаем только РЕАЛЬНЫЕ изменения, иначе отчёт врёт.
+      if (!entry.skipReason && entry.newPrice !== null && entry.newPrice !== entry.oldPrice) {
+        report.pricesUpdated++
+      }
+      if (entry.newStock !== entry.oldStock) report.stocksUpdated++
+    })
+
+    // Заполним примеры
+    report.examples.skippedZeroPrice = plan.filter((e) => e.skipReason === 'zeroPrice').slice(0, 50)
+    report.examples.skippedPriceDrop = plan.filter((e) => e.skipReason === 'priceDrop').slice(0, 50)
+
+    return report
+  }
+
+  // ─── ФАЗА 6: ПРОВЕРКА АНОМАЛИИ (БЛОКИРУЮЩАЯ) ──────────────────────────────
+
+  if (!anomaly.ok && !force) {
+    // Возвращаем отчёт с информацией о превышении
+    report.examples.skippedZeroPrice = plan.filter((e) => e.skipReason === 'zeroPrice').slice(0, 20)
+    report.examples.skippedPriceDrop = plan.filter((e) => e.skipReason === 'priceDrop').slice(0, 20)
+
+    return report
+  }
+
+  // ─── ФАЗА 7: ЗАПИСЬ В БД ──────────────────────────────────────────────────
+
+  type VariantUpdate = {
+    id: string
+    data: { stock: number; price?: number; isActive?: boolean }
+    priceChanged: boolean
+    stockChanged: boolean
+  }
+  const variantUpdates: VariantUpdate[] = []
+  const productActivations = new Set<string>()
+  const productIdByVariant = new Map(variantsForSync.map(v => [v.id, v.productId]))
+
+  plan.forEach((entry) => {
+    // Остаток обновляем ВСЕГДА, даже если цену пропустили: остаток — не деньги,
+    // а показывать вчерашние остатки хуже, чем обнулить.
+    const data: VariantUpdate['data'] = { stock: entry.newStock }
+    let priceChanged = false
+
+    const priceUsable = !entry.skipReason && entry.newPrice !== null && entry.newPrice > 0
+    if (priceUsable) {
+      data.price = entry.newPrice as number
+      data.isActive = true
+      priceChanged = entry.newPrice !== entry.oldPrice
+
+      const productId = productIdByVariant.get(entry.variantId)
+      if (productId) productActivations.add(productId)
+    }
+
+    if (entry.skipReason === 'zeroPrice') report.skippedZeroPrice++
+    if (entry.skipReason === 'priceDrop') report.skippedPriceDrop++
+
+    variantUpdates.push({
+      id: entry.variantId,
+      data,
+      priceChanged,
+      stockChanged: entry.newStock !== entry.oldStock,
+    })
+  })
+
+  // Батчевая запись вариантов по 200
+  const batchSize = 200
+  for (let i = 0; i < variantUpdates.length; i += batchSize) {
+    const batch = variantUpdates.slice(i, i + batchSize)
+
+    await prisma.$transaction(
+      batch.map((update) =>
+        prisma.productVariant.update({
+          where: { id: update.id },
+          data: update.data,
+        })
+      )
+    )
+
+    report.pricesUpdated += batch.filter(u => u.priceChanged).length
+    report.stocksUpdated += batch.filter(u => u.stockChanged).length
+  }
+
+  // Активация товаров
+  if (productActivations.size > 0) {
+    await prisma.$transaction(
+      Array.from(productActivations).map((productId) =>
+        prisma.product.update({
+          where: { id: productId },
+          data: { isActive: true },
+        })
+      )
+    )
+
+    report.productsActivated = productActivations.size
+  }
+
+  // Посчитаем пропущенные
+  plan.forEach((entry) => {
+    if (entry.skipReason === 'zeroPrice') {
+      report.skippedZeroPrice++
+    } else if (entry.skipReason === 'priceDrop') {
+      report.skippedPriceDrop++
+    }
+  })
+
+  // Заполним примеры
+  report.examples.skippedZeroPrice = plan.filter((e) => e.skipReason === 'zeroPrice').slice(0, 50)
+  report.examples.skippedPriceDrop = plan.filter((e) => e.skipReason === 'priceDrop').slice(0, 50)
+
+  return report
+}
