@@ -31,8 +31,8 @@ export default function ReturnsPage() {
       title: 'Напишите нам',
       content: (
         <>
-          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="text-primary-hover hover:underline underline">Telegram</a> или{' '}
-          <a href={CONTACTS.returnsPhoneHref} className="text-primary-hover hover:underline underline">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
+          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="text-primary-hover underline hover:text-navy-900">Telegram</a> или{' '}
+          <a href={CONTACTS.returnsPhoneHref} className="text-primary-hover underline hover:text-navy-900">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
           кабинете.
         </>
       ),
@@ -118,7 +118,7 @@ export default function ReturnsPage() {
       </section>
 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 pt-6 border-t border-line">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-6 border-t border-line">
         <p className="text-navy-500">Хотите оформить возврат — </p>
         <a
           href={CONTACTS.telegram}

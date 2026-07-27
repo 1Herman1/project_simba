@@ -98,13 +98,13 @@ export default function DeliveryPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {deliveryMethods.map((method, idx) => (
           <div
-            key={idx}
+            key={method.name}
             className={`relative bg-white rounded-card p-5 flex flex-col ${
               method.free ? 'border-2 border-primary-soft' : 'border border-line'
             }`}
           >
             {method.free && (
-              <span className="absolute -top-2 left-4 bg-primary text-white text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+              <span className="absolute -top-2 left-4 bg-primary text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
                 Бесплатно
               </span>
             )}
@@ -152,7 +152,7 @@ export default function DeliveryPage() {
             <p className="text-navy-500 leading-relaxed">
               Каждый заказ мы собираем и проверяем перед отправкой: сроки годности, целостность упаковки, комплектность. При
               получении вы можете сверить маркировку — если что-то не так, заменим или вернём деньги, подробнее на странице{' '}
-              <Link to="/returns" className="text-primary-hover hover:underline underline">
+              <Link to="/returns" className="text-primary-hover underline hover:text-navy-900">
                 Обмен и возврат
               </Link>
               .

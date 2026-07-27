@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 
 export default function QuestionnaireTeaser() {
   return (
-    <section className="mx-4 my-6 rounded-card bg-primary-tint p-8 text-center">
+    <section className="max-w-4xl mx-auto px-4 my-12 rounded-card bg-primary-tint p-8 text-center">
       <h2 className="text-2xl font-bold text-navy-900 mb-2">
-        Не знаете какой корм выбрать?
+        Не знаете, какой корм выбрать?
       </h2>
       <p className="text-navy-500 mb-6 max-w-md mx-auto">
         Пройдите короткую анкету — подберём оптимальное питание для вашего питомца за 2 минуты

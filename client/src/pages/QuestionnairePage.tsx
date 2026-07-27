@@ -25,9 +25,9 @@ export default function QuestionnairePage() {
       </h1>
 
       {/* Main card */}
-      <div className="bg-white border border-line rounded-card p-8 text-center max-w-2xl mx-auto mb-12">
+      <div className="bg-white border border-line rounded-card p-6 md:p-8 text-center max-w-2xl mx-auto mb-12">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">Не знаете, какой корм выбрать?</h2>
-        <p className="text-navy-500 max-w-prose mx-auto mb-6">
+        <p className="text-navy-500 max-w-prose mx-auto mb-6 text-left">
           Ответьте на несколько вопросов о вашем питомце — возраст, размер, особенности здоровья и вкусовые предпочтения. Мы
           порекомендуем конкретный корм: линейку и вкус, а не просто бренд. Это займёт около минуты.
         </p>

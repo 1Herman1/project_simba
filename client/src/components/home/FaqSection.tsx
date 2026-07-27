@@ -10,12 +10,12 @@ function FaqItem({ faq }: { faq: FaqEntry }) {
   const id = useId()
 
   return (
-    <div className="border border-line rounded-card overflow-hidden">
+    <div className="bg-white border border-line rounded-card overflow-hidden">
       <button
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-5 text-left hover:bg-blue-50 transition-colors"
+        className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-100 ease"
       >
         <span className="font-semibold pr-4 text-navy-900">{faq.q}</span>
         <svg

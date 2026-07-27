@@ -41,9 +41,13 @@ function ExternalLinkIcon() {
 }
 
 // Иконка шеврона (для аккордеона)
-function ChevronIcon() {
+function ChevronIcon({ open }: { open?: boolean }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      aria-hidden="true"
+      className={`transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
+      width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    >
       <polyline points="6 9 12 15 18 9"/>
     </svg>
   )
@@ -125,12 +129,12 @@ export default function Footer() {
         <div className="flex flex-col">
           <button
             onClick={() => setBuyers2Open(!buyers2Open)}
-            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
+            className="md:hidden flex items-center justify-between py-3 min-h-11 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
             aria-expanded={buyers2Open}
             aria-controls="buyers-accordion"
           >
             Покупателям
-            <ChevronIcon />
+            <ChevronIcon open={buyers2Open} />
           </button>
 
           <h3 className="hidden md:block font-bold text-navy-900 uppercase tracking-wide text-sm mb-4">Покупателям</h3>
@@ -160,12 +164,12 @@ export default function Footer() {
         <div className="flex flex-col">
           <button
             onClick={() => setAbout2Open(!about2Open)}
-            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
+            className="md:hidden flex items-center justify-between py-3 min-h-11 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
             aria-expanded={about2Open}
             aria-controls="about-accordion"
           >
             О магазине
-            <ChevronIcon />
+            <ChevronIcon open={about2Open} />
           </button>
 
           <h3 className="hidden md:block font-bold text-navy-900 uppercase tracking-wide text-sm mb-4">О магазине</h3>
@@ -184,8 +188,10 @@ export default function Footer() {
                 {aboutLinks.map((item) => (
                   <div key={item.label}>
                     {item.comingSoon ? (
-                      <span className="text-base md:text-sm text-navy-400 cursor-default" title="Скоро">
+                      <span className="text-base md:text-sm text-navy-500 cursor-default">
                         {item.label}
+                        {/* Подсказка title на телефоне не показывается — пишем словом. */}
+                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-400">скоро</span>
                       </span>
                     ) : item.hash ? (
                       <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
@@ -243,17 +249,21 @@ export default function Footer() {
           <div className="space-y-2">
             <p>© 2026 Симба · {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip}</p>
             <p className="mt-1">{LEGAL.address}</p>
-            <p className="flex items-center gap-1">
-              <span>🔒</span> МИР · Visa · Mastercard · СБП
+            <p className="flex items-center gap-1.5">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              МИР · Visa · Mastercard · СБП
             </p>
           </div>
 
           {/* Правая часть: ссылки */}
           <div className="flex items-center gap-6">
-            <span className="text-navy-400 cursor-default" title="Скоро">
+            <span className="text-navy-500 cursor-default" title="Скоро">
               Политика конфиденциальности
             </span>
-            <span className="text-navy-400 cursor-default" title="Скоро">
+            <span className="text-navy-500 cursor-default" title="Скоро">
               Публичная оферта
             </span>
           </div>

@@ -25,6 +25,7 @@ function ChevronIcon({ className }: { className?: string }) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       className={className}
     >
       <polyline points="6 9 12 15 18 9" />
@@ -32,7 +33,7 @@ function ChevronIcon({ className }: { className?: string }) {
   )
 }
 
-function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
+function FaqItemComponent({ item }: { item: FaqEntry }) {
   const [open, setOpen] = useState(false)
 
   const renderAnswer = (type: string) => {
@@ -41,7 +42,7 @@ function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
         return (
           <>
             Невскрытую упаковку — да, в течение 30 дней. Вскрытую, к сожалению, нет — санитарные нормы. Подробнее —{' '}
-            <Link to="/returns" className="text-primary-hover hover:underline underline">
+            <Link to="/returns" className="text-primary-hover underline hover:text-navy-900">
               на странице «Обмен и возврат»
             </Link>
             .
@@ -52,7 +53,7 @@ function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
           <>
             Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим
             варианты. Или{' '}
-            <Link to="/questionnaire" className="text-primary-hover hover:underline underline">
+            <Link to="/questionnaire" className="text-primary-hover underline hover:text-navy-900">
               пройдите подбор корма на сайте
             </Link>
             , это минута.
@@ -69,7 +70,7 @@ function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-200 ease-out"
         aria-expanded={open}
-        aria-controls={`faq-${index}`}
+        aria-controls={`faq-${item.id}`}
       >
         <h2 className="font-bold text-navy-900 pr-4 flex-grow text-base sm:text-lg">{item.q}</h2>
         <div className="flex-shrink-0 text-primary-hover">
@@ -78,7 +79,7 @@ function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
       </button>
 
       <div
-        id={`faq-${index}`}
+        id={`faq-${item.id}`}
         role="region"
         className={`overflow-hidden transition-[grid-template-rows] duration-200 ease-out ${open ? '' : ''}`}
         style={{
@@ -121,18 +122,18 @@ export default function FaqPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }} />
 
       <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-10">Вопросы и ответы</h1>
 
       <div className="space-y-4 mb-10">
-        {faqs.map((faq, idx) => (
-          <FaqItemComponent key={idx} item={faq} index={idx} />
+        {faqs.map((faq) => (
+          <FaqItemComponent key={faq.id} item={faq} />
         ))}
       </div>
 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 pt-6 border-t border-line">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-6 border-t border-line">
         <p className="text-navy-500">Не нашли ответ — </p>
         <a
           href={CONTACTS.telegram}
