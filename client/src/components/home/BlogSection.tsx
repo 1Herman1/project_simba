@@ -38,7 +38,7 @@ export default function BlogSection() {
           <h2 className="text-2xl font-bold text-navy-900">Полезные статьи</h2>
           <Link
             to="/blog"
-            className="font-medium text-sm text-primary-hover hover:text-primary transition-colors duration-100"
+            className="font-medium text-sm text-primary-hover hover:underline transition-colors duration-100"
           >
             Все статьи
           </Link>

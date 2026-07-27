@@ -60,7 +60,7 @@ export default function FaqSection() {
         ))}
       </div>
       <div className="mt-8">
-        <Link to="/faq" className="text-primary-hover hover:text-primary transition-colors">
+        <Link to="/faq" className="text-primary-hover hover:underline transition-colors">
           Все вопросы и ответы →
         </Link>
       </div>

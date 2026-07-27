@@ -51,7 +51,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-[100dvh] bg-blue-50 flex flex-col items-center justify-center gap-4">
         <p className="text-navy-500 text-lg">Товар не найден</p>
-        <Link to="/catalog" className="text-primary-hover hover:text-primary-hover">В каталог</Link>
+        <Link to="/catalog" className="text-primary-hover hover:underline">В каталог</Link>
       </div>
     )
   }

@@ -199,7 +199,7 @@ export default function CartPage() {
             })}
 
             <Link to="/catalog"
-              className="flex items-center gap-2 text-primary-hover hover:text-primary-hover transition-colors text-sm font-medium mt-2 w-fit">
+              className="flex items-center gap-2 text-primary-hover hover:underline transition-colors text-sm font-medium mt-2 w-fit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"/>
                 <polyline points="12 19 5 12 12 5"/>

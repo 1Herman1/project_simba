@@ -251,7 +251,7 @@ export default function AuthPage() {
                 ) : (
                   <button
                     onClick={handleResend}
-                    className="text-sm text-primary-hover hover:text-primary-hover transition-colors font-medium">
+                    className="text-sm text-primary-hover hover:underline transition-colors font-medium">
                     Отправить код повторно
                   </button>
                 )}

@@ -94,14 +94,13 @@ export default function Footer() {
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
             <TelegramPlaneIcon />
-            <span className="hidden sm:inline">Telegram — ответим за 10 минут</span>
-            <span className="sm:hidden">Telegram</span>
+            <span>Telegram — ответим за 10 минут</span>
           </a>
 
           {/* Телефон */}
           <a
             href={CONTACTS.phoneHref}
-            className="flex items-center gap-2 text-base md:text-sm text-navy-900 hover:text-primary transition-colors duration-100 ease min-h-11 md:min-h-auto"
+            className="flex items-center gap-2 text-base md:text-sm text-navy-900 hover:text-primary-hover transition-colors duration-100 ease min-h-11 md:min-h-auto"
           >
             <PhoneIcon />
             {CONTACTS.phone}
@@ -115,7 +114,7 @@ export default function Footer() {
 
           {/* Почта */}
           <div className="flex items-baseline gap-2 text-base md:text-sm">
-            <a href={CONTACTS.emailHref} className="text-primary-hover hover:text-primary transition-colors duration-100 ease">
+            <a href={CONTACTS.emailHref} className="text-primary-hover hover:underline transition-colors duration-100 ease">
               {CONTACTS.email}
             </a>
             <span className="text-navy-500"> — для юрлиц и поставщиков</span>
@@ -126,7 +125,7 @@ export default function Footer() {
         <div className="flex flex-col">
           <button
             onClick={() => setBuyers2Open(!buyers2Open)}
-            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary transition-colors duration-100 ease"
+            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
             aria-expanded={buyers2Open}
             aria-controls="buyers-accordion"
           >
@@ -148,7 +147,7 @@ export default function Footer() {
             <div className="overflow-hidden">
               <div className="flex flex-col gap-2">
                 {buyersLinks.map((item) => (
-                  <Link key={item.to} to={item.to} className="text-base md:text-sm text-primary-hover hover:text-primary transition-colors duration-100 ease">
+                  <Link key={item.to} to={item.to} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
                     {item.label}
                   </Link>
                 ))}
@@ -161,7 +160,7 @@ export default function Footer() {
         <div className="flex flex-col">
           <button
             onClick={() => setAbout2Open(!about2Open)}
-            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary transition-colors duration-100 ease"
+            className="md:hidden flex items-center justify-between py-2 font-bold text-navy-900 uppercase tracking-wide text-sm mb-2 hover:text-primary-hover transition-colors duration-100 ease"
             aria-expanded={about2Open}
             aria-controls="about-accordion"
           >
@@ -189,11 +188,11 @@ export default function Footer() {
                         {item.label}
                       </span>
                     ) : item.hash ? (
-                      <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-primary-hover hover:text-primary transition-colors duration-100 ease">
+                      <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
                         {item.label}
                       </a>
                     ) : (
-                      <Link to={item.to || ''} className="text-base md:text-sm text-primary-hover hover:text-primary transition-colors duration-100 ease">
+                      <Link to={item.to || ''} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
                         {item.label}
                       </Link>
                     )}
