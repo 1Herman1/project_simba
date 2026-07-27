@@ -134,7 +134,7 @@ export default function ProfilePage() {
                 <button
                   key={f.value}
                   onClick={() => setFilterStatus(f.value)}
-                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all flex-shrink-0 ${
+                  className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors flex-shrink-0 ${
                     filterStatus === f.value
                       ? 'bg-blue-200 text-navy-900'
                       : 'bg-white text-navy-500 hover:bg-blue-50'
@@ -283,8 +283,8 @@ export default function ProfilePage() {
                 <>
                   <div className="h-2 bg-blue-50 rounded-full overflow-hidden mb-2">
                     <div
-                      className="h-full bg-amber-400 rounded-full transition-all duration-300"
-                      style={{ width: `${progressToNext}%` }}
+                      className="h-full bg-amber-400 rounded-full origin-left transition-transform duration-300"
+                      style={{ transform: `scaleX(${progressToNext / 100})` }}
                     />
                   </div>
                   <p className="text-xs text-navy-400">

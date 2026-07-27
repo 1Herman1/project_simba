@@ -59,7 +59,7 @@ export default function BannerCarousel() {
   return (
     <div className="relative overflow-hidden" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       <div
-        className={`bg-gradient-to-r ${banner.bg} h-48 md:h-80 flex items-center transition-all duration-500`}
+        className={`bg-gradient-to-r ${banner.bg} h-48 md:h-80 flex items-center transition-opacity duration-500`}
       >
         <div className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full">
           <div className="max-w-lg">
@@ -103,7 +103,7 @@ export default function BannerCarousel() {
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all ${
+            className={`rounded-full transition-[width,background-color] ${
               i === current ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'
             }`}
           />

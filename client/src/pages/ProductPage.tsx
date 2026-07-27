@@ -89,7 +89,7 @@ export default function ProductPage() {
                   <button
                     key={i}
                     onClick={() => setActiveImage(i)}
-                    className={`w-16 h-16 rounded-xl bg-white border flex items-center justify-center text-2xl transition-all overflow-hidden ${
+                    className={`w-16 h-16 rounded-xl bg-white border flex items-center justify-center text-2xl transition-[border-color,box-shadow] overflow-hidden ${
                       activeImage === i ? 'border-primary-soft shadow-md' : 'border-line opacity-60 hover:opacity-100'
                     }`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -148,7 +148,7 @@ export default function ProductPage() {
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v)}
-                    className={`flex flex-col items-center px-4 py-2 rounded-xl border transition-all ${
+                    className={`flex flex-col items-center px-4 py-2 rounded-xl border transition-[border-color,background-color] ${
                       selectedVariant.id === v.id
                         ? 'bg-white border-primary-soft text-primary-hover font-semibold'
                         : 'bg-white border-line text-navy-500 hover:border-primary-soft'
@@ -202,7 +202,7 @@ export default function ProductPage() {
               {/* В избранное */}
               <button
                 onClick={() => setLiked(!liked)}
-                className="w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200 transition-all hover:scale-110">
+                className="w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200 transition-[border-color] hover:scale-110">
                 <svg className={`w-5 h-5 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
                   viewBox="0 0 24 24" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -321,7 +321,7 @@ export default function ProductPage() {
                 const v = r.variants[0]
                 return (
                   <Link key={r.id} to={`/product/${r.slug}`}
-                    className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                    className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-300">
                     <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center mb-3 overflow-hidden">
                       {r.images?.[0] && <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover" />}
                     </div>

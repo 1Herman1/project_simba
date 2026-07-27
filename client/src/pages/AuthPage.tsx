@@ -146,7 +146,7 @@ export default function AuthPage() {
                   value={contact}
                   onChange={handleContactChange}
                   placeholder="+7 (___) ___-__-__ или email@..."
-                  className={`w-full px-4 py-3 rounded-xl border text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 transition-all ${
+                  className={`w-full px-4 py-3 rounded-xl border text-navy-900 placeholder-navy-300 focus:outline-none focus:ring-2 transition-[border-color,box-shadow] ${
                     error
                       ? 'border-red-300 focus:ring-red-100'
                       : 'border-blue-100 focus:border-blue-200 focus:ring-blue-100'
@@ -217,7 +217,7 @@ export default function AuthPage() {
                     setError('')
                   }}
                   placeholder="______"
-                  className={`w-full px-4 py-4 rounded-xl border text-center text-2xl font-bold tracking-[0.4em] text-navy-900 placeholder-navy-200 focus:outline-none focus:ring-2 transition-all ${
+                  className={`w-full px-4 py-4 rounded-xl border text-center text-2xl font-bold tracking-[0.4em] text-navy-900 placeholder-navy-200 focus:outline-none focus:ring-2 transition-[border-color,box-shadow] ${
                     error
                       ? 'border-red-300 focus:ring-red-100'
                       : 'border-blue-100 focus:border-blue-200 focus:ring-blue-100'

@@ -13,6 +13,7 @@ import DeliveryPage from './pages/DeliveryPage'
 import ReturnsPage from './pages/ReturnsPage'
 import FaqPage from './pages/FaqPage'
 import QuestionnairePage from './pages/QuestionnairePage'
+import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/returns" element={<ReturnsPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/questionnaire" element={<QuestionnairePage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )

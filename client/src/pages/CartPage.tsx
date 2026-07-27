@@ -114,8 +114,8 @@ export default function CartPage() {
               </div>
               <div className="h-2 bg-blue-50 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-200 rounded-full transition-all duration-300"
-                  style={{ width: `${deliveryProgress}%` }}
+                  className="h-full bg-blue-200 rounded-full origin-left transition-transform duration-300"
+                  style={{ transform: `scaleX(${deliveryProgress / 100})` }}
                 />
               </div>
             </>
@@ -139,7 +139,7 @@ export default function CartPage() {
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-2xl p-4 flex gap-4 transition-all duration-300 ${
+                  className={`bg-white rounded-2xl p-4 flex gap-4 transition-opacity duration-300 ${
                     removingId === item.id ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}
                 >

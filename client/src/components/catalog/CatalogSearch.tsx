@@ -17,7 +17,7 @@ export default function CatalogSearch({ value, onChange, onClear }: Props) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder="Найти корм, бренд или товар..."
-        className="w-full pl-12 pr-12 py-3 rounded-2xl border border-blue-100 bg-blue-50 focus:bg-white focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100 transition-all text-navy-900 placeholder-navy-300 text-base"
+        className="w-full pl-12 pr-12 py-3 rounded-2xl border border-blue-100 bg-blue-50 focus:bg-white focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100 transition-[border-color,box-shadow,background-color] text-navy-900 placeholder-navy-300 text-base"
       />
 
       {value && (

@@ -69,8 +69,8 @@ export default function Footer() {
     hash?: string
     comingSoon?: boolean
   }> = [
-    { label: 'О компании', to: '/about' },
-    { label: 'Почему нам доверяют', to: '/about', hash: '#trust' },
+    { label: 'О компании', comingSoon: true },
+    { label: 'Почему нам доверяют', comingSoon: true },
     { label: 'Сертификаты кормов', comingSoon: true },
     { label: 'Блог', comingSoon: true },
     { label: 'Отзывы', comingSoon: true },

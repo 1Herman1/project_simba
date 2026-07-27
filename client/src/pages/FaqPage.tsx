@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
+import { FAQ, type FaqEntry } from '../lib/faq'
+
+const faqs = FAQ
 
 function TelegramPlaneIcon() {
   return (
@@ -29,46 +32,7 @@ function ChevronIcon({ className }: { className?: string }) {
   )
 }
 
-type FaqItem = {
-  q: string
-  a: string
-  text: string
-}
-
-const faqs: FaqItem[] = [
-  {
-    q: 'Это оригинальный корм? Как вы это подтверждаете?',
-    a: 'certification',
-    text: 'Да. Мы работаем напрямую с официальными дистрибьюторами Farmina и Monge в России. На каждую партию есть декларации соответствия — сканы опубликованы на странице «Сертификаты», а по запросу мы покажем документы на конкретную партию из вашего заказа.',
-  },
-  {
-    q: 'Какие сроки годности у кормов?',
-    a: 'expiration',
-    text: 'Мы проверяем сроки на приёмке каждой поставки и не продаём корма, до конца срока которых осталось меньше 6 месяцев. При получении вы можете проверить маркировку до оплаты.',
-  },
-  {
-    q: 'Можно ли вернуть корм, если он не подошёл питомцу?',
-    a: 'return',
-    text: 'Невскрытую упаковку — да, в течение 30 дней. Вскрытую, к сожалению, нет — санитарные нормы. Подробнее — на странице «Обмен и возврат».',
-  },
-  {
-    q: 'Почему у вас стоит заказывать на сайте, а не на маркетплейсе?',
-    a: 'marketplace',
-    text: 'Товар тот же, но на сайте вы получаете бонусы с каждой покупки, 300 приветственных бонусов и цены без наценки площадок. И живого консультанта в Telegram, который помнит вашего питомца.',
-  },
-  {
-    q: 'Как быстро вы отвечаете?',
-    a: 'support',
-    text: 'В Telegram — обычно в течение 10 минут, ежедневно с 9:00 до 21:00. Заказы на сайте принимаются круглосуточно.',
-  },
-  {
-    q: 'Помогаете ли вы с выбором корма?',
-    a: 'selection',
-    text: 'Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим варианты. Или пройдите подбор корма на сайте, это минута.',
-  },
-]
-
-function FaqItemComponent({ item, index }: { item: FaqItem; index: number }) {
+function FaqItemComponent({ item, index }: { item: FaqEntry; index: number }) {
   const [open, setOpen] = useState(false)
 
   const renderAnswer = (type: string) => {
@@ -116,7 +80,7 @@ function FaqItemComponent({ item, index }: { item: FaqItem; index: number }) {
       <div
         id={`faq-${index}`}
         role="region"
-        className={`overflow-hidden transition-all duration-200 ease-out ${open ? '' : ''}`}
+        className={`overflow-hidden transition-[grid-template-rows] duration-200 ease-out ${open ? '' : ''}`}
         style={{
           gridTemplateRows: open ? '1fr' : '0fr',
           display: 'grid',
@@ -126,7 +90,7 @@ function FaqItemComponent({ item, index }: { item: FaqItem; index: number }) {
           <div className={`px-5 pb-5 text-navy-500 leading-relaxed ${open ? 'bg-primary-tint opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`} style={{
             transition: open ? 'opacity 200ms 0ms, transform 200ms 0ms' : 'opacity 140ms 0ms, transform 140ms 0ms',
           }}>
-            {renderAnswer(item.a)}
+            {renderAnswer(item.id)}
           </div>
         </div>
       </div>
@@ -159,7 +123,7 @@ export default function FaqPage() {
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-10">Вопросы и ответы</h1>
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-10">Вопросы и ответы</h1>
 
       <div className="space-y-4 mb-10">
         {faqs.map((faq, idx) => (

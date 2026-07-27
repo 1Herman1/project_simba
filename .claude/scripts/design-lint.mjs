@@ -62,7 +62,9 @@ const RULES = [
   },
   {
     name: "transition-all",
-    test: /transition:\s*all\b/,
+    // Ловим обе записи: CSS `transition: all` и Tailwind-класс `transition-all`.
+    // Раньше правило знало только про CSS, и класс проходил мимо линтера.
+    test: /transition:\s*all\b|\btransition-all\b/,
     hint: "transition: all — указывай конкретное свойство (transform/opacity)",
     level: "ERROR",
   },

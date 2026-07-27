@@ -22,7 +22,7 @@ export default function BrandsSection() {
           <Link
             key={brand.slug}
             to={`/catalog?brand=${brand.slug}`}
-            className="flex-shrink-0 w-32 h-20 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-all duration-200 flex items-center justify-center cursor-pointer border border-blue-100"
+            className="flex-shrink-0 w-32 h-20 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-[transform,box-shadow] duration-200 flex items-center justify-center cursor-pointer border border-blue-100"
           >
             <span className="font-bold text-sm text-center px-2 leading-tight" style={{ color: brand.color }}>
               {brand.name}

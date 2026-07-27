@@ -274,7 +274,7 @@ export default function CheckoutPage() {
                       key={opt.key}
                       onClick={() => opt.available && setDelivery(opt.provider as DeliveryMethod)}
                       disabled={!opt.available}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
                         !opt.available ? 'border-line bg-blue-50 opacity-50 cursor-not-allowed' :
                         delivery === opt.provider
                           ? 'border-primary-soft bg-primary-tint'
@@ -391,7 +391,7 @@ export default function CheckoutPage() {
                     <button
                       key={opt.key}
                       onClick={() => setPayment(opt.key)}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all text-left ${
+                      className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
                         payment === opt.key
                           ? 'border-primary-soft bg-primary-tint'
                           : 'border-line bg-white hover:border-primary-soft'
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Бонусы */}
-                <div className={`rounded-xl border p-4 mb-5 transition-all duration-100 ease ${bonusSpend ? 'border-amber-200 bg-amber-50' : 'border-line'}`}>
+                <div className={`rounded-xl border p-4 mb-5 transition-[border-color,background-color] duration-100 ease ${bonusSpend ? 'border-amber-200 bg-amber-50' : 'border-line'}`}>
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"

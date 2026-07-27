@@ -20,6 +20,10 @@ export default function QuestionnairePage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-8">
+        Подбор корма для питомца
+      </h1>
+
       {/* Main card */}
       <div className="bg-white border border-line rounded-card p-8 text-center max-w-2xl mx-auto mb-12">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">Не знаете, какой корм выбрать?</h2>

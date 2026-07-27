@@ -88,7 +88,7 @@ export default function DeliveryPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
-      <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-3">Доставка и оплата</h1>
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-3">Доставка и оплата</h1>
       <div className="flex items-center gap-2 text-navy-500 mb-10">
         <ClockIcon />
         <p>Отправляем в день заказа — любым способом</p>

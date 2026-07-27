@@ -22,7 +22,7 @@ function ProductCard({ favorite, onRemove }: {
   }
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+    <div className="bg-white rounded-2xl overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-300">
       <Link to={`/product/${product.slug}`} className="relative block bg-blue-50 h-44 flex items-center justify-center">
         {discount && (
           <span className="absolute top-2 left-2 bg-amber-400 text-navy-900 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -86,7 +86,7 @@ function ProductCard({ favorite, onRemove }: {
 
         <button
           onClick={handleAdd}
-          className={`w-full py-2 rounded-xl text-sm font-medium transition-all duration-300 mt-auto ${
+          className={`w-full py-2 rounded-xl text-sm font-medium transition-colors duration-300 mt-auto ${
             added
               ? 'bg-green-100 text-green-700'
               : 'bg-blue-200 text-navy-900 hover:bg-blue-300 active:scale-95'
@@ -204,7 +204,7 @@ export default function FavoritesPage() {
               {favorites.map(favorite => (
                 <div
                   key={favorite.productId}
-                  className={`transition-all duration-300 ${
+                  className={`transition-opacity duration-300 ${
                     removingId === favorite.productId ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                   }`}>
                   <ProductCard favorite={favorite} onRemove={handleRemove} />

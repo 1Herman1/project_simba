@@ -51,7 +51,7 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
         <h2 className="text-3xl font-bold mb-6 text-navy-900">{cat.label}</h2>
         <Link to={cat.href} onClick={e => e.stopPropagation()}>
           <button
-            className="w-12 h-12 rounded-full flex items-center justify-center transition-all hover:scale-110 bg-navy-900"
+            className="w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-110 bg-navy-900"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
               <line x1="5" y1="12" x2="19" y2="12" />

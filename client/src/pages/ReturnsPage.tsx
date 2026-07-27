@@ -53,7 +53,7 @@ export default function ReturnsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
-      <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-4">Обмен и возврат</h1>
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-4">Обмен и возврат</h1>
       <p className="text-lg text-navy-500 max-w-prose mb-10">
         Не подошёл корм — вернём деньги или заменим на другой. Невскрытую упаковку принимаем в течение 30 дней с момента
         покупки, без объяснения причин.
