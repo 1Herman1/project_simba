@@ -32,7 +32,7 @@ export default function ReturnsPage() {
       content: (
         <>
           В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="text-primary-hover hover:underline underline">Telegram</a> или{' '}
-          <a href={CONTACTS.phoneHref} className="text-primary-hover hover:underline underline">позвоните: {CONTACTS.phone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
+          <a href={CONTACTS.returnsPhoneHref} className="text-primary-hover hover:underline underline">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
           кабинете.
         </>
       ),

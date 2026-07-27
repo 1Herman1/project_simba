@@ -241,7 +241,8 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-sm text-navy-500">
           {/* Левая часть: copyright */}
           <div className="space-y-2">
-            <p>© 2026 Симба · {LEGAL.entity} · {LEGAL.inn} · {LEGAL.city}</p>
+            <p>© 2026 Симба · {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip}</p>
+            <p className="mt-1">{LEGAL.address}</p>
             <p className="flex items-center gap-1">
               <span>🔒</span> МИР · Visa · Mastercard · СБП
             </p>
