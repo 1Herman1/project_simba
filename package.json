@@ -1,14 +1,20 @@
 {
   "name": "simba",
   "private": true,
-  "workspaces": ["shared", "server", "client", "admin"],
+  "workspaces": [
+    "shared",
+    "server",
+    "client",
+    "admin",
+    "perfect-skin-shared"
+  ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:shared": "npm run build --workspace=shared",
     "dev:server": "npm run dev --workspace=server",
     "dev:client": "npm run dev --workspace=client",
     "dev:admin": "npm run dev --workspace=admin",
-    "test": "npm run test --workspace=server"
+    "test": "npm run test --workspace=server",
+    "test:perfect-skin": "npm run test --workspace=@perfect-skin/shared"
   }
 }
-
