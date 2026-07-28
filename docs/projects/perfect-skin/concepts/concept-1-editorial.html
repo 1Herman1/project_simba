@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Perfect-Skin — премиальная космецевтика из Испании</title>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Golos+Text:wght@400;600&display=swap" rel="stylesheet">
+
+	<style>
+		:root {
+			--color-bg: #F2F0ED;
+			--color-text: #17161A;
+			--color-text-muted: #6E6A66;
+			--color-accent: #E8531F;
+			--color-accent-ink: #C2410C;
+			--color-accent-text: #FFFFFF;
+			--color-divider: #D8D4CE;
+			--color-dark-bg: #17161A;
+			--color-dark-text: #F2F0ED;
+
+			--radius-pill: 999px;
+			--radius-block: 4px;
+
+			--font-heading: 'Montserrat', sans-serif;
+			--font-text: 'Golos Text', sans-serif;
+
+			--ease: cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		html {
+			scroll-behavior: smooth;
+		}
+
+		body {
+			background-color: var(--color-bg);
+			color: var(--color-text);
+			font-family: var(--font-text);
+			font-size: 16px;
+			font-weight: 400;
+			line-height: 1.6;
+			-webkit-font-smoothing: antialiased;
+			text-rendering: optimizeLegibility;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			*, *::before, *::after {
+				animation-duration: 0.01ms !important;
+				transition-duration: 0.01ms !important;
+				scroll-behavior: auto !important;
+			}
+		}
+
+		/* Typography */
+		h1, h2, h3, h4 {
+			font-family: var(--font-heading);
+			font-weight: 900;
+			letter-spacing: -0.03em;
+			line-height: 0.92;
+		}
+
+		h1 {
+			font-size: clamp(1.6rem, 4.5vw, 4.5rem);
+			text-transform: uppercase;
+			hyphens: auto;
+			overflow-wrap: break-word;
+		}
+
+		h2 {
+			font-size: clamp(1.75rem, 5vw, 3rem);
+			text-transform: uppercase;
+		}
+
+		h3 {
+			font-size: clamp(1.25rem, 3vw, 2rem);
+			font-weight: 800;
+		}
+
+		.tag-small {
+			font-family: var(--font-text);
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--color-text-muted);
+		}
+
+		/* Layout */
+		.container {
+			width: 100%;
+			max-width: 1440px;
+			margin: 0 auto;
+			padding: 0 24px;
+		}
+
+		/* Buttons */
+		button, .button {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 12px 24px;
+			border: none;
+			border-radius: var(--radius-pill);
+			font-family: var(--font-text);
+			font-size: 15px;
+			font-weight: 600;
+			cursor: pointer;
+			text-decoration: none;
+			transition: transform 200ms var(--ease), opacity 200ms var(--ease), background-color 200ms var(--ease), border-color 200ms var(--ease), color 200ms var(--ease);
+			min-height: 44px;
+			min-width: 44px;
+		}
+
+		.button-primary {
+			background-color: var(--color-accent-ink);
+			color: var(--color-accent-text);
+		}
+
+		.button-primary:hover {
+			transform: scale(1.02);
+			opacity: 0.9;
+		}
+
+		.button-secondary {
+			background-color: transparent;
+			color: var(--color-text);
+			border: 1px solid var(--color-text);
+		}
+
+		.button-secondary:hover {
+			background-color: var(--color-text);
+			color: var(--color-bg);
+		}
+
+		/* Divider */
+		.divider {
+			height: 1px;
+			background-color: var(--color-divider);
+		}
+
+		/* === TOP BAR === */
+		.top-bar {
+			background-color: var(--color-text);
+			color: var(--color-dark-text);
+			padding: 12px 0;
+			text-align: center;
+			font-size: 14px;
+			font-weight: 600;
+		}
+
+		/* === HEADER === */
+		header {
+			background-color: var(--color-bg);
+			border-bottom: 1px solid var(--color-divider);
+			padding: 16px 0;
+		}
+
+		.header-wrapper {
+			display: grid;
+			grid-template-columns: auto 1fr auto;
+			align-items: center;
+			gap: 24px;
+		}
+
+		.logo {
+			font-family: var(--font-heading);
+			font-size: 18px;
+			font-weight: 900;
+			text-transform: uppercase;
+			letter-spacing: -0.03em;
+		}
+
+		.logo-sub {
+			font-family: var(--font-text);
+			font-size: 9px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--color-text-muted);
+			margin-top: 2px;
+		}
+
+		.nav {
+			display: flex;
+			gap: 24px;
+			justify-self: start;
+		}
+
+		.nav a {
+			display: inline-flex;
+			align-items: center;
+			min-height: 44px;
+			font-size: 14px;
+			color: var(--color-text);
+			text-decoration: none;
+			transition: color 150ms var(--ease);
+			padding: 0;
+		}
+
+		.nav a:hover {
+			color: var(--color-accent);
+		}
+
+		.nav-details {
+			display: none;
+		}
+
+		.nav-burger {
+			display: none;
+			width: 44px;
+			height: 44px;
+			padding: 0;
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--color-text);
+			font-size: 24px;
+		}
+
+		.nav-mobile {
+			display: none;
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background-color: var(--color-bg);
+			border-top: 1px solid var(--color-divider);
+			padding: 16px 24px;
+			flex-direction: column;
+			gap: 0;
+		}
+
+		.nav-mobile a {
+			display: block;
+			padding: 12px 0;
+			min-height: auto;
+		}
+
+		.nav-details[open] .nav-mobile {
+			display: flex;
+		}
+
+		.header-right {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+
+		.phone {
+			font-size: 14px;
+			color: var(--color-text);
+			text-decoration: none;
+			transition: color 150ms var(--ease);
+		}
+
+		.phone:hover {
+			color: var(--color-accent);
+		}
+
+		.icon-button {
+			width: 44px;
+			height: 44px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: none;
+			border: none;
+			cursor: pointer;
+			color: var(--color-text);
+			transition: color 150ms var(--ease);
+			padding: 0;
+		}
+
+		.icon-button svg {
+			width: 20px;
+			height: 20px;
+			stroke: currentColor;
+			fill: none;
+			stroke-width: 1.5;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+
+		.icon-button:hover {
+			color: var(--color-accent);
+		}
+
+		@media (max-width: 1024px) {
+			.header-wrapper {
+				gap: 16px;
+			}
+
+			.nav {
+				display: none;
+			}
+
+			.nav-details {
+				display: block;
+			}
+
+			.nav-burger {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				cursor: pointer;
+			}
+
+			.nav-mobile {
+				position: static !important;
+				border-top: none !important;
+				padding: 0 !important;
+				margin-top: 16px;
+			}
+		}
+
+		/* === HERO === */
+		.hero {
+			position: relative;
+			padding: 60px 0;
+		}
+
+		.hero-grid {
+			display: grid;
+			grid-template-columns: 1.4fr 1fr;
+			gap: 40px;
+			align-items: start;
+			position: relative;
+		}
+
+		.hero-grid > * {
+			min-width: 0;
+		}
+
+		.hero-tag {
+			margin-bottom: 20px;
+		}
+
+		h1 {
+			margin-bottom: 24px;
+		}
+
+		.hero-subtitle {
+			font-size: 16px;
+			line-height: 1.8;
+			color: var(--color-text-muted);
+			margin-bottom: 32px;
+			max-width: 65ch;
+		}
+
+		.hero-buttons {
+			display: flex;
+			gap: 16px;
+			margin-bottom: 40px;
+			flex-wrap: wrap;
+		}
+
+		.hero-tags {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+
+		.hero-tag-item {
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--color-text-muted);
+		}
+
+		.hero-right {
+			position: relative;
+			display: flex;
+			align-items: flex-start;
+			justify-content: flex-end;
+			min-height: 500px;
+		}
+
+		.hero-bg-block {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background-color: var(--color-accent);
+			border-radius: var(--radius-block);
+			top: 0;
+			right: 0;
+		}
+
+		.hero-card {
+			position: relative;
+			z-index: 2;
+			background-color: var(--color-bg);
+			border-radius: var(--radius-block);
+			padding: 32px;
+			max-width: 320px;
+			margin-top: 180px;
+			margin-left: -40px;
+		}
+
+		.hero-card h3 {
+			font-size: 20px;
+			margin-bottom: 12px;
+		}
+
+		.hero-card-text {
+			font-size: 14px;
+			line-height: 1.6;
+			color: var(--color-text-muted);
+			margin-bottom: 20px;
+		}
+
+		@media (max-width: 1024px) {
+			.hero-grid {
+				grid-template-columns: 1fr;
+				gap: 32px;
+			}
+
+			.hero-right {
+				min-height: auto;
+			}
+
+			.hero-bg-block {
+				position: relative;
+				width: 100%;
+				height: 300px;
+				margin-bottom: -100px;
+			}
+
+			.hero-card {
+				position: relative;
+				margin-top: 0;
+				margin-left: 0;
+				max-width: 100%;
+			}
+		}
+
+		/* === CTAS === */
+		.cta-section {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 24px;
+			margin-bottom: 80px;
+		}
+
+		.cta-box {
+			background-color: var(--color-text);
+			color: var(--color-dark-text);
+			padding: 40px;
+			border-radius: var(--radius-block);
+		}
+
+		.cta-box h2 {
+			font-size: 20px;
+			line-height: 1.2;
+			color: var(--color-dark-text);
+			margin-bottom: 12px;
+		}
+
+		.cta-box-text {
+			font-size: 15px;
+			line-height: 1.7;
+			margin-bottom: 24px;
+			color: rgba(242, 240, 237, 0.85);
+		}
+
+		@media (max-width: 768px) {
+			.cta-section {
+				grid-template-columns: 1fr;
+				gap: 16px;
+			}
+
+			.cta-box {
+				padding: 32px;
+			}
+		}
+
+		/* === BRANDS SECTION === */
+		.brands-section {
+			margin-bottom: 80px;
+		}
+
+		.section-header {
+			margin-bottom: 48px;
+		}
+
+		.section-header h2 {
+			margin-bottom: 12px;
+		}
+
+		.section-layout {
+			display: grid;
+			grid-template-columns: 1fr 1.6fr;
+			gap: 40px;
+			align-items: start;
+		}
+
+		.section-layout > * {
+			min-width: 0;
+		}
+
+		.section-aside h2 {
+			text-align: left;
+			margin-bottom: 12px;
+		}
+
+		@media (max-width: 1024px) {
+			.section-layout {
+				grid-template-columns: 1fr;
+				gap: 32px;
+			}
+		}
+
+		.section-subtitle {
+			font-size: 16px;
+			color: var(--color-text-muted);
+			max-width: 65ch;
+		}
+
+		.brands-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 32px;
+			grid-column: auto;
+		}
+
+		.brand-card {
+			border-radius: var(--radius-block);
+			border: 1px solid var(--color-divider);
+			padding: 40px;
+			position: relative;
+		}
+
+		.brand-badge {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			background-color: var(--color-accent-ink);
+			color: var(--color-accent-text);
+			padding: 6px 12px;
+			border-radius: var(--radius-pill);
+			font-size: 11px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+		}
+
+		.brand-card h3 {
+			margin-bottom: 16px;
+			font-size: 24px;
+		}
+
+		.brand-card-text {
+			font-size: 15px;
+			line-height: 1.7;
+			color: var(--color-text-muted);
+			margin-bottom: 24px;
+		}
+
+		.brand-lines {
+			font-size: 13px;
+			color: var(--color-text-muted);
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		.brand-line {
+			display: inline-block;
+		}
+
+		@media (max-width: 768px) {
+			.brands-grid {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+		}
+
+		/* === CATEGORIES === */
+		.categories-section {
+			margin-bottom: 80px;
+		}
+
+		.categories-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 16px;
+		}
+
+		.category-card {
+			aspect-ratio: 1;
+			display: flex;
+			align-items: flex-end;
+			min-width: 0;
+			overflow-wrap: anywhere;
+			padding: 24px;
+			background-color: var(--color-divider);
+			border-radius: var(--radius-block);
+			text-decoration: none;
+			color: var(--color-text);
+			transition: transform 150ms var(--ease), opacity 150ms var(--ease), background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease);
+			position: relative;
+		}
+
+		.category-card:hover {
+			transform: translateY(-4px);
+		}
+
+		.category-card-text {
+			font-family: var(--font-heading);
+			font-size: clamp(16px, 2vw, 18px);
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: -0.02em;
+			position: relative;
+			z-index: 1;
+		}
+
+		@media (max-width: 768px) {
+			.categories-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 12px;
+			}
+
+			.category-card {
+				aspect-ratio: auto;
+				min-height: 140px;
+				padding: 16px;
+			}
+		}
+
+		/* === BESTSELLERS === */
+		.bestsellers-section {
+			margin-bottom: 80px;
+		}
+
+		.bestsellers-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 24px;
+			grid-auto-rows: auto;
+		}
+
+		.bestsellers-grid .product-card:nth-child(1) {
+			grid-column: 1 / 3;
+			grid-row: 1 / 3;
+		}
+
+		.bestsellers-grid .product-card:nth-child(2) {
+			grid-column: 3 / 5;
+			grid-row: 1 / 3;
+		}
+
+		.product-card {
+			border-radius: var(--radius-block);
+			overflow: hidden;
+		}
+
+		.product-image {
+			aspect-ratio: 3/4;
+			background-color: var(--color-accent);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-family: var(--font-heading);
+			font-size: 4rem;
+			font-weight: 900;
+			color: var(--color-bg);
+			border-radius: var(--radius-block);
+			text-transform: uppercase;
+		}
+
+		.product-image.dark {
+			background-color: var(--color-text);
+			color: var(--color-dark-text);
+		}
+
+		.product-info {
+			padding: 20px 0;
+		}
+
+		.product-name {
+			font-family: var(--font-heading);
+			font-size: 14px;
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: -0.02em;
+			margin-bottom: 8px;
+		}
+
+		.product-desc {
+			font-size: 13px;
+			color: var(--color-text-muted);
+			margin-bottom: 8px;
+		}
+
+		.product-line {
+			font-size: 12px;
+			color: var(--color-text-muted);
+			font-weight: 600;
+			margin-bottom: 12px;
+		}
+
+		.product-price {
+			font-family: var(--font-heading);
+			font-size: 18px;
+			font-weight: 900;
+			font-variant-numeric: tabular-nums;
+			color: var(--color-text);
+		}
+
+		@media (max-width: 1024px) {
+			.bestsellers-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 20px;
+			}
+
+			.bestsellers-grid .product-card:nth-child(1) {
+				grid-column: 1 / 2;
+				grid-row: auto;
+			}
+
+			.bestsellers-grid .product-card:nth-child(2) {
+				grid-column: 2 / 3;
+				grid-row: auto;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.bestsellers-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 16px;
+			}
+
+			.bestsellers-grid .product-card:nth-child(1),
+			.bestsellers-grid .product-card:nth-child(2) {
+				grid-column: auto;
+				grid-row: auto;
+			}
+
+			.product-image {
+				font-size: 2.5rem;
+			}
+		}
+
+		/* === PRO SECTION === */
+		.pro-section {
+			background-color: var(--color-dark-bg);
+			color: var(--color-dark-text);
+			padding: 60px 24px;
+			margin-bottom: 80px;
+			border-radius: var(--radius-block);
+		}
+
+		.pro-container {
+			width: 100%;
+			max-width: 1440px;
+			margin: 0 auto;
+			padding: 0 24px;
+		}
+
+		.pro-section h2 {
+			color: var(--color-dark-text);
+			margin-bottom: 16px;
+		}
+
+		.pro-subtitle {
+			font-size: 16px;
+			line-height: 1.7;
+			color: rgba(242, 240, 237, 0.85);
+			margin-bottom: 40px;
+			max-width: 65ch;
+		}
+
+		.pro-steps {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 32px;
+			margin-bottom: 40px;
+		}
+
+		.pro-step {
+			display: flex;
+			gap: 16px;
+			align-items: flex-start;
+			padding-bottom: 24px;
+		}
+
+		.pro-step-number {
+			font-family: var(--font-heading);
+			font-size: clamp(3rem, 8vw, 7rem);
+			font-weight: 900;
+			color: var(--color-accent);
+			flex-shrink: 0;
+			min-width: auto;
+			line-height: 0.9;
+			margin-right: 20px;
+		}
+
+		.pro-step-text {
+			font-size: 15px;
+			line-height: 1.6;
+			color: var(--color-dark-text);
+			max-width: 65ch;
+		}
+
+		.pro-bonus {
+			font-size: 14px;
+			margin-bottom: 32px;
+			color: rgba(242, 240, 237, 0.85);
+		}
+
+		@media (max-width: 768px) {
+			.pro-section {
+				padding: 40px 24px;
+				margin-bottom: 60px;
+			}
+
+			.pro-steps {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+		}
+
+		/* === BEAUTY CLUB === */
+		.club-section {
+			margin-bottom: 80px;
+		}
+
+		.club-list {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 24px;
+			list-style: none;
+			counter-reset: club-counter;
+		}
+
+		.club-list-item {
+			font-family: var(--font-heading);
+			font-size: clamp(18px, 2vw, 24px);
+			font-weight: 800;
+			line-height: 1.3;
+			counter-increment: club-counter;
+			padding-left: 40px;
+			position: relative;
+		}
+
+		.club-list-item::before {
+			content: counter(club-counter);
+			position: absolute;
+			left: 0;
+			font-size: clamp(24px, 4vw, 32px);
+			font-weight: 900;
+			color: var(--color-accent);
+			min-width: 35px;
+		}
+
+		@media (max-width: 768px) {
+			.club-list {
+				grid-template-columns: 1fr;
+				gap: 20px;
+			}
+		}
+
+		/* === ABOUT === */
+		.about-section {
+			margin-bottom: 80px;
+		}
+
+		.about-text {
+			font-size: 15px;
+			line-height: 1.8;
+			color: var(--color-text-muted);
+			margin-bottom: 40px;
+			max-width: 65ch;
+		}
+
+		.about-stats {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 32px;
+		}
+
+		.stat {
+			text-align: left;
+		}
+
+		.stat-label {
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--color-text-muted);
+			margin-bottom: 8px;
+		}
+
+		.stat-value {
+			font-family: var(--font-heading);
+			font-size: 28px;
+			font-weight: 900;
+			color: var(--color-accent);
+		}
+
+		@media (max-width: 768px) {
+			.about-stats {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+		}
+
+		/* === DELIVERY === */
+		.delivery-section {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 32px;
+			justify-content: center;
+			align-items: center;
+			padding: 40px 0;
+			border-top: 1px solid var(--color-divider);
+			border-bottom: 1px solid var(--color-divider);
+			margin-bottom: 80px;
+			font-size: 14px;
+			font-weight: 600;
+		}
+
+		.delivery-item {
+			display: flex;
+			align-items: center;
+		}
+
+		.delivery-item::before {
+			content: '';
+			display: inline-block;
+			width: 4px;
+			height: 4px;
+			background-color: var(--color-text);
+			border-radius: 50%;
+			margin-right: 12px;
+			flex-shrink: 0;
+		}
+
+		.delivery-item:first-child::before {
+			display: none;
+		}
+
+		@media (max-width: 768px) {
+			.delivery-section {
+				flex-direction: column;
+				gap: 16px;
+				text-align: center;
+			}
+
+			.delivery-item::before {
+				display: none;
+			}
+		}
+
+		/* === FOOTER === */
+		footer {
+			background-color: var(--color-text);
+			color: var(--color-dark-text);
+			padding: 60px 24px 40px;
+		}
+
+		.footer-container {
+			width: 100%;
+			max-width: 1440px;
+			margin: 0 auto;
+			padding: 0 24px;
+		}
+
+		.footer-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 40px;
+			margin-bottom: 40px;
+		}
+
+		.footer-column h3 {
+			font-size: 14px;
+			font-weight: 600;
+			letter-spacing: 0.08em;
+			text-transform: uppercase;
+			color: var(--color-dark-text);
+			margin-bottom: 16px;
+			font-family: var(--font-text);
+		}
+
+		.footer-column ul {
+			list-style: none;
+		}
+
+		.footer-column li {
+			margin-bottom: 12px;
+			font-size: 14px;
+		}
+
+		.footer-column a {
+			display: inline-block;
+			padding-block: 10px;
+			margin-block: -10px;
+			color: rgba(242, 240, 237, 0.7);
+			text-decoration: none;
+			transition: color 150ms var(--ease);
+		}
+
+		.footer-column a:hover {
+			color: var(--color-accent);
+		}
+
+		.footer-contacts {
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			font-size: 14px;
+		}
+
+		.footer-socials {
+			display: flex;
+			gap: 16px;
+			margin-top: 16px;
+		}
+
+		.footer-social-link {
+			color: rgba(242, 240, 237, 0.7);
+			text-decoration: none;
+			transition: color 150ms var(--ease);
+		}
+
+		.footer-social-link:hover {
+			color: var(--color-accent);
+		}
+
+		.footer-divider {
+			height: 1px;
+			background-color: rgba(242, 240, 237, 0.2);
+			margin-bottom: 24px;
+		}
+
+		.footer-bottom {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 24px;
+			font-size: 12px;
+			color: rgba(242, 240, 237, 0.6);
+			line-height: 1.6;
+		}
+
+		.footer-legal {
+			border-top: 1px solid rgba(242, 240, 237, 0.2);
+			padding-top: 24px;
+			margin-top: 24px;
+			font-size: 12px;
+			color: rgba(242, 240, 237, 0.5);
+			line-height: 1.6;
+		}
+
+		@media (max-width: 768px) {
+			footer {
+				padding: 40px 24px;
+			}
+
+			.footer-grid {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 32px;
+			}
+
+			.footer-bottom {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.footer-grid {
+				grid-template-columns: 1fr;
+				gap: 24px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<!-- TOP BAR -->
+	<div class="top-bar">
+		Бесплатная доставка СДЭК от 6&nbsp;000&nbsp;₽
+	</div>
+
+	<!-- HEADER -->
+	<header>
+		<div class="container">
+			<div class="header-wrapper">
+				<div>
+					<div class="logo">PERFECT SKIN</div>
+					<div class="logo-sub">Испанская космецевтика</div>
+				</div>
+				<nav class="nav">
+					<a href="#catalog">Каталог</a>
+					<a href="#brands">Бренды</a>
+					<a href="#pro">Профессионалам</a>
+					<a href="#club">Бьюти-клуб</a>
+					<a href="#about">О компании</a>
+					<a href="#contacts">Контакты</a>
+				</nav>
+				<details class="nav-details">
+					<summary class="nav-burger" aria-label="Меню">☰</summary>
+					<nav class="nav-mobile">
+						<a href="#catalog">Каталог</a>
+						<a href="#brands">Бренды</a>
+						<a href="#pro">Профессионалам</a>
+						<a href="#club">Бьюти-клуб</a>
+						<a href="#about">О компании</a>
+						<a href="#contacts">Контакты</a>
+					</nav>
+				</details>
+				<div class="header-right">
+					<a href="tel:+74951832848" class="phone">+7 (495) 183-28-48</a>
+					<button class="icon-button" aria-label="Избранное">
+						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+						</svg>
+					</button>
+					<button class="icon-button" aria-label="Корзина">
+						<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+							<circle cx="9" cy="21" r="1"/>
+							<circle cx="20" cy="21" r="1"/>
+							<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- HERO -->
+	<section class="hero">
+		<div class="container">
+			<div class="hero-grid">
+				<div>
+					<div class="tag-small hero-tag">ИСПАНИЯ · HEBER FARMA · С 2017 ГОДА</div>
+					<h1>ПРОФЕССИОНАЛЬНАЯ<span style="display: block;">КОСМЕЦЕВТИКА</span><span style="display: block;">ИЗ ИСПАНИИ</span></h1>
+					<p class="hero-subtitle">
+						Два бренда фармацевтического производства — для домашнего ухода и для работы в кабинете косметолога.
+					</p>
+					<div class="hero-buttons">
+						<button class="button button-primary">Смотреть каталог</button>
+						<button class="button button-secondary">Войти в Pro-кабинет</button>
+					</div>
+					<div class="hero-tags">
+						<div class="hero-tag-item">40+ ПОЗИЦИЙ</div>
+						<div class="hero-tag-item">ОФИЦИАЛЬНЫЙ ДИСТРИБЬЮТОР</div>
+						<div class="hero-tag-item">ВСЯ ПРОДУКЦИЯ СЕРТИФИЦИРОВАНА</div>
+					</div>
+				</div>
+				<div class="hero-right">
+					<div class="hero-bg-block"></div>
+					<div class="hero-card">
+						<h2>Подобрать косметику</h2>
+						<p class="hero-card-text">
+							Всего 5 вопросов — и у вас готовая программа ухода из лучших средств
+						</p>
+						<button class="button button-primary">Начать</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTAs -->
+	<section class="container">
+		<div class="cta-section">
+			<div class="cta-box">
+				<h2>Подобрать косметику</h2>
+				<p class="cta-box-text">
+					Ответьте на 5 вопросов о типе кожи и задаче — соберём программу ухода из средств ISSEIMI и GLACÉE.
+				</p>
+				<button class="button button-primary">Начать подбор</button>
+			</div>
+			<div class="cta-box">
+				<h2>Консультация косметолога</h2>
+				<p class="cta-box-text">
+					Опишите проблему и приложите фото. Специалист ответит и подберёт средства под вашу кожу.
+				</p>
+				<button class="button button-primary">Записаться</button>
+			</div>
+		</div>
+	</section>
+
+	<div class="divider" style="margin: 0 24px 80px;"></div>
+
+	<!-- BRANDS -->
+	<section id="brands" class="brands-section">
+		<div class="container">
+			<div class="section-layout">
+				<div class="section-aside">
+					<h2>Два бренда, одно производство</h2>
+					<p class="section-subtitle">Обе линейки выпускает испанский фармконцерн Heber Farma.</p>
+				</div>
+				<div class="brands-grid">
+				<div class="brand-card">
+					<div class="brand-badge">ПРЕМИУМ+</div>
+					<h3>ISSEIMI</h3>
+					<p class="brand-card-text">
+						Космецевтика с активными концентратами: пчелиный яд, озон, пептиды, стволовые клетки. Три линейки — Base для домашнего ухода, MD для кабинета, Nat Collection на натуральных маслах.
+					</p>
+					<div class="brand-lines">
+						<span class="brand-line">ISSEIMI Base</span>
+						<span class="brand-line">·</span>
+						<span class="brand-line">ISSEIMI MD</span>
+						<span class="brand-line">·</span>
+						<span class="brand-line">ISSEIMI Nat Collection</span>
+					</div>
+				</div>
+				<div class="brand-card">
+					<div class="brand-badge">ПРЕМИУМ</div>
+					<h3>GLACÉE Skincare</h3>
+					<p class="brand-card-text">
+						Ежедневный уход с европейским качеством и понятными протоколами. Отдельная мужская линейка и готовые подарочные боксы.
+					</p>
+					<div class="brand-lines">
+						<span class="brand-line">GLACÉE Skincare Man Line</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="divider" style="margin: 80px 24px; display: none;"></div>
+
+	<!-- CATEGORIES -->
+	<section id="catalog" class="categories-section">
+		<div class="container">
+			<h2 style="margin-bottom: 40px;">Категории</h2>
+			<div class="categories-grid">
+				<a href="#" class="category-card">
+					<span class="category-card-text">Уход за лицом</span>
+				</a>
+				<a href="#" class="category-card">
+					<span class="category-card-text">Уход за телом</span>
+				</a>
+				<a href="#" class="category-card">
+					<span class="category-card-text">Парафармацевтика</span>
+				</a>
+				<a href="#" class="category-card">
+					<span class="category-card-text">Подарочные наборы</span>
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<div style="margin-bottom: 80px;"></div>
+
+	<!-- BESTSELLERS -->
+	<section class="bestsellers-section">
+		<div class="container">
+			<h2 style="margin-bottom: 40px;">Бестселлеры</h2>
+			<div class="bestsellers-grid">
+				<!-- Product 1 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-accent);">B</div>
+					<div class="product-info">
+						<div class="product-name">BEEVENOM CREAM</div>
+						<div class="product-desc">Антивозрастной крем</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">8&nbsp;077&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 2 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-text);">N</div>
+					<div class="product-info">
+						<div class="product-name">NUTRIESTIMUL</div>
+						<div class="product-desc">Антивозрастной питательный крем</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">9&nbsp;130&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 3 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-accent);">C</div>
+					<div class="product-info">
+						<div class="product-name">CONTORNO DE OJOS</div>
+						<div class="product-desc">Мультиувлажняющий крем для век с пептидами</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">8&nbsp;025&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 4 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-text);">R</div>
+					<div class="product-info">
+						<div class="product-name">REGENERATIVO CELLULAR</div>
+						<div class="product-desc">Сыворотка обновляющая</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">8&nbsp;454&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 5 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-accent);">3</div>
+					<div class="product-info">
+						<div class="product-name">365 NIGHT REPAIR CREAM</div>
+						<div class="product-desc">Обновляющий крем с виноградными кислотами</div>
+						<div class="product-line">ISSEIMI Nat Collection</div>
+						<div class="product-price">6&nbsp;512&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 6 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-text);">D</div>
+					<div class="product-info">
+						<div class="product-name">DERMOSUN SPF 50</div>
+						<div class="product-desc">Солнцезащитный крем</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">3&nbsp;781&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 7 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-accent);">O</div>
+					<div class="product-info">
+						<div class="product-name">O3 DEPUR</div>
+						<div class="product-desc">Крем с озоном</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div class="product-price">5&nbsp;499&nbsp;₽</div>
+					</div>
+				</div>
+
+				<!-- Product 8 -->
+				<div class="product-card">
+					<div class="product-image" style="background-color: var(--color-text);">E</div>
+					<div class="product-info">
+						<div class="product-name">Expert Team. Full Box</div>
+						<div class="product-desc">Подарочный набор для мужской кожи</div>
+						<div class="product-line">GLACÉE Man Line</div>
+						<div class="product-price">14&nbsp;680&nbsp;₽</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div style="margin-bottom: 40px;"></div>
+
+	<!-- PRO SECTION -->
+	<section id="pro" class="pro-section">
+		<div class="pro-container">
+			<h2>Pro-кабинет для косметологов</h2>
+			<p class="pro-subtitle">
+				Закупка для кабинета и перепродажи пациентам. Профессиональные цены открываются после проверки документов.
+			</p>
+			<div class="pro-steps">
+				<div class="pro-step">
+					<div class="pro-step-number">01</div>
+					<div class="pro-step-text">Регистрация</div>
+				</div>
+				<div class="pro-step">
+					<div class="pro-step-number">02</div>
+					<div class="pro-step-text">Загрузка документов, подтверждающих специализацию</div>
+				</div>
+				<div class="pro-step">
+					<div class="pro-step-number">03</div>
+					<div class="pro-step-text">Проверка и доступ к профессиональным ценам</div>
+				</div>
+			</div>
+			<p class="pro-bonus">Личный промокод — ваши пациенты покупают со скидкой.</p>
+			<h3 style="color: var(--color-dark-text); margin: 48px 0 24px; font-size: 18px;">Примеры товаров для закупки</h3>
+			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;">
+				<!-- Product 1 -->
+				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
+					<div class="product-image" style="background-color: var(--color-accent); margin-bottom: 16px; height: 200px;">B</div>
+					<div class="product-info">
+						<div class="product-name">BEEVENOM CREAM</div>
+						<div class="product-desc">Антивозрастной крем</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div style="font-size: 14px; margin-top: 12px; color: rgba(242, 240, 237, 0.85);"><a href="#" style="color: var(--color-accent); text-decoration: none;">Цена для специалистов</a><br><a href="#" style="color: rgba(242, 240, 237, 0.7); text-decoration: none; font-size: 12px;">Войти в Pro-кабинет</a></div>
+					</div>
+				</div>
+				<!-- Product 2 -->
+				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
+					<div class="product-image" style="background-color: var(--color-text); margin-bottom: 16px; height: 200px;">N</div>
+					<div class="product-info">
+						<div class="product-name">NUTRIESTIMUL</div>
+						<div class="product-desc">Антивозрастной питательный крем</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div style="font-size: 14px; margin-top: 12px; color: rgba(242, 240, 237, 0.85);"><a href="#" style="color: var(--color-accent); text-decoration: none;">Цена для специалистов</a><br><a href="#" style="color: rgba(242, 240, 237, 0.7); text-decoration: none; font-size: 12px;">Войти в Pro-кабинет</a></div>
+					</div>
+				</div>
+				<!-- Product 3 -->
+				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
+					<div class="product-image" style="background-color: var(--color-accent); margin-bottom: 16px; height: 200px;">C</div>
+					<div class="product-info">
+						<div class="product-name">CONTORNO DE OJOS</div>
+						<div class="product-desc">Крем для век с пептидами</div>
+						<div class="product-line">ISSEIMI Base</div>
+						<div style="font-size: 14px; margin-top: 12px; color: rgba(242, 240, 237, 0.85);"><a href="#" style="color: var(--color-accent); text-decoration: none;">Цена для специалистов</a><br><a href="#" style="color: rgba(242, 240, 237, 0.7); text-decoration: none; font-size: 12px;">Войти в Pro-кабинет</a></div>
+					</div>
+				</div>
+			</div>
+			<button class="button button-primary">Стать партнёром</button>
+		</div>
+	</section>
+
+	<!-- BEAUTY CLUB -->
+	<section id="club" class="club-section">
+		<div class="container">
+			<div class="section-layout">
+				<div class="section-aside">
+					<h2>Бьюти-клуб</h2>
+					<p class="section-subtitle">
+						Клуб для тех, кто пользуется косметикой дома. Новости бьюти, закрытые предложения, подарки и готовые программы ухода.
+					</p>
+				</div>
+				<div class="section-content">
+					<ol class="club-list">
+						<li class="club-list-item">Новости и разборы средств</li>
+						<li class="club-list-item">Закрытые скидки</li>
+						<li class="club-list-item">Подарки к заказам</li>
+						<li class="club-list-item">Программы ухода по сезонам</li>
+					</ol>
+					<button class="button button-primary" style="margin-top: 40px;">Вступить в клуб</button>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div style="margin-bottom: 40px;"></div>
+
+	<!-- ABOUT -->
+	<section id="about" class="about-section">
+		<div class="container">
+			<div class="section-layout">
+				<div class="section-aside">
+					<h2>О компании</h2>
+				</div>
+				<div class="section-content">
+					<p class="about-text">
+						Perfect-skin.shop — интернет-магазин премиальной косметики из Испании. Мы работаем только с официальными дистрибьюторами, поэтому гарантируем оригинальность и высокое качество продукции. Вся продукция сертифицирована. Наши флагманы — ISSEIMI и GLACÉE, лидеры европейского космецевтического рынка. Продукция производится фармконцерном Heber Farma с высочайшими стандартами производства, мощной лабораторной и технической базой.
+					</p>
+					<div class="about-stats">
+				<div class="stat">
+					<div class="stat-label">С 2017 года на рынке</div>
+					<div class="stat-value">9 лет</div>
+				</div>
+				<div class="stat">
+					<div class="stat-label">Позиций в каталоге</div>
+					<div class="stat-value">40+</div>
+				</div>
+				<div class="stat">
+					<div class="stat-label">Статус партнёра</div>
+					<div class="stat-value">Официальный</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div style="margin-bottom: 40px;"></div>
+
+	<!-- DELIVERY -->
+	<section class="delivery-section">
+		<div class="container" style="width: 100%; max-width: 100%; padding: 0 24px; display: flex; flex-wrap: wrap; gap: 24px; justify-content: center;">
+			<span class="delivery-item">СДЭК по всей России</span>
+			<span class="delivery-item">Бесплатно от 6&nbsp;000&nbsp;₽ в пункт выдачи</span>
+			<span class="delivery-item">Бесплатно от 10&nbsp;000&nbsp;₽ курьером</span>
+			<span class="delivery-item">Самовывоз в Москве</span>
+		</div>
+	</section>
+
+	<!-- FOOTER -->
+	<footer>
+		<div class="footer-container">
+			<div class="footer-grid">
+				<div class="footer-column">
+					<h3>О компании</h3>
+					<ul>
+						<li><a href="#">О компании</a></li>
+						<li><a href="#">Доставка</a></li>
+						<li><a href="#">Оплата</a></li>
+						<li><a href="#">Контакты</a></li>
+					</ul>
+				</div>
+				<div class="footer-column">
+					<h3>Каталог</h3>
+					<ul>
+						<li><a href="#">ISSEIMI</a></li>
+						<li><a href="#">GLACÉE Skincare</a></li>
+						<li><a href="#">Уход за лицом</a></li>
+						<li><a href="#">Уход за телом</a></li>
+						<li><a href="#">Парафармацевтика</a></li>
+						<li><a href="#">Подарочные наборы</a></li>
+					</ul>
+				</div>
+				<div class="footer-column">
+					<h3>Клиентам</h3>
+					<ul>
+						<li><a href="#">Акции</a></li>
+						<li><a href="#">Блог</a></li>
+						<li><a href="#">Ответы на вопросы</a></li>
+						<li><a href="#">Отзывы</a></li>
+					</ul>
+				</div>
+				<div class="footer-column">
+					<h3>Контакты</h3>
+					<div class="footer-contacts">
+						<a href="tel:+74951832848">+7 (495) 183-28-48</a>
+						<a href="tel:+79996512551">+7 (999) 651-25-51</a>
+						<a href="mailto:mail@perfect-skin.shop">mail@perfect-skin.shop</a>
+						<span>Москва, Звенигородское шоссе, 3Ас1</span>
+						<span>Пн-Пт: 10–21, Сб: 11–17</span>
+						<div class="footer-socials">
+							<a href="#" class="footer-social-link" aria-label="ВКонтакте">ВК</a>
+							<a href="#" class="footer-social-link" aria-label="Телеграм">TG</a>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="footer-divider"></div>
+
+			<div class="footer-bottom">
+				<div>
+					ИП Рыбко Анна Александровна · ОГРНИП 321508100460474
+				</div>
+				<div>
+					© 2017–2026 Perfect-Skin.Shop
+				</div>
+			</div>
+
+			<div class="footer-legal">
+				Парфюмерно-косметические товары надлежащего качества обмену и возврату не подлежат (Постановление Правительства РФ №55).
+			</div>
+		</div>
+	</footer>
+</body>
+</html>

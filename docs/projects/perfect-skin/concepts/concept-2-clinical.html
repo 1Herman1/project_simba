@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Skin – Профессиональная космецевтика из Испании</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Golos+Text:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F5F6F5;
+      --text-primary: #101114;
+      --text-secondary: #5B6068;
+      --accent: #2E6B5E;
+      --text-accent: #FFFFFF;
+      --border: #E3E5E4;
+      --radius: 2px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin-inline: auto;
+      padding-inline: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding-inline: 1.5rem;
+      }
+    }
+
+    body {
+      font-family: 'Golos Text', -apple-system, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    section {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Shipping banner */
+    .shipping-banner {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: clamp(0.75rem, 2vw, 1rem) 1rem;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      color: var(--text-secondary);
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: clamp(1.5rem, 3vw, 2rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+      gap: 1.5rem;
+    }
+
+    .logo {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      flex-shrink: 0;
+    }
+
+    .logo-caption {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .nav-menu {
+      display: none;
+    }
+
+    .nav-menu[open] nav {
+      display: flex !important;
+    }
+
+    .nav-toggle {
+      list-style: none;
+      cursor: pointer;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      border: none;
+      padding: 0;
+      background: none;
+    }
+
+    .nav-toggle::-webkit-details-marker {
+      display: none;
+    }
+
+    nav {
+      gap: 2rem;
+      flex-grow: 1;
+      flex-direction: column;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem;
+      display: none;
+    }
+
+    nav a {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      padding-bottom: 0.25rem;
+      transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding-block: 0.75rem;
+    }
+
+    nav a:hover {
+      border-bottom-color: var(--accent);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    .phone {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-decoration: none;
+      display: none;
+    }
+
+    .icon-button {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      border-radius: var(--radius);
+      transition: border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-primary);
+      font-size: 1.25rem;
+    }
+
+    .icon-button:hover {
+      border-color: var(--accent);
+    }
+
+    /* Hero section */
+    .hero {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      text-align: center;
+      background-color: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-caption {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      max-width: 100%;
+      word-wrap: break-word;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 65ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      align-items: center;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .button-group .button {
+      min-width: 200px;
+    }
+
+    .button {
+      padding: 0.75rem 2rem;
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      display: inline-block;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button-primary {
+      background-color: var(--accent);
+      color: var(--text-accent);
+      border-color: var(--accent);
+    }
+
+    .button-primary:hover {
+      opacity: 0.9;
+    }
+
+    .button-secondary {
+      background-color: transparent;
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+
+    .button-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: clamp(1.5rem, 5vw, 3rem);
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      padding-top: clamp(2rem, 4vw, 3rem);
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Two cards section */
+    .two-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(1.5rem, 3vw, 2rem);
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card {
+      background-color: var(--bg-secondary);
+      padding: clamp(2rem, 4vw, 2.5rem);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .card-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .card-text {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      max-width: 65ch;
+    }
+
+    .card .button {
+      width: 100%;
+    }
+
+    /* Brands section */
+    .brands {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(1.5rem, 4vw, 2.25rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-caption {
+      text-align: center;
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .brands-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(1.5rem, 3vw, 2rem);
+    }
+
+    .brand-card {
+      border: 1px solid var(--border);
+      padding: clamp(1.5rem, 3vw, 2rem);
+      border-radius: var(--radius);
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background-color: var(--accent);
+      color: var(--text-accent);
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+
+    .brand-name {
+      font-family: 'Manrope', sans-serif;
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .brand-text {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      max-width: 65ch;
+    }
+
+    .brand-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .brand-line {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      padding-bottom: 0.5rem;
+    }
+
+    /* Categories */
+    .categories {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: clamp(1rem, 2vw, 1.5rem);
+    }
+
+    .category-tile {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 1rem;
+    }
+
+    .category-tile:hover {
+      border-color: var(--accent);
+    }
+
+    .category-tile-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* Bestsellers */
+    .bestsellers {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .products-table {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--border);
+    }
+
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      padding: clamp(1.5rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-row:last-child {
+      border-bottom: none;
+    }
+
+    .product-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-col-label {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      display: none;
+    }
+
+    .product-name {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    .product-line {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .product-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .product-price {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    /* Pro cabinet */
+    .pro-section {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .pro-header {
+      text-align: center;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .pro-subtitle {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 65ch;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .pro-steps {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      background-color: var(--bg-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .pro-step {
+      padding: clamp(1.5rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .pro-step:last-child {
+      border-bottom: none;
+    }
+
+    .pro-step-number {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      flex-shrink: 0;
+      width: 2rem;
+    }
+
+    .pro-step-text {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .pro-benefit {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: clamp(1.5rem, 3vw, 2rem);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+    }
+
+    .pro-button {
+      width: 100%;
+    }
+
+    /* Beauty club */
+    .club-section {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .club-header {
+      text-align: center;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .club-subtitle {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 65ch;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .club-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: clamp(1rem, 2vw, 1.5rem);
+      margin-bottom: 1.5rem;
+    }
+
+    .feature {
+      text-align: center;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .feature-text {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .club-button {
+      width: 100%;
+    }
+
+    /* About */
+    .about {
+      padding: clamp(4rem, 9vw, 8rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-text {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      max-width: 65ch;
+      margin-left: auto;
+      margin-right: auto;
+      margin-bottom: clamp(2rem, 5vw, 3rem);
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
+
+    .about-stat {
+      padding: clamp(1.5rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .about-stat:last-child {
+      border-bottom: none;
+    }
+
+    .about-stat-label {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .about-stat-value {
+      font-family: 'Golos Text', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    /* Delivery */
+    .delivery {
+      padding: clamp(2rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+      border-bottom: 1px solid var(--border);
+      background-color: var(--bg-secondary);
+      display: flex;
+      justify-content: center;
+      gap: clamp(1rem, 2vw, 2rem);
+      flex-wrap: wrap;
+    }
+
+    .delivery-item {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--bg-primary);
+      padding: clamp(3rem, 6vw, 4rem) clamp(1rem, 3vw, 2rem);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: clamp(2rem, 4vw, 3rem);
+      margin-bottom: clamp(2rem, 4vw, 3rem);
+    }
+
+    .footer-column h3 {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-column a {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-block;
+      padding-block: 10px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-column a:hover {
+      color: var(--accent);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: clamp(2rem, 4vw, 3rem);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* Media queries */
+    @media (min-width: 768px) {
+      .nav-menu {
+        display: flex;
+        gap: 2rem;
+        flex-grow: 1;
+      }
+
+      .nav-toggle {
+        display: none;
+      }
+
+      nav {
+        display: flex !important;
+        position: static;
+        flex-direction: row;
+        border-bottom: none;
+        padding: 0;
+        background-color: transparent;
+      }
+
+      .phone {
+        display: block;
+      }
+
+      .two-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .brands-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .pro-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .about-stats {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+      }
+
+      .about-stat {
+        flex-direction: column;
+        border-right: 1px solid var(--border);
+      }
+
+      .about-stat:last-child {
+        border-right: none;
+      }
+
+      .product-row {
+        grid-template-columns: 1fr 1.5fr 2fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .product-col-label {
+        display: block;
+      }
+
+      .product-col {
+        gap: 0.5rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .product-row {
+        grid-template-columns: 1fr 1.5fr 2.5fr 0.8fr;
+        gap: 2rem;
+      }
+
+      section, header, footer {
+        max-width: 1200px;
+      }
+
+      .button-group {
+        flex-direction: row;
+        gap: 1.5rem;
+        width: auto;
+      }
+
+      .button-group .button {
+        min-width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shipping-banner">
+    Бесплатная доставка СДЭК от 6 000 ₽
+  </div>
+
+  <header>
+    <div>
+      <div class="logo">PERFECT SKIN</div>
+      <div class="logo-caption">Испанская космецевтика</div>
+    </div>
+    <details class="nav-menu">
+      <summary class="nav-toggle" aria-label="Меню"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></summary>
+      <nav>
+        <a href="#catalog">Каталог</a>
+        <a href="#brands">Бренды</a>
+        <a href="#pro">Профессионалам</a>
+        <a href="#club">Бьюти-клуб</a>
+        <a href="#about">О компания</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+    </details>
+    <div class="header-right">
+      <a href="tel:+74951832848" class="phone">+7 (495) 183-28-48</a>
+      <button class="icon-button" aria-label="Избранное"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 21.2l7.7-7.8 1.1-1a5.5 5.5 0 0 0 0-7.8z"/></svg></button>
+      <button class="icon-button" aria-label="Корзина"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-caption">Испания · Heber Farma · С 2017 года</div>
+    <h1>Профессиональная космецевтика из Испании</h1>
+    <p class="hero-subtitle">Два бренда фармацевтического производства — для домашнего ухода и для работы в кабинете косметолога.</p>
+    <div class="button-group">
+      <a href="#catalog" class="button button-primary">Смотреть каталог</a>
+      <a href="#pro" class="button button-secondary">Войти в Pro-кабинет</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">На рынке<br><strong style="font-weight: 600; color: var(--text-primary);">9 лет</strong></div>
+      <div class="stat">В каталоге<br><strong style="font-weight: 600; color: var(--text-primary);">40+</strong></div>
+      <div class="stat">Статус<br><strong style="font-weight: 600; color: var(--text-primary);">официальный дистрибьютор</strong></div>
+    </div>
+  </section>
+
+  <section class="two-cards">
+    <div class="card">
+      <h2 class="card-title">Подобрать косметику</h2>
+      <p class="card-text">Ответьте на 5 вопросов о типе кожи и задаче — соберём программу ухода из средств ISSEIMI и GLACÉE.</p>
+      <button class="button button-primary">Начать подбор</button>
+    </div>
+    <div class="card">
+      <h2 class="card-title">Консультация косметолога</h2>
+      <p class="card-text">Опишите проблему и приложите фото. Специалист ответит и подберёт средства под вашу кожу.</p>
+      <button class="button button-primary">Записаться</button>
+    </div>
+  </section>
+
+  <section class="brands" id="brands">
+    <h2 class="section-title">Два бренда, одно производство</h2>
+    <p class="section-caption">Обе линейки выпускает испанский фармконцерн Heber Farma.</p>
+    <div class="brands-grid">
+      <div class="brand-card">
+        <div class="brand-badge">Премиум+</div>
+        <h3 class="brand-name">ISSEIMI</h3>
+        <p class="brand-text">Космецевтика с активными концентратами: пчелиный яд, озон, пептиды, стволовые клетки. Три линейки — Base для домашнего ухода, MD для кабинета, Nat Collection на натуральных маслах.</p>
+        <div class="brand-lines">
+          <div class="brand-line">ISSEIMI Base</div>
+          <div class="brand-line">ISSEIMI MD</div>
+          <div class="brand-line">ISSEIMI Nat Collection</div>
+        </div>
+      </div>
+      <div class="brand-card">
+        <div class="brand-badge">Премиум</div>
+        <h3 class="brand-name">GLACÉE Skincare</h3>
+        <p class="brand-text">Ежедневный уход с европейским качеством и понятными протоколами. Отдельная мужская линейка и готовые подарочные боксы.</p>
+        <div class="brand-lines">
+          <div class="brand-line">GLACÉE Skincare Man Line</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="categories" id="catalog">
+    <h2 class="section-title" style="text-align: center; margin-bottom: clamp(2rem, 5vw, 3rem);">Категории</h2>
+    <div class="categories-grid">
+      <div class="category-tile">
+        <div class="category-tile-text">Уход за лицом</div>
+      </div>
+      <div class="category-tile">
+        <div class="category-tile-text">Уход за телом</div>
+      </div>
+      <div class="category-tile">
+        <div class="category-tile-text">Парафармацевтика</div>
+      </div>
+      <div class="category-tile">
+        <div class="category-tile-text">Подарочные наборы</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bestsellers">
+    <h2 class="section-title" style="text-align: center; margin-bottom: clamp(2rem, 5vw, 3rem);">Бестселлеры</h2>
+    <div class="products-table">
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">BEEVENOM CREAM</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Антивозрастной крем</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">8&nbsp;077&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">NUTRIESTIMUL</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Антивозрастной питательный крем</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">9&nbsp;130&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">CONTORNO DE OJOS</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Мультиувлажняющий крем для век</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">8&nbsp;025&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">REGENERATIVO CELLULAR</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Сыворотка обновляющая</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">8&nbsp;454&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">365 NIGHT REPAIR CREAM</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Nat Collection</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Обновляющий крем с виноградными кислотами</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">6&nbsp;512&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">DERMOSUN SPF 50</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Солнцезащитный крем</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">3&nbsp;781&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">O3 DEPUR</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Крем с озоном</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">5&nbsp;499&nbsp;₽</span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">Expert Team. Full Box</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">GLACÉE Man Line</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Подарочный набор для мужской кожи</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price">14&nbsp;680&nbsp;₽</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pro-section" id="pro">
+    <div class="pro-header">
+      <h2 class="section-title">Pro-кабинет для косметологов</h2>
+      <p class="pro-subtitle">Закупка для кабинета и перепродажи пациентам. Профессиональные цены открываются после проверки документов.</p>
+    </div>
+    <div class="pro-steps">
+      <div class="pro-step">
+        <div class="pro-step-number">01</div>
+        <div class="pro-step-text">Регистрация</div>
+      </div>
+      <div class="pro-step">
+        <div class="pro-step-number">02</div>
+        <div class="pro-step-text">Загрузка документов, подтверждающих специализацию</div>
+      </div>
+      <div class="pro-step">
+        <div class="pro-step-number">03</div>
+        <div class="pro-step-text">Проверка и доступ к профессиональным ценам</div>
+      </div>
+    </div>
+    <div class="pro-benefit">Личный промокод — ваши пациенты покупают со скидкой.</div>
+
+    <h3 class="section-title" style="text-align: center; margin-top: clamp(2rem, 5vw, 3rem); margin-bottom: clamp(1.5rem, 3vw, 2rem); font-size: clamp(1.25rem, 3vw, 1.75rem);">Примеры товаров для Pro</h3>
+    <div class="products-table" style="margin-bottom: 2rem;">
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">BEEVENOM CREAM</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Антивозрастной крем</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price" style="color: var(--text-secondary); font-size: 0.875rem;">Цена для специалистов<br><a href="#pro" style="color: var(--accent); text-decoration: none; font-weight: 600;">Войти в Pro</a></span>
+        </div>
+      </div>
+      <div class="product-row">
+        <div class="product-col">
+          <span class="product-col-label">Название</span>
+          <span class="product-name">REGENERATIVO CELLULAR</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Линейка</span>
+          <span class="product-line">ISSEIMI Base</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Описание</span>
+          <span class="product-desc">Сыворотка обновляющая</span>
+        </div>
+        <div class="product-col">
+          <span class="product-col-label">Цена</span>
+          <span class="product-price" style="color: var(--text-secondary); font-size: 0.875rem;">Цена для специалистов<br><a href="#pro" style="color: var(--accent); text-decoration: none; font-weight: 600;">Войти в Pro</a></span>
+        </div>
+      </div>
+    </div>
+
+    <button class="button button-primary pro-button">Стать партнёром</button>
+  </section>
+
+  <section class="club-section" id="club">
+    <div class="club-header">
+      <h2 class="section-title">Бьюти-клуб</h2>
+      <p class="club-subtitle">Клуб для тех, кто пользуется косметикой дома. Новости бьюти, закрытые предложения, подарки и готовые программы ухода.</p>
+    </div>
+    <div class="club-features">
+      <div class="feature">
+        <div class="feature-text">Новости и разборы средств</div>
+      </div>
+      <div class="feature">
+        <div class="feature-text">Закрытые скидки</div>
+      </div>
+      <div class="feature">
+        <div class="feature-text">Подарки к заказам</div>
+      </div>
+      <div class="feature">
+        <div class="feature-text">Программы ухода по сезонам</div>
+      </div>
+    </div>
+    <button class="button button-primary club-button">Вступить в клуб</button>
+  </section>
+
+  <section class="about" id="about">
+    <h2 class="section-title" style="text-align: center; margin-bottom: 1.5rem;">О компании</h2>
+    <p class="about-text">Perfect-skin.shop — интернет-магазин премиальной косметики из Испании. Мы работаем только с официальными дистрибьюторами, поэтому гарантируем оригинальность и высокое качество продукции. Вся продукция сертифицирована. Наши флагманы — ISSEIMI и GLACÉE, лидеры европейского космецевтического рынка. Продукция производится фармконцерном Heber Farma с высочайшими стандартами производства, мощной лабораторной и технической базой.</p>
+    <div class="about-stats">
+      <div class="about-stat">
+        <span class="about-stat-label">На рынке</span>
+        <span class="about-stat-value">9 лет</span>
+      </div>
+      <div class="about-stat">
+        <span class="about-stat-label">В каталоге</span>
+        <span class="about-stat-value">40+</span>
+      </div>
+      <div class="about-stat">
+        <span class="about-stat-label">Статус</span>
+        <span class="about-stat-value">официальный дистрибьютор</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="delivery">
+    <div class="delivery-item">СДЭК по всей России</div>
+    <div class="delivery-item">Бесплатно от 6 000 ₽ в пункт выдачи</div>
+    <div class="delivery-item">Бесплатно от 10 000 ₽ курьером</div>
+    <div class="delivery-item">Самовывоз в Москве</div>
+  </section>
+
+  <footer id="contacts">
+    <div class="footer-grid">
+      <div class="footer-column">
+        <h3>О компании</h3>
+        <ul>
+          <li><a href="#about">О компании</a></li>
+          <li><a href="#delivery">Доставка</a></li>
+          <li><a href="#payment">Оплата</a></li>
+          <li><a href="#contacts">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Каталог</h3>
+        <ul>
+          <li><a href="#isseimi">ISSEIMI</a></li>
+          <li><a href="#glacee">GLACÉE Skincare</a></li>
+          <li><a href="#face">Уход за лицом</a></li>
+          <li><a href="#body">Уход за телом</a></li>
+          <li><a href="#pharma">Парафармацевтика</a></li>
+          <li><a href="#gifts">Подарочные наборы</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Клиентам</h3>
+        <ul>
+          <li><a href="#promo">Акции</a></li>
+          <li><a href="#blog">Блог</a></li>
+          <li><a href="#faq">Ответы на вопросы</a></li>
+          <li><a href="#reviews">Отзывы</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Контакты</h3>
+        <ul>
+          <li><a href="tel:+74951832848">+7 (495) 183-28-48</a></li>
+          <li><a href="tel:+79996512551">+7 (999) 651-25-51</a></li>
+          <li><a href="mailto:mail@perfect-skin.shop">mail@perfect-skin.shop</a></li>
+          <li><a href="#">Москва, Звенигородское шоссе, 3Ас1</a></li>
+          <li><a href="#">Пн-Пт: 10–21, Сб: 11–17</a></li>
+          <li><a href="#">ВКонтакте</a></li>
+          <li><a href="#">Телеграм</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>ИП Рыбко Анна Александровна · ОГРНИП 321508100460474</div>
+      <div>© 2017–2026 Perfect-Skin.Shop</div>
+      <div style="margin-top: 0.75rem;">Парфюмерно-косметические товары надлежащего качества обмену и возврату не подлежат (Постановление Правительства РФ №55).</div>
+    </div>
+  </footer>
+</body>
+</html>
