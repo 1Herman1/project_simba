@@ -683,7 +683,16 @@
 
 		.product-image {
 			aspect-ratio: 3/4;
-			background-color: var(--color-accent);
+			width: 100%;
+			/* Атрибуты width/height у <img> задают высоту как презентационную
+			   подсказку и перебивают aspect-ratio — без height:auto все карточки
+			   вытягиваются до 800px. */
+			height: auto;
+			/* Предметная съёмка вписывается целиком: cover обрезал бы упаковку
+			   по краям, а у товара обрезать нечего — это не фон, а сам продукт. */
+			object-fit: contain;
+			padding: 16px;
+			background-color: #FFFFFF;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -695,9 +704,11 @@
 			text-transform: uppercase;
 		}
 
-		.product-image.dark {
-			background-color: var(--color-text);
-			color: var(--color-dark-text);
+		.pro-thumb {
+			aspect-ratio: 1;
+			height: 200px;
+			width: auto;
+			margin-bottom: 16px;
 		}
 
 		.product-info {
@@ -1288,7 +1299,7 @@
 			<div class="bestsellers-grid">
 				<!-- Product 1 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-accent);">B</div>
+					<img class="product-image" src="assets/bee-venom-cream-antivozrastnoj-krem.jpg" alt="BEEVENOM CREAM, антивозрастной крем ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">BEEVENOM CREAM</div>
 						<div class="product-desc">Антивозрастной крем</div>
@@ -1299,7 +1310,7 @@
 
 				<!-- Product 2 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-text);">N</div>
+					<img class="product-image" src="assets/nutriestimul-antivozrastnoj-pitatelnyj-krem.jpg" alt="NUTRIESTIMUL, антивозрастной питательный крем ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">NUTRIESTIMUL</div>
 						<div class="product-desc">Антивозрастной питательный крем</div>
@@ -1310,7 +1321,7 @@
 
 				<!-- Product 3 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-accent);">C</div>
+					<img class="product-image" src="assets/contorno-de-ojos-md-multiuvlazhnyayushhij-krem-s-peptidami.jpg" alt="CONTORNO DE OJOS, крем для век с пептидами ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">CONTORNO DE OJOS</div>
 						<div class="product-desc">Мультиувлажняющий крем для век с пептидами</div>
@@ -1321,7 +1332,7 @@
 
 				<!-- Product 4 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-text);">R</div>
+					<img class="product-image" src="assets/regenerativo-cellular-syvorotka-obnovlyayushhaya.jpg" alt="REGENERATIVO CELLULAR, обновляющая сыворотка ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">REGENERATIVO CELLULAR</div>
 						<div class="product-desc">Сыворотка обновляющая</div>
@@ -1332,7 +1343,7 @@
 
 				<!-- Product 5 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-accent);">3</div>
+					<img class="product-image" src="assets/365-night-repair-cream-obnovlyayushhij-krem-s-vinogradnymi-k.jpg" alt="365 NIGHT REPAIR CREAM, обновляющий крем с виноградными кислотами" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">365 NIGHT REPAIR CREAM</div>
 						<div class="product-desc">Обновляющий крем с виноградными кислотами</div>
@@ -1343,7 +1354,7 @@
 
 				<!-- Product 6 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-text);">D</div>
+					<img class="product-image" src="assets/dermosun-spf-50-solnczezashhitnyj-krem.jpg" alt="DERMOSUN SPF 50, солнцезащитный крем ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">DERMOSUN SPF 50</div>
 						<div class="product-desc">Солнцезащитный крем</div>
@@ -1354,7 +1365,7 @@
 
 				<!-- Product 7 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-accent);">O</div>
+					<img class="product-image" src="assets/o3-depur-krem-s-ozonom.jpg" alt="O3 DEPUR, крем с озоном ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">O3 DEPUR</div>
 						<div class="product-desc">Крем с озоном</div>
@@ -1365,7 +1376,7 @@
 
 				<!-- Product 8 -->
 				<div class="product-card">
-					<div class="product-image" style="background-color: var(--color-text);">E</div>
+					<img class="product-image" src="assets/podarochnyj-nabor-expert-team-full-box-dlya-uhoda-za-muzhsko.jpg" alt="Expert Team. Full Box, подарочный набор GLACÉE Skincare Man Line" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">Expert Team. Full Box</div>
 						<div class="product-desc">Подарочный набор для мужской кожи</div>
@@ -1405,7 +1416,7 @@
 			<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;">
 				<!-- Product 1 -->
 				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
-					<div class="product-image" style="background-color: var(--color-accent); margin-bottom: 16px; height: 200px;">B</div>
+					<img class="product-image pro-thumb" src="assets/bee-venom-cream-antivozrastnoj-krem.jpg" alt="BEEVENOM CREAM, антивозрастной крем ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">BEEVENOM CREAM</div>
 						<div class="product-desc">Антивозрастной крем</div>
@@ -1415,7 +1426,7 @@
 				</div>
 				<!-- Product 2 -->
 				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
-					<div class="product-image" style="background-color: var(--color-text); margin-bottom: 16px; height: 200px;">N</div>
+					<img class="product-image pro-thumb" src="assets/nutriestimul-antivozrastnoj-pitatelnyj-krem.jpg" alt="NUTRIESTIMUL, антивозрастной питательный крем ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">NUTRIESTIMUL</div>
 						<div class="product-desc">Антивозрастной питательный крем</div>
@@ -1425,7 +1436,7 @@
 				</div>
 				<!-- Product 3 -->
 				<div class="product-card" style="background-color: rgba(232, 83, 31, 0.08); padding: 16px;">
-					<div class="product-image" style="background-color: var(--color-accent); margin-bottom: 16px; height: 200px;">C</div>
+					<img class="product-image pro-thumb" src="assets/contorno-de-ojos-md-multiuvlazhnyayushhij-krem-s-peptidami.jpg" alt="CONTORNO DE OJOS, крем для век с пептидами ISSEIMI" loading="lazy" width="800" height="800">
 					<div class="product-info">
 						<div class="product-name">CONTORNO DE OJOS</div>
 						<div class="product-desc">Крем для век с пептидами</div>
