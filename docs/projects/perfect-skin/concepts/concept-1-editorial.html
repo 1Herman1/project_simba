@@ -18,6 +18,7 @@
 			--color-accent-ink: #8B5E3C;
 			--color-accent-text: #FFFFFF;
 			--color-divider: #DFD7CB;
+			--color-muted: #EDE6DC;
 			--color-dark-bg: #17161A;
 			--color-dark-text: #F4EFE8;
 
@@ -29,6 +30,7 @@
 			--font-text: 'Golos Text', sans-serif;
 
 			--ease: cubic-bezier(0.4, 0, 0.2, 1);
+			--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 		}
 
 		* {
@@ -619,8 +621,9 @@
 			border-radius: var(--radius-block);
 			text-decoration: none;
 			/* flex-grow анимируется всеми современными движками — это и даёт
-			   плавное раскрытие; свойство указано явно, а не общим правилом. */
-			transition: flex-grow 500ms var(--ease);
+			   плавное раскрытие; свойство указано явно, а не общим правилом.
+			   300ms + ease-out: быстрый старт, мягкое торможение (MASTER §6). */
+			transition: flex-grow 300ms var(--ease-out);
 		}
 
 		/* Тона только из палитры проекта — четыре разных корешка, все с рабочим
@@ -628,13 +631,30 @@
 		.cat-panel--1 { background-color: var(--color-accent); color: var(--color-text); }
 		.cat-panel--2 { background-color: var(--color-divider); color: var(--color-text); }
 		.cat-panel--3 { background-color: var(--color-text); color: var(--color-accent); }
-		.cat-panel--4 { background-color: #EDE6DC; color: var(--color-text); }
+		.cat-panel--4 { background-color: var(--color-muted); color: var(--color-text); }
 
 		/* Раскрытая по умолчанию первая панель; при наведении на ряд активная
-		   сбрасывается, растёт та, на которую навели. */
+		   сбрасывается, растёт та, на которую навели или на которой фокус. */
 		.cat-panel--active { flex-grow: 4; }
-		.cat-accordion:hover .cat-panel--active { flex-grow: 1; }
-		.cat-accordion .cat-panel:hover { flex-grow: 4; }
+		.cat-accordion:hover .cat-panel--active,
+		.cat-accordion:focus-within .cat-panel--active { flex-grow: 1; }
+		.cat-accordion .cat-panel:hover,
+		.cat-accordion .cat-panel:focus-within { flex-grow: 4; }
+
+		/* Крупный порядковый номер фоном — редакционный акцент, закрывает пустую
+		   правую зону раскрытой панели без фотографии. */
+		.cat-num {
+			position: absolute;
+			right: 24px;
+			bottom: -8px;
+			font-family: var(--font-heading);
+			font-size: 12rem;
+			font-weight: 900;
+			line-height: 0.8;
+			opacity: 0.12;
+			pointer-events: none;
+			user-select: none;
+		}
 
 		/* Корешок: вертикальное название, видно у сжатой панели. */
 		.cat-spine {
@@ -722,10 +742,14 @@
 		   идут последними и побеждают при равной специфичности. */
 		.cat-panel--active .cat-open { opacity: 1; }
 		.cat-panel--active .cat-spine { opacity: 0; }
-		.cat-accordion:hover .cat-panel--active .cat-open { opacity: 0; }
-		.cat-accordion:hover .cat-panel--active .cat-spine { opacity: 1; }
-		.cat-accordion .cat-panel:hover .cat-open { opacity: 1; }
-		.cat-accordion .cat-panel:hover .cat-spine { opacity: 0; }
+		.cat-accordion:hover .cat-panel--active .cat-open,
+		.cat-accordion:focus-within .cat-panel--active .cat-open { opacity: 0; }
+		.cat-accordion:hover .cat-panel--active .cat-spine,
+		.cat-accordion:focus-within .cat-panel--active .cat-spine { opacity: 1; }
+		.cat-accordion .cat-panel:hover .cat-open,
+		.cat-accordion .cat-panel:focus-within .cat-open { opacity: 1; }
+		.cat-accordion .cat-panel:hover .cat-spine,
+		.cat-accordion .cat-panel:focus-within .cat-spine { opacity: 0; }
 
 		.cat-panel:focus-visible {
 			outline: 2px solid var(--color-accent-ink);
@@ -1578,6 +1602,7 @@
 			<h2 style="margin-bottom: 40px;">Категории</h2>
 			<div class="cat-accordion">
 				<a href="#" class="cat-panel cat-panel--1 cat-panel--active">
+					<span class="cat-num" aria-hidden="true">01</span>
 					<div class="cat-spine"><span>Уход за лицом</span></div>
 					<div class="cat-open">
 						<div class="cat-eyebrow">01 · Лицо</div>
@@ -1589,6 +1614,7 @@
 					</div>
 				</a>
 				<a href="#" class="cat-panel cat-panel--2">
+					<span class="cat-num" aria-hidden="true">02</span>
 					<div class="cat-spine"><span>Уход за телом</span></div>
 					<div class="cat-open">
 						<div class="cat-eyebrow">02 · Тело</div>
@@ -1600,6 +1626,7 @@
 					</div>
 				</a>
 				<a href="#" class="cat-panel cat-panel--3">
+					<span class="cat-num" aria-hidden="true">03</span>
 					<div class="cat-spine"><span>Парафармацевтика</span></div>
 					<div class="cat-open">
 						<div class="cat-eyebrow">03 · Клиника</div>
@@ -1611,6 +1638,7 @@
 					</div>
 				</a>
 				<a href="#" class="cat-panel cat-panel--4">
+					<span class="cat-num" aria-hidden="true">04</span>
 					<div class="cat-spine"><span>Подарочные наборы</span></div>
 					<div class="cat-open">
 						<div class="cat-eyebrow">04 · Подарок</div>
