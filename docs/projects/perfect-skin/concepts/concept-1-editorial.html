@@ -662,14 +662,18 @@
 			grid-auto-rows: auto;
 		}
 
-		.bestsellers-grid .product-card:nth-child(1) {
-			grid-column: 1 / 3;
-			grid-row: 1 / 3;
+		/* Две ведущие позиции шире остальных — это приём редакционной сетки.
+		   Пропорция у них горизонтальная: при вертикальной 3/4 карточка вдвое
+		   большей ширины уезжает почти на целый экран в высоту. */
+		.bestsellers-grid .product-card:nth-child(1),
+		.bestsellers-grid .product-card:nth-child(2) {
+			grid-column: span 2;
 		}
 
-		.bestsellers-grid .product-card:nth-child(2) {
-			grid-column: 3 / 5;
-			grid-row: 1 / 3;
+		.bestsellers-grid .product-card:nth-child(1) .product-image,
+		.bestsellers-grid .product-card:nth-child(2) .product-image {
+			aspect-ratio: 16 / 10;
+			font-size: 6rem;
 		}
 
 		.product-card {
@@ -736,14 +740,15 @@
 				gap: 20px;
 			}
 
-			.bestsellers-grid .product-card:nth-child(1) {
-				grid-column: 1 / 2;
-				grid-row: auto;
+			.bestsellers-grid .product-card:nth-child(1),
+			.bestsellers-grid .product-card:nth-child(2) {
+				grid-column: span 2;
 			}
 
-			.bestsellers-grid .product-card:nth-child(2) {
-				grid-column: 2 / 3;
-				grid-row: auto;
+			.bestsellers-grid .product-card:nth-child(1) .product-image,
+			.bestsellers-grid .product-card:nth-child(2) .product-image {
+				aspect-ratio: 16 / 9;
+				font-size: 4rem;
 			}
 		}
 
@@ -756,7 +761,12 @@
 			.bestsellers-grid .product-card:nth-child(1),
 			.bestsellers-grid .product-card:nth-child(2) {
 				grid-column: auto;
-				grid-row: auto;
+			}
+
+			.bestsellers-grid .product-card:nth-child(1) .product-image,
+			.bestsellers-grid .product-card:nth-child(2) .product-image {
+				aspect-ratio: 3 / 4;
+				font-size: 2.5rem;
 			}
 
 			.product-image {
