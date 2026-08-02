@@ -1,3 +1,8 @@
+-- ALTER TABLE берёт ACCESS EXCLUSIVE: если кто-то держит открытую транзакцию
+-- по orders, миграция встанет в очередь, а за ней встанет весь трафик заказов.
+-- Лучше упасть за 3 секунды и повторить, чем заморозить магазин.
+SET lock_timeout = '3s';
+
 -- Add bonus settlement tracking columns
 -- bonusEarnedCredited: tracks if bonusEarned has been credited to user balance
 -- bonusUsedRefunded: tracks if bonusUsed has been refunded to user balance on cancellation

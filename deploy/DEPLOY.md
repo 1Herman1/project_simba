@@ -217,9 +217,66 @@ crontab -e
 ### Резервная копия перед изменениями схемы
 ```bash
 docker exec deploy-postgres-1 pg_dump -U simba simba > ~/simba-backup-$(date +%F-%H%M).sql
-ls -lh ~/simba-backup-*.sql        # размер не должен быть нулевым
+echo "exit=$?"                                        # обязательно exit=0
+tail -1 ~/simba-backup-*.sql                          # «-- PostgreSQL database dump complete»
+grep -c "COPY public.orders" ~/simba-backup-*.sql     # 1
+grep -c "COPY public.users"  ~/simba-backup-*.sql     # 1
 ```
+Ненулевого размера **недостаточно**: `pg_dump` пишет ошибки в stderr, а в файл уходит
+то, что успело выйти. Оборванный дамп весит прилично и выглядит целым. Без всех
+четырёх «ок» — не выкатывать.
+
 `pg_dump` в системе не установлен — работать только через контейнер `deploy-postgres-1`.
+
+### Выкатка изменений, затрагивающих деньги (бонусы, цены, остатки)
+
+Обычный порядок из раздела «Обновление» здесь не годится: между `migrate deploy`
+и `pm2 reload` в нём стоят три сборки, то есть минуты работы **старого** кода на
+**новой** схеме. Для бонусов это означает двойное начисление — старый код начислит
+при оформлении, а новый начислит те же бонусы ещё раз при отметке «оплачен».
+
+Правильный порядок:
+```bash
+cd /var/www/simba-src
+git pull origin claude/greeting-nnz368
+npm install
+
+# 1. Собрать ВСЁ, не трогая базу. prisma generate читает schema.prisma (файл),
+#    в базу не ходит — собирать до миграции безопасно.
+cd server && npx prisma generate && npm run build && cd ..
+npm run build --workspace=client
+npm run build --workspace=admin
+rm -rf /var/www/simba/client/* /var/www/simba/admin/*
+cp -r client/dist/* /var/www/simba/client/
+cp -r admin/dist/*  /var/www/simba/admin/
+
+# 2. Запомнить границу «старый код / новый код»
+date -u +'%Y-%m-%d %H:%M:%S'
+
+# 3. Схема и рестарт — одной строкой, зазор в секунды вместо минут
+cd server && npx prisma migrate deploy && pm2 reload simba-server && cd ..
+```
+
+Затем закрыть остаток окна — заказы, проскочившие на старом коде (бонусы им уже
+начислены, а флаг остался `false`). Сначала посмотреть, потом чинить, подставив
+время из шага 2:
+```sql
+SELECT id, "createdAt", "bonusEarned" FROM orders
+WHERE "bonusEarnedCredited" = false AND "createdAt" < TIMESTAMP 'ВРЕМЯ_ИЗ_ШАГА_2';
+
+UPDATE orders SET "bonusEarnedCredited" = true
+WHERE "bonusEarnedCredited" = false AND "createdAt" < TIMESTAMP 'ВРЕМЯ_ИЗ_ШАГА_2';
+```
+Условие по `createdAt` обязательно — без него апдейт заденет заказы, оформленные
+уже новым кодом, которым начислять положено позже.
+
+После — `VACUUM (ANALYZE) orders;` и сверка: сумма `bonusPoints` по всем
+пользователям до и после миграции обязана совпасть, миграция денег не двигает.
+
+**Первые сутки не отмечать оплату и отмены пачками.** Провести один заказ,
+проверить баланс покупателя запросом, и только потом работать в обычном режиме:
+движения бонусов нигде не журналируются, откатить их нечем — в базе только
+текущее число на пользователе.
 
 ### Миграции: только migrate deploy, никогда db push
 `prisma db push` на проде запрещён: он сравнивает схему целиком, решает сам и может
