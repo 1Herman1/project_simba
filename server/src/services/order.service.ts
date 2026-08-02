@@ -74,9 +74,10 @@ export function settleOnPaid(
   order: { bonusEarned: number; bonusEarnedCredited: boolean; bonusUsedRefunded: boolean },
   currentBalance: number
 ): BonusSettlement {
-  // Оплата возврата списанного не касается — флаг переносим как есть, а не
-  // обнуляем: иначе отменённый и позже оплаченный заказ вернул бы бонусы дважды.
-  if (order.bonusEarnedCredited || order.bonusEarned === 0) {
+  // bonusUsedRefunded === true означает, что расчёт по заказу уже откатан
+  // (отмена или возврат платежа). Начислять за него нельзя: покупателю вернули
+  // списанное и товара он не получил — иначе отмена превращается в подарок.
+  if (order.bonusUsedRefunded || order.bonusEarnedCredited || order.bonusEarned === 0) {
     return {
       balanceDelta: 0,
       bonusEarnedCredited: order.bonusEarnedCredited,
@@ -120,7 +121,7 @@ export function settleOnCancel(
   // Снять начисленные бонусы, если они были начислены
   let bonusEarnedCredited = order.bonusEarnedCredited
   if (order.bonusEarnedCredited && order.bonusEarned > 0) {
-    const toDeduct = Math.min(order.bonusEarned, currentBalance + balanceDelta)
+    const toDeduct = Math.max(0, Math.min(order.bonusEarned, currentBalance + balanceDelta))
     balanceDelta -= toDeduct
     bonusEarnedCredited = false
   }
@@ -460,7 +461,7 @@ export async function markOrderPaid(prisma: PrismaClient, orderId: string) {
     // Отметку «оплачен» захватываем условно: два одновременных нажатия иначе
     // оба увидят «не оплачен» и начислят бонусы дважды.
     const claimed = await tx.order.updateMany({
-      where: { id: orderId, paymentStatus: { not: 'paid' } },
+      where: { id: orderId, paymentStatus: { not: 'paid' }, status: { not: 'cancelled' } },
       data: { paymentStatus: 'paid' },
     })
 
