@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authApi, ordersApi, usersApi, type User, type Order } from '../lib/api'
+import { authApi, ordersApi, usersApi, bonusesApi, type User, type Order, type BonusTransaction } from '../lib/api'
 import { formatPrice } from '../lib/format'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
@@ -40,7 +40,10 @@ export default function ProfilePage() {
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'all'>('all')
   const [user, setUser] = useState<User | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
+  const [bonusTransactions, setBonusTransactions] = useState<BonusTransaction[]>([])
   const [loadingUser, setLoadingUser] = useState(true)
+  const [loadingBonuses, setLoadingBonuses] = useState(false)
+  const [bonusesError, setBonusesError] = useState<string | null>(null)
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', email: '' })
   const [savingProfile, setSavingProfile] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
@@ -62,6 +65,17 @@ export default function ProfilePage() {
       .then(res => setOrders(res.data))
       .catch(() => setOrders([]))
   }, [])
+
+  // Загружаем историю бонусов когда переходим на таб "bonuses"
+  useEffect(() => {
+    if (tab !== 'bonuses') return
+    setLoadingBonuses(true)
+    setBonusesError(null)
+    bonusesApi.transactions()
+      .then(res => setBonusTransactions(res.data))
+      .catch(() => setBonusesError('Не удалось загрузить историю'))
+      .finally(() => setLoadingBonuses(false))
+  }, [tab])
 
   const currentLevel = BONUS_LEVELS.find(l => (user?.bonusLevel ?? 'newcomer') === l.key) ?? BONUS_LEVELS[0]
   const nextLevel = BONUS_LEVELS.find(l => l.min > currentLevel.min)
@@ -314,42 +328,86 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* История начислений */}
+            {/* История бонусов */}
             <div className="bg-white rounded-2xl p-5">
-              <h3 className="font-bold text-navy-900 mb-3">Начислено</h3>
-              <div className="divide-y divide-line">
-                {orders.filter(o => o.bonusEarned > 0).length === 0 && (
-                  <p className="text-sm text-navy-400 py-2">Начислений пока нет</p>
-                )}
-                {orders.filter(o => o.bonusEarned > 0).map(order => (
-                  <div key={order.id} className="flex items-center justify-between py-3">
-                    <div>
-                      <p className="text-sm text-navy-900 font-medium">#{order.id.slice(-6).toUpperCase()}</p>
-                      <p className="text-xs text-navy-400">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
-                    </div>
-                    <span className="text-green-500 font-bold">+{order.bonusEarned}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+              <h3 className="font-bold text-navy-900 mb-3">История операций</h3>
 
-            {/* История списаний */}
-            <div className="bg-white rounded-2xl p-5">
-              <h3 className="font-bold text-navy-900 mb-3">Потрачено</h3>
-              <div className="divide-y divide-line">
-                {orders.filter(o => o.bonusUsed > 0).length === 0 && (
-                  <p className="text-sm text-navy-400 py-2">Списаний пока нет</p>
-                )}
-                {orders.filter(o => o.bonusUsed > 0).map(order => (
-                  <div key={order.id} className="flex items-center justify-between py-3">
-                    <div>
-                      <p className="text-sm text-navy-900 font-medium">#{order.id.slice(-6).toUpperCase()}</p>
-                      <p className="text-xs text-navy-400">{new Date(order.createdAt).toLocaleDateString('ru-RU')}</p>
-                    </div>
-                    <span className="text-red-400 font-bold">−{order.bonusUsed}</span>
-                  </div>
-                ))}
-              </div>
+              {loadingBonuses && (
+                <div className="flex items-center justify-center py-8">
+                  <svg className="animate-spin w-6 h-6 text-navy-400" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                </div>
+              )}
+
+              {!loadingBonuses && bonusesError && (
+                <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+                  <p className="text-sm text-red-600">{bonusesError}</p>
+                </div>
+              )}
+
+              {!loadingBonuses && !bonusesError && bonusTransactions.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-sm text-navy-500 mb-3">Операций с бонусами пока нет</p>
+                  <Link to="/" className="inline-block text-primary-hover font-medium text-sm hover:underline">
+                    Перейти в каталог
+                  </Link>
+                </div>
+              )}
+
+              {!loadingBonuses && !bonusesError && bonusTransactions.length > 0 && (
+                <div className="divide-y divide-line">
+                  {bonusTransactions.map(tx => {
+                    const typeLabels: Record<string, string> = {
+                      welcome: 'Приветственные бонусы',
+                      earned: 'Начислено за заказ',
+                      spent: 'Списано при оформлении',
+                      refund_used: 'Возврат при отмене заказа',
+                      revoke_earned: 'Снятие начисления за отменённый заказ',
+                      admin_adjust: 'Корректировка',
+                    }
+
+                    const date = new Date(tx.createdAt)
+                    const dateStr = date.toLocaleDateString('ru-RU', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+                    })
+                    const timeStr = date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+
+                    const isIncome = tx.amount > 0
+                    const amountDisplay = (isIncome ? '+' : '') + tx.amount
+
+                    return (
+                      <div key={tx.id} className="flex items-center justify-between py-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-navy-900 font-medium">
+                            {typeLabels[tx.type] || tx.type}
+                          </p>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-xs text-navy-400">{dateStr}, {timeStr}</p>
+                            {tx.orderId && (
+                              <Link
+                                to="#"
+                                className="text-xs text-primary-hover hover:underline">
+                                #{tx.orderId.slice(-6).toUpperCase()}
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0 ml-4">
+                          <p className={`text-sm font-bold tabular-nums ${
+                            isIncome ? 'text-navy-900' : 'text-navy-500'
+                          }`}>
+                            {amountDisplay} scoins
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}

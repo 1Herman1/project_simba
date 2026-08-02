@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../lib/api'
+import WelcomeBonusPopup from '../components/WelcomeBonusPopup'
 
 type Step = 'input' | 'code'
 type Channel = 'email' | 'phone'
 
 const CODE_LENGTH = 6
+const WELCOME_BONUS = 300
 
 function detectChannel(value: string): Channel {
   return value.includes('@') ? 'email' : 'phone'
@@ -33,6 +35,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
+  const [welcomeBonus, setWelcomeBonus] = useState(0)
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
@@ -94,6 +97,18 @@ export default function AuthPage() {
       const apiContact = channel === 'phone' ? contact.replace(/\D/g, '') : contact
       const res = await authApi.verifyOtp(apiContact, code)
       localStorage.setItem('token', res.data.token)
+
+      // Приветственные бонусы начисляет сервер и сообщает об этом в ответе.
+      // Имя поля читаем терпимо: пока оно устаканивается, промах не должен
+      // ломать вход — в худшем случае покупатель просто не увидит попап.
+      const payload = res.data as { welcomeBonusGranted?: boolean; bonusGranted?: number }
+      const granted = payload.bonusGranted ?? (payload.welcomeBonusGranted ? WELCOME_BONUS : 0)
+
+      if (granted > 0) {
+        setWelcomeBonus(granted)
+        return
+      }
+
       navigate('/profile')
     } catch (err: any) {
       setError(err?.response?.data?.error || 'Неверный код. Попробуйте ещё раз')
@@ -262,11 +277,20 @@ export default function AuthPage() {
 
         </div>
 
-        <p className="text-center text-xs text-navy-300 mt-6">
+        <p className="text-center text-xs text-navy-500 mt-6">
           Входя, вы соглашаетесь с{' '}
           <a href="#" className="text-primary-hover hover:underline">политикой конфиденциальности</a>
         </p>
       </div>
+
+      <WelcomeBonusPopup
+        open={welcomeBonus > 0}
+        amount={welcomeBonus}
+        onClose={() => {
+          setWelcomeBonus(0)
+          navigate('/profile')
+        }}
+      />
     </div>
   )
 }

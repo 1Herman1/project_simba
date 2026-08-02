@@ -1,4 +1,4 @@
-import type { MsAssortmentItem, MsAssortmentResponse, MsStockResponse, MsStockRow } from './types.js'
+import type { MsAssortmentItem, MsAssortmentResponse, MsStockResponse, MsStockRow, MsEntity, MsDocument } from './types.js'
 
 const BASE_URL = 'https://api.moysklad.ru/api/remap/1.2'
 
@@ -6,7 +6,14 @@ async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-async function msRequest<T>(path: string, attempt = 1): Promise<T> {
+type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
+
+export async function msRequest<T>(
+  path: string,
+  method: RequestMethod = 'GET',
+  body?: unknown,
+  attempt = 1
+): Promise<T> {
   const token = process.env.MOYSKLAD_TOKEN
   if (!token) {
     throw new Error('Не задана переменная MOYSKLAD_TOKEN')
@@ -21,12 +28,13 @@ async function msRequest<T>(path: string, attempt = 1): Promise<T> {
 
   try {
     const res = await fetch(url, {
-      method: 'GET',
+      method,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept-Encoding': 'gzip',
         'Content-Type': 'application/json',
       },
+      body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     })
 
@@ -41,7 +49,7 @@ async function msRequest<T>(path: string, attempt = 1): Promise<T> {
       const retryAfter = res.headers.get('X-Lognex-Retry-TimeInterval')
       const waitMs = retryAfter ? parseInt(retryAfter, 10) : 3000
       await sleep(waitMs)
-      return msRequest<T>(path, attempt + 1)
+      return msRequest<T>(path, method, body, attempt + 1)
     }
 
     if (res.status >= 500) {
@@ -49,7 +57,7 @@ async function msRequest<T>(path: string, attempt = 1): Promise<T> {
         throw new Error(`МойСклад вернул ${res.status} после повторной попытки`)
       }
       await sleep(2000)
-      return msRequest<T>(path, attempt + 1)
+      return msRequest<T>(path, method, body, attempt + 1)
     }
 
     if (res.status === 401 || res.status === 403) {

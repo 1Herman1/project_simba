@@ -6,6 +6,7 @@ import {
   markOrderRefunded,
   OrderCancelledError,
 } from '../../services/order.service'
+import { createReturnDocument } from '../../services/moysklad/returns'
 
 async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
   await request.jwtVerify()
@@ -96,6 +97,56 @@ const orderAdminRoutes: FastifyPluginAsync = async (app) => {
 
     try {
       const order = await updateOrderStatus(app.prisma, id, result.data.status)
+
+      // Если отменили заказ и товар не был возвращён, вызовём МойСклад
+      if (result.data.status === 'cancelled' && !order.msReturnId && !order.stockRestored) {
+        // Получаем полную информацию о позициях с вариантами
+        const fullOrder = await app.prisma.order.findUnique({
+          where: { id },
+          include: {
+            items: {
+              include: {
+                productVariant: {
+                  select: { moyskladId: true, sku: true },
+                },
+              },
+            },
+          },
+        })
+
+        if (fullOrder?.items) {
+          const positions = fullOrder.items.map((item) => ({
+            moyskladId: item.productVariant?.moyskladId ?? null,
+            sku: item.productVariant?.sku ?? null,
+            name: item.productName,
+            quantity: item.quantity,
+            price: item.price,
+          }))
+
+          // Вызываем МойСклад, но не блокируем ответ на его результате
+          createReturnDocument({ orderId: id, positions })
+            .then((msResult) => {
+              if (msResult.ok) {
+                // Обновляем msReturnId в заказе
+                app.prisma.order.update({
+                  where: { id },
+                  data: { msReturnId: msResult.msId },
+                }).catch((err) => {
+                  app.log.error({ err }, 'Ошибка при обновлении msReturnId')
+                })
+              } else {
+                app.log.warn(
+                  { reason: msResult.reason },
+                  'Не удалось создать документ возврата в МойСклад'
+                )
+              }
+            })
+            .catch((err) => {
+              app.log.error({ err }, 'Ошибка при вызове МойСклад')
+            })
+        }
+      }
+
       return reply.send(order)
     } catch (err) {
       // Конфликт состояния, а не плохие данные — иначе админ читает «ошибка

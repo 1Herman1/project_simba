@@ -1,7 +1,9 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { otpService } from '../../services/otp.service'
+import { applyBonusChange } from '../../services/bonus.service'
 
+const WELCOME_BONUS = 300
 const OTP_MAX_ATTEMPTS = 5
 const OTP_WINDOW_MS = 15 * 60 * 1000
 
@@ -58,6 +60,32 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
 
     otpAttempts.delete(contact)
 
+    // Приветственные бонусы — один раз, в момент первого подтверждённого входа.
+    // Условие в updateMany делает выдачу идемпотентной: два одновременных
+    // подтверждения не начислят дважды.
+    let bonusGranted = 0
+    const granted = await app.prisma.user.updateMany({
+      where: { id: user.id, welcomeBonusGranted: false },
+      data: { welcomeBonusGranted: true },
+    })
+
+    if (granted.count === 1) {
+      await app.prisma.$transaction(async (tx) => {
+        await applyBonusChange(tx, {
+          userId: user.id,
+          amount: WELCOME_BONUS,
+          type: 'welcome',
+          comment: 'Приветственные бонусы за регистрацию',
+        })
+      })
+      bonusGranted = WELCOME_BONUS
+    }
+
+    const fresh = await app.prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { bonusPoints: true, bonusLevel: true },
+    })
+
     const token = app.jwt.sign(
       { userId: user.id, role: user.role },
       { expiresIn: '7d' }
@@ -71,9 +99,12 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
         phone: user.phone,
         name: user.name,
         role: user.role,
-        bonusPoints: user.bonusPoints,
-        bonusLevel: user.bonusLevel,
+        bonusPoints: fresh.bonusPoints,
+        bonusLevel: fresh.bonusLevel,
       },
+      // Только факт выдачи в этом запросе. Признак «баланс ≥ 300» показывал бы
+      // попап при каждом входе любому, кто бонусы ещё не потратил.
+      bonusGranted,
     })
   })
 }

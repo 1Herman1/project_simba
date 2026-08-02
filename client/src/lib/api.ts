@@ -227,6 +227,7 @@ export const ordersApi = {
     bonusUsed?: number
     promoCode?: string
     deliveryCost?: number
+    paymentMethod?: 'card' | 'cash_on_delivery'
   }) => api.post<Order>('/api/orders', data),
 }
 
@@ -249,4 +250,21 @@ export const deliveryApi = {
     recipientName: string
     recipientPhone: string
   }) => api.post('/api/delivery/create', data),
+}
+
+// ─── Бонусы ──────────────────────────────────────────────────────────────
+
+export interface BonusTransaction {
+  id: string
+  type: 'welcome' | 'earned' | 'spent' | 'refund_used' | 'revoke_earned' | 'admin_adjust'
+  amount: number
+  balanceAfter: number
+  comment: string | null
+  createdAt: string
+  orderId: string | null
+}
+
+export const bonusesApi = {
+  transactions: () =>
+    api.get<BonusTransaction[]>('/api/bonuses/transactions'),
 }

@@ -24,3 +24,45 @@ export type MsAssortmentResponse = {
 export type MsStockResponse = {
   rows: MsStockRow[]
 }
+
+/** Базовая сущность МойСклада (организация, склад, товар и т.д.) */
+export type MsEntity = {
+  id: string
+  name?: string
+  meta?: {
+    type: string
+    href?: string
+  }
+}
+
+/** Позиция в документе (приёмка, возврат) */
+export type MsDocumentPosition = {
+  quantity: number
+  price: number
+  assortment: MsEntity
+}
+
+/** Документ приёмки/возврата */
+export type MsDocument = {
+  id: string
+  name?: string
+  meta: {
+    type: string
+    href?: string
+  }
+  description?: string
+  organization?: MsEntity
+  store?: MsEntity
+  positions?: MsDocumentPosition[]
+  created?: string
+  updated?: string
+}
+
+/** Ответ на создание документа */
+export type MsDocumentResponse = MsDocument & {
+  id: string
+  meta: {
+    type: string
+    href: string
+  }
+}

@@ -28,6 +28,9 @@ const sendOtp: FastifyPluginAsync = async (app) => {
     })
 
     if (!user) {
+      // Приветственные бонусы здесь НЕ начисляем: запрос кода не доказывает,
+      // что человек владеет номером. Иначе перебором номеров создаются
+      // аккаунты с балансом. Начисление — в verify-otp, после подтверждения.
       user = await app.prisma.user.create({
         data: {
           email: email ?? null,

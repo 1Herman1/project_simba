@@ -63,6 +63,21 @@ enum DeliveryMethod {
   pickup
 }
 
+enum PaymentMethod {
+  card
+  cash_on_delivery
+}
+
+/// Движение бонусов. Баланс пользователя — сумма этих строк, а не отдельная правда.
+enum BonusTxType {
+  welcome
+  earned
+  spent
+  refund_used
+  revoke_earned
+  admin_adjust
+}
+
 enum PaymentStatus {
   pending
   paid
@@ -96,28 +111,31 @@ enum QuestionnaireSpecies {
 
 /// Пользователи системы — покупатели и сотрудники магазина
 model User {
-  id           String     @id @default(uuid())
-  email        String?    @unique
-  phone        String?    @unique
-  username     String?    @unique
-  name         String
-  passwordHash String?
-  role         UserRole   @default(customer)
-  bonusPoints  Int        @default(0)
-  bonusLevel   BonusLevel @default(newcomer)
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id                  String     @id @default(uuid())
+  email               String?    @unique
+  phone               String?    @unique
+  username            String?    @unique
+  name                String
+  passwordHash        String?
+  role                UserRole   @default(customer)
+  bonusPoints         Int        @default(0)
+  bonusLevel          BonusLevel @default(newcomer)
+  /// Приветственные бонусы выдаются один раз за всю жизнь аккаунта
+  welcomeBonusGranted Boolean    @default(false)
+  isActive            Boolean    @default(true)
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
 
-  addresses     Address[]
-  pets          Pet[]
-  orders        Order[]
-  cart          Cart?
-  subscriptions Subscription[]
-  otpCodes      OtpCode[]
-  chatMessages  ChatMessage[]
-  comparison    Comparison?
-  favorites     Favorite[]
+  addresses         Address[]
+  pets              Pet[]
+  orders            Order[]
+  cart              Cart?
+  subscriptions     Subscription[]
+  otpCodes          OtpCode[]
+  chatMessages      ChatMessage[]
+  comparison        Comparison?
+  favorites         Favorite[]
+  bonusTransactions BonusTransaction[]
 
   @@index([email])
   @@index([phone])
@@ -407,19 +425,47 @@ model Order {
   bonusUsedRefunded   Boolean        @default(false)
   hasSpecialPackaging Boolean        @default(false)
   paymentStatus       PaymentStatus  @default(pending)
+  paymentMethod       PaymentMethod  @default(card)
   paymentId           String?
+  /// Остаток вернули на склад при отмене — защёлка от повторного возврата
+  stockRestored       Boolean        @default(false)
+  /// id документа возврата в МойСклад, если его удалось создать
+  msReturnId          String?
   comment             String?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
 
-  user  User        @relation(fields: [userId], references: [id])
-  items OrderItem[]
+  user              User               @relation(fields: [userId], references: [id])
+  items             OrderItem[]
+  bonusTransactions BonusTransaction[]
 
   @@index([userId])
   @@index([status])
   @@index([paymentStatus])
   @@index([createdAt])
   @@map("orders")
+}
+
+/// Журнал движений бонусов. Раньше в базе было только текущее число на
+/// пользователе: разобрать жалобу «куда делись мои scoins» было нечем.
+model BonusTransaction {
+  id           String      @id @default(uuid())
+  userId       String
+  orderId      String?
+  type         BonusTxType
+  /// Со знаком: плюс — начисление, минус — списание
+  amount       Int
+  /// Баланс после операции — чтобы историю можно было читать без пересчёта
+  balanceAfter Int
+  comment      String?
+  createdAt    DateTime    @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([orderId])
+  @@map("bonus_transactions")
 }
 
 /// Позиция заказа — снапшот данных товара на момент покупки

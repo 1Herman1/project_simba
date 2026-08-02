@@ -5,7 +5,7 @@ import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 import { formatPrice } from '../lib/format'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
-type PaymentMethod = 'online' | 'cash'
+type PaymentMethod = 'card' | 'cash_on_delivery'
 type Step = 'delivery' | 'payment' | 'confirm'
 
 interface DeliveryQuote {
@@ -50,11 +50,12 @@ export default function CheckoutPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<Step>('delivery')
   const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
-  const [payment, setPayment] = useState<PaymentMethod>('online')
+  const [payment, setPayment] = useState<PaymentMethod>('card')
   const [bonusSpend, setBonusSpend] = useState(false)
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId, setOrderId] = useState('')
+  const [orderPayment, setOrderPayment] = useState<PaymentMethod>('card')
   const [orderBonusEarned, setOrderBonusEarned] = useState(0)
   const [orderTotal, setOrderTotal] = useState(0)
   const [orderBonusUsed, setOrderBonusUsed] = useState(0)
@@ -74,6 +75,14 @@ export default function CheckoutPage() {
     comment: '',
     postalCode: '',
   })
+
+  // Если доставка не курьером, отключить наличные
+  const isCourierDelivery = delivery === 'simba_courier'
+  useEffect(() => {
+    if (!isCourierDelivery && payment === 'cash_on_delivery') {
+      setPayment('card')
+    }
+  }, [delivery])
 
   useEffect(() => {
     Promise.all([
@@ -145,8 +154,10 @@ export default function CheckoutPage() {
         bonusUsed: bonusUsedScoins,
         promoCode,
         deliveryCost,
+        paymentMethod: payment,
       })
       setOrderId(res.data.id)
+      setOrderPayment(payment)
       setOrderBonusEarned(res.data.bonusEarned)
       setOrderTotal(res.data.total)
       setOrderBonusUsed(res.data.bonusUsed)
@@ -192,6 +203,12 @@ export default function CheckoutPage() {
                 <span className="font-medium text-amber-600 tabular-nums">−{orderBonusUsed} scoins</span>
               </div>
             )}
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-navy-500">Оплата</span>
+              <span className="font-medium text-navy-900">
+                {orderPayment === 'card' ? 'Картой' : 'Наличными курьеру при получении'}
+              </span>
+            </div>
           </div>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
@@ -401,28 +418,38 @@ export default function CheckoutPage() {
 
                 <div className="flex flex-col gap-2 mb-5">
                   {[
-                    { key: 'online' as PaymentMethod, title: 'Онлайн картой', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
-                    { key: 'cash' as PaymentMethod, title: 'Наличными', desc: 'При получении курьеру или в пункте выдачи' },
-                  ].map(opt => (
-                    <button
-                      key={opt.key}
-                      onClick={() => setPayment(opt.key)}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
-                        payment === opt.key
-                          ? 'border-primary-soft bg-primary-tint'
-                          : 'border-line bg-white hover:border-primary-soft'
-                      }`}>
-                      <div className="flex-1">
-                        <p className="font-semibold text-navy-900 text-sm">{opt.title}</p>
-                        <p className="text-xs text-navy-500">{opt.desc}</p>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        payment === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
-                      }`}>
-                        {payment === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
-                      </div>
-                    </button>
-                  ))}
+                    { key: 'card' as PaymentMethod, title: 'Картой онлайн', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
+                    { key: 'cash_on_delivery' as PaymentMethod, title: 'Наличными курьеру', desc: 'Только при доставке курьером до двери' },
+                  ].map(opt => {
+                    const isDisabled = opt.key === 'cash_on_delivery' && !isCourierDelivery
+                    return (
+                      <button
+                        key={opt.key}
+                        onClick={() => !isDisabled && setPayment(opt.key)}
+                        disabled={isDisabled}
+                        className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
+                          isDisabled
+                            ? 'border-line bg-blue-50 opacity-60 cursor-not-allowed'
+                            : payment === opt.key
+                              ? 'border-primary-soft bg-primary-tint'
+                              : 'border-line bg-white hover:border-primary-soft'
+                        }`}>
+                        <div className="flex-1">
+                          <p className="font-semibold text-navy-900 text-sm">{opt.title}</p>
+                          {isDisabled ? (
+                            <p className="text-xs text-navy-500">Доступно только при доставке курьером до двери</p>
+                          ) : (
+                            <p className="text-xs text-navy-500">{opt.desc}</p>
+                          )}
+                        </div>
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          payment === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
+                        }`}>
+                          {payment === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
 
                 {/* Бонусы */}
@@ -525,7 +552,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Оплата</span>
                     <span className="font-medium text-navy-900">
-                      {payment === 'online' ? 'Картой онлайн' : 'Наличными'}
+                      {payment === 'card' ? 'Картой онлайн' : 'Наличными курьеру'}
                     </span>
                   </div>
                 </div>

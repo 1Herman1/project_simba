@@ -18,16 +18,32 @@ const deliveryAddressSchema = z.object({
   postalCode: z.string().min(1),
 })
 
-const createOrderSchema = z.object({
-  cartId: z.string().uuid(),
-  deliveryMethod: z.enum(['cdek', 'yandex', 'post', 'ozon', 'dostavista', 'pickup']),
-  deliveryAddress: deliveryAddressSchema.optional(),
-  comment: z.string().optional(),
-  hasSpecialPackaging: z.boolean().default(false),
-  bonusUsed: z.number().int().min(0).default(0),
-  promoCode: z.string().optional(),
-  deliveryCost: z.number().int().min(0).default(0),
-})
+const createOrderSchema = z
+  .object({
+    cartId: z.string().uuid(),
+    deliveryMethod: z.enum(['cdek', 'yandex', 'post', 'ozon', 'dostavista', 'pickup']),
+    deliveryAddress: deliveryAddressSchema.optional(),
+    comment: z.string().optional(),
+    hasSpecialPackaging: z.boolean().default(false),
+    bonusUsed: z.number().int().min(0).default(0),
+    promoCode: z.string().optional(),
+    deliveryCost: z.number().int().min(0).default(0),
+    paymentMethod: z.enum(['card', 'cash_on_delivery']).default('card'),
+  })
+  .refine(
+    (data) => {
+      // Наличные допустимы только для курьерской доставки до двери
+      if (data.paymentMethod === 'cash_on_delivery') {
+        const courierMethods = ['cdek', 'yandex', 'dostavista']
+        return courierMethods.includes(data.deliveryMethod)
+      }
+      return true
+    },
+    {
+      message: 'Оплата наличными допустима только при курьерской доставке',
+      path: ['paymentMethod'],
+    }
+  )
 
 const orderRoutes: FastifyPluginAsync = async (app) => {
   app.post('/', { preHandler: app.authenticate }, async (request, reply) => {
@@ -70,6 +86,7 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
       const order = await createOrder(app.prisma, userId, {
         ...result.data,
         expectedDeliveryCost: result.data.deliveryCost,
+        paymentMethod: result.data.paymentMethod,
       })
       return reply.status(201).send(order)
     } catch (err) {

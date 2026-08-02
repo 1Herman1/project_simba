@@ -2,6 +2,7 @@ import { DeliveryMethod, OrderStatus, PaymentStatus, PrismaClient } from '@prism
 import { calcOrderTotals, type OrderCalcInput, type OrderTotals } from '@simba/shared'
 import { getQuoteForMethod } from './delivery/delivery.service.js'
 import type { DeliveryAddress as DeliveryServiceAddress } from './delivery/types.js'
+import { applyBonusChange, settleOnCancelComponents } from './bonus.service.js'
 
 type DeliveryAddress = {
   city: string
@@ -20,6 +21,7 @@ type CreateOrderData = {
   bonusUsed?: number
   promoCode?: string
   expectedDeliveryCost?: number
+  paymentMethod?: 'card' | 'cash_on_delivery'
 }
 
 /** Отмена — конечное состояние: бонусы за заказ уже вернулись покупателю. */
@@ -43,12 +45,8 @@ export class DeliveryCostMismatchError extends Error {
   }
 }
 
-// Гонка: баланс проседел между проверкой и списанием
-export class InsufficientBonusError extends Error {
-  constructor() {
-    super('Недостаточно бонусов для списания')
-  }
-}
+// Re-export для обратной совместимости
+export { InsufficientBonusError } from './bonus.service.js'
 
 // Re-export for backward compatibility
 export { calcOrderTotals, type OrderCalcInput, type OrderTotals }
@@ -133,12 +131,6 @@ export function settleOnCancel(
   }
 }
 
-/**
- * Вспомогательная функция: пересчитать уровень бонусов пользователя по его балансу.
- */
-function calculateBonusLevel(points: number) {
-  return points >= 5000 ? 'premium' : points >= 1000 ? 'active' : 'newcomer'
-}
 
 const orderItemsInclude = {
   items: {
@@ -270,6 +262,7 @@ export async function createOrder(
         bonusUsed,
         bonusEarned,
         deliveryCost: serverDeliveryCost,
+        paymentMethod: data.paymentMethod ?? 'card',
         items: {
           create: cart.items.map((item) => ({
             productVariantId: item.productVariantId,
@@ -300,17 +293,15 @@ export async function createOrder(
       }
     }
 
-    // Условное списание бонусов: вторая линия защиты от гонки. Проверка в роуте
-    // не спасает — две вкладки/двойной клик оба пройдут проверку и оба спишут.
+    // Условное списание бонусов: вторая линия защиты от гонки
     if (bonusUsed > 0) {
-      const decremented = await tx.user.updateMany({
-        where: { id: userId, bonusPoints: { gte: bonusUsed } },
-        data: { bonusPoints: { decrement: bonusUsed } },
+      await applyBonusChange(tx, {
+        userId,
+        amount: -bonusUsed,
+        type: 'spent',
+        orderId: order.id,
+        requireSufficient: true,
       })
-
-      if (decremented.count === 0) {
-        throw new InsufficientBonusError()
-      }
     }
 
     // Бонусы не начисляются при оформлении — только при оплате (markOrderPaid).
@@ -411,34 +402,59 @@ export async function updateOrderStatus(
 
       const currentUser = await tx.user.findUnique({
         where: { id: fresh.userId },
-        select: { bonusPoints: true, bonusLevel: true },
+        select: { bonusPoints: true },
       })
 
-      const settlement = settleOnCancel(fresh, currentUser?.bonusPoints ?? 0)
+      const { bonusToRefund, bonusToDeduct } = settleOnCancelComponents(
+        fresh,
+        currentUser?.bonusPoints ?? 0
+      )
+
+      // Записываем два отдельных движения для прозрачности истории
+      if (bonusToRefund > 0 && !fresh.bonusUsedRefunded) {
+        await applyBonusChange(tx, {
+          userId: fresh.userId,
+          amount: bonusToRefund,
+          type: 'refund_used',
+          orderId: fresh.id,
+          comment: 'Возврат использованных бонусов при отмене заказа',
+        })
+      }
+
+      if (bonusToDeduct > 0 && fresh.bonusEarnedCredited) {
+        await applyBonusChange(tx, {
+          userId: fresh.userId,
+          amount: -bonusToDeduct,
+          type: 'revoke_earned',
+          orderId: fresh.id,
+          comment: 'Отмена начисленных бонусов при отмене заказа',
+        })
+      }
 
       const updatedOrder = await tx.order.update({
         where: { id: orderId },
         data: {
-          bonusEarnedCredited: settlement.bonusEarnedCredited,
-          bonusUsedRefunded: settlement.bonusUsedRefunded,
+          bonusEarnedCredited: bonusToDeduct > 0 ? false : fresh.bonusEarnedCredited,
+          bonusUsedRefunded: bonusToRefund > 0 ? true : fresh.bonusUsedRefunded,
+          stockRestored: fresh.stockRestored ? true : undefined,
         },
         include: { items: true },
       })
 
-      // Обновить баланс и уровень
-      if (settlement.balanceDelta !== 0) {
-        const updatedUser = await tx.user.update({
-          where: { id: order.userId },
-          data: { bonusPoints: { increment: settlement.balanceDelta } },
-        })
-
-        const newLevel = calculateBonusLevel(updatedUser.bonusPoints)
-        if (newLevel !== updatedUser.bonusLevel) {
-          await tx.user.update({
-            where: { id: order.userId },
-            data: { bonusLevel: newLevel },
+      // Возврат товара на склад, если ещё не возвращали
+      if (!fresh.stockRestored) {
+        for (const item of updatedOrder.items) {
+          await tx.productVariant.update({
+            where: { id: item.productVariantId },
+            data: { stock: { increment: item.quantity } },
           })
         }
+
+        // Обновить флаг stockRestored
+        await tx.order.update({
+          where: { id: orderId },
+          data: { stockRestored: true },
+        })
       }
 
       return updatedOrder
@@ -475,32 +491,22 @@ export async function markOrderPaid(prisma: PrismaClient, orderId: string) {
       return order
     }
 
-    const currentUser = await tx.user.findUnique({
-      where: { id: order.userId },
-      select: { bonusPoints: true, bonusLevel: true },
-    })
-
-    const settlement = settleOnPaid(order, currentUser?.bonusPoints ?? 0)
+    const settlement = settleOnPaid(order, 0)
 
     const updatedOrder = await tx.order.update({
       where: { id: orderId },
       data: { bonusEarnedCredited: settlement.bonusEarnedCredited },
     })
 
-    // Обновить баланс и уровень
+    // Начислить бонусы через journal
     if (settlement.balanceDelta !== 0) {
-      const updatedUser = await tx.user.update({
-        where: { id: order.userId },
-        data: { bonusPoints: { increment: settlement.balanceDelta } },
+      await applyBonusChange(tx, {
+        userId: order.userId,
+        amount: settlement.balanceDelta,
+        type: 'earned',
+        orderId: order.id,
+        comment: 'Бонусы за оплату заказа',
       })
-
-      const newLevel = calculateBonusLevel(updatedUser.bonusPoints)
-      if (newLevel !== updatedUser.bonusLevel) {
-        await tx.user.update({
-          where: { id: order.userId },
-          data: { bonusLevel: newLevel },
-        })
-      }
     }
 
     return updatedOrder
@@ -530,34 +536,42 @@ export async function markOrderRefunded(prisma: PrismaClient, orderId: string) {
 
     const currentUser = await tx.user.findUnique({
       where: { id: order.userId },
-      select: { bonusPoints: true, bonusLevel: true },
+      select: { bonusPoints: true },
     })
 
-    const settlement = settleOnCancel(order, currentUser?.bonusPoints ?? 0)
+    const { bonusToRefund, bonusToDeduct } = settleOnCancelComponents(
+      order,
+      currentUser?.bonusPoints ?? 0
+    )
+
+    // Записываем два отдельных движения для прозрачности истории
+    if (bonusToRefund > 0 && !order.bonusUsedRefunded) {
+      await applyBonusChange(tx, {
+        userId: order.userId,
+        amount: bonusToRefund,
+        type: 'refund_used',
+        orderId: order.id,
+        comment: 'Возврат использованных бонусов при возврате платежа',
+      })
+    }
+
+    if (bonusToDeduct > 0 && order.bonusEarnedCredited) {
+      await applyBonusChange(tx, {
+        userId: order.userId,
+        amount: -bonusToDeduct,
+        type: 'revoke_earned',
+        orderId: order.id,
+        comment: 'Отмена начисленных бонусов при возврате платежа',
+      })
+    }
 
     const updatedOrder = await tx.order.update({
       where: { id: orderId },
       data: {
-        bonusEarnedCredited: settlement.bonusEarnedCredited,
-        bonusUsedRefunded: settlement.bonusUsedRefunded,
+        bonusEarnedCredited: bonusToDeduct > 0 ? false : order.bonusEarnedCredited,
+        bonusUsedRefunded: bonusToRefund > 0 ? true : order.bonusUsedRefunded,
       },
     })
-
-    // Обновить баланс и уровень
-    if (settlement.balanceDelta !== 0) {
-      const updatedUser = await tx.user.update({
-        where: { id: order.userId },
-        data: { bonusPoints: { increment: settlement.balanceDelta } },
-      })
-
-      const newLevel = calculateBonusLevel(updatedUser.bonusPoints)
-      if (newLevel !== updatedUser.bonusLevel) {
-        await tx.user.update({
-          where: { id: order.userId },
-          data: { bonusLevel: newLevel },
-        })
-      }
-    }
 
     return updatedOrder
   })
