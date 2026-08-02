@@ -261,6 +261,16 @@ describe('calcOrderTotals — копейка не теряется и не по�
       input: { items: [{ price: 130000, quantity: 1 }], availableBonus: 0 },
     },
     {
+      // Усечение дробного запроса иначе держится на одном-единственном тесте:
+      // здесь его стерегут сразу все инварианты таблицы, включая целочисленность.
+      name: 'дробный запрос бонусов',
+      input: {
+        items: [{ price: 1000000, quantity: 1 }],
+        bonusRequested: 10.7,
+        availableBonus: 1000,
+      },
+    },
+    {
       name: 'промо с округлением вверх на .5',
       input: {
         items: [{ price: 1005, quantity: 1 }],

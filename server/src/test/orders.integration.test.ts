@@ -252,16 +252,18 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
 
   it('баланс бонусов не уходит в минус при двух одновременных заказах с одного аккаунта', async () => {
     const prisma = getTestPrisma()
-    const user = await createUser({ bonusPoints: 1000 })
+    // Сценарий обязан быть переподписан: на балансе 500, а два заказа просят
+    // по 500 каждый. С балансом 1000 оба запроса законны, и тест проходил бы
+    // даже с полностью отключённой защитой — проверяя пустоту.
+    const user = await createUser({ bonusPoints: 500 })
 
-    // Две разные корзины с разными товарами, каждая с товаром 10000₽
     const { variant: variant1 } = await createProductWithVariant({ price: 100000, stock: 5 })
     const { variant: variant2 } = await createProductWithVariant({ price: 100000, stock: 5 })
 
     const cart1 = await createCart(user.id, [{ variantId: variant1.id, quantity: 1 }])
     const cart2 = await createCart(user.id, [{ variantId: variant2.id, quantity: 1 }])
 
-    // Два одновременных запроса: оба пытаются потратить 500 из 1000 бонусов
+    // Пре-проверка баланса в роуте пропустит оба: она читает баланс до транзакции.
     const [res1, res2] = await Promise.all([
       app.inject({
         method: 'POST',
@@ -277,36 +279,40 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
       }),
     ])
 
-    // Ожидание: один заказ успешен (201), другой отклонён (409 INSUFFICIENT_BONUS)
-    // или оба успешны если второй встал в очередь, но баланс не уходит в минус
-    const statuses = [res1.statusCode, res2.statusCode].sort()
-    expect(statuses[0]).toBe(201)
-    expect([201, 409]).toContain(statuses[1])
+    expect([res1.statusCode, res2.statusCode].sort()).toEqual([201, 409])
 
-    // Если второй запрос отклонён, проверяем код ошибки
-    const rejected = res1.statusCode === 409 ? res1 : res2.statusCode === 409 ? res2 : null
-    if (rejected) {
-      expect(rejected.json().code).toBe('INSUFFICIENT_BONUS')
-    }
+    const rejected = res1.statusCode === 409 ? res1 : res2
+    expect(rejected.json().code).toBe('INSUFFICIENT_BONUS')
 
-    // Баланс никогда не должен быть отрицательным
-    const freshUser = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
-    expect(freshUser.bonusPoints).toBeGreaterThanOrEqual(0)
-
-    // Суммарно списано не больше 1000 (начисление заказов может быть разным,
-    // но списано ровно столько сколько было разрешено)
     const orders = await prisma.order.findMany({ where: { userId: user.id } })
-    const totalSpent = orders.reduce((sum: number, order: any) => sum + order.bonusUsed, 0)
-    expect(totalSpent).toBeLessThanOrEqual(1000)
+    expect(orders).toHaveLength(1)
+    expect(orders[0].bonusUsed).toBe(500)
 
-    // Финальный баланс = старый (1000) - списано + заработано
-    const totalEarned = orders.reduce((sum: number, order: any) => sum + order.bonusEarned, 0)
-    expect(freshUser.bonusPoints).toBe(1000 - totalSpent + totalEarned)
+    const freshUser = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
+    expect(freshUser.bonusPoints).toBe(500 - 500 + orders[0].bonusEarned)
   })
-})
 
-describe.skipIf(hasTestDb)('Интеграционные тесты заказа пропущены', () => {
-  it('причина пропуска', () => {
-    expect(skipReason).toContain('TEST_DATABASE_URL')
+  it('лимит 50% срезает запрос: в заказ и в баланс уходит урезанная сумма', async () => {
+    const prisma = getTestPrisma()
+    const { variant } = await createProductWithVariant({ price: 100000, stock: 5 })
+    const user = await createUser({ bonusPoints: 900 })
+    const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/orders',
+      headers: authHeader(app, user.id),
+      payload: pickupOrder(cart.id, { bonusUsed: 900 }),
+    })
+
+    // Чек 1000 ₽ → списать можно 500, хотя запрошено 900.
+    expect(res.statusCode).toBe(201)
+    const order = res.json()
+    expect(order.bonusUsed).toBe(500)
+    expect(order.total).toBe(50000)
+    expect(order.bonusEarned).toBe(25)
+
+    const freshUser = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
+    expect(freshUser.bonusPoints).toBe(900 - 500 + 25)
   })
 })
