@@ -204,6 +204,8 @@ export const ordersApi = {
   byId: (id: string) => api.get<Order>(`/api/admin/orders/${id}`),
   updateStatus: (id: string, status: string) =>
     api.put<Order>(`/api/admin/orders/${id}/status`, { status }),
+  updatePayment: (id: string, paymentStatus: 'paid' | 'failed' | 'refunded') =>
+    api.put<Order>(`/api/admin/orders/${id}/payment`, { paymentStatus }),
 }
 
 export const usersApi = {

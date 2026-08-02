@@ -403,6 +403,8 @@ model Order {
   total               Int
   bonusUsed           Int            @default(0)
   bonusEarned         Int            @default(0)
+  bonusEarnedCredited Boolean        @default(false)
+  bonusUsedRefunded   Boolean        @default(false)
   hasSpecialPackaging Boolean        @default(false)
   paymentStatus       PaymentStatus  @default(pending)
   paymentId           String?

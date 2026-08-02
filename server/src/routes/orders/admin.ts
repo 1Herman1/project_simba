@@ -1,6 +1,11 @@
 import { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
-import { updateOrderStatus } from '../../services/order.service'
+import {
+  updateOrderStatus,
+  markOrderPaid,
+  markOrderRefunded,
+  OrderCancelledError,
+} from '../../services/order.service'
 
 async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
   await request.jwtVerify()
@@ -12,6 +17,10 @@ async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
 
 const updateStatusSchema = z.object({
   status: z.enum(['confirmed', 'in_transit', 'delivered', 'cancelled']),
+})
+
+const updatePaymentSchema = z.object({
+  paymentStatus: z.enum(['paid', 'failed', 'refunded']),
 })
 
 const orderAdminRoutes: FastifyPluginAsync = async (app) => {
@@ -89,7 +98,44 @@ const orderAdminRoutes: FastifyPluginAsync = async (app) => {
       const order = await updateOrderStatus(app.prisma, id, result.data.status)
       return reply.send(order)
     } catch (err) {
+      // Конфликт состояния, а не плохие данные — иначе админ читает «ошибка
+      // обновления статуса» и не понимает, что заказ уже отменён.
+      if (err instanceof OrderCancelledError) {
+        return reply.status(409).send({ error: err.message, code: 'ORDER_CANCELLED' })
+      }
       const message = err instanceof Error ? err.message : 'Ошибка обновления статуса'
+      return reply.status(400).send({ error: message })
+    }
+  })
+
+  app.put('/:id/payment', { preHandler: adminOnly }, async (request, reply) => {
+    const result = updatePaymentSchema.safeParse(request.body)
+    if (!result.success) {
+      return reply.status(400).send({ error: result.error.errors[0].message })
+    }
+
+    const { id } = request.params as { id: string }
+
+    try {
+      let order
+      switch (result.data.paymentStatus) {
+        case 'paid':
+          order = await markOrderPaid(app.prisma, id)
+          break
+        case 'refunded':
+          order = await markOrderRefunded(app.prisma, id)
+          break
+        case 'failed':
+          // Only update status, no bonus adjustments
+          order = await app.prisma.order.update({
+            where: { id },
+            data: { paymentStatus: 'failed' },
+          })
+          break
+      }
+      return reply.send(order)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Ошибка обновления платежа'
       return reply.status(400).send({ error: message })
     }
   })

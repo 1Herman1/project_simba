@@ -45,6 +45,15 @@ export default function OrderDetailPage() {
     } finally { setUpdating(false) }
   }
 
+  const handlePayment = async (paymentStatus: 'paid' | 'refunded') => {
+    if (!order) return
+    setUpdating(true)
+    try {
+      const res = await ordersApi.updatePayment(order.id, paymentStatus)
+      setOrder(res.data)
+    } finally { setUpdating(false) }
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center py-16">
@@ -140,6 +149,36 @@ export default function OrderDetailPage() {
               </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Оплата: именно она начисляет покупателю бонусы за заказ */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <h2 className="font-semibold text-gray-900 mb-1">Оплата</h2>
+        <p className="text-sm text-gray-500 mb-3">
+          {order.paymentStatus === 'paid'
+            ? `Оплачен. Бонусы за заказ (${order.bonusEarned}) начислены покупателю.`
+            : `Не оплачен. Бонусы за заказ (${order.bonusEarned}) будут начислены после отметки об оплате.`}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {order.paymentStatus !== 'paid' && (
+            <button
+              onClick={() => handlePayment('paid')}
+              disabled={updating}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-green-200 text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50"
+            >
+              {updating ? '...' : 'Отметить оплаченным'}
+            </button>
+          )}
+          {order.paymentStatus === 'paid' && (
+            <button
+              onClick={() => handlePayment('refunded')}
+              disabled={updating}
+              className="px-4 py-2 rounded-lg text-sm font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              {updating ? '...' : 'Оформить возврат платежа'}
+            </button>
+          )}
         </div>
       </div>
 
