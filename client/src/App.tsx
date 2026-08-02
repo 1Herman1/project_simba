@@ -13,6 +13,10 @@ import DeliveryPage from './pages/DeliveryPage'
 import ReturnsPage from './pages/ReturnsPage'
 import FaqPage from './pages/FaqPage'
 import QuestionnairePage from './pages/QuestionnairePage'
+import AboutPage from './pages/AboutPage'
+import TrustPage from './pages/TrustPage'
+import CertificatesPage from './pages/CertificatesPage'
+import ReviewsPage from './pages/ReviewsPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -20,7 +24,6 @@ export default function App() {
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
-      <Route path="/bonuses" element={<BonusesPage />} />
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/catalog" element={<CatalogPage />} />
@@ -28,10 +31,15 @@ export default function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/bonuses" element={<BonusesPage />} />
         <Route path="/delivery" element={<DeliveryPage />} />
         <Route path="/returns" element={<ReturnsPage />} />
         <Route path="/faq" element={<FaqPage />} />
         <Route path="/questionnaire" element={<QuestionnairePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/trust" element={<TrustPage />} />
+        <Route path="/certificates" element={<CertificatesPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
