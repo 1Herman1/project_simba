@@ -410,22 +410,64 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Бонусы */}
-                <div className={`rounded-xl border p-4 mb-5 transition-[border-color,background-color] duration-100 ease ${bonusSpend ? 'border-amber-200 bg-amber-50' : 'border-line'}`}>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={bonusSpend}
-                      onChange={e => setBonusSpend(e.target.checked)}
-                      className="w-4 h-4 accent-amber-400"
-                    />
-                    <div>
-                      <p className="font-semibold text-navy-900 text-sm">Списать бонусы</p>
-                      <p className="text-xs text-navy-400">
-                        Доступно: <span className="font-bold text-amber-500">{userBonusPoints.toLocaleString('ru-RU')} scoins</span> = {userBonusPoints.toLocaleString('ru-RU')} ₽
-                      </p>
+                {(() => {
+                  // Расчитаем максимально доступно в этом заказе
+                  const totalsWithMaxBonus = calcOrderTotals({
+                    items: cartItems.map(i => ({ price: i.productVariant.price, quantity: i.quantity })),
+                    promoCode,
+                    bonusRequested: userBonusPoints,
+                    availableBonus: userBonusPoints,
+                    deliveryCost,
+                  })
+                  const maxAvailableBonus = totalsWithMaxBonus.bonusUsed
+
+                  const canUseBonus = maxAvailableBonus > 0
+                  const actualBonusUsed = bonusSpend ? maxAvailableBonus : 0
+                  const isBonusLimited = bonusSpend && maxAvailableBonus < userBonusPoints
+
+                  return (
+                    <div className={`rounded-xl border p-4 mb-5 transition-[border-color,background-color] duration-100 ease ${
+                      bonusSpend && canUseBonus ? 'border-amber-200 bg-amber-50' :
+                      bonusSpend && !canUseBonus ? 'border-line bg-blue-50 opacity-60' :
+                      'border-line'
+                    }`}>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={bonusSpend && canUseBonus}
+                          onChange={e => setBonusSpend(canUseBonus && e.target.checked)}
+                          disabled={!canUseBonus}
+                          className={`w-4 h-4 accent-amber-400 ${!canUseBonus ? 'cursor-not-allowed' : ''}`}
+                        />
+                        <div className="flex-1">
+                          <p className="font-semibold text-navy-900 text-sm">Списать бонусы</p>
+                          {canUseBonus ? (
+                            <div className="text-xs text-navy-500">
+                              {bonusSpend ? (
+                                <>
+                                  <p>
+                                    Спишем <span className="font-bold text-amber-600">{actualBonusUsed.toLocaleString('ru-RU')} scoins</span> = {actualBonusUsed.toLocaleString('ru-RU')} ₽
+                                    {userBonusPoints > 0 && ` из ${userBonusPoints.toLocaleString('ru-RU')}`}
+                                  </p>
+                                  {isBonusLimited && (
+                                    <p className="text-navy-500 mt-1">Бонусами можно оплатить до половины заказа</p>
+                                  )}
+                                </>
+                              ) : (
+                                <p>
+                                  Доступно к списанию: <span className="font-bold text-amber-600">{maxAvailableBonus.toLocaleString('ru-RU')} scoins</span> = {maxAvailableBonus.toLocaleString('ru-RU')} ₽
+                                  {userBonusPoints > 0 && ` из ${userBonusPoints.toLocaleString('ru-RU')}`}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-navy-500">Сумма заказа слишком мала для списания</p>
+                          )}
+                        </div>
+                      </label>
                     </div>
-                  </label>
-                </div>
+                  )
+                })()}
 
                 <div className="flex gap-2">
                   <button

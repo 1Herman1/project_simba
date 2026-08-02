@@ -249,6 +249,60 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
     expect(res.json().error).toMatch(/недоступен/i)
     expect(await prisma.cartItem.count()).toBe(0)
   })
+
+  it('баланс бонусов не уходит в минус при двух одновременных заказах с одного аккаунта', async () => {
+    const prisma = getTestPrisma()
+    const user = await createUser({ bonusPoints: 1000 })
+
+    // Две разные корзины с разными товарами, каждая с товаром 10000₽
+    const { variant: variant1 } = await createProductWithVariant({ price: 100000, stock: 5 })
+    const { variant: variant2 } = await createProductWithVariant({ price: 100000, stock: 5 })
+
+    const cart1 = await createCart(user.id, [{ variantId: variant1.id, quantity: 1 }])
+    const cart2 = await createCart(user.id, [{ variantId: variant2.id, quantity: 1 }])
+
+    // Два одновременных запроса: оба пытаются потратить 500 из 1000 бонусов
+    const [res1, res2] = await Promise.all([
+      app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: pickupOrder(cart1.id, { bonusUsed: 500 }),
+      }),
+      app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: pickupOrder(cart2.id, { bonusUsed: 500 }),
+      }),
+    ])
+
+    // Ожидание: один заказ успешен (201), другой отклонён (409 INSUFFICIENT_BONUS)
+    // или оба успешны если второй встал в очередь, но баланс не уходит в минус
+    const statuses = [res1.statusCode, res2.statusCode].sort()
+    expect(statuses[0]).toBe(201)
+    expect([201, 409]).toContain(statuses[1])
+
+    // Если второй запрос отклонён, проверяем код ошибки
+    const rejected = res1.statusCode === 409 ? res1 : res2.statusCode === 409 ? res2 : null
+    if (rejected) {
+      expect(rejected.json().code).toBe('INSUFFICIENT_BONUS')
+    }
+
+    // Баланс никогда не должен быть отрицательным
+    const freshUser = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
+    expect(freshUser.bonusPoints).toBeGreaterThanOrEqual(0)
+
+    // Суммарно списано не больше 1000 (начисление заказов может быть разным,
+    // но списано ровно столько сколько было разрешено)
+    const orders = await prisma.order.findMany({ where: { userId: user.id } })
+    const totalSpent = orders.reduce((sum: number, order: any) => sum + order.bonusUsed, 0)
+    expect(totalSpent).toBeLessThanOrEqual(1000)
+
+    // Финальный баланс = старый (1000) - списано + заработано
+    const totalEarned = orders.reduce((sum: number, order: any) => sum + order.bonusEarned, 0)
+    expect(freshUser.bonusPoints).toBe(1000 - totalSpent + totalEarned)
+  })
 })
 
 describe.skipIf(hasTestDb)('Интеграционные тесты заказа пропущены', () => {

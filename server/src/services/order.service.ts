@@ -36,6 +36,13 @@ export class DeliveryCostMismatchError extends Error {
   }
 }
 
+// Гонка: баланс проседел между проверкой и списанием
+export class InsufficientBonusError extends Error {
+  constructor() {
+    super('Недостаточно бонусов для списания')
+  }
+}
+
 // Re-export for backward compatibility
 export { calcOrderTotals, type OrderCalcInput, type OrderTotals }
 
@@ -199,10 +206,24 @@ export async function createOrder(
       }
     }
 
+    // Условное списание бонусов: вторая линия защиты от гонки. Проверка в роуте
+    // не спасает — две вкладки/двойной клик оба пройдут проверку и оба спишут.
+    // Сначала условно списываем (защита от гонки), потом безусловно начисляем.
+    if (bonusUsed > 0) {
+      const decremented = await tx.user.updateMany({
+        where: { id: userId, bonusPoints: { gte: bonusUsed } },
+        data: { bonusPoints: { decrement: bonusUsed } },
+      })
+
+      if (decremented.count === 0) {
+        throw new InsufficientBonusError()
+      }
+    }
+
     const user = await tx.user.update({
       where: { id: userId },
       data: {
-        bonusPoints: { increment: bonusEarned - bonusUsed },
+        bonusPoints: { increment: bonusEarned },
       },
     })
 

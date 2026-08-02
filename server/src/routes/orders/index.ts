@@ -7,6 +7,7 @@ import {
   getOrdersByUser,
   getOrderById,
   DeliveryCostMismatchError,
+  InsufficientBonusError,
 } from '../../services/order.service'
 
 const deliveryAddressSchema = z.object({
@@ -80,6 +81,12 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
           error: 'Стоимость доставки изменилась, обновите расчёт',
           code: 'DELIVERY_COST_CHANGED',
           actualDeliveryCost: err.actualCost,
+        })
+      }
+      if (err instanceof InsufficientBonusError) {
+        return reply.status(409).send({
+          error: err.message,
+          code: 'INSUFFICIENT_BONUS',
         })
       }
       const message = err instanceof Error ? err.message : 'Ошибка создания заказа'

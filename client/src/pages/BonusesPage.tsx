@@ -7,7 +7,7 @@ const LEVELS = [
     range: '0 — 999 scoins',
     color: 'bg-blue-50 border-blue-100',
     badge: 'bg-navy-100 text-navy-500',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата scoins: 1 = 1 ₽, до 50% чека'],
   },
   {
     key: 'active',
@@ -15,7 +15,7 @@ const LEVELS = [
     range: '1 000 — 4 999 scoins',
     color: 'bg-amber-50 border-amber-100',
     badge: 'bg-blue-100 text-blue-500',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽', 'Приоритетная поддержка'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата scoins: 1 = 1 ₽, до 50% чека', 'Приоритетная поддержка'],
   },
   {
     key: 'premium',
@@ -23,7 +23,7 @@ const LEVELS = [
     range: 'от 5 000 scoins',
     color: 'bg-amber-100 border-amber-200',
     badge: 'bg-amber-100 text-amber-600',
-    perks: ['Начисление 5% с каждого заказа', 'Оплата заказа scoins: 1 = 1 ₽', 'Приоритетная поддержка', 'Эксклюзивные акции'],
+    perks: ['Начисление 5% с каждого заказа', 'Оплата scoins: 1 = 1 ₽, до 50% чека', 'Приоритетная поддержка', 'Эксклюзивные акции'],
   },
 ]
 
@@ -48,7 +48,7 @@ export default function BonusesPage() {
           <div className="flex flex-col gap-4">
             <div>
               <p className="font-semibold text-navy-900 text-sm">Делаете заказ</p>
-              <p className="text-navy-400 text-sm">5% от суммы заказа автоматически зачисляется на ваш бонусный счёт</p>
+              <p className="text-navy-400 text-sm">5% от стоимости товаров (без доставки) автоматически зачисляется на ваш бонусный счёт</p>
             </div>
             <div>
               <p className="font-semibold text-navy-900 text-sm">Копите scoins</p>
@@ -56,7 +56,7 @@ export default function BonusesPage() {
             </div>
             <div>
               <p className="font-semibold text-navy-900 text-sm">Тратите на скидку</p>
-              <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько scoins списать</p>
+              <p className="text-navy-400 text-sm">При оформлении заказа выберите, сколько scoins списать. Бонусами можно оплатить до половины суммы чека</p>
             </div>
           </div>
         </div>
