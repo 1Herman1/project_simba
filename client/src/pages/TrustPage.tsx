@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
+import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
 
 function ShieldIcon() {
@@ -48,23 +49,6 @@ function MessageIcon() {
   )
 }
 
-function StarIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-    </svg>
-  )
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  )
-}
 
 function TelegramPlaneIcon() {
   return (
@@ -130,52 +114,39 @@ export default function TrustPage() {
       <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-2">Почему нам доверяют</h1>
       <p className="text-navy-500 mb-10">Не обещания, а то, что можно проверить</p>
 
-      {/* Numbers block */}
-      <div className="bg-primary-tint rounded-card p-6 mb-12">
-        <div className="flex flex-col gap-6">
-          {/* Цифра и пояснение — одной строкой: разряд числа не должен переноситься */}
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-[40px] leading-none font-black text-navy-900 tabular-nums whitespace-nowrap">
-              24 000+
-            </span>
-            <p className="text-navy-500">заказов на трёх площадках · рейтинг 4,9 на каждой</p>
-          </div>
+      {/* Цифра и площадки — прямо на фоне страницы: белые карточки на подложке
+          были карточкой в карточке и съедали ширину на телефоне */}
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-6">
+        <span className="text-[40px] leading-none font-black text-navy-900 tabular-nums whitespace-nowrap">
+          24 000+
+        </span>
+        <p className="text-navy-500">заказов на трёх площадках · рейтинг 4,9 на каждой</p>
+      </div>
 
-          {/* Marketplace cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-            {MARKETPLACES.map((marketplace) => (
-              <div key={marketplace.name} className="bg-white rounded-card p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <h3 className="font-semibold text-navy-900">{marketplace.name}</h3>
-                  <div className="flex items-center gap-1">
-                    <span className="text-amber-600 font-bold">{marketplace.rating}</span>
-                    <StarIcon />
-                  </div>
-                </div>
-                <p className="text-sm text-navy-500 mb-3">{marketplace.stats}</p>
-                {marketplace.name === 'Яндекс Маркет' && (
-                  <a
-                    href={marketplace.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary-hover underline hover:text-navy-900 text-sm font-medium"
-                    aria-label="Читать отзывы на Яндекс Маркете (откроется в новой вкладке)"
-                  >
-                    Читать отзывы
-                    <ExternalLinkIcon />
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+      <h2 className="text-2xl font-bold text-navy-900 mb-4">Что говорят площадки</h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+        {MARKETPLACES.map((marketplace) => (
+          <MarketplaceCard
+            key={marketplace.name}
+            name={marketplace.name}
+            rating={marketplace.rating}
+            stats={marketplace.stats}
+            url={marketplace.url}
+            showLink={marketplace.name === 'Яндекс Маркет'}
+          />
+        ))}
       </div>
 
       {/* Reasons grid */}
       <section className="mb-12">
+        <h2 className="text-2xl font-bold text-navy-900 mb-4">Что мы гарантируем</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {reasons.map((reason) => (
-            <div key={reason.title} className="bg-white border border-line rounded-card p-5">
+          {reasons.map((reason, index) => (
+            <div
+              key={reason.title}
+              className={`bg-white border border-line rounded-card p-5 ${index === 0 ? 'md:col-span-2' : ''}`}
+            >
               <div className="text-primary-soft mb-3">{reason.icon}</div>
               <h3 className="font-bold text-navy-900 mb-2">{reason.title}</h3>
               <p className="text-navy-500 leading-relaxed">
@@ -186,27 +157,17 @@ export default function TrustPage() {
         </div>
       </section>
 
-      {/* Bottom CTA block */}
-      <div className="bg-primary-tint rounded-card p-5">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex items-start gap-3">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-soft flex-shrink-0 mt-0.5">
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-            </svg>
-            <p className="text-navy-500">
-              Остались сомнения — спросите нас напрямую. Отвечаем за 10 минут.
-            </p>
-          </div>
-          <a
-            href={CONTACTS.telegram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 bg-primary text-white rounded-xl px-6 py-3 font-bold hover:bg-primary-hover transition-colors duration-200 ease-out w-full sm:w-auto flex-shrink-0"
-          >
-            <TelegramPlaneIcon />
-            Написать в Telegram
-          </a>
-        </div>
+      <div className="mt-10 pt-6 border-t border-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="text-navy-500">Остались сомнения — спросите нас напрямую. Отвечаем за 10 минут.</p>
+        <a
+          href={CONTACTS.telegram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+        >
+          <TelegramPlaneIcon />
+          Написать в Telegram
+        </a>
       </div>
     </div>
   )

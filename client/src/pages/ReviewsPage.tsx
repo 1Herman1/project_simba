@@ -1,16 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
-import { MARKETPLACES } from '../lib/contacts'
-
-function ExternalLinkIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  )
-}
+import MarketplaceCard from '../components/MarketplaceCard'
+import { CONTACTS, MARKETPLACES } from '../lib/contacts'
 
 export default function ReviewsPage() {
   useMetaTags({
@@ -28,35 +19,19 @@ export default function ReviewsPage() {
         оставляют реальные покупатели после реальных заказов.
       </p>
 
-      {/* Marketplaces grid */}
+      <h2 className="text-2xl font-bold text-navy-900 mb-4">Где нас читают</h2>
+
       <div className="grid sm:grid-cols-3 gap-4 mb-10">
-        {MARKETPLACES.map((marketplace, idx) => (
-          <div
+        {MARKETPLACES.map((marketplace) => (
+          <MarketplaceCard
             key={marketplace.name}
-            className={`bg-white rounded-card p-5 flex flex-col ${idx === 0 ? 'border-2 border-primary-soft' : 'border border-line'}`}
-          >
-            <h3 className="font-bold text-navy-900 mb-3">{marketplace.name}</h3>
-
-            <div className="flex items-baseline gap-1.5 mb-4">
-              <span className="text-amber-600 font-bold">{marketplace.rating}</span>
-              <span className="text-amber-600">★</span>
-            </div>
-
-            <p className="text-sm text-navy-500 mb-4 flex-grow">{marketplace.stats}</p>
-
-            {idx === 0 ? (
-              <a
-                href={marketplace.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 text-primary-hover font-bold hover:text-navy-900 transition-colors duration-200 ease-out"
-                aria-label={`${marketplace.name}, рейтинг ${marketplace.rating} из 5, читать отзывы, откроется в новой вкладке`}
-              >
-                Читать отзывы
-                <ExternalLinkIcon />
-              </a>
-            ) : null}
-          </div>
+            name={marketplace.name}
+            rating={marketplace.rating}
+            stats={marketplace.stats}
+            url={marketplace.url}
+            /* Кликабелен только Яндекс Маркет — решение владельца. */
+            showLink={marketplace.name === 'Яндекс Маркет'}
+          />
         ))}
       </div>
 
@@ -64,11 +39,23 @@ export default function ReviewsPage() {
       <div className="bg-primary-tint rounded-card p-5">
         <p className="text-navy-500 leading-relaxed">
           Заказывая на сайте, вы получаете{' '}
-          <Link to="/bonuses" className="text-primary-hover underline hover:text-navy-900 transition-colors duration-200 ease-out">
+          <Link to="/bonuses" className="text-primary-hover underline hover:text-navy-900 transition-colors duration-100 ease">
             бонусы
           </Link>
           {' '}и цены без наценки площадок.
         </p>
+      </div>
+
+      <div className="mt-10 pt-6 border-t border-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <p className="text-navy-500">Остались вопросы — спросите нас напрямую.</p>
+        <a
+          href={CONTACTS.telegram}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+        >
+          Написать в Telegram
+        </a>
       </div>
     </div>
   )

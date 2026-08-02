@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import MarketplaceCard from '../MarketplaceCard'
 import { CONTACTS, MARKETPLACES, LEGAL } from '../../lib/contacts'
 
 // Иконка самолётика для Telegram
@@ -21,24 +22,8 @@ function PhoneIcon() {
 }
 
 // Иконка звезды для рейтинга
-function StarIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-    </svg>
-  )
-}
 
 // Иконка внешней ссылки
-function ExternalLinkIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-      <polyline points="15,3 21,3 21,9"/>
-      <line x1="10" y1="14" x2="21" y2="3"/>
-    </svg>
-  )
-}
 
 // Иконка шеврона (для аккордеона)
 function ChevronIcon({ open }: { open?: boolean }) {
@@ -52,7 +37,6 @@ function ChevronIcon({ open }: { open?: boolean }) {
     </svg>
   )
 }
-
 
 export default function Footer() {
   const [buyers2Open, setBuyers2Open] = useState(false)
@@ -191,7 +175,7 @@ export default function Footer() {
                       <span className="text-base md:text-sm text-navy-500 cursor-default">
                         {item.label}
                         {/* Подсказка title на телефоне не показывается — пишем словом. */}
-                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-400">скоро</span>
+                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
                       </span>
                     ) : item.hash ? (
                       <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
@@ -213,27 +197,16 @@ export default function Footer() {
         <div className="flex flex-col gap-4">
           <h3 className="font-bold text-navy-900 uppercase tracking-wide text-sm">Нам доверяют</h3>
 
-          {/* Три карточки рядом (не вложенные) */}
           <div className="flex flex-col gap-3">
             {MARKETPLACES.map((marketplace) => (
-              <a
+              <MarketplaceCard
                 key={marketplace.name}
-                href={marketplace.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white border border-line rounded-card p-4 hover:border-primary-soft transition-colors duration-100 ease flex flex-col gap-2"
-                aria-label={`${marketplace.name} — рейтинг ${marketplace.rating} из 5, ${marketplace.stats}, откроется в новой вкладке`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <h4 className="font-semibold text-navy-900 flex-1">{marketplace.name}</h4>
-                  <ExternalLinkIcon />
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-amber-600 font-bold">{marketplace.rating}</span>
-                  <StarIcon />
-                </div>
-                <p className="text-sm text-navy-500">{marketplace.stats}</p>
-              </a>
+                name={marketplace.name}
+                rating={marketplace.rating}
+                stats={marketplace.stats}
+                url={marketplace.url}
+                showLink={marketplace.name === 'Яндекс Маркет'}
+              />
             ))}
           </div>
 
@@ -244,7 +217,7 @@ export default function Footer() {
 
       {/* Нижняя полоса */}
       <div className="border-t border-line bg-blue-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-between gap-6 text-sm text-navy-500">
+        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-between gap-6 text-base md:text-sm text-navy-500">
           {/* Левая часть: copyright, режим работы, оплата */}
           <div className="space-y-2 flex-1">
             <p>© 2026 Симба · {LEGAL.entity} · {LEGAL.inn} · Москва</p>
@@ -257,18 +230,20 @@ export default function Footer() {
               Оплата: МИР · Visa · Mastercard · СБП
             </p>
             <p>
-              Разработка сайтов — <span className="text-navy-400">вскоре</span>
+              Разработка сайтов — <span className="text-navy-500">вскоре</span>
               {/* TODO: Вписать константу DEV_STUDIO.url сюда, когда будет готова студия. Формат: <a href={DEV_STUDIO.url} target="_blank" rel="noopener noreferrer" className="text-primary-hover hover:underline">{DEV_STUDIO.label}</a> */}
             </p>
           </div>
 
           {/* Правая часть: ссылки */}
           <div className="flex flex-col md:items-end gap-2">
-            <span className="text-navy-500 cursor-default" title="Скоро">
+            <span className="text-navy-500 cursor-default">
               Политика конфиденциальности
+              <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
             </span>
-            <span className="text-navy-500 cursor-default" title="Скоро">
+            <span className="text-navy-500 cursor-default">
               Публичная оферта
+              <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
             </span>
           </div>
         </div>
