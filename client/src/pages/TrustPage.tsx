@@ -174,12 +174,12 @@ export default function TrustPage() {
       {/* Reasons grid */}
       <section className="mb-12">
         <div className="grid md:grid-cols-2 gap-4">
-          {reasons.map((reason, idx) => (
-            <div key={idx} className="bg-white border border-line rounded-card p-5">
+          {reasons.map((reason) => (
+            <div key={reason.title} className="bg-white border border-line rounded-card p-5">
               <div className="text-primary-soft mb-3">{reason.icon}</div>
               <h3 className="font-bold text-navy-900 mb-2">{reason.title}</h3>
               <p className="text-navy-500 leading-relaxed">
-                {typeof reason.content === 'string' ? reason.content : reason.content}
+                {reason.content}
               </p>
             </div>
           ))}
