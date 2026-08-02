@@ -17,6 +17,8 @@ import AboutPage from './pages/AboutPage'
 import TrustPage from './pages/TrustPage'
 import CertificatesPage from './pages/CertificatesPage'
 import ReviewsPage from './pages/ReviewsPage'
+import BlogPage from './pages/BlogPage'
+import BlogPostPage from './pages/BlogPostPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -40,6 +42,8 @@ export default function App() {
         <Route path="/trust" element={<TrustPage />} />
         <Route path="/certificates" element={<CertificatesPage />} />
         <Route path="/reviews" element={<ReviewsPage />} />
+        <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

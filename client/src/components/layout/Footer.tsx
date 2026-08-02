@@ -61,7 +61,7 @@ export default function Footer() {
     { label: 'Почему нам доверяют', to: '/trust' },
     { label: 'Сертификаты кормов', to: '/certificates' },
     { label: 'Отзывы', to: '/reviews' },
-    { label: 'Блог', comingSoon: true },
+    { label: 'Блог', to: '/blog' },
   ]
 
   return (
