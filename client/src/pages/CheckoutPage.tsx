@@ -56,6 +56,8 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId, setOrderId] = useState('')
   const [orderBonusEarned, setOrderBonusEarned] = useState(0)
+  const [orderTotal, setOrderTotal] = useState(0)
+  const [orderBonusUsed, setOrderBonusUsed] = useState(0)
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
 
@@ -146,6 +148,8 @@ export default function CheckoutPage() {
       })
       setOrderId(res.data.id)
       setOrderBonusEarned(res.data.bonusEarned)
+      setOrderTotal(res.data.total)
+      setOrderBonusUsed(res.data.bonusUsed)
       setOrderPlaced(true)
       sessionStorage.removeItem('promoCode')
     } catch (err: unknown) {
@@ -175,14 +179,26 @@ export default function CheckoutPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-black text-navy-900 mb-2">Заказ оформлен!</h1>
-          <p className="text-navy-400 text-sm mb-1">Номер заказа:</p>
+          <p className="text-navy-500 text-sm mb-1">Номер заказа:</p>
           <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
+          <div className="border border-line rounded-xl p-3 mb-3 text-left">
+            <div className="flex justify-between text-sm">
+              <span className="text-navy-500">Сумма заказа</span>
+              <span className="font-bold text-navy-900 tabular-nums">{formatPrice(orderTotal)}</span>
+            </div>
+            {orderBonusUsed > 0 && (
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-navy-500">Списано бонусов</span>
+                <span className="font-medium text-amber-600 tabular-nums">−{orderBonusUsed} scoins</span>
+              </div>
+            )}
+          </div>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              Начислено <span className="font-bold text-amber-500">+{orderBonusEarned} scoins</span> на ваш счёт
+              Начислено <span className="font-bold text-amber-600">+{orderBonusEarned} scoins</span> на ваш счёт
             </p>
           </div>
-          <p className="text-xs text-navy-400 mb-6">
+          <p className="text-xs text-navy-500 mb-6">
             Мы отправим SMS и email как только заказ будет подтверждён
           </p>
           <div className="flex flex-col gap-2">
@@ -292,7 +308,7 @@ export default function CheckoutPage() {
                             <span className="text-red-400 text-xs">{opt.error}</span>
                           )}
                         </div>
-                        <p className="text-xs text-navy-400">{opt.description}</p>
+                        <p className="text-xs text-navy-500">{opt.description}</p>
                         {opt.daysMax > 0 && (
                           <p className="text-xs text-primary-hover mt-0.5">
                             {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
@@ -398,7 +414,7 @@ export default function CheckoutPage() {
                       }`}>
                       <div className="flex-1">
                         <p className="font-semibold text-navy-900 text-sm">{opt.title}</p>
-                        <p className="text-xs text-navy-400">{opt.desc}</p>
+                        <p className="text-xs text-navy-500">{opt.desc}</p>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                         payment === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
@@ -525,7 +541,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-navy-900 truncate">{item.productVariant.product.name}</p>
-                        <p className="text-xs text-navy-400">{item.productVariant.weight} кг · {item.quantity} шт.</p>
+                        <p className="text-xs text-navy-500">{item.productVariant.weight} кг · {item.quantity} шт.</p>
                       </div>
                       <span className="text-sm font-bold text-navy-900 flex-shrink-0">
                         {formatPrice(item.productVariant.price * item.quantity)}
@@ -596,13 +612,13 @@ export default function CheckoutPage() {
                 {promoDiscount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Промокод</span>
-                    <span className="text-amber-500 font-medium">−{formatPrice(promoDiscount)}</span>
+                    <span className="text-amber-600 font-medium">−{formatPrice(promoDiscount)}</span>
                   </div>
                 )}
                 {bonusSpend && (
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Бонусы</span>
-                    <span className="text-amber-500 font-medium">−{formatPrice(bonusDiscount)}</span>
+                    <span className="text-amber-600 font-medium">−{formatPrice(bonusDiscount)}</span>
                   </div>
                 )}
               </div>
@@ -613,7 +629,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">
-                За этот заказ вы получите <span className="font-bold text-amber-500">+{bonusEarned} scoins</span>
+                За этот заказ вы получите <span className="font-bold text-amber-600">+{bonusEarned} scoins</span>
               </div>
             </div>
           </div>
