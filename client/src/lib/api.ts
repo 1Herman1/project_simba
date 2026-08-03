@@ -2,8 +2,12 @@ import axios from 'axios'
 
 // ─── HTTP клиент ────────────────────────────────────────────────────────────
 
+// Без явного VITE_API_URL на проде бьём по своему же домену: адрес получается
+// относительным, и запрос уходит туда, откуда отдан сайт. На Vercel его
+// подхватывает правило перенаправления /api/* на сервер — браузер при этом
+// видит только https-адрес витрины, поэтому нет ни mixed content, ни CORS.
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3000'),
   withCredentials: true,
 })
 
