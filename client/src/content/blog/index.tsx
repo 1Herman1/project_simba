@@ -6,6 +6,9 @@ import kotyataRatsion from './posts/kotyata-ratsion'
 import labradorRatsion from './posts/labrador-ratsion'
 import originalIliPoddelka from './posts/original-ili-poddelka'
 import koshkiAllergiya from './posts/koshki-allergiya'
+import shchenkiRatsion from './posts/shchenki-ratsion'
+import smenaKormaKoshke from './posts/smena-korma-koshke'
+import sukhoyVlazhnyKorm from './posts/sukhoy-vlazhny-korm'
 
 export type { BlogCategory, BlogPost } from './types'
 import type { BlogPost } from './types'
@@ -18,6 +21,9 @@ const PUBLISHED: BlogPost[] = [
   labradorRatsion,
   originalIliPoddelka,
   koshkiAllergiya,
+  shchenkiRatsion,
+  smenaKormaKoshke,
+  sukhoyVlazhnyKorm,
 ]
 
 export const BLOG_POSTS: BlogPost[] = [...PUBLISHED, ...DRAFTS]

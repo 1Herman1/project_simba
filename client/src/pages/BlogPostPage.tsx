@@ -22,7 +22,9 @@ export default function BlogPostPage() {
 
   const post = getPostBySlug(slug)
 
-  if (!post) {
+  // Черновик по прямой ссылке открываться не должен: у него нет тела, и это
+  // была бы пустая страница, которую поисковик засчитает как «тонкую».
+  if (!post || post.status !== 'published' || !post.body) {
     return <NotFoundPage />
   }
 
