@@ -3,20 +3,20 @@ import { Link } from 'react-router-dom'
 import MarketplaceCard from '../MarketplaceCard'
 import { CONTACTS, MARKETPLACES, LEGAL } from '../../lib/contacts'
 
-// Иконка самолётика для Telegram
+// Иконка бумажного самолётика Telegram
 function TelegramPlaneIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23 3a6.6 6.6 0 01-6 6.3v10.7M1 3l10 19 2-8 8-2-20-9.7z"/>
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
     </svg>
   )
 }
 
-// Иконка трубки
+// Иконка трубки — Feather, тот же path что в шапке
 function PhoneIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012.81 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7 8.91a16 16 0 006.07 6.07l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
   )
 }
@@ -78,7 +78,7 @@ export default function Footer() {
             href={CONTACTS.telegram}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-3 rounded-xl transition-colors duration-100 ease flex items-center justify-center gap-2 min-h-11 text-base"
+            className="bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-3 rounded-xl transition-[background-color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 min-h-11 text-base"
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
             <TelegramPlaneIcon />
