@@ -50,6 +50,25 @@ export default function BlogPostPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 md:py-14">
+      {/* Разметка для поисковика: без картинки и автора-человека — их у нас нет,
+          а выдумывать поля в разметке хуже, чем их не иметь. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BlogPosting',
+            headline: post.title,
+            description: post.metaDescription,
+            datePublished: post.date,
+            dateModified: post.date,
+            author: { '@type': 'Organization', name: 'Симба' },
+            publisher: { '@type': 'Organization', name: 'Симба' },
+            mainEntityOfPage: `${window.location.origin}/blog/${post.slug}`,
+          }).replace(/</g, '\\u003c'),
+        }}
+      />
+
       {/* Хлебная крошка */}
       <Link to="/blog" className="inline-flex items-center gap-2 text-primary-hover hover:underline mb-6 text-sm">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -5,6 +5,7 @@ export default function NotFoundPage() {
   useMetaTags({
     title: 'Страница не найдена — Зоомагазин Симба',
     description: 'Такой страницы нет. Вернитесь в каталог кормов и товаров для животных.',
+    noindex: true,
   })
 
   return (

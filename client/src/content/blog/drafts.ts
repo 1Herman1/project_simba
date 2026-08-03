@@ -74,7 +74,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'vet-life-mochekamennya',
+    slug: 'vet-life-mochekamennaya',
     title: 'Vet Life Urinary при МКБ',
     excerpt: '',
     categories: ['Ветдиеты', 'Здоровье'],
@@ -152,7 +152,7 @@ export const DRAFTS: BlogPost[] = [
   },
   // Monge (14)
   {
-    slug: 'monge-lineyky',
+    slug: 'monge-lineyki-podrobno',
     title: 'Обзор линеек Monge',
     excerpt: '',
     categories: ['Питание', 'Сравнения кормов'],
@@ -207,7 +207,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'monge-kotjata',
+    slug: 'monge-kotyata',
     title: 'Monge для котят',
     excerpt: '',
     categories: ['Кошки', 'Питание'],
@@ -262,7 +262,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'monge-laksomstva',
+    slug: 'monge-lakomstva',
     title: 'Лакомства Monge Gift',
     excerpt: '',
     categories: ['Питание'],
@@ -395,7 +395,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'pochemu-italyanski-korma',
+    slug: 'pochemu-italyanskie-korma',
     title: 'Почему итальянские корма в топе',
     excerpt: '',
     categories: ['Сравнения кормов'],
@@ -539,7 +539,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'sterilizacija-koshka-posle',
+    slug: 'sterilizaciya-koshka-posle',
     title: 'Питание кошки после стерилизации',
     excerpt: '',
     categories: ['Здоровье', 'Кошки'],
@@ -583,7 +583,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'vetedinrnye-dieta',
+    slug: 'veterinarnye-diety',
     title: 'Ветеринарные диеты: когда назначают',
     excerpt: '',
     categories: ['Ветдиеты', 'Здоровье'],
@@ -628,7 +628,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'peremenya-korma-sobaka',
+    slug: 'perevod-sobaki-na-korm',
     title: 'Как перевести собаку на другой корм',
     excerpt: '',
     categories: ['Питание', 'Собаки'],
@@ -727,7 +727,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'laksomstva-skolko',
+    slug: 'lakomstva-skolko',
     title: 'Лакомства: сколько давать',
     excerpt: '',
     categories: ['Питание'],
@@ -760,7 +760,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'beremennost-kormlenije',
+    slug: 'beremennost-kormlenie',
     title: 'Чем кормить беременную и кормящую кошку',
     excerpt: '',
     categories: ['Питание', 'Кошки'],
@@ -871,7 +871,7 @@ export const DRAFTS: BlogPost[] = [
     metaDescription: '',
   },
   {
-    slug: 'personidskaya-koshka',
+    slug: 'persidskaya-koshka',
     title: 'Чем кормить персидскую кошку: особенности и рацион',
     excerpt: '',
     categories: ['Кошки', 'Питание'],
