@@ -35,3 +35,20 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+@layer utilities {
+  /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
+     прерываемо и корректно гаснет под reduced-motion (см. правило выше). */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 500ms var(--ease-out),
+      transform 500ms var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

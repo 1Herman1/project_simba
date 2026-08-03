@@ -19,7 +19,7 @@ const advantages = [
 
 export default function AdvantagesSection() {
   return (
-    <section className="py-12 bg-white">
+    <section className="bg-white py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-navy-900 mb-6">Почему у нас</h2>
         <div className="flex flex-col gap-4">

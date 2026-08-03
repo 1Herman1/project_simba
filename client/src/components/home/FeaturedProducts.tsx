@@ -286,7 +286,8 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
   }
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-6">
+    <section className="bg-blue-50 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4">
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center justify-between">
           <span>{error}</span>
@@ -324,6 +325,7 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
             onToggleFavorite={handleToggleFavorite}
           />
         ))}
+      </div>
       </div>
     </section>
   )

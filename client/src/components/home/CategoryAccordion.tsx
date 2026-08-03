@@ -9,35 +9,35 @@ const categories = [
     label: 'Корм для кошек',
     subtitle: 'Лечебное и холистик питание',
     href: '/catalog?category=cats-food',
-    bgClass: 'bg-primary-tint',
+    bgClass: 'bg-blue-100',
   },
   {
     id: 'dogs-food',
     label: 'Корм для собак',
     subtitle: 'Породные и лечебные рационы',
     href: '/catalog?category=dogs-food',
-    bgClass: 'bg-primary-tint',
+    bgClass: 'bg-amber-100',
   },
   {
     id: 'treats',
     label: 'Лакомства',
     subtitle: 'Вкусно и полезно',
     href: '/catalog?category=treats',
-    bgClass: 'bg-primary-tint',
+    bgClass: 'bg-amber-50',
   },
   {
     id: 'accessories',
     label: 'Аксессуары',
     subtitle: 'Миски, переноски, игрушки',
     href: '/catalog?category=accessories',
-    bgClass: 'bg-primary-tint',
+    bgClass: 'bg-blue-200',
   },
   {
     id: 'pharmacy',
     label: 'Ветаптека',
     subtitle: 'Витамины и препараты',
     href: '/catalog?category=pharmacy',
-    bgClass: 'bg-primary-tint',
+    bgClass: 'bg-white border border-line',
   },
 ]
 
@@ -47,7 +47,7 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
       className={`relative overflow-hidden rounded-card p-8 flex flex-col justify-between min-h-[420px] ${cat.bgClass}`}
     >
       <div>
-        <p className="text-sm opacity-70 mb-2 text-navy-900">{cat.subtitle}</p>
+        <p className="text-sm text-navy-500 mb-2">{cat.subtitle}</p>
         <h2 className="text-3xl font-bold mb-6 text-navy-900">{cat.label}</h2>
         <Link to={cat.href} onClick={e => e.stopPropagation()}>
           <button
@@ -84,7 +84,8 @@ export default function CategoryAccordion() {
   const [active, setActive] = useState('cats-food')
 
   return (
-    <section className="px-4 py-8 max-w-7xl mx-auto">
+    <section className="bg-blue-50 py-12 md:py-16">
+      <div className="max-w-7xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-6 text-navy-900">Категории</h2>
 
       {/* Desktop: горизонтальный аккордеон */}
@@ -110,11 +111,12 @@ export default function CategoryAccordion() {
             className={`rounded-card p-6 flex items-center justify-between ${cat.bgClass}`}
           >
             <div>
-              <p className="text-xs opacity-60 text-navy-900">{cat.subtitle}</p>
+              <p className="text-xs text-navy-500">{cat.subtitle}</p>
               <h3 className="text-lg font-bold text-navy-900">{cat.label}</h3>
             </div>
           </Link>
         ))}
+      </div>
       </div>
     </section>
   )

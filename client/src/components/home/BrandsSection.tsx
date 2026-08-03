@@ -15,7 +15,8 @@ const brands = [
 
 export default function BrandsSection() {
   return (
-    <section className="max-w-7xl mx-auto px-4 py-8">
+    <section className="bg-blue-50 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-4">
       <h2 className="text-xl font-bold text-navy-900 mb-5">Бренды, которым мы доверяем</h2>
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {brands.map((brand) => (
@@ -30,6 +31,7 @@ export default function BrandsSection() {
           </Link>
         ))}
       </div>
+    </div>
     </section>
   )
 }

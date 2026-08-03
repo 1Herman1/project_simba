@@ -52,7 +52,8 @@ function FaqItem({ faq }: { faq: FaqEntry }) {
 
 export default function FaqSection() {
   return (
-    <section className="py-12 max-w-4xl mx-auto px-4">
+    <section className="bg-white py-12 md:py-16">
+      <div className="max-w-4xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-8 text-navy-900">Вопросы и ответы</h2>
       <div className="flex flex-col gap-3">
         {faqs.map((faq) => (
@@ -63,6 +64,7 @@ export default function FaqSection() {
         <Link to="/faq" className="text-primary-hover hover:underline transition-colors">
           Все вопросы и ответы →
         </Link>
+      </div>
       </div>
     </section>
   )
