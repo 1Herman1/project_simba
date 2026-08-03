@@ -57,10 +57,14 @@ const config: Config = {
         sans: ['Nunito', 'system-ui', 'sans-serif'],
         display: ['Nunito', 'system-ui', 'sans-serif'],
       },
+      transitionTimingFunction: {
+        smooth: 'var(--ease-out)',
+      },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-out',
         'slide-down': 'slideDown 0.3s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',
+        'badge-pop': 'badgePop 220ms var(--ease-out)',
       },
       keyframes: {
         fadeIn: { from: { opacity: '0' }, to: { opacity: '1' } },
@@ -71,6 +75,11 @@ const config: Config = {
         slideUp: {
           from: { opacity: '0', transform: 'translateY(10px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        badgePop: {
+          '0%': { transform: 'scale(0.85)' },
+          '55%': { transform: 'scale(1.15)' },
+          '100%': { transform: 'scale(1)' },
         },
       },
     },
