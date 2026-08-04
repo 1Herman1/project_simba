@@ -11,6 +11,7 @@ const categories = [
     href: '/catalog?category=cats-food',
     bgClass: 'bg-blue-100',
     image: '/pets/cat.png',
+    imgClass: 'h-[86%] max-w-[52%]',
   },
   {
     id: 'dogs-food',
@@ -19,6 +20,7 @@ const categories = [
     href: '/catalog?category=dogs-food',
     bgClass: 'bg-amber-100',
     image: '/pets/smiledog.png',
+    imgClass: 'h-[90%] max-w-[50%]',
   },
   {
     id: 'treats',
@@ -27,6 +29,7 @@ const categories = [
     href: '/catalog?category=treats',
     bgClass: 'bg-amber-50',
     image: '/pets/dogwithcat.png',
+    imgClass: 'h-[95%] max-w-[46%]',
   },
   {
     id: 'accessories',
@@ -35,6 +38,7 @@ const categories = [
     href: '/catalog?category=accessories',
     bgClass: 'bg-blue-200',
     image: '/pets/dogwithball.png',
+    imgClass: 'h-[64%] max-w-[54%]',
   },
   {
     id: 'pharmacy',
@@ -43,6 +47,7 @@ const categories = [
     href: '/catalog?category=pharmacy',
     bgClass: 'bg-white border border-line',
     image: '/pets/dogdoctor.png',
+    imgClass: 'h-[90%] max-w-[50%]',
   },
 ]
 
@@ -59,7 +64,7 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
           alt=""
           aria-hidden="true"
           onError={(e) => { e.currentTarget.style.display = 'none' }}
-          className="pointer-events-none select-none absolute bottom-0 right-0 h-[92%] w-auto max-w-[58%] object-contain object-bottom animate-fade-in"
+          className={`pointer-events-none select-none absolute bottom-0 right-0 w-auto object-contain object-bottom animate-fade-in ${cat.imgClass ?? 'h-[88%] max-w-[52%]'}`}
         />
       )}
       <div className="relative z-10">
