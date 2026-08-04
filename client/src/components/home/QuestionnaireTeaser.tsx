@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 
 export default function QuestionnaireTeaser() {
   return (
-    <section className="bg-white py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="rounded-card bg-primary-tint p-8 text-center">
+        <div className="rounded-card bg-white border border-line p-8 text-center">
           <h2 className="text-2xl font-bold text-navy-900 mb-2">
             Не знаете, какой корм выбрать?
           </h2>

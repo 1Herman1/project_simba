@@ -13,7 +13,7 @@ function ImageIcon() {
 
 export default function AboutSection() {
   return (
-    <section className="bg-white py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-navy-500">О компании</p>
         <h2 className="mt-1 text-2xl font-bold text-navy-900">Кто мы</h2>
@@ -44,7 +44,7 @@ export default function AboutSection() {
           </div>
 
           {/* Плейсхолдер под фото справа */}
-          <div className="bg-primary-tint rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
+          <div className="bg-white border border-line rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
             <div className="text-primary-soft mb-3">
               <ImageIcon />
             </div>

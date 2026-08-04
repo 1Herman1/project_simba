@@ -4,7 +4,7 @@ import { MARKETPLACES } from '../../lib/contacts'
 
 export default function ReviewsSection() {
   return (
-    <section className="bg-blue-50 py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-navy-900">Что о нас говорят</h2>
         <p className="mt-2 text-navy-500 max-w-prose leading-relaxed">

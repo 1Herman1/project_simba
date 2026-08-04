@@ -50,13 +50,13 @@ const guarantees = [
 
 export default function TrustSection() {
   return (
-    <section className="bg-white py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-navy-900">Почему нам доверяют</h2>
         <p className="mt-2 text-navy-500 max-w-prose leading-relaxed">Не обещания, а то, что можно проверить</p>
 
         {/* Крупный стат-бокс — подложка primary-tint, без рамки */}
-        <div className="mt-8 rounded-card bg-primary-tint p-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <div className="mt-8 rounded-card bg-white border border-line p-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className="text-[40px] leading-none font-black text-navy-900 tabular-nums whitespace-nowrap">24 000+</span>
           <p className="text-navy-500">заказов на трёх площадках · рейтинг 4,9 на каждой</p>
         </div>

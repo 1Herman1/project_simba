@@ -32,7 +32,7 @@ const articles = [
 
 export default function BlogSection() {
   return (
-    <section className="bg-blue-50 py-12 md:py-16">
+    <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-navy-900">Полезные статьи</h2>

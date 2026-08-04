@@ -51,4 +51,30 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Apple-shine: спот-свет за курсором на CTA. Только background+opacity
+     (GPU), появление 200мс ease-out. Координаты курсора приходят из
+     onMouseMove через --mx/--my. Не мешает клику (pointer-events:none). */
+  .btn-shine {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      circle at var(--mx, 50%) var(--my, 50%),
+      rgb(255 255 255 / 0.20) 0%,
+      transparent 60%
+    );
+    transition: opacity 200ms var(--ease-out);
+  }
+  .group:hover .btn-shine {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine {
+    display: none;
+  }
 }

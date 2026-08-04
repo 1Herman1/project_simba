@@ -78,11 +78,20 @@ export default function Footer() {
             href={CONTACTS.telegram}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-3 rounded-xl transition-[background-color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 min-h-11 text-base"
+            onMouseMove={(e) => {
+              const t = e.currentTarget
+              const r = t.getBoundingClientRect()
+              t.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
+              t.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
+            }}
+            className="group relative overflow-hidden bg-primary hover:bg-primary-hover hover:-translate-y-0.5 active:translate-y-0 text-white font-semibold px-4 py-3 rounded-xl transition-[background-color,transform] duration-100 ease-smooth flex items-center justify-center min-h-11 text-base"
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
-            <TelegramPlaneIcon />
-            <span>Telegram — ответим за 10 минут</span>
+            <span aria-hidden="true" className="btn-shine" />
+            <span className="relative z-10 flex items-center gap-2">
+              <TelegramPlaneIcon />
+              Telegram — ответим за 10 минут
+            </span>
           </a>
 
           {/* Телефон */}
@@ -102,7 +111,7 @@ export default function Footer() {
 
           {/* Почта */}
           <div className="flex items-baseline gap-2 text-base md:text-sm">
-            <a href={CONTACTS.emailHref} className="text-primary-hover hover:underline transition-colors duration-100 ease">
+            <a href={CONTACTS.emailHref} className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
               {CONTACTS.email}
             </a>
             <span className="text-navy-500"> — для юрлиц и поставщиков</span>
@@ -135,7 +144,7 @@ export default function Footer() {
             <div className="overflow-hidden">
               <div className="flex flex-col gap-2">
                 {buyersLinks.map((item) => (
-                  <Link key={item.to} to={item.to} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
+                  <Link key={item.to} to={item.to} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                     {item.label}
                   </Link>
                 ))}
@@ -178,11 +187,11 @@ export default function Footer() {
                         <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
                       </span>
                     ) : item.hash ? (
-                      <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
+                      <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                         {item.label}
                       </a>
                     ) : (
-                      <Link to={item.to || ''} className="text-base md:text-sm text-primary-hover hover:underline transition-colors duration-100 ease">
+                      <Link to={item.to || ''} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                         {item.label}
                       </Link>
                     )}
@@ -218,10 +227,9 @@ export default function Footer() {
       {/* Нижняя полоса */}
       <div className="border-t border-line bg-blue-50">
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-start md:justify-between gap-6 text-base md:text-sm text-navy-500">
-          {/* Левая часть: copyright, режим работы, оплата */}
+          {/* Левая часть: copyright + оплата (строка часов убрана — дублирует колонку 1) */}
           <div className="space-y-2 flex-1">
             <p>© 2026 Симба · {LEGAL.entity} · {LEGAL.inn} · Москва</p>
-            <p>{CONTACTS.orders} {CONTACTS.hours}</p>
             <p className="flex items-center gap-1.5">
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" />
@@ -229,22 +237,17 @@ export default function Footer() {
               </svg>
               Оплата: МИР · Visa · Mastercard · СБП
             </p>
-            <p>
-              Разработка сайтов — <span className="text-navy-500">вскоре</span>
-              {/* TODO: Вписать константу DEV_STUDIO.url сюда, когда будет готова студия. Формат: <a href={DEV_STUDIO.url} target="_blank" rel="noopener noreferrer" className="text-primary-hover hover:underline">{DEV_STUDIO.label}</a> */}
-            </p>
           </div>
 
-          {/* Правая часть: ссылки */}
-          <div className="flex flex-col md:items-end gap-2">
-            <span className="text-navy-500 cursor-default">
-              Политика конфиденциальности
-              <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
-            </span>
-            <span className="text-navy-500 cursor-default">
-              Публичная оферта
-              <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
-            </span>
+          {/* Правая часть: три мета-пункта в один ряд, на мобиле — перенос.
+              Роутов и студии пока нет → это НЕ ссылки, а статичные пункты в
+              resting-цвете ссылок (navy-700) без hover, чтобы не обещать переход.
+              TODO: когда появятся страницы/студия — заменить span на Link/a
+              и добавить hover:text-primary-hover transition-colors. */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 md:justify-end text-navy-700">
+            <span className="cursor-default">Разработка сайтов</span>
+            <span className="cursor-default">Политика конфиденциальности</span>
+            <span className="cursor-default">Публичная оферта</span>
           </div>
         </div>
 
