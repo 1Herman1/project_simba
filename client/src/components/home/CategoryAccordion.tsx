@@ -10,6 +10,7 @@ const categories = [
     subtitle: 'Лечебное и холистик питание',
     href: '/catalog?category=cats-food',
     bgClass: 'bg-blue-100',
+    image: '/pets/cat.png',
   },
   {
     id: 'dogs-food',
@@ -17,6 +18,7 @@ const categories = [
     subtitle: 'Породные и лечебные рационы',
     href: '/catalog?category=dogs-food',
     bgClass: 'bg-amber-100',
+    image: '/pets/smiledog.png',
   },
   {
     id: 'treats',
@@ -24,6 +26,7 @@ const categories = [
     subtitle: 'Вкусно и полезно',
     href: '/catalog?category=treats',
     bgClass: 'bg-amber-50',
+    image: '/pets/dogwithcat.png',
   },
   {
     id: 'accessories',
@@ -31,6 +34,7 @@ const categories = [
     subtitle: 'Миски, переноски, игрушки',
     href: '/catalog?category=accessories',
     bgClass: 'bg-blue-200',
+    image: '/pets/dogwithball.png',
   },
   {
     id: 'pharmacy',
@@ -38,6 +42,7 @@ const categories = [
     subtitle: 'Витамины и препараты',
     href: '/catalog?category=pharmacy',
     bgClass: 'bg-white border border-line',
+    image: '/pets/dogdoctor.png',
   },
 ]
 
@@ -46,7 +51,18 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
     <div
       className={`relative overflow-hidden rounded-card p-8 flex flex-col justify-between min-h-[420px] ${cat.bgClass}`}
     >
-      <div>
+      {/* Питомец у правого нижнего края раскрытой панели.
+          Если файла ещё нет — тихо прячем, чтобы не было битой иконки. */}
+      {cat.image && (
+        <img
+          src={cat.image}
+          alt=""
+          aria-hidden="true"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+          className="pointer-events-none select-none absolute bottom-0 right-0 h-[92%] w-auto max-w-[58%] object-contain object-bottom animate-fade-in"
+        />
+      )}
+      <div className="relative z-10">
         <p className="text-sm text-navy-500 mb-2">{cat.subtitle}</p>
         <h2 className="text-3xl font-bold mb-6 text-navy-900">{cat.label}</h2>
         <Link to={cat.href} onClick={e => e.stopPropagation()}>
