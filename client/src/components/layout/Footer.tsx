@@ -240,14 +240,15 @@ export default function Footer() {
           </div>
 
           {/* Правая часть: три мета-пункта в один ряд, на мобиле — перенос.
-              Роутов и студии пока нет → это НЕ ссылки, а статичные пункты в
-              resting-цвете ссылок (navy-700) без hover, чтобы не обещать переход.
-              TODO: когда появятся страницы/студия — заменить span на Link/a
-              и добавить hover:text-primary-hover transition-colors. */}
+              «Разработка сайтов» — студии пока нет, остаётся статичным текстом. */}
           <div className="flex flex-wrap gap-x-4 gap-y-1 md:justify-end text-navy-700">
             <span className="cursor-default">Разработка сайтов</span>
-            <span className="cursor-default">Политика конфиденциальности</span>
-            <span className="cursor-default">Публичная оферта</span>
+            <Link to="/privacy" className="hover:text-primary-hover transition-colors duration-100 ease">
+              Политика конфиденциальности
+            </Link>
+            <Link to="/offer" className="hover:text-primary-hover transition-colors duration-100 ease">
+              Публичная оферта
+            </Link>
           </div>
         </div>
 

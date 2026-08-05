@@ -292,7 +292,7 @@ export default function CartPage() {
 
               <p className="text-center text-xs text-navy-300 mt-3">
                 Нажимая кнопку, вы соглашаетесь с{' '}
-                <a href="#" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">условиями оферты</a>
+                <Link to="/offer" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">условиями оферты</Link>
               </p>
             </div>
           </div>

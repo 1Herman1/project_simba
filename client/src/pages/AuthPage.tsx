@@ -279,7 +279,7 @@ export default function AuthPage() {
 
         <p className="text-center text-xs text-navy-500 mt-6">
           Входя, вы соглашаетесь с{' '}
-          <a href="#" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">политикой конфиденциальности</a>
+          <Link to="/privacy" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">политикой конфиденциальности</Link>
         </p>
       </div>
 

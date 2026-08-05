@@ -19,6 +19,8 @@ import CertificatesPage from './pages/CertificatesPage'
 import ReviewsPage from './pages/ReviewsPage'
 import BlogPage from './pages/BlogPage'
 import BlogPostPage from './pages/BlogPostPage'
+import PrivacyPage from './pages/PrivacyPage'
+import OfferPage from './pages/OfferPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/offer" element={<OfferPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
