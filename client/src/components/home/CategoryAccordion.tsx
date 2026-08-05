@@ -68,8 +68,8 @@ function ActivePanel({ cat }: { cat: typeof categories[0] }) {
         />
       )}
       <div className="relative z-10">
-        <p className="text-sm text-navy-500 mb-2">{cat.subtitle}</p>
-        <h2 className="text-3xl font-bold mb-6 text-navy-900">{cat.label}</h2>
+        <p className="text-base text-navy-500 mb-2">{cat.subtitle}</p>
+        <h2 className="text-4xl font-bold mb-6 text-navy-900">{cat.label}</h2>
         <Link to={cat.href} onClick={e => e.stopPropagation()}>
           <button
             className="w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:scale-110 bg-navy-900"
@@ -92,7 +92,7 @@ function InactivePanel({ cat, onClick }: { cat: typeof categories[0]; onClick: (
       onClick={onClick}
     >
       <span
-        className="text-sm font-semibold tracking-widest text-navy-900"
+        className="text-base font-semibold tracking-widest text-navy-900"
         style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
       >
         {cat.label}
@@ -132,8 +132,8 @@ export default function CategoryAccordion() {
             className={`rounded-card p-6 flex items-center justify-between ${cat.bgClass}`}
           >
             <div>
-              <p className="text-xs text-navy-500">{cat.subtitle}</p>
-              <h3 className="text-lg font-bold text-navy-900">{cat.label}</h3>
+              <p className="text-sm text-navy-500">{cat.subtitle}</p>
+              <h3 className="text-xl font-bold text-navy-900">{cat.label}</h3>
             </div>
           </Link>
         ))}
