@@ -1,36 +1,19 @@
 import { Link } from 'react-router-dom'
+import { getPublished } from '../../content/blog'
 
-const articles = [
-  {
-    id: '1',
-    slug: 'pochechnaya-nedostatochnost-u-koshek',
-    title: 'Почечная недостаточность у кошек: какой корм выбрать?',
-    excerpt: "Разбираем состав лечебных кормов Royal Canin Renal, Hill's k/d и Purina NF. Чем они отличаются и какой лучше подойдёт вашей кошке.",
-    category: 'Здоровье',
-    readTime: '5 мин',
-    date: '15 июня 2026',
-  },
-  {
-    id: '2',
-    slug: 'holostik-kormy-obzor',
-    title: 'Холистик корма: маркетинг или реальная польза?',
-    excerpt: 'Разбираемся что скрывается за словом "холистик" на упаковке и когда такой корм действительно нужен, а когда это просто маркетинг.',
-    category: 'Питание',
-    readTime: '7 мин',
-    date: '10 июня 2026',
-  },
-  {
-    id: '3',
-    slug: 'avtozakaz-kak-nastroit',
-    title: 'Автозаказ корма: настройте один раз и забудьте',
-    excerpt: 'Пошаговая инструкция как настроить регулярную доставку корма, чтобы никогда не оказаться без еды для питомца в самый неподходящий момент.',
-    category: 'Советы',
-    readTime: '3 мин',
-    date: '5 июня 2026',
-  },
-]
+function ImagePlaceholderIcon() {
+  return (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="8.5" cy="8.5" r="1.5" />
+      <path d="M21 15l-5-5L5 21" />
+    </svg>
+  )
+}
 
 export default function BlogSection() {
+  const posts = getPublished().slice(0, 3)
+
   return (
     <section className="py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
@@ -38,50 +21,42 @@ export default function BlogSection() {
           <h2 className="text-2xl font-bold text-navy-900">Полезные статьи</h2>
           <Link
             to="/blog"
-            className="font-medium text-sm text-primary-hover hover:underline transition-colors duration-100"
+            className="font-medium text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
           >
             Все статьи
           </Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {articles.map(article => (
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {posts.map((post) => (
             <Link
-              key={article.id}
-              to={`/blog/${article.slug}`}
-              className="bg-white rounded-card overflow-hidden hover:-translate-y-0.5 hover:shadow-card transition-[transform,box-shadow] duration-100 block border border-line"
+              key={post.slug}
+              to={`/blog/${post.slug}`}
+              className="bg-white border border-line rounded-card overflow-hidden transition-[transform,box-shadow,border-color] duration-100 ease hover:border-primary-soft hover:shadow-card hover:-translate-y-0.5"
             >
-              <div className="h-36 bg-primary-tint" />
-              <div className="p-5">
-                <span className="inline-block bg-blue-100 text-primary-hover text-xs font-medium px-3 py-1 rounded-full mb-3">
-                  {article.category}
-                </span>
-                <h3
-                  className="font-bold mb-2 leading-snug text-navy-900"
-                  style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {article.title}
-                </h3>
-                <p
-                  className="text-sm mb-4 text-navy-500"
-                  style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                  }}
-                >
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center gap-3 text-xs text-navy-500">
-                  <span>{article.date}</span>
-                  <span>·</span>
-                  <span>{article.readTime} чтения</span>
+              {/* Обложка */}
+              {post.cover ? (
+                <img src={post.cover} alt={post.title} className="w-full aspect-[16/10] object-cover" />
+              ) : (
+                <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
+                  <ImagePlaceholderIcon />
                 </div>
+              )}
+
+              {/* Контент */}
+              <div className="p-5">
+                <p className="text-xs uppercase tracking-wide text-primary-hover font-semibold mb-2">
+                  {post.categories.join(' · ')}
+                </p>
+                <h3 className="font-bold text-lg text-navy-900 mb-2 line-clamp-2">{post.title}</h3>
+                <p className="text-sm text-navy-500 mb-4 line-clamp-2">{post.excerpt}</p>
+                <p className="text-sm text-navy-500 tabular-nums">
+                  {new Date(post.date + 'T00:00:00Z').toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })} · {post.readingMinutes} мин
+                </p>
               </div>
             </Link>
           ))}
