@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
 import CatalogPage from './pages/CatalogPage'
@@ -25,6 +26,8 @@ import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
@@ -51,5 +54,6 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
+    </>
   )
 }
