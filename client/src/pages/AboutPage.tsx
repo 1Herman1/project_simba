@@ -74,7 +74,7 @@ export default function AboutPage() {
         </p>
         <Link
           to="/questionnaire"
-          className="bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-colors duration-100 ease inline-flex items-center justify-center min-h-11 px-6"
+          className="btn-primary rounded-xl font-bold px-6"
         >
           Подобрать за минуту
         </Link>

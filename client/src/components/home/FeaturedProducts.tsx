@@ -179,10 +179,10 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
         {/* Кнопка в корзину */}
         <button
           onClick={handleAddToCart}
-          className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition-[background-color,transform] duration-100 ${
+          className={`flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold ${
             addedToCart
               ? 'bg-green-100 text-green-700'
-              : 'bg-primary text-white hover:bg-primary-hover hover:scale-[1.02]'
+              : 'btn-primary'
           }`}
         >
           {addedToCart ? (
@@ -286,7 +286,7 @@ export default function FeaturedProducts({ title, products: passedProducts }: Fe
   }
 
   return (
-    <section className="py-12 md:py-16">
+    <section id="popular" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
       {error && (
         <div className="mb-4 p-3 bg-red-100 text-red-700 text-sm rounded-lg flex items-center justify-between">

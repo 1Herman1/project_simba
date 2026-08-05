@@ -105,7 +105,7 @@ export default function CategoryAccordion() {
   const [active, setActive] = useState('cats-food')
 
   return (
-    <section className="py-12 md:py-16">
+    <section id="categories" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
       <h2 className="text-2xl font-bold mb-6 text-navy-900">Категории</h2>
 

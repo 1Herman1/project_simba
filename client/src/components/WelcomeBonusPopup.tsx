@@ -139,7 +139,7 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
           <Link
             to="/catalog"
             onClick={onClose}
-            className="flex-1 inline-flex items-center justify-center min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+            className="btn-primary flex-1 px-6 rounded-xl font-bold"
           >
             Выбрать корм
           </Link>

@@ -91,10 +91,10 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={handleAddToCart}
-          className={`w-full py-2 rounded-xl text-sm font-medium transition-colors duration-100 ease ${
+          className={`w-full py-2 rounded-xl text-sm font-medium ${
             added
               ? 'bg-green-100 text-green-700'
-              : 'bg-primary text-white hover:bg-primary-hover active:scale-95'
+              : 'btn-primary'
           }`}>
           {added ? '✓ Добавлено' : 'В корзину'}
         </button>

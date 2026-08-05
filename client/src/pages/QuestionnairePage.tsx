@@ -38,7 +38,7 @@ export default function QuestionnairePage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center bg-primary text-white rounded-xl px-8 py-3 font-bold hover:bg-primary-hover transition-colors duration-200 ease-out mb-3"
+          className="btn-primary rounded-xl px-8 py-3 font-bold mb-3"
         >
           Подобрать корм
         </a>

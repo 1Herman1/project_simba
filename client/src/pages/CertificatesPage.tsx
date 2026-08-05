@@ -111,7 +111,7 @@ export default function CertificatesPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-primary text-white rounded-xl px-6 font-bold hover:bg-primary-hover transition-colors duration-100 ease inline-flex items-center justify-center min-h-11"
+          className="btn-primary rounded-xl px-6 font-bold"
         >
           Написать в Telegram
         </a>

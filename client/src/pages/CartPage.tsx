@@ -88,7 +88,7 @@ export default function CartPage() {
         <h2 className="text-2xl font-bold text-navy-900">Корзина пуста</h2>
         <p className="text-navy-400 text-center">Добавьте товары из каталога, чтобы оформить заказ</p>
         <Link to="/catalog"
-          className="bg-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease">
+          className="btn-primary font-bold px-8 py-3 rounded-xl">
           Перейти в каталог
         </Link>
       </div>
@@ -199,7 +199,7 @@ export default function CartPage() {
             })}
 
             <Link to="/catalog"
-              className="flex items-center gap-2 text-primary-hover hover:underline transition-colors text-sm font-medium mt-2 w-fit">
+              className="flex items-center gap-2 text-navy-700 hover:text-primary-hover transition-colors text-sm font-medium mt-2 w-fit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"/>
                 <polyline points="12 19 5 12 12 5"/>
@@ -286,13 +286,13 @@ export default function CartPage() {
               </div>
 
               <Link to="/checkout"
-                className="block w-full bg-primary text-white font-bold py-3.5 rounded-xl text-center hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
+                className="block w-full btn-primary font-bold py-3.5 rounded-xl text-center text-sm">
                 Оформить заказ
               </Link>
 
               <p className="text-center text-xs text-navy-300 mt-3">
                 Нажимая кнопку, вы соглашаетесь с{' '}
-                <a href="#" className="text-primary-hover hover:underline">условиями оферты</a>
+                <a href="#" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">условиями оферты</a>
               </p>
             </div>
           </div>

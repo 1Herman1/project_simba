@@ -166,7 +166,7 @@ export default function BonusesPage() {
         </p>
         <Link
           to="/questionnaire"
-          className="bg-primary text-white rounded-xl px-6 font-bold hover:bg-primary-hover transition-colors duration-100 ease inline-flex items-center justify-center min-h-11"
+          className="btn-primary rounded-xl px-6 font-bold"
         >
           Подобрать корм
         </Link>

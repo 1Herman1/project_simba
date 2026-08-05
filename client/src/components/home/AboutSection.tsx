@@ -13,7 +13,7 @@ function ImageIcon() {
 
 export default function AboutSection() {
   return (
-    <section className="py-12 md:py-16">
+    <section id="about" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-navy-500">О компании</p>
         <h2 className="mt-1 text-2xl font-bold text-navy-900">Кто мы</h2>
@@ -36,7 +36,7 @@ export default function AboutSection() {
             <div className="mt-6">
               <Link
                 to="/questionnaire"
-                className="inline-flex items-center justify-center min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+                className="btn-primary px-6 rounded-xl font-bold"
               >
                 Подобрать за минуту
               </Link>

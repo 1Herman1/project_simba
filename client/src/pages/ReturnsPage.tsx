@@ -31,8 +31,8 @@ export default function ReturnsPage() {
       title: 'Напишите нам',
       content: (
         <>
-          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="text-primary-hover underline hover:text-navy-900">Telegram</a> или{' '}
-          <a href={CONTACTS.returnsPhoneHref} className="text-primary-hover underline hover:text-navy-900">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
+          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">Telegram</a> или{' '}
+          <a href={CONTACTS.returnsPhoneHref} className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
           кабинете.
         </>
       ),
@@ -124,7 +124,7 @@ export default function ReturnsPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-primary text-white rounded-xl px-6 py-3 font-bold hover:bg-primary-hover transition-colors duration-200 ease-out"
+          className="btn-primary rounded-xl px-6 py-3 font-bold gap-2"
         >
           <TelegramPlaneIcon />
           Написать в Telegram

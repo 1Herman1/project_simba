@@ -207,7 +207,7 @@ export default function BlogPage() {
           <p className="text-navy-500 mb-6">Мы продолжаем писать новые материалы. Попробуйте выбрать другую категорию.</p>
           <button
             onClick={() => handleCategoryClick(null)}
-            className="bg-primary text-white hover:bg-primary-hover rounded-xl px-6 min-h-11 font-bold transition-colors duration-100 ease"
+            className="btn-primary rounded-xl px-6 font-bold"
           >
             Показать все статьи
           </button>

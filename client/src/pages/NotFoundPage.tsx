@@ -18,13 +18,13 @@ export default function NotFoundPage() {
       <div className="mt-8 flex flex-col sm:flex-row gap-3">
         <Link
           to="/catalog"
-          className="inline-flex items-center justify-center min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+          className="btn-primary px-6 rounded-xl font-bold"
         >
           В каталог
         </Link>
         <Link
           to="/"
-          className="inline-flex items-center justify-center min-h-11 px-6 rounded-xl border border-line text-navy-900 font-semibold hover:bg-primary-tint transition-colors duration-100 ease"
+          className="btn-primary px-6 rounded-xl font-semibold"
         >
           На главную
         </Link>

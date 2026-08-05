@@ -152,7 +152,7 @@ export default function DeliveryPage() {
             <p className="text-navy-500 leading-relaxed">
               Каждый заказ мы собираем и проверяем перед отправкой: сроки годности, целостность упаковки, комплектность. При
               получении вы можете сверить маркировку — если что-то не так, заменим или вернём деньги, подробнее на странице{' '}
-              <Link to="/returns" className="text-primary-hover underline hover:text-navy-900">
+              <Link to="/returns" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                 Обмен и возврат
               </Link>
               .
@@ -170,7 +170,7 @@ export default function DeliveryPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-primary text-white rounded-xl px-6 py-3 font-bold hover:bg-primary-hover transition-colors duration-200 ease-out w-full sm:w-auto"
+          className="btn-primary rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2"
         >
           <TelegramPlaneIcon />
           Написать в Telegram

@@ -183,7 +183,7 @@ export default function FavoritesPage() {
             </div>
             <Link
               to="/catalog"
-              className="bg-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease">
+              className="btn-primary font-bold px-8 py-3 rounded-xl">
               Перейти в каталог
             </Link>
           </div>

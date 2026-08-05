@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export default function QuestionnaireTeaser() {
   return (
-    <section className="py-12 md:py-16">
+    <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-4xl mx-auto px-4">
         <div className="rounded-card bg-white border border-line p-8 text-center">
           <h2 className="text-2xl font-bold text-navy-900 mb-2">
@@ -13,7 +13,7 @@ export default function QuestionnaireTeaser() {
           </p>
           <Link
             to="/questionnaire"
-            className="inline-block bg-primary text-white px-8 py-3 rounded-xl font-semibold hover:bg-primary-hover transition-colors"
+            className="btn-primary px-8 py-3 rounded-xl font-semibold"
           >
             Подобрать корм
           </Link>

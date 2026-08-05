@@ -50,7 +50,7 @@ const guarantees = [
 
 export default function TrustSection() {
   return (
-    <section className="py-12 md:py-16">
+    <section id="trust" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-navy-900">Почему нам доверяют</h2>
         <p className="mt-2 text-navy-500 max-w-prose leading-relaxed">Не обещания, а то, что можно проверить</p>
@@ -89,7 +89,7 @@ export default function TrustSection() {
         <div className="mt-8">
           <Link
             to="/trust"
-            className="inline-flex items-center justify-center min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+            className="btn-primary px-6 rounded-xl font-bold"
           >
             Подробнее о гарантиях
           </Link>

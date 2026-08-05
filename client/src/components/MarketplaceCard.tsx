@@ -57,7 +57,7 @@ export default function MarketplaceCard({
           target="_blank"
           rel="noopener noreferrer"
           aria-label={`${linkLabel} о магазине на площадке ${name}, рейтинг ${rating} из 5, откроется в новой вкладке`}
-          className="mt-1 inline-flex items-center gap-1 min-h-11 text-sm font-medium text-primary-hover hover:underline transition-colors duration-100 ease"
+          className="mt-1 inline-flex items-center gap-1 min-h-11 text-sm font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
         >
           {linkLabel}
           <ExternalLinkIcon />

@@ -184,7 +184,7 @@ export default function AuthPage() {
               <button
                 onClick={handleSendCode}
                 disabled={loading || contact.length < 3}
-                className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full btn-primary font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -244,7 +244,7 @@ export default function AuthPage() {
               <button
                 onClick={handleVerifyCode}
                 disabled={loading || code.length < CODE_LENGTH}
-                className="w-full bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed mb-4">
+                className="w-full btn-primary font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed mb-4">
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -266,7 +266,7 @@ export default function AuthPage() {
                 ) : (
                   <button
                     onClick={handleResend}
-                    className="text-sm text-primary-hover hover:underline transition-colors font-medium">
+                    className="text-sm text-navy-700 hover:text-primary-hover transition-colors font-medium">
                     Отправить код повторно
                   </button>
                 )}
@@ -279,7 +279,7 @@ export default function AuthPage() {
 
         <p className="text-center text-xs text-navy-500 mt-6">
           Входя, вы соглашаетесь с{' '}
-          <a href="#" className="text-primary-hover hover:underline">политикой конфиденциальности</a>
+          <a href="#" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">политикой конфиденциальности</a>
         </p>
       </div>
 

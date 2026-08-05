@@ -253,7 +253,7 @@ export default function ProfilePage() {
                         {/* Кнопки */}
                         <div className="flex gap-2 flex-wrap">
                           {order.status === 'delivered' && (
-                            <button className="flex-1 bg-primary text-white font-medium py-2 rounded-xl text-sm hover:bg-primary-hover transition-colors duration-100 ease">
+                            <button className="flex-1 btn-primary font-medium py-2 rounded-xl text-sm">
                               Повторить заказ
                             </button>
                           )}
@@ -350,7 +350,7 @@ export default function ProfilePage() {
               {!loadingBonuses && !bonusesError && bonusTransactions.length === 0 && (
                 <div className="text-center py-8">
                   <p className="text-sm text-navy-500 mb-3">Операций с бонусами пока нет</p>
-                  <Link to="/" className="inline-block text-primary-hover font-medium text-sm hover:underline">
+                  <Link to="/" className="inline-block text-navy-700 font-medium text-sm hover:text-primary-hover transition-colors duration-100 ease">
                     Перейти в каталог
                   </Link>
                 </div>
@@ -390,7 +390,7 @@ export default function ProfilePage() {
                             {tx.orderId && (
                               <Link
                                 to="#"
-                                className="text-xs text-primary-hover hover:underline">
+                                className="text-xs text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                                 #{tx.orderId.slice(-6).toUpperCase()}
                               </Link>
                             )}
@@ -451,7 +451,7 @@ export default function ProfilePage() {
                       setSavingProfile(false)
                     }
                   }}
-                  className="bg-primary text-white font-bold py-2.5 rounded-xl text-sm hover:bg-primary-hover transition-colors duration-100 ease mt-1 disabled:opacity-50">
+                  className="btn-primary font-bold py-2.5 rounded-xl text-sm mt-1 disabled:opacity-50">
                   {savingProfile ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </div>

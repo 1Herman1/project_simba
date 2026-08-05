@@ -4,7 +4,7 @@ import { MARKETPLACES } from '../../lib/contacts'
 
 export default function ReviewsSection() {
   return (
-    <section className="py-12 md:py-16">
+    <section id="reviews" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-navy-900">Что о нас говорят</h2>
         <p className="mt-2 text-navy-500 max-w-prose leading-relaxed">
@@ -29,7 +29,7 @@ export default function ReviewsSection() {
         <div className="mt-8">
           <Link
             to="/reviews"
-            className="inline-flex items-center justify-center min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+            className="btn-primary px-6 rounded-xl font-bold"
           >
             Читать отзывы
           </Link>

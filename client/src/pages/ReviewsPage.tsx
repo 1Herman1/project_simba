@@ -39,7 +39,7 @@ export default function ReviewsPage() {
       <div className="bg-primary-tint rounded-card p-5">
         <p className="text-navy-500 leading-relaxed">
           Заказывая на сайте, вы получаете{' '}
-          <Link to="/bonuses" className="text-primary-hover underline hover:text-navy-900 transition-colors duration-100 ease">
+          <Link to="/bonuses" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
             бонусы
           </Link>
           {' '}и цены без наценки площадок.

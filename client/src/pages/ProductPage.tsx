@@ -51,7 +51,7 @@ export default function ProductPage() {
     return (
       <div className="min-h-[100dvh] bg-blue-50 flex flex-col items-center justify-center gap-4">
         <p className="text-navy-500 text-lg">Товар не найден</p>
-        <Link to="/catalog" className="text-primary-hover hover:underline">В каталог</Link>
+        <Link to="/catalog" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">В каталог</Link>
       </div>
     )
   }
@@ -193,8 +193,8 @@ export default function ProductPage() {
               {/* В корзину */}
               <button
                 onClick={handleAddToCart}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-colors duration-100 ease ${
-                  added ? 'bg-green-100 text-green-700' : 'bg-primary text-white hover:bg-primary-hover active:scale-95'
+                className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                  added ? 'bg-green-100 text-green-700' : 'btn-primary'
                 }`}>
                 {added ? 'Добавлено в корзину' : 'Добавить в корзину'}
               </button>
@@ -305,7 +305,7 @@ export default function ProductPage() {
             {activeTab === 'reviews' && (
               <div className="text-center py-10">
                 <p className="text-navy-400 mb-4">Отзывы пока не добавлены</p>
-                <button className="bg-primary text-white px-6 py-2.5 rounded-xl font-semibold text-sm hover:bg-primary-hover transition-colors duration-100 ease">
+                <button className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm">
                   Написать первый отзыв
                 </button>
               </div>

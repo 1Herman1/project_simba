@@ -70,7 +70,7 @@ export default function BlogPostPage() {
       />
 
       {/* Хлебная крошка */}
-      <Link to="/blog" className="inline-flex items-center gap-2 text-primary-hover hover:underline mb-6 text-sm">
+      <Link to="/blog" className="inline-flex items-center gap-2 text-navy-700 hover:text-primary-hover transition-colors duration-100 ease mb-6 text-sm">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 18 9 12 15 6" />
         </svg>
@@ -167,7 +167,7 @@ export default function BlogPostPage() {
         <p className="text-navy-500">Не знаете, какой корм подойдёт питомцу — </p>
         <Link
           to="/questionnaire"
-          className="bg-primary text-white hover:bg-primary-hover rounded-xl px-6 min-h-11 font-bold transition-colors duration-100 ease flex items-center justify-center w-full sm:w-auto whitespace-nowrap"
+          className="btn-primary rounded-xl px-6 font-bold w-full sm:w-auto whitespace-nowrap"
         >
           Подобрать за минуту
         </Link>

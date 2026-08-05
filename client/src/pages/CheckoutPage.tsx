@@ -220,7 +220,7 @@ export default function CheckoutPage() {
           </p>
           <div className="flex flex-col gap-2">
             <Link to="/profile"
-              className="block bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover transition-colors duration-100 ease text-sm">
+              className="block btn-primary font-bold py-3 rounded-xl text-sm">
               Мои заказы
             </Link>
             <Link to="/"
@@ -405,7 +405,7 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={() => setStep('payment')}
-                  className="w-full mt-5 bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
+                  className="w-full mt-5 btn-primary font-bold py-3 rounded-xl text-sm">
                   Далее: Оплата
                 </button>
               </div>
@@ -520,7 +520,7 @@ export default function CheckoutPage() {
                   </button>
                   <button
                     onClick={() => setStep('confirm')}
-                    className="flex-[2] bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm">
+                    className="flex-[2] btn-primary font-bold py-3 rounded-xl text-sm">
                     Далее: Подтверждение
                   </button>
                 </div>
@@ -586,7 +586,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={placingOrder}
-                    className="flex-[2] bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary-hover active:scale-95 transition-colors duration-100 ease text-sm disabled:opacity-60">
+                    className="flex-[2] btn-primary font-bold py-3 rounded-xl text-sm disabled:opacity-60">
                     {placingOrder ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -604,7 +604,7 @@ export default function CheckoutPage() {
                 )}
                 <p className="text-center text-xs text-navy-300 mt-3">
                   Нажимая кнопку, вы соглашаетесь с{' '}
-                  <a href="#" className="text-primary-hover hover:underline">условиями оферты</a>
+                  <a href="#" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">условиями оферты</a>
                 </p>
               </div>
             )}

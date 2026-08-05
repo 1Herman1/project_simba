@@ -42,7 +42,7 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
         return (
           <>
             Невскрытую упаковку — да, в течение 30 дней. Вскрытую, к сожалению, нет — санитарные нормы. Подробнее —{' '}
-            <Link to="/returns" className="text-primary-hover underline hover:text-navy-900">
+            <Link to="/returns" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
               на странице «Обмен и возврат»
             </Link>
             .
@@ -53,7 +53,7 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
           <>
             Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим
             варианты. Или{' '}
-            <Link to="/questionnaire" className="text-primary-hover underline hover:text-navy-900">
+            <Link to="/questionnaire" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
               пройдите подбор корма на сайте
             </Link>
             , это минута.
@@ -139,7 +139,7 @@ export default function FaqPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 bg-primary text-white rounded-xl px-6 py-3 font-bold hover:bg-primary-hover transition-colors duration-200 ease-out"
+          className="btn-primary rounded-xl px-6 py-3 font-bold gap-2"
         >
           <TelegramPlaneIcon />
           Спросите в Telegram
