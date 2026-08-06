@@ -150,4 +150,33 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* Каскад внутри секции: наблюдатель один — на .reveal-group, дети едут
+     по --reveal-delay. Переживает ремоунт детей при смене фильтра: группа
+     уже .is-visible, новые карточки рождаются в финальном состоянии и
+     анимируются отдельным card-in, а не мигают повторным reveal. */
+  .reveal-group .reveal-item {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 420ms var(--ease-out),
+      transform 420ms var(--ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal-group.is-visible .reveal-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Глобальное правило reduced-motion гасит transform и длительность анимаций,
+   но не задержки: без этого блока карточка висела бы пустой до 300мс, а потом
+   возникала рывком. Гасим задержки и fill-mode явно. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-group .reveal-item,
+  .animate-card-in {
+    transition-delay: 0ms !important;
+    animation-delay: 0ms !important;
+    animation-fill-mode: none !important;
+  }
 }

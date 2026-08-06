@@ -9,6 +9,7 @@ import BrandsSection from '../components/home/BrandsSection'
 import AboutSection from '../components/home/AboutSection'
 import FaqSection from '../components/home/FaqSection'
 import ReviewsSection from '../components/home/ReviewsSection'
+import BlogSection from '../components/home/BlogSection'
 import { useReveal } from '../hooks/useReveal'
 
 /** Оборачивает секцию в scroll-reveal (fade + подъём 16px). Баннер не оборачиваем — он над сгибом. */
@@ -34,6 +35,7 @@ export default function HomePage() {
       <Reveal><AboutSection /></Reveal>
       <Reveal><FaqSection /></Reveal>
       <Reveal><ReviewsSection /></Reveal>
+      <BlogSection />
     </div>
   )
 }
