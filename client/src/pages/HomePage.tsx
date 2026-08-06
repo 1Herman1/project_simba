@@ -7,7 +7,6 @@ import FeaturedProducts from '../components/home/FeaturedProducts'
 import AdvantagesSection from '../components/home/AdvantagesSection'
 import BrandsSection from '../components/home/BrandsSection'
 import AboutSection from '../components/home/AboutSection'
-import BlogSection from '../components/home/BlogSection'
 import FaqSection from '../components/home/FaqSection'
 import ReviewsSection from '../components/home/ReviewsSection'
 import { useReveal } from '../hooks/useReveal'
@@ -33,7 +32,6 @@ export default function HomePage() {
       <Reveal><AdvantagesSection /></Reveal>
       <Reveal><BrandsSection /></Reveal>
       <Reveal><AboutSection /></Reveal>
-      <Reveal><BlogSection /></Reveal>
       <Reveal><FaqSection /></Reveal>
       <Reveal><ReviewsSection /></Reveal>
     </div>
