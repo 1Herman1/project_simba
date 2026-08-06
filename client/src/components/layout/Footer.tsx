@@ -78,17 +78,10 @@ export default function Footer() {
             href={CONTACTS.telegram}
             target="_blank"
             rel="noopener noreferrer"
-            onMouseMove={(e) => {
-              const t = e.currentTarget
-              const r = t.getBoundingClientRect()
-              t.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
-              t.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
-            }}
-            className="group relative overflow-hidden bg-primary hover:bg-primary-hover hover:-translate-y-0.5 active:translate-y-0 text-white font-semibold px-4 py-3 rounded-xl transition-[background-color,transform] duration-100 ease-smooth flex items-center justify-center min-h-11 text-base"
+            className="btn-primary w-full font-semibold px-4 py-3 rounded-xl text-base"
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
-            <span aria-hidden="true" className="btn-shine" />
-            <span className="relative z-10 flex items-center gap-2">
+            <span className="flex items-center gap-2">
               <TelegramPlaneIcon />
               Telegram — ответим за 10 минут
             </span>

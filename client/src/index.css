@@ -8,6 +8,14 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* Регистрация делает альфу пятна анимируемой. Без @property (старые браузеры)
+   значение всё равно подставляется как число — эффект работает, но без фейда. */
+@property --btn-spot {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -34,8 +42,9 @@
     transition-property: opacity, color, background-color !important;
     animation-duration: 0.01ms !important;
   }
-  .btn-primary { transition-property: filter, box-shadow; }
+  .btn-primary { transition-property: background-color, box-shadow; }
   .btn-primary:hover, .btn-primary:active { transform: none; }
+  .btn-primary:hover, .btn-primary:active { --btn-spot: 0; }
   .btn-outline:active { transform: none; }
 }
 
@@ -44,7 +53,13 @@
 }
 
 @layer components {
+  /* CTA. Покой — плоская заливка primary (4.63:1 с белым текстом).
+     Hover — база уходит в primary.hover (6.03:1), а под курсором зажигается
+     spotlight: тёплое ядро -> холодный ободок primary.soft (#4C82F7).
+     Самая светлая точка эффекта = 4.74:1, AA держится в любой точке пятна.
+     Координаты курсора приходят из lib/button-spotlight.ts (--mx/--my). */
   .btn-primary {
+    --btn-spot: 0;
     position: relative;
     overflow: hidden;
     display: inline-flex;
@@ -52,22 +67,60 @@
     justify-content: center;
     min-height: 2.75rem;
     color: theme('colors.primary.fg');
-    /* Заметный глянцевый градиент: белый диагональный блик + синий переход
-       soft→primary→hover. soft лежит только в верхнем-левом углу (декор-блик),
-       под центрированным текстом всегда primary/hover (контраст ≥4.63:1). */
-    background-image:
-      linear-gradient(135deg, rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0) 46%),
-      linear-gradient(160deg, theme('colors.primary.soft') 0%, theme('colors.primary.DEFAULT') 44%, theme('colors.primary.hover') 100%);
-    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.18);
-    transition: filter 100ms ease, transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
+    background-color: theme('colors.primary.DEFAULT');
+    background-image: radial-gradient(
+      circle 9rem at var(--mx, 50%) var(--my, 50%),
+      rgb(255 248 236 / calc(var(--btn-spot) * 0.12)) 0%,
+      rgb(76 130 247 / calc(var(--btn-spot) * 0.30)) 42%,
+      rgb(76 130 247 / 0) 100%
+    );
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.14);
+    transition:
+      background-color 100ms ease,
+      --btn-spot 140ms var(--ease-out),
+      transform 120ms var(--ease-out),
+      box-shadow 120ms var(--ease-out);
   }
-  .btn-primary:hover {
-    filter: brightness(0.94);
-    transform: translateY(-1px);
-    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.12), 0 4px 12px rgb(58 111 224 / 0.28);
+
+  /* Ховер-эффект только для мыши: тач не должен залипать в hover-состоянии. */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
+      --btn-spot: 1;
+      background-color: theme('colors.primary.hover');
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 0 rgb(255 255 255 / 0.10),
+        0 4px 12px rgb(58 111 224 / 0.28);
+    }
   }
-  .btn-primary:active { transform: translateY(0) scale(0.98); filter: brightness(0.90); }
-  .btn-primary:disabled { filter: none; opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Тач: курсора нет — пятно распускается из центра (--mx/--my = дефолт 50%). */
+  @media (hover: none) {
+    .btn-primary:active:not(:disabled):not([aria-disabled='true']) {
+      --btn-spot: 0.7;
+    }
+  }
+
+  .btn-primary:active:not(:disabled):not([aria-disabled='true']) {
+    background-color: theme('colors.primary.hover');
+    transform: translateY(0) scale(0.98);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.10);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid theme('colors.primary.soft');
+    outline-offset: 2px;
+  }
+
+  .btn-primary:disabled,
+  .btn-primary[aria-disabled='true'] {
+    --btn-spot: 0;
+    background-color: theme('colors.primary.DEFAULT');
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
   .btn-outline {
     display: inline-flex;
     align-items: center;
@@ -96,31 +149,5 @@
   .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  /* Apple-shine: спот-свет за курсором на CTA. Только background+opacity
-     (GPU), появление 200мс ease-out. Координаты курсора приходят из
-     onMouseMove через --mx/--my. Не мешает клику (pointer-events:none). */
-  .btn-shine {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-      circle at var(--mx, 50%) var(--my, 50%),
-      rgb(255 255 255 / 0.20) 0%,
-      transparent 60%
-    );
-    transition: opacity 200ms var(--ease-out);
-  }
-  .group:hover .btn-shine {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn-shine {
-    display: none;
   }
 }

@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { initButtonSpotlight } from './lib/button-spotlight'
 import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/layout/Layout'
 import HomePage from './pages/HomePage'
@@ -25,6 +27,8 @@ import OfferPage from './pages/OfferPage'
 import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
+  useEffect(() => initButtonSpotlight(), [])
+
   return (
     <>
     <ScrollToTop />
