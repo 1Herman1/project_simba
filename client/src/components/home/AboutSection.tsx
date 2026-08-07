@@ -13,10 +13,10 @@ function ImageIcon() {
 
 export default function AboutSection() {
   return (
-    <section id="about" className="scroll-mt-24 py-12 md:py-16">
+    <section id="about" aria-labelledby="about-title" className="scroll-mt-24 py-12 md:py-16">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-navy-500">О компании</p>
-        <h2 className="mt-1 text-2xl font-bold text-navy-900">Кто мы</h2>
+        <h2 id="about-title" className="mt-1 text-2xl font-bold text-navy-900">Кто мы</h2>
 
         <div className="mt-8 grid md:grid-cols-2 gap-8 md:items-center">
           {/* Текст слева */}
@@ -45,7 +45,7 @@ export default function AboutSection() {
             <div className="mt-4">
               <Link
                 to="/about"
-                className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
+                className="inline-flex items-center min-h-11 font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
               >
                 Подробнее о компании
               </Link>
