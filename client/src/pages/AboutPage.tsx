@@ -23,13 +23,13 @@ export default function AboutPage() {
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
       <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-3">Кто мы</h1>
       <p className="text-navy-500 max-w-prose mb-10 leading-relaxed">
-        Симба начался с простой собственной проблемы: найти импортный корм для своей собаки — гарантированно оригинальный, со свежими сроками и по честной цене.
+        Симба начался с простой собственной проблемы: найти импортный корм для своей собаки — гарантированно оригинальный, со свежими сроками и по честной цене, — и это оказалось сложнее, чем должно быть.
       </p>
 
       {/* Ключевой факт */}
       <div className="mb-10 flex items-baseline gap-4">
         <div className="text-[40px] font-black text-navy-900 tabular-nums">24 000+</div>
-        <p className="text-navy-500">заказов и 5 200 отзывов на трёх площадках</p>
+        <p className="text-navy-500">заказов и 2 500 отзывов</p>
       </div>
 
       {/* Image placeholder on all screens */}

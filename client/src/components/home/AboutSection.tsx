@@ -22,24 +22,27 @@ export default function AboutSection() {
           {/* Текст слева */}
           <div>
             <p className="text-navy-500 max-w-prose leading-relaxed">
-              Симба начался с простой собственной проблемы: найти импортный корм для своей собаки — гарантированно оригинальный, со свежими сроками и по честной цене.
+              Симба начался с простой собственной проблемы: найти импортный корм для своей собаки — гарантированно оригинальный, со свежими сроками и по честной цене, — и это оказалось сложнее, чем должно быть. Мне удалось найти корм для себя, и мы решили помочь людям со схожей проблемой.
             </p>
             <p className="mt-4 text-navy-500 max-w-prose leading-relaxed">
-              Мы осознанно продаём узкий ассортимент: Farmina, Monge и ещё несколько брендов, за которые готовы отвечать. Каждую партию проверяем на приёмке.
+              Мы осознанно продаём узкий ассортимент: Farmina, Monge и ещё несколько брендов, за которые готовы отвечать. Все поставки — напрямую от официальных дистрибьюторов. Каждую партию мы проверяем на приёмке: сроки годности, целостность упаковки, документы.
+            </p>
+            <p className="mt-4 text-navy-500 max-w-prose leading-relaxed">
+              Я обожаю животных и подбираю для магазина только те корма, которые готова дать своим питомцам. Если вы не уверены в выборе — напишите, разберёмся вместе.
             </p>
 
             <div className="mt-6 flex items-baseline gap-3">
               <span className="text-[32px] leading-none font-black text-navy-900 tabular-nums whitespace-nowrap">24 000+</span>
-              <p className="text-navy-500">заказов и 5 200 отзывов на трёх площадках</p>
+              <p className="text-navy-500">заказов и 2 500 отзывов</p>
             </div>
 
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <Link
-                to="/questionnaire"
-                className="btn-primary px-6 rounded-xl font-bold"
-              >
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <p className="text-navy-500">Не знаете, какой корм подойдёт вашему питомцу —</p>
+              <Link to="/questionnaire" className="btn-primary px-6 rounded-xl font-bold">
                 Подобрать за минуту
               </Link>
+            </div>
+            <div className="mt-4">
               <Link
                 to="/about"
                 className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
