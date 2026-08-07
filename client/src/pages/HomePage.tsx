@@ -33,6 +33,7 @@ export default function HomePage() {
       <Reveal><AboutSection /></Reveal>
       <Reveal><FaqSection /></Reveal>
       <Reveal><TrustSection /></Reveal>
+      {/* Без <Reveal>: у секции собственный каскад .reveal-group */}
       <BlogSection />
     </div>
   )

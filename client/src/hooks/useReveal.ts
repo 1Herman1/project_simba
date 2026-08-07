@@ -29,7 +29,11 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>() {
           }
         }
       },
-      { threshold: 0.15, rootMargin: '0px 0px -10% 0px' }
+      // threshold: 0 — старт не зависит от высоты секции. С прежними 0.15
+      // порог считался от площади элемента: короткие секции вспыхивали сразу,
+      // высокие — заметно позже, ритм плавал. Плюс секция выше ~6 вьюпортов
+      // никогда не набирала 15% и оставалась скрытой.
+      { threshold: 0, rootMargin: '0px 0px -12% 0px' }
     )
 
     observer.observe(el)
