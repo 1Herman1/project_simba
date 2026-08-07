@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { getPublished, type BlogCategory } from '../../content/blog'
+import { useReveal } from '../../hooks/useReveal'
 
 function ImagePlaceholderIcon() {
   return (
@@ -27,6 +28,9 @@ const CHIP_ON = 'bg-primary text-white border border-primary'
 const CHIP_OFF = 'bg-white border border-line text-navy-500 hover:border-primary-soft hover:bg-primary-tint'
 
 export default function BlogSection() {
+  /** Наблюдатель на самой группе: секция подключена без обёртки <Reveal>,
+      поэтому класс is-visible ей должен ставить собственный хук. */
+  const groupRef = useReveal<HTMLDivElement>()
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null)
   /** Растёт с каждым переключением фильтра. 0 = первая отрисовка: там работает scroll-reveal, а не swap-анимация. */
   const [swapCount, setSwapCount] = useState(0)
@@ -51,7 +55,7 @@ export default function BlogSection() {
 
   return (
     <section id="blog" aria-labelledby="blog-title" className="scroll-mt-24 py-12 md:py-16">
-      <div className="reveal-group max-w-7xl mx-auto px-4">
+      <div ref={groupRef} className="reveal-group max-w-7xl mx-auto px-4">
         <div className="reveal-item">
           <h2 id="blog-title" className="text-2xl font-bold text-navy-900">
             Блог
