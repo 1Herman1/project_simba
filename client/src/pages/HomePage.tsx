@@ -2,13 +2,12 @@ import { type ReactNode } from 'react'
 import BannerCarousel from '../components/home/BannerCarousel'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
 import CategoryAccordion from '../components/home/CategoryAccordion'
-import TrustSection from '../components/home/TrustSection'
-import FeaturedProducts from '../components/home/FeaturedProducts'
 import AdvantagesSection from '../components/home/AdvantagesSection'
+import FeaturedProducts from '../components/home/FeaturedProducts'
 import BrandsSection from '../components/home/BrandsSection'
 import AboutSection from '../components/home/AboutSection'
 import FaqSection from '../components/home/FaqSection'
-import ReviewsSection from '../components/home/ReviewsSection'
+import TrustSection from '../components/home/TrustSection'
 import BlogSection from '../components/home/BlogSection'
 import { useReveal } from '../hooks/useReveal'
 
@@ -28,13 +27,12 @@ export default function HomePage() {
       <BannerCarousel />
       <Reveal><QuestionnaireTeaser /></Reveal>
       <Reveal><CategoryAccordion /></Reveal>
-      <Reveal><TrustSection /></Reveal>
-      <Reveal><FeaturedProducts title="Популярные товары" /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
+      <Reveal><FeaturedProducts title="Популярные товары" /></Reveal>
       <Reveal><BrandsSection /></Reveal>
       <Reveal><AboutSection /></Reveal>
       <Reveal><FaqSection /></Reveal>
-      <Reveal><ReviewsSection /></Reveal>
+      <Reveal><TrustSection /></Reveal>
       <BlogSection />
     </div>
   )
