@@ -33,12 +33,18 @@ export default function AboutSection() {
               <p className="text-navy-500">заказов и 5 200 отзывов на трёх площадках</p>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
               <Link
                 to="/questionnaire"
                 className="btn-primary px-6 rounded-xl font-bold"
               >
                 Подобрать за минуту
+              </Link>
+              <Link
+                to="/about"
+                className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
+              >
+                Подробнее о компании
               </Link>
             </div>
           </div>

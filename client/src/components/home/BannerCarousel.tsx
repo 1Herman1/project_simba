@@ -63,9 +63,11 @@ export default function BannerCarousel() {
       >
         <div className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full">
           <div className="max-w-lg">
-            <h1 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${banner.textColor}`}>
+            {/* h2, а не h1: заголовок слайда меняется каждые 4 секунды и не может
+                быть главным заголовком страницы. Постоянный h1 — в HomePage. */}
+            <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${banner.textColor}`}>
               {banner.title}
-            </h1>
+            </h2>
             <p className={`text-sm md:text-base mb-4 md:mb-6 opacity-80 ${banner.textColor}`}>
               {banner.subtitle}
             </p>

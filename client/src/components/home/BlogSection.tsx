@@ -105,7 +105,7 @@ export default function BlogSection() {
                 className={`reveal-item ${swapClass} bg-white border border-line rounded-card overflow-hidden transition-[transform,box-shadow,border-color] duration-100 ease hover:border-primary-soft hover:shadow-card hover:-translate-y-0.5`}
               >
                 {post.cover ? (
-                  <img src={post.cover} alt="" className="w-full aspect-[16/10] object-cover" />
+                  <img src={post.cover} alt={post.title} loading="lazy" className="w-full aspect-[16/10] object-cover" />
                 ) : (
                   <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
                     <ImagePlaceholderIcon />

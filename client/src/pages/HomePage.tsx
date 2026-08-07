@@ -10,6 +10,7 @@ import FaqSection from '../components/home/FaqSection'
 import TrustSection from '../components/home/TrustSection'
 import BlogSection from '../components/home/BlogSection'
 import { useReveal } from '../hooks/useReveal'
+import { useMetaTags } from '../hooks/useMetaTags'
 
 /** Оборачивает секцию в scroll-reveal (fade + подъём 16px). Баннер не оборачиваем — он над сгибом. */
 function Reveal({ children }: { children: ReactNode }) {
@@ -22,8 +23,16 @@ function Reveal({ children }: { children: ReactNode }) {
 }
 
 export default function HomePage() {
+  useMetaTags({
+    title: 'Симба — зоомагазин: корм для кошек и собак с доставкой',
+    description:
+      'Оригинальные корма Farmina, Monge, Royal Canin для кошек и собак. Подбор корма под питомца, доставка, бонусная программа. Прямые поставки от официальных дистрибьюторов.',
+  })
+
   return (
     <div>
+      {/* Постоянный H1 страницы: заголовки баннера ротируются и на эту роль не годятся. */}
+      <h1 className="sr-only">Зоомагазин Симба — корм для кошек и собак с доставкой</h1>
       <BannerCarousel />
       <Reveal><QuestionnaireTeaser /></Reveal>
       <Reveal><CategoryAccordion /></Reveal>
