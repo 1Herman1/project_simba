@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
+import CountUp from '../components/CountUp'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
 
@@ -117,9 +118,7 @@ export default function TrustPage() {
       {/* Цифра и площадки — прямо на фоне страницы: белые карточки на подложке
           были карточкой в карточке и съедали ширину на телефоне */}
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-6">
-        <span className="text-[40px] leading-none font-black text-navy-900 tabular-nums whitespace-nowrap">
-          24 000+
-        </span>
+        <CountUp value={24000} suffix="+" className="text-[40px] leading-none font-black text-navy-900 whitespace-nowrap" />
         <p className="text-navy-500">заказов на трёх площадках · рейтинг 4,9 на каждой</p>
       </div>
 

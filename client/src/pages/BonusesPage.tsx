@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
+import CountUp from '../components/CountUp'
 
 // Иконка: подарок
 function GiftIcon() {
@@ -81,7 +82,7 @@ export default function BonusesPage() {
       <div className="bg-primary-tint rounded-card p-6 mb-10">
         <div className="flex flex-col md:flex-row md:items-start gap-4">
           <div className="flex-1">
-            <div className="text-[40px] font-black text-navy-900">5%</div>
+            <CountUp value={5} suffix="%" className="block text-[40px] font-black text-navy-900" />
             <p className="text-navy-500 leading-relaxed">
               от стоимости товаров в каждом заказе возвращается бонусами · 1 бонус = 1 рубль
             </p>

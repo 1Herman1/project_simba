@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
+import CountUp from '../components/CountUp'
 import { CONTACTS, LEGAL } from '../lib/contacts'
 
 function ImageIcon() {
@@ -28,7 +29,7 @@ export default function AboutPage() {
 
       {/* Ключевой факт */}
       <div className="mb-10 flex items-baseline gap-4">
-        <div className="text-[40px] font-black text-navy-900 tabular-nums">24 000+</div>
+        <CountUp value={24000} suffix="+" className="text-[40px] font-black text-navy-900" />
         <p className="text-navy-500">заказов и 2 500 отзывов</p>
       </div>
 
