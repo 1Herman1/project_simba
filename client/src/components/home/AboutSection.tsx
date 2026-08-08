@@ -2,7 +2,6 @@ import { type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { LEGAL } from '../../lib/contacts'
 import { useReveal } from '../../hooks/useReveal'
-import CountUp from '../CountUp'
 
 /** Фото основательницы/склада. null — фото ещё нет, показываем плейсхолдер.
     Когда появится: { src: '/about/alina.jpg', alt: 'Алина, основательница Симбы' } */
@@ -69,17 +68,6 @@ export default function AboutSection() {
             <p className="reveal-item mt-4 text-navy-500 max-w-prose leading-relaxed" style={step(1)}>
               Я обожаю животных и подбираю для магазина только те корма, которые готова дать своим питомцам. Если вы не уверены в выборе — напишите, разберёмся вместе.
             </p>
-
-            {/* Рейтинги и отзывы по площадкам — в «Почему нам доверяют»,
-                здесь цифра работает как продолжение истории. */}
-            <div className="reveal-item mt-6 flex items-baseline gap-3" style={step(2)}>
-              <CountUp
-                value={24000}
-                suffix="+"
-                className="text-[32px] leading-none font-black text-navy-900 whitespace-nowrap"
-              />
-              <p className="text-navy-500">заказов собрано с тех пор</p>
-            </div>
 
             <div className="reveal-item mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4" style={step(3)}>
               <p className="text-navy-500">Не знаете, какой корм подойдёт вашему питомцу —</p>
