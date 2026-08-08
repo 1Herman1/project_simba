@@ -168,6 +168,44 @@
     transform: translateY(0);
   }
 
+  /* 3D-декор секции подбора корма: два слоя по бокам карточки смещаются
+     и слегка поворачиваются вслед за курсором (--px/--py из компонента),
+     левый и правый в противофазе — отсюда ощущение глубины.
+     Ниже lg скрыты: на узком экране места по бокам нет. */
+  .quiz-decor {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .quiz-decor {
+      display: block;
+      position: absolute;
+      bottom: 0;
+      z-index: 0;
+      width: clamp(150px, 15vw, 240px);
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+      transition: transform 300ms var(--ease-out);
+      will-change: transform;
+    }
+    .quiz-decor--left {
+      left: 0;
+      transform:
+        perspective(900px)
+        translate3d(calc(var(--px, 0) * 14px), calc(var(--py, 0) * 10px), 0)
+        rotateY(calc(var(--px, 0) * 6deg))
+        rotateX(calc(var(--py, 0) * -4deg));
+    }
+    .quiz-decor--right {
+      right: 0;
+      transform:
+        perspective(900px)
+        translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -10px), 0)
+        rotateY(calc(var(--px, 0) * -6deg))
+        rotateX(calc(var(--py, 0) * 4deg));
+    }
+  }
+
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
      .reveal-group — никогда одновременно. Если вложат, едет только секция. */
   .reveal .reveal-group .reveal-item {
