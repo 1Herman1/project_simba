@@ -188,13 +188,17 @@
       transition: transform 300ms var(--ease-out);
       will-change: transform;
     }
+    /* scaleX(-1) — зеркало: на исходнике животное смотрит вправо,
+       слева от карточки оно должно смотреть внутрь, к центру.
+       Множитель стоит последним, поэтому знак rotateY инвертирован. */
     .quiz-decor--left {
       left: 0;
       transform:
         perspective(900px)
         translate3d(calc(var(--px, 0) * 14px), calc(var(--py, 0) * 10px), 0)
-        rotateY(calc(var(--px, 0) * 6deg))
-        rotateX(calc(var(--py, 0) * -4deg));
+        rotateY(calc(var(--px, 0) * -6deg))
+        rotateX(calc(var(--py, 0) * -4deg))
+        scaleX(-1);
     }
     .quiz-decor--right {
       right: 0;
