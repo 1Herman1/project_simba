@@ -10,14 +10,16 @@ export default function CatalogPage() {
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [activeTag, setActiveTag] = useState(searchParams.get('tag') || '')
   const [category] = useState(searchParams.get('category') || '')
+  const [brand] = useState(searchParams.get('brand') || '')
 
   useEffect(() => {
     const params: Record<string, string> = {}
     if (search) params.q = search
     if (activeTag) params.tag = activeTag
     if (category) params.category = category
+    if (brand) params.brand = brand
     setSearchParams(params, { replace: true })
-  }, [search, activeTag, category])
+  }, [search, activeTag, category, brand])
 
   const handleTagClick = (tag: string) => {
     setActiveTag(prev => prev === tag ? '' : tag)
@@ -35,7 +37,7 @@ export default function CatalogPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <CatalogHeader search={search} activeTag={activeTag} category={category} />
-        <CatalogGrid search={search} activeTag={activeTag} category={category} />
+        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} />
       </div>
 
       <QuestionnaireTeaser />

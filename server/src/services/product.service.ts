@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 export interface ProductFilters {
   categorySlug?: string
-  brandId?: string
+  brandSlug?: string
   filterValueIds?: string[]
   minPrice?: number
   maxPrice?: number
@@ -24,8 +24,8 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
     where.name = { contains: filters.search, mode: 'insensitive' }
   }
 
-  if (filters.brandId) {
-    where.brandId = filters.brandId
+  if (filters.brandSlug) {
+    where.brand = { slug: filters.brandSlug }
   }
 
   if (filters.categorySlug) {

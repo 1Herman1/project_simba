@@ -133,6 +133,18 @@
   }
   .btn-outline:hover { background-color: theme('colors.primary.tint'); border-color: theme('colors.primary.soft'); }
   .btn-outline:active { transform: scale(0.98); }
+
+  /* Карточка бренда: подъём + окраска рамки только на мышином ховере — на тач
+     устройствах :hover залипал бы после тапа при протягивании ряда пальцем. */
+  .brand-card {
+    transition: transform 100ms var(--ease-out), border-color 100ms var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .brand-card:hover {
+      transform: translateY(-2px);
+      border-color: theme('colors.primary.soft');
+    }
+  }
 }
 
 @layer utilities {

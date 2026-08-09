@@ -30,7 +30,7 @@ export default async function listRoute(app: FastifyInstance) {
 
     const result = await getProducts(app.prisma, {
       categorySlug: q.category,
-      brandId: q.brand,
+      brandSlug: q.brand,
       filterValueIds,
       minPrice: q.minPrice !== undefined ? q.minPrice * 100 : undefined,
       maxPrice: q.maxPrice !== undefined ? q.maxPrice * 100 : undefined,

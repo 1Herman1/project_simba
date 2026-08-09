@@ -6,9 +6,10 @@ interface Props {
   search: string
   activeTag: string
   category: string
+  brand?: string
 }
 
-export default function CatalogGrid({ search, activeTag, category }: Props) {
+export default function CatalogGrid({ search, activeTag, category, brand }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -21,6 +22,7 @@ export default function CatalogGrid({ search, activeTag, category }: Props) {
         if (search) params.search = search
         if (activeTag) params.tags = [activeTag]
         if (category) params.category = category
+        if (brand) params.brand = brand
 
         const res = await productsApi.list(params)
         setProducts(res.data.items)
@@ -33,7 +35,7 @@ export default function CatalogGrid({ search, activeTag, category }: Props) {
       }
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, activeTag, category])
+  }, [search, activeTag, category, brand])
 
   if (loading) {
     return (
