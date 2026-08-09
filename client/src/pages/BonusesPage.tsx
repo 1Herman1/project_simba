@@ -1,40 +1,58 @@
 import { Link } from 'react-router-dom'
+import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
+import { useOnScreen } from '../hooks/useOnScreen'
 
-// Иконка: подарок
+/** Подарок: коробка, крышка с лентой и бант из двух зеркальных петель.
+    Двигается только крышка с бантом (.bonus-gift) — коробка стоит на месте. */
 function GiftIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polyline points="20 12 20 22 4 22 4 12"/>
-      <rect x="2" y="7" width="20" height="5"/>
-      <path d="M12 2v5"/>
-      <path d="M9 7h6"/>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" />
+      <path d="M12 12v9" />
+      <g className="bonus-gift">
+        <rect x="3" y="8" width="18" height="4" rx="1" />
+        <path d="M12 8v4" />
+        <path d="M12 8C12 5 10 3 8 3a2.5 2.5 0 0 0 0 5Z" />
+        <path d="M12 8C12 5 14 3 16 3a2.5 2.5 0 0 1 0 5Z" />
+      </g>
     </svg>
   )
 }
 
-// Иконка: процент
+/** Монета со знаком процента: бонус как валюта, списание как доля чека.
+    Двигается только глиф процента (.bonus-percent), кант монеты неподвижен. */
 function PercentIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="6" cy="6" r="3"/>
-      <circle cx="18" cy="18" r="3"/>
-      <path d="M9 9l6 6"/>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <g className="bonus-percent">
+        <path d="M8 16 16 8" />
+        <circle cx="9" cy="9" r="1.25" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="15" r="1.25" fill="currentColor" stroke="none" />
+      </g>
     </svg>
   )
 }
 
-// Иконка: кошелёк
+/** Кошелёк с кармашком под карту и купюрой, выглядывающей сверху.
+    Двигается только купюра (.bonus-wallet) — она утапливается в кошелёк. */
 function WalletIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M19 7V4a1 1 0 00-1-1H5a2 2 0 00-2 2v16a2 2 0 002 2h12a1 1 0 001-1v-3"/>
-      <polyline points="16 5 12 8 16 11"/>
-      <line x1="12" y1="8" x2="2" y2="8"/>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <g className="bonus-wallet">
+        <path d="M7 8V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v3" />
+      </g>
+      <rect x="2" y="8" width="20" height="12" rx="2" />
+      <path d="M22 12h-5a2 2 0 0 0 0 4h5" />
     </svg>
   )
 }
+
+/** Тот же стаггер, что в Advantages/Trust: 600мс форы + 1400мс шаг —
+    в движении всегда ровно одна иконка. */
+const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 1400}ms` }) as CSSProperties
 
 const LEVELS = [
   {
@@ -61,6 +79,8 @@ const LEVELS = [
 ]
 
 export default function BonusesPage() {
+  const iconsRef = useOnScreen<HTMLDivElement>()
+
   useMetaTags({
     title: 'Бонусная программа — Зоомагазин Симба',
     description:
@@ -95,12 +115,12 @@ export default function BonusesPage() {
 
       {/* Три карточки */}
       <h2 className="text-2xl font-bold text-navy-900 mb-4">Как это работает</h2>
-      <div className="grid md:grid-cols-3 gap-4 mb-10">
+      <div ref={iconsRef} className="bonus-icons grid md:grid-cols-3 gap-4 mb-10">
         {/* Карточка 1 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <div className="text-primary-soft mb-4">
+          <span style={iconDelay(0)} className="block text-primary-soft mb-4">
             <GiftIcon />
-          </div>
+          </span>
           <h3 className="font-bold text-navy-900 mb-2">300 бонусов новому клиенту</h3>
           <p className="text-navy-500 text-sm">
             Каждый новый покупатель получает 300 приветственных бонусов при регистрации. Потратить их можно уже при первой покупке.
@@ -109,9 +129,9 @@ export default function BonusesPage() {
 
         {/* Карточка 2 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <div className="text-primary-soft mb-4">
+          <span style={iconDelay(1)} className="block text-primary-soft mb-4">
             <PercentIcon />
-          </div>
+          </span>
           <h3 className="font-bold text-navy-900 mb-2">Как списывать</h3>
           <p className="text-navy-500 text-sm">
             Бонусами можно оплатить до 50% суммы заказа. При оформлении укажите, сколько списать — остаток сохранится на счёте.
@@ -120,9 +140,9 @@ export default function BonusesPage() {
 
         {/* Карточка 3 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <div className="text-primary-soft mb-4">
+          <span style={iconDelay(2)} className="block text-primary-soft mb-4">
             <WalletIcon />
-          </div>
+          </span>
           <h3 className="font-bold text-navy-900 mb-2">Где смотреть баланс</h3>
           <p className="text-navy-500 text-sm">
             Все бонусы, история заказов и начислений — в личном кабинете.

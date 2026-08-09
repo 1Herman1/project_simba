@@ -247,7 +247,10 @@
 .trust-shield,
 .trust-check,
 .trust-cycle,
-.trust-return {
+.trust-return,
+.bonus-gift,
+.bonus-percent,
+.bonus-wallet {
   transform-box: view-box;
   animation-duration: 5600ms;
   animation-iteration-count: infinite;
@@ -261,6 +264,10 @@
 }
 
 .trust-icons.is-onscreen :is(.trust-shield, .trust-check, .trust-cycle, .trust-return) {
+  animation-play-state: running;
+}
+
+.bonus-icons.is-onscreen :is(.bonus-gift, .bonus-percent, .bonus-wallet) {
   animation-play-state: running;
 }
 
@@ -304,6 +311,37 @@
   7%   { transform: translateX(2px); }
   18%  { transform: translateX(-2px); }
   25%, 100% { transform: translateX(0); }
+}
+
+/* Крышка с бантом «приоткрывается» — подарок вручают. */
+.bonus-gift    { animation-name: bonusGift;    transform-origin: 12px 12px; }
+/* Глиф процента — одиночный пружинистый пульс, кант монеты стоит. */
+.bonus-percent { animation-name: bonusPercent; transform-origin: 12px 12px; }
+/* Купюра утапливается в кошелёк и возвращается. */
+.bonus-wallet  { animation-name: bonusWallet;  transform-origin: 12px 12px; }
+
+@keyframes bonusGift {
+  0%   { transform: translateY(0) rotate(0deg); }
+  6%   { transform: translateY(-2px) rotate(-3deg); }
+  13%  { transform: translateY(0) rotate(2deg); }
+  19%  { transform: translateY(-1px) rotate(-1deg); }
+  25%, 100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes bonusPercent {
+  0%   { transform: scale(1); opacity: 1; }
+  7%   { transform: scale(0.9); opacity: 0.55; }
+  15%  { transform: scale(1.05); opacity: 1; }
+  20%  { transform: scale(0.99); }
+  25%, 100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bonusWallet {
+  0%   { transform: translateY(0) scale(1); }
+  6%   { transform: translateY(2px) scale(0.97); }
+  14%  { transform: translateY(-2px) scale(1.03); }
+  20%  { transform: translateY(0.5px) scale(0.995); }
+  25%, 100% { transform: translateY(0) scale(1); }
 }
 
 @keyframes advRock {
@@ -356,7 +394,10 @@
   .trust-shield,
   .trust-check,
   .trust-cycle,
-  .trust-return {
+  .trust-return,
+  .bonus-gift,
+  .bonus-percent,
+  .bonus-wallet {
     animation: none !important;
   }
 }
