@@ -235,6 +235,60 @@
   }
 }
 
+/* Idle-моторика иконок «Почему у нас». Общий цикл 5600мс, активная фаза — первые
+   25% (1400мс), дальше покой. Стаггер тоже 1400мс: в движении всегда ровно одна
+   иконка из четырёх, сетка не «кипит» и не мешает читать текст.
+   Играет только пока секция во вьюпорте (класс .is-onscreen ставит наблюдатель
+   в AdvantagesSection) — бесконечная анимация не крутит рендер вхолостую. */
+.adv-rock,
+.adv-pull,
+.adv-swing,
+.adv-sweep {
+  transform-box: view-box;
+  animation-duration: 5600ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--ease-in-out);
+  animation-delay: var(--adv-delay, 0ms);
+  animation-play-state: paused;
+}
+
+.adv-icons.is-onscreen :is(.adv-rock, .adv-pull, .adv-swing, .adv-sweep) {
+  animation-play-state: running;
+}
+
+.adv-rock  { animation-name: advRock;  transform-origin: 12px 20px; }
+.adv-swing { animation-name: advSwing; transform-origin: 7px 7px; }
+.adv-sweep { animation-name: advSweep; transform-origin: 12px 12px; }
+.adv-pull  { animation-name: advPull; }
+
+@keyframes advRock {
+  0%   { transform: rotate(0deg); }
+  5%   { transform: rotate(-5deg); }
+  12%  { transform: rotate(3.5deg); }
+  19%  { transform: rotate(-1.5deg); }
+  25%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes advPull {
+  0%   { transform: translateY(0); }
+  8%   { transform: translateY(5px); }
+  17%  { transform: translateY(5px); }
+  25%, 100% { transform: translateY(0); }
+}
+
+@keyframes advSwing {
+  0%   { transform: rotate(0deg); }
+  6%   { transform: rotate(-6deg); }
+  13%  { transform: rotate(4deg); }
+  19%  { transform: rotate(-2deg); }
+  25%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes advSweep {
+  0%        { transform: rotate(0deg); }
+  25%, 100% { transform: rotate(360deg); }
+}
+
 /* Глобальное правило reduced-motion гасит transform и длительность анимаций,
    но не задержки: без этого блока карточка висела бы пустой до 300мс, а потом
    возникала рывком. Гасим задержки и fill-mode явно. */
@@ -245,5 +299,15 @@
     transition-delay: 0ms !important;
     animation-delay: 0ms !important;
     animation-fill-mode: none !important;
+  }
+
+  /* Обязательно, а не «для надёжности»: глобальное правило выше ставит
+     animation-duration: 0.01ms — для infinite-петли это не «выключено», а
+     мигание с частотой кадров. Гасим по имени. */
+  .adv-rock,
+  .adv-pull,
+  .adv-swing,
+  .adv-sweep {
+    animation: none !important;
   }
 }
