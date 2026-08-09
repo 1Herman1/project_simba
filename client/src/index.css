@@ -39,7 +39,7 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transform: none !important;
-    transition-property: opacity, color, background-color !important;
+    transition-property: opacity, color, background-color, border-color !important;
     animation-duration: 0.01ms !important;
   }
   .btn-primary { transition-property: background-color, box-shadow; }

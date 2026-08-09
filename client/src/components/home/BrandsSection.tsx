@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
+import { useReveal } from '../../hooks/useReveal'
 
 // Brand colors are proprietary brand identities, not system design tokens
 // eslint-disable-next-line design-lint/no-hex-colors
@@ -39,20 +40,33 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
   )
 }
 
+/** Заголовок едет первым (0мс), карточки — каскадом по 60мс.
+    Потолок на 4-й: дальше карточки всё равно за краем вьюпорта. */
+const revealDelay = (i: number) => `${60 + Math.min(i, 3) * 60}ms`
+
 export default function BrandsSection() {
+  const groupRef = useReveal<HTMLDivElement>()
+
   return (
     <section id="brands" className="scroll-mt-24 py-12 md:py-16">
-    <div className="max-w-7xl mx-auto px-4">
-      <h2 className="text-xl font-bold text-navy-900 mb-5">Бренды, которым мы доверяем</h2>
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-        {brands.map((brand) => (
-          <Link
+    <div ref={groupRef} className="reveal-group max-w-7xl mx-auto px-4">
+      <h2 className="reveal-item text-xl font-bold text-navy-900 mb-3">Бренды, которым мы доверяем</h2>
+      {/* pt-2/pb-3 — место под подъём карточки и тень: overflow-x-auto
+          включает overflow-y: auto и без паддинга обрезает hover сверху. */}
+      <div className="flex gap-4 overflow-x-auto pt-2 pb-3 scrollbar-hide">
+        {brands.map((brand, i) => (
+          <div
             key={brand.slug}
-            to={`/catalog?brand=${brand.slug}`}
-            className="flex-shrink-0 w-36 h-24 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-[transform,box-shadow] duration-200 flex items-center justify-center cursor-pointer border border-blue-100 p-3"
+            className="reveal-item flex-shrink-0"
+            style={{ '--reveal-delay': revealDelay(i) } as CSSProperties}
           >
-            <BrandMark brand={brand} />
-          </Link>
+            <Link
+              to={`/catalog?brand=${brand.slug}`}
+              className="flex w-36 h-24 items-center justify-center bg-white rounded-card shadow-card border border-line p-3 transition-[transform,border-color] duration-100 ease-out hover:-translate-y-0.5 hover:border-primary-soft"
+            >
+              <BrandMark brand={brand} />
+            </Link>
+          </div>
         ))}
       </div>
     </div>

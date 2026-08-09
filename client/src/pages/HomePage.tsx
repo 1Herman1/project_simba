@@ -38,8 +38,8 @@ export default function HomePage() {
       <Reveal><CategoryAccordion /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
       <Reveal><FeaturedProducts title="Популярные товары" /></Reveal>
-      <Reveal><BrandsSection /></Reveal>
       {/* Без <Reveal>: у секции собственный каскад .reveal-group */}
+      <BrandsSection />
       <AboutSection />
       <Reveal><FaqSection /></Reveal>
       <Reveal><TrustSection /></Reveal>
