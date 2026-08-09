@@ -42,7 +42,6 @@ export default function BlogPage() {
 
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [additionalLoaded, setAdditionalLoaded] = useState(0)
 
   const publishedPosts = getPublished()
 
@@ -53,22 +52,16 @@ export default function BlogPage() {
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE)
 
   const startIdx = (currentPage - 1) * POSTS_PER_PAGE
-  const endIdx = startIdx + POSTS_PER_PAGE + additionalLoaded
+  const endIdx = startIdx + POSTS_PER_PAGE
   const displayedPosts = filteredPosts.slice(startIdx, endIdx)
 
   const handleCategoryClick = (category: BlogCategory | null) => {
     setSelectedCategory(category)
     setCurrentPage(1)
-    setAdditionalLoaded(0)
-  }
-
-  const handleLoadMore = () => {
-    setAdditionalLoaded((prev) => prev + POSTS_PER_PAGE)
   }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
-    setAdditionalLoaded(0)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -148,18 +141,6 @@ export default function BlogPage() {
               </Link>
             ))}
           </div>
-
-          {/* Кнопка "Показать ещё" */}
-          {endIdx < filteredPosts.length && (
-            <div className="flex justify-center mb-10">
-              <button
-                onClick={handleLoadMore}
-                className="border border-line rounded-xl px-6 min-h-11 font-bold text-navy-900 hover:bg-primary-tint transition-colors duration-100 ease"
-              >
-                Показать ещё
-              </button>
-            </div>
-          )}
 
           {/* Пагинация */}
           {totalPages > 1 && (
