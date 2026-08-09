@@ -34,7 +34,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
       loading="lazy"
       decoding="async"
       onError={() => setFailed(true)}
-      className="max-h-10 max-w-[80%] w-auto object-contain"
+      className="max-h-12 max-w-[88%] w-auto object-contain"
     />
   )
 }
@@ -49,7 +49,7 @@ export default function BrandsSection() {
           <Link
             key={brand.slug}
             to={`/catalog?brand=${brand.slug}`}
-            className="flex-shrink-0 w-32 h-20 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-[transform,box-shadow] duration-200 flex items-center justify-center cursor-pointer border border-blue-100"
+            className="flex-shrink-0 w-36 h-24 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-[transform,box-shadow] duration-200 flex items-center justify-center cursor-pointer border border-blue-100 p-3"
           >
             <BrandMark brand={brand} />
           </Link>
