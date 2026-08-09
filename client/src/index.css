@@ -168,10 +168,11 @@
     transform: translateY(0);
   }
 
-  /* 3D-декор секции подбора корма: два слоя по бокам карточки смещаются
-     и слегка поворачиваются вслед за курсором (--px/--py из компонента),
-     левый и правый в противофазе — отсюда ощущение глубины.
-     Ниже lg скрыты: на узком экране места по бокам нет. */
+  /* Декор секции подбора корма: животные ровно по высоте карточки и стоят
+     ПОВЕРХ неё — лапа и нос ложатся на баннер, а белая кромка исходных PNG
+     совпадает с белым фоном карточки и потому не видна. Анимации нет:
+     движение здесь отвлекало от кнопки.
+     Ниже lg скрыты — на узком экране места по бокам нет. */
   .quiz-decor {
     display: none;
   }
@@ -180,33 +181,20 @@
       display: block;
       position: absolute;
       bottom: 0;
-      z-index: 0;
-      width: clamp(150px, 15vw, 240px);
-      height: auto;
+      z-index: 20;
+      height: 100%;
+      width: auto;
       pointer-events: none;
       user-select: none;
-      transition: transform 300ms var(--ease-out);
-      will-change: transform;
     }
-    /* scaleX(-1) — зеркало: на исходнике животное смотрит вправо,
-       слева от карточки оно должно смотреть внутрь, к центру.
-       Множитель стоит последним, поэтому знак rotateY инвертирован. */
+    /* scaleX(-1) — зеркало: на исходнике животное смотрит вправо, слева
+       от карточки оно должно смотреть внутрь, к центру. */
     .quiz-decor--left {
       left: 0;
-      transform:
-        perspective(900px)
-        translate3d(calc(var(--px, 0) * 14px), calc(var(--py, 0) * 10px), 0)
-        rotateY(calc(var(--px, 0) * -6deg))
-        rotateX(calc(var(--py, 0) * -4deg))
-        scaleX(-1);
+      transform: scaleX(-1);
     }
     .quiz-decor--right {
       right: 0;
-      transform:
-        perspective(900px)
-        translate3d(calc(var(--px, 0) * -14px), calc(var(--py, 0) * -10px), 0)
-        rotateY(calc(var(--px, 0) * -6deg))
-        rotateX(calc(var(--py, 0) * 4deg));
     }
   }
 
