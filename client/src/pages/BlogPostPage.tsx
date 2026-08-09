@@ -83,13 +83,13 @@ export default function BlogPostPage() {
       {/* Заголовок */}
       <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-4">{post.title}</h1>
 
-      {/* Дата и время чтения */}
+      {/* Дата */}
       <p className="text-navy-500 tabular-nums mb-8">
         {new Date(post.date + 'T00:00:00Z').toLocaleDateString('ru-RU', {
           year: 'numeric',
           month: '2-digit',
           day: '2-digit',
-        })} · {post.readingMinutes} мин чтения
+        })}
       </p>
 
       {/* Обложка */}
@@ -147,13 +147,13 @@ export default function BlogPostPage() {
                   {/* Описание */}
                   <p className="text-sm text-navy-500 mb-4 line-clamp-2">{relatedPost.excerpt}</p>
 
-                  {/* Дата и время чтения */}
+                  {/* Дата */}
                   <p className="text-sm text-navy-500 tabular-nums">
                     {new Date(relatedPost.date + 'T00:00:00Z').toLocaleDateString('ru-RU', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
-                    })} · {relatedPost.readingMinutes} мин
+                    })}
                   </p>
                 </div>
               </Link>

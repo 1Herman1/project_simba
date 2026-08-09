@@ -129,13 +129,13 @@ export default function BlogPage() {
                   {/* Описание */}
                   <p className="text-sm text-navy-500 mb-4 line-clamp-2">{post.excerpt}</p>
 
-                  {/* Дата и время чтения */}
+                  {/* Дата */}
                   <p className="text-sm text-navy-500 tabular-nums">
                     {new Date(post.date + 'T00:00:00Z').toLocaleDateString('ru-RU', {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
-                    })} · {post.readingMinutes} мин
+                    })}
                   </p>
                 </div>
               </Link>

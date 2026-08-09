@@ -1,14 +1,48 @@
 import { Link } from 'react-router-dom'
+import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
+import { useOnScreen } from '../hooks/useOnScreen'
 
 import TelegramIcon from '../components/icons/TelegramIcon'
 
-function ClockIcon() {
+function ClockIcon({ size = 20, className }: { size?: number; className?: string }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
+    </svg>
+  )
+}
+
+/** Геометрия — Tabler Icons (MIT), icons/outline/building-store.svg.
+    Пункт выдачи как физическая точка с маркизой, а не абстрактный ящик.
+    Двигается только маркиза (.delivery-pickup) — корпус и дверь стоят. */
+function PickupPointIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 21l18 0" />
+      <g className="delivery-pickup">
+        <path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" />
+      </g>
+      <path d="M5 21l0 -10.15" />
+      <path d="M19 21l0 -10.15" />
+      <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+    </svg>
+  )
+}
+
+/** Геометрия — Tabler Icons (MIT), icons/outline/truck-delivery.svg.
+    Курьер до двери. Двигается только штрих скорости (.delivery-courier). */
+function CourierIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
+      <g className="delivery-courier">
+        <path d="M3 9l4 0" />
+      </g>
     </svg>
   )
 }
@@ -23,57 +57,40 @@ type DeliveryMethod = {
 
 const deliveryMethods: DeliveryMethod[] = [
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3 9h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2" />
-        <path d="M7 13v3M12 13v3M17 13v3" />
-      </svg>
-    ),
+    icon: <PickupPointIcon />,
     name: 'Яндекс Доставка',
     description: 'до пункта выдачи',
     price: 0,
     free: true,
   },
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3 9h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2" />
-        <path d="M7 13v3M12 13v3M17 13v3" />
-      </svg>
-    ),
+    icon: <PickupPointIcon />,
     name: 'Ozon',
     description: 'до пункта выдачи',
     price: 0,
     free: true,
   },
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M3 9h18v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <path d="M3 9V7a2 2 0 012-2h14a2 2 0 012 2v2" />
-        <path d="M7 13v3M12 13v3M17 13v3" />
-      </svg>
-    ),
+    icon: <PickupPointIcon />,
     name: 'СДЭК',
     description: 'до пункта выдачи',
     price: 9900,
   },
   {
-    icon: (
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5s-5 2.24-5 5v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6-2c1.66 0 3 1.34 3 3v2h-6V6c0-1.66 1.34-3 3-3z" />
-        <path d="M8 11h8M8 15h8" />
-      </svg>
-    ),
+    icon: <CourierIcon />,
     name: 'Курьер по Москве',
     description: 'до двери',
     price: 70000,
   },
 ]
 
+/** 4 иконки в ряду: шаг = цикл / число иконок = 5600/4 = 1400мс, в движении
+    всегда ровно одна. 600мс форы, чтобы жест не наложился на reveal секции. */
+const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 1400}ms` }) as CSSProperties
+
 export default function DeliveryPage() {
+  const iconsRef = useOnScreen<HTMLDivElement>()
+
   useMetaTags({
     title: 'Доставка и оплата — Зоомагазин Симба, Москва',
     description:
@@ -89,7 +106,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* Delivery methods grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div ref={iconsRef} className="delivery-icons grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {deliveryMethods.map((method, idx) => (
           <div
             key={method.name}
@@ -102,7 +119,7 @@ export default function DeliveryPage() {
                 Бесплатно
               </span>
             )}
-            <div className="text-primary-soft mb-3">{method.icon}</div>
+            <div style={iconDelay(idx)} className="text-primary-soft mb-3">{method.icon}</div>
             <h3 className="font-bold text-navy-900 mb-1">{method.name}</h3>
             <p className="text-sm text-navy-500 mb-3 flex-grow">{method.description}</p>
             <p className="text-2xl font-bold text-navy-900 tabular-nums">{`${(method.price / 100).toLocaleString('ru-RU')} ₽`}</p>
@@ -137,10 +154,7 @@ export default function DeliveryPage() {
       {/* Info block */}
       <div className="bg-primary-tint rounded-card p-5 mt-10">
         <div className="flex items-start gap-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-soft flex-shrink-0 mt-1">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
+          <ClockIcon size={24} className="text-primary-soft flex-shrink-0 mt-1" />
           <div>
             <h3 className="font-bold text-navy-900 mb-2">Проверяем перед отправкой</h3>
             <p className="text-navy-500 leading-relaxed">

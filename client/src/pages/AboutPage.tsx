@@ -61,14 +61,7 @@ export default function AboutPage() {
         Все поставки — напрямую от официальных дистрибьюторов. Каждую партию мы проверяем на приёмке: сроки годности, целостность упаковки, документы. Храним корма в сухом помещении с контролем температуры — так, как требует производитель, а не так, как получится. Если вы не уверены в выборе — напишите, разберёмся вместе.
       </p>
 
-      {/* Legal info section */}
-      <div className="border-t border-line pt-6 mb-10">
-        <p className="text-sm text-navy-500">
-          {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip} · {LEGAL.address}
-        </p>
-      </div>
-
-      {/* CTA section */}
+      {/* CTA section — единственный разделитель нижней части страницы */}
       <div className="mt-10 pt-6 border-t border-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="text-navy-500">
           Не знаете, какой корм подойдёт вашему питомцу
@@ -80,6 +73,11 @@ export default function AboutPage() {
           Подобрать за минуту
         </Link>
       </div>
+
+      {/* Юр. реквизиты — подпись страницы: отделены отступом, без второй линии */}
+      <p className="mt-8 text-sm leading-relaxed text-navy-500">
+        {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip} · {LEGAL.address}
+      </p>
     </div>
   )
 }

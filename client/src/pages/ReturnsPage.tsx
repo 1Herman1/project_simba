@@ -1,18 +1,17 @@
 import { Link } from 'react-router-dom'
+import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
+import { useOnScreen } from '../hooks/useOnScreen'
 
 import TelegramIcon from '../components/icons/TelegramIcon'
 
-function PhoneIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.9 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012.81 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7 8.91a16 16 0 006.07 6.07l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
-    </svg>
-  )
-}
+/** 2 иконки: шаг = 5600/2 = 2800мс, иначе вторая синхронизируется с первой. */
+const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 2800}ms` }) as CSSProperties
 
 export default function ReturnsPage() {
+  const infoRef = useOnScreen<HTMLElement>()
+
   useMetaTags({
     title: 'Обмен и возврат товара — Зоомагазин Симба',
     description:
@@ -26,7 +25,7 @@ export default function ReturnsPage() {
       content: (
         <>
           В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">Telegram</a> или{' '}
-          <a href={CONTACTS.returnsPhoneHref} className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">позвоните: {CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
+          позвоните: <a href={CONTACTS.returnsPhoneHref} className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">{CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
           кабинете.
         </>
       ),
@@ -74,13 +73,15 @@ export default function ReturnsPage() {
       </section>
 
       {/* Info blocks */}
-      <section className="space-y-5 mb-12">
+      <section ref={infoRef} className="returns-icons space-y-5 mb-12">
         <div className="bg-primary-tint rounded-card p-5">
           <div className="flex items-start gap-3">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-soft flex-shrink-0 mt-0.5">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
+            <svg style={iconDelay(0)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
+              <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+              <g className="returns-alert">
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
+              </g>
             </svg>
             <div>
               <h3 className="font-bold text-navy-900 mb-2">Что вернуть нельзя</h3>
@@ -95,9 +96,11 @@ export default function ReturnsPage() {
 
         <div className="bg-primary-tint rounded-card p-5">
           <div className="flex items-start gap-3">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-soft flex-shrink-0 mt-0.5">
-              <path d="M9 11l3 3L22 4" />
-              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg style={iconDelay(1)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
+              <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+              <g className="returns-check">
+                <path d="M9 12l2 2l4 -4" />
+              </g>
             </svg>
             <div>
               <h3 className="font-bold text-navy-900 mb-2">Если товар с браком</h3>

@@ -123,8 +123,7 @@ export default function BlogSection() {
                       year: 'numeric',
                       month: '2-digit',
                       day: '2-digit',
-                    })}{' '}
-                    · {post.readingMinutes} мин
+                    })}
                   </p>
                 </div>
               </Link>
