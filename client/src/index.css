@@ -201,6 +201,16 @@
       right: 0;
       transform: translateX(80%);
     }
+
+    /* Растушёвка шва: жёсткий ровный срез PNG (там, где картинка встречается
+       с карточкой) размывается градиентом альфы, а не резкой линией.
+       Полоса среза начинается ~64px от левого края исходника — фейдим
+       именно в этой зоне, дальше (лапа/нос/тело) остаётся чётким. */
+    .quiz-decor--left,
+    .quiz-decor--right {
+      -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px);
+      mask-image: linear-gradient(to right, transparent 0, black 24px);
+    }
   }
 
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
