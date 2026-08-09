@@ -366,8 +366,8 @@
 
 @keyframes advPull {
   0%   { transform: translateY(0); }
-  8%   { transform: translateY(5px); }
-  17%  { transform: translateY(5px); }
+  8%   { transform: translateY(-5px); }
+  17%  { transform: translateY(-5px); }
   25%, 100% { transform: translateY(0); }
 }
 
