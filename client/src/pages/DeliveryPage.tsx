@@ -156,7 +156,7 @@ export default function DeliveryPage() {
       </div>
 
       {/* Footer section */}
-      <div className="mt-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mt-10 pt-6 border-t border-line flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <p className="text-navy-500">
           Остались вопросы по доставке — напишите нам в Telegram, ответим за несколько минут.
         </p>
@@ -164,7 +164,7 @@ export default function DeliveryPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2"
+          className="btn-primary rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2 whitespace-nowrap"
         >
           <TelegramIcon />
           Написать в Telegram

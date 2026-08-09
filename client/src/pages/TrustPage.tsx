@@ -8,14 +8,16 @@ import TelegramIcon from '../components/icons/TelegramIcon'
 import { useOnScreen } from '../hooks/useOnScreen'
 
 /** Те же 4 иконки, что в TrustSection.tsx на главной — это одни и те же
-    гарантии в двух местах сайта, у них должна быть одна визуальная форма. */
+    гарантии в двух местах сайта, у них должна быть одна визуальная форма.
+    Геометрия — Tabler Icons (MIT): award.svg + своя галочка, calendar-check.svg. */
 function VerifiedIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <g className="trust-shield">
-        <circle cx="12" cy="9" r="6" />
+        <path d="M6 9a6 6 0 1 0 12 0a6 6 0 1 0 -12 0" />
+        <path d="M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889" />
+        <path d="M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889" />
         <polyline points="9.5 9 11 10.5 14 7.5" />
-        <path d="M9 14 7.5 21 12 18 16.5 21 15 14" />
       </g>
     </svg>
   )
@@ -24,14 +26,12 @@ function VerifiedIcon() {
 function FreshDateIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="16" rx="2" />
-      <path d="M8 3v4" />
+      <path d="M11.5 21h-5.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v6" />
       <path d="M16 3v4" />
-      <path d="M3 10h18" />
-      <circle cx="7.5" cy="14" r="1" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none" />
+      <path d="M8 3v4" />
+      <path d="M4 11h16" />
       <g className="trust-check">
-        <polyline points="13.5 17 15 18.5 18 15.5" />
+        <path d="M15 19l2 2l4 -4" />
       </g>
     </svg>
   )
@@ -64,16 +64,17 @@ function ReturnBoxIcon() {
   )
 }
 
-/** Пузырь с «печатает» — точки подпрыгивают волной слева направо, ответ уже
-    набирают. Самолётик Telegram сюда не берём: он уже занят кнопкой ниже. */
+/** Пузырь — Tabler icons/outline/message-dots.svg (MIT), три точки
+    подпрыгивают волной слева направо, ответ уже набирают. Самолётик Telegram
+    сюда не берём: он уже занят кнопкой ниже. */
 function TypingReplyIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-7l-4 3.5V16H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z" />
+      <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3l12 0" />
       <g className="trust-message">
-        <circle cx="8" cy="10" r="1.1" fill="currentColor" stroke="none" />
-        <circle cx="12" cy="10" r="1.1" fill="currentColor" stroke="none" />
-        <circle cx="16" cy="10" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="8" cy="11" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="11" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="11" r="1.1" fill="currentColor" stroke="none" />
       </g>
     </svg>
   )

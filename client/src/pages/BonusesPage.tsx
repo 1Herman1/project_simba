@@ -4,8 +4,9 @@ import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
 import { useOnScreen } from '../hooks/useOnScreen'
 
-/** Подарок: коробка, крышка с лентой и бант из двух зеркальных петель.
-    Двигается только крышка с бантом (.bonus-gift) — коробка стоит на месте. */
+/** Подарок: коробка + крышка (кант — Tabler icons/outline/gift.svg, MIT) и
+    свой бант из зеркальных петель. Двигается только крышка с бантом
+    (.bonus-gift) — коробка стоит на месте. */
 function GiftIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -14,8 +15,7 @@ function GiftIcon() {
       <g className="bonus-gift">
         <rect x="3" y="8" width="18" height="4" rx="1" />
         <path d="M12 8v4" />
-        <path d="M12 8C12 5 10 3 8 3a2.5 2.5 0 0 0 0 5Z" />
-        <path d="M12 8C12 5 14 3 16 3a2.5 2.5 0 0 1 0 5Z" />
+        <path d="M7.5 8a2.5 2.5 0 0 1 0 -5a4.8 8 0 0 1 4.5 5a4.8 8 0 0 1 4.5 -5a2.5 2.5 0 0 1 0 5" />
       </g>
     </svg>
   )

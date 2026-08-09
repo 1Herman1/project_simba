@@ -1,51 +1,60 @@
 import { type CSSProperties } from 'react'
 import { useOnScreen } from '../../hooks/useOnScreen'
 
+/** Геометрия — Tabler Icons (MIT), icons/outline/package.svg. */
 function PackageIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <g className="adv-rock">
-        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-        <line x1="12" y1="22.08" x2="12" y2="12" />
-        <line x1="16.5" y1="9.4" x2="7.5" y2="4.21" />
+        <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+        <path d="M12 12l8 -4.5" />
+        <path d="M12 12l0 9" />
+        <path d="M12 12l-8 -4.5" />
+        <path d="M16 5.25l-8 4.5" />
       </g>
     </svg>
   )
 }
 
+/** Геометрия — Tabler Icons (MIT), icons/outline/adjustments.svg,
+    двигается только ручка среднего трека (.adv-pull). */
 function SlidersIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="4" y1="3" x2="4" y2="21" />
-      <line x1="12" y1="3" x2="12" y2="21" />
-      <line x1="20" y1="3" x2="20" y2="21" />
-      <rect x="1.5" y="12" width="5" height="4" rx="2" fill="currentColor" stroke="none" />
-      <rect x="17.5" y="14" width="5" height="4" rx="2" fill="currentColor" stroke="none" />
+      <path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M6 4v4" />
+      <path d="M6 12v8" />
+      <path d="M12 4v10" />
+      <path d="M12 18v2" />
+      <path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path d="M18 4v1" />
+      <path d="M18 9v11" />
       <g className="adv-pull">
-        <rect x="9.5" y="6" width="5" height="4" rx="2" fill="currentColor" stroke="none" />
+        <path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
       </g>
     </svg>
   )
 }
 
+/** Геометрия — Tabler Icons (MIT), icons/outline/tag.svg. */
 function TagIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <g className="adv-swing">
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
-        <line x1="7" y1="7" x2="7.01" y2="7" />
+        <path d="M6.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
+        <path d="M3 6v5.172a2 2 0 0 0 .586 1.414l7.71 7.71a2.41 2.41 0 0 0 3.408 0l5.592 -5.592a2.41 2.41 0 0 0 0 -3.408l-7.71 -7.71a2 2 0 0 0 -1.414 -.586h-5.172a3 3 0 0 0 -3 3" />
       </g>
     </svg>
   )
 }
 
+/** Геометрия — Tabler Icons (MIT), icons/outline/clock.svg. */
 function ClockIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" />
+      <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
       <g className="adv-sweep">
-        <polyline points="12 6 12 12 16 14" />
+        <path d="M12 7v5l3 3" />
       </g>
     </svg>
   )
