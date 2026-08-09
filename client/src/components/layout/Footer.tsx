@@ -70,10 +70,10 @@ export default function Footer() {
             href={CONTACTS.telegram}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary w-full font-semibold px-4 py-3 rounded-xl text-base"
+            className="btn-primary w-full font-semibold px-3 py-3 rounded-xl text-xs"
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
-            <span className="flex items-center gap-2">
+            <span className="flex items-center justify-center gap-2 whitespace-nowrap">
               <TelegramIcon />
               Telegram — ответим за 10 минут
             </span>
