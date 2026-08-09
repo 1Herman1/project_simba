@@ -173,20 +173,6 @@
      совпадает с белым фоном карточки и потому не видна. Анимации нет:
      движение здесь отвлекало от кнопки.
      Ниже lg скрыты — на узком экране места по бокам нет. */
-  /* Рамка баннера поверх животных. Карточка position:relative, ::after
-     ложится по её краю на z-30 (животные z-20) — линия рамки видна всегда,
-     а звери выглядывают именно из-за обрамлённого баннера. pointer-events:none
-     — рамка не перехватывает клик по кнопке. */
-  .quiz-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 30;
-    border: 2px solid theme('colors.primary.soft');
-    border-radius: theme('borderRadius.card');
-    pointer-events: none;
-  }
-
   .quiz-decor {
     display: none;
   }
