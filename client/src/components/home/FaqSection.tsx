@@ -11,28 +11,26 @@ function FaqItem({ faq }: { faq: FaqEntry }) {
 
   return (
     <div className="bg-white border border-line rounded-card overflow-hidden">
-      <h3 className="font-bold text-navy-900 text-base sm:text-lg">
-        <button
-          aria-expanded={open}
-          aria-controls={id}
-          onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-100 ease"
+      <button
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between p-5 text-left transition-colors duration-150 ease ${open ? 'bg-primary-tint' : ''}`}
+      >
+        <span className="font-semibold pr-4 text-navy-900">{faq.q}</span>
+        <svg
+          aria-hidden="true"
+          className={`w-5 h-5 flex-shrink-0 text-primary-hover transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         >
-          <span className="pr-4 flex-grow">{faq.q}</span>
-          <svg
-            aria-hidden="true"
-            className={`w-5 h-5 flex-shrink-0 text-primary-hover transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-      </h3>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
       <div
         id={id}
         role="region"

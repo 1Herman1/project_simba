@@ -33,7 +33,7 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
       <h2 className="font-bold text-navy-900 text-base sm:text-lg">
         <button
           onClick={() => setOpen(!open)}
-          className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-100 ease"
+          className={`w-full flex items-center justify-between p-5 text-left transition-colors duration-150 ease ${open ? 'bg-primary-tint' : ''}`}
           aria-expanded={open}
           aria-controls={`faq-${item.id}`}
         >
