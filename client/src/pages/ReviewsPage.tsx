@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
+import TelegramIcon from '../components/icons/TelegramIcon'
 
 export default function ReviewsPage() {
   useMetaTags({
@@ -36,7 +37,7 @@ export default function ReviewsPage() {
       </div>
 
       {/* Info block */}
-      <div className="bg-primary-tint rounded-card p-5">
+      <div className="bg-blue-100 rounded-card p-5">
         <p className="text-navy-500 leading-relaxed">
           Заказывая на сайте, вы получаете{' '}
           <Link to="/bonuses" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
@@ -52,8 +53,9 @@ export default function ReviewsPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
+          className="btn-primary rounded-xl px-6 font-bold gap-2 whitespace-nowrap"
         >
+          <TelegramIcon />
           Написать в Telegram
         </a>
       </div>
