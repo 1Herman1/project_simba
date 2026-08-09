@@ -2,15 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MarketplaceCard from '../MarketplaceCard'
 import { CONTACTS, MARKETPLACES, LEGAL } from '../../lib/contacts'
-
-// Иконка бумажного самолётика Telegram
-function TelegramPlaneIcon() {
-  return (
-    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z" />
-    </svg>
-  )
-}
+import TelegramIcon from '../icons/TelegramIcon'
 
 // Иконка трубки — Feather, тот же path что в шапке
 function PhoneIcon() {
@@ -82,7 +74,7 @@ export default function Footer() {
             aria-label="Написать нам в Telegram — ответим за 10 минут"
           >
             <span className="flex items-center gap-2">
-              <TelegramPlaneIcon />
+              <TelegramIcon />
               Telegram — ответим за 10 минут
             </span>
           </a>

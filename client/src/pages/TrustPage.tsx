@@ -3,6 +3,7 @@ import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
+import TelegramIcon from '../components/icons/TelegramIcon'
 
 function ShieldIcon() {
   return (
@@ -51,13 +52,6 @@ function MessageIcon() {
 }
 
 
-function TelegramPlaneIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23 3a6.6 6.6 0 01-6 6.3v10.7M1 3l10 19 2-8 8-2-20-9.7z" />
-    </svg>
-  )
-}
 
 export default function TrustPage() {
   useMetaTags({
@@ -164,7 +158,7 @@ export default function TrustPage() {
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 min-h-11 px-6 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors duration-100 ease"
         >
-          <TelegramPlaneIcon />
+          <TelegramIcon />
           Написать в Telegram
         </a>
       </div>

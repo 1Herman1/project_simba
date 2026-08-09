@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+
 /**
  * Единственный источник вопросов и ответов. Главная показывает первые
  * четыре, страница /faq — все шесть и разметку для поиска. Пока текст жил
@@ -42,3 +45,33 @@ export const FAQ: FaqEntry[] = [
     text: 'Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим варианты. Или пройдите подбор корма на сайте, это минута.',
   },
 ]
+
+/** Ответы с встроенными ссылками — общие для превью на главной и страницы /faq,
+    чтобы обещание («Подробнее — на странице…») выполнялось в обоих местах. */
+export function renderFaqAnswer(item: FaqEntry): ReactNode {
+  switch (item.id) {
+    case 'return':
+      return (
+        <>
+          Невскрытую упаковку — да, в течение 30 дней. Вскрытую, к сожалению, нет — санитарные нормы. Подробнее —{' '}
+          <Link to="/returns" className="font-medium text-primary-hover hover:underline">
+            на странице «Обмен и возврат»
+          </Link>
+          .
+        </>
+      )
+    case 'selection':
+      return (
+        <>
+          Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим
+          варианты. Или{' '}
+          <Link to="/questionnaire" className="font-medium text-primary-hover hover:underline">
+            пройдите подбор корма на сайте
+          </Link>
+          , это минута.
+        </>
+      )
+    default:
+      return item.text
+  }
+}

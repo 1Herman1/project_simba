@@ -1,18 +1,10 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
-import { FAQ, type FaqEntry } from '../lib/faq'
+import { FAQ, renderFaqAnswer, type FaqEntry } from '../lib/faq'
+import TelegramIcon from '../components/icons/TelegramIcon'
 
 const faqs = FAQ
-
-function TelegramPlaneIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23 3a6.6 6.6 0 01-6 6.3v10.7M1 3l10 19 2-8 8-2-20-9.7z" />
-    </svg>
-  )
-}
 
 function ChevronIcon({ className }: { className?: string }) {
   return (
@@ -36,62 +28,33 @@ function ChevronIcon({ className }: { className?: string }) {
 function FaqItemComponent({ item }: { item: FaqEntry }) {
   const [open, setOpen] = useState(false)
 
-  const renderAnswer = (type: string) => {
-    switch (type) {
-      case 'return':
-        return (
-          <>
-            Невскрытую упаковку — да, в течение 30 дней. Вскрытую, к сожалению, нет — санитарные нормы. Подробнее —{' '}
-            <Link to="/returns" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
-              на странице «Обмен и возврат»
-            </Link>
-            .
-          </>
-        )
-      case 'selection':
-        return (
-          <>
-            Да, это то, что мы делаем лучше всего. Напишите нам о питомце — возраст, порода, особенности — и мы предложим
-            варианты. Или{' '}
-            <Link to="/questionnaire" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
-              пройдите подбор корма на сайте
-            </Link>
-            , это минута.
-          </>
-        )
-      default:
-        return item.text
-    }
-  }
-
   return (
     <div className="bg-white border border-line rounded-card overflow-hidden">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-200 ease-out"
-        aria-expanded={open}
-        aria-controls={`faq-${item.id}`}
-      >
-        <h2 className="font-bold text-navy-900 pr-4 flex-grow text-base sm:text-lg">{item.q}</h2>
-        <div className="flex-shrink-0 text-primary-hover">
-          <ChevronIcon className={`transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`} />
-        </div>
-      </button>
+      <h2 className="font-bold text-navy-900 text-base sm:text-lg">
+        <button
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between p-5 text-left hover:bg-primary-tint transition-colors duration-100 ease"
+          aria-expanded={open}
+          aria-controls={`faq-${item.id}`}
+        >
+          <span className="pr-4 flex-grow">{item.q}</span>
+          <div className="flex-shrink-0 text-primary-hover">
+            <ChevronIcon className={`transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`} />
+          </div>
+        </button>
+      </h2>
 
       <div
         id={`faq-${item.id}`}
         role="region"
-        className={`overflow-hidden transition-[grid-template-rows] duration-200 ease-out ${open ? '' : ''}`}
-        style={{
-          gridTemplateRows: open ? '1fr' : '0fr',
-          display: 'grid',
-        }}
+        className={`grid transition-[grid-template-rows] ease-out ${open ? 'duration-200' : 'duration-150'}`}
+        style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
       >
-        <div className="overflow-hidden">
-          <div className={`px-5 pb-5 text-navy-500 leading-relaxed ${open ? 'bg-primary-tint opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`} style={{
-            transition: open ? 'opacity 200ms 0ms, transform 200ms 0ms' : 'opacity 140ms 0ms, transform 140ms 0ms',
-          }}>
-            {renderAnswer(item.id)}
+        <div className="overflow-hidden bg-primary-tint">
+          <div
+            className={`px-5 pt-4 pb-5 max-w-prose text-navy-500 leading-relaxed transition-[opacity,transform] ease-out ${open ? 'duration-200 opacity-100 translate-y-0' : 'duration-150 opacity-0 -translate-y-1'}`}
+          >
+            {renderFaqAnswer(item)}
           </div>
         </div>
       </div>
@@ -133,15 +96,15 @@ export default function FaqPage() {
       </div>
 
       {/* Footer */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 pt-6 border-t border-line">
-        <p className="text-navy-500">Не нашли ответ — </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 pt-6 border-t border-line">
+        <p className="text-navy-500">Не нашли ответ? Напишите — отвечаем за 10 минут.</p>
         <a
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
           className="btn-primary rounded-xl px-6 py-3 font-bold gap-2"
         >
-          <TelegramPlaneIcon />
+          <TelegramIcon />
           Спросите в Telegram
         </a>
       </div>

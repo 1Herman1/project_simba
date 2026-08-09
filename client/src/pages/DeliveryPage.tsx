@@ -2,13 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
 
-function TelegramPlaneIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23 3a6.6 6.6 0 01-6 6.3v10.7M1 3l10 19 2-8 8-2-20-9.7z" />
-    </svg>
-  )
-}
+import TelegramIcon from '../components/icons/TelegramIcon'
 
 function ClockIcon() {
   return (
@@ -172,7 +166,7 @@ export default function DeliveryPage() {
           rel="noopener noreferrer"
           className="btn-primary rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2"
         >
-          <TelegramPlaneIcon />
+          <TelegramIcon />
           Написать в Telegram
         </a>
       </div>
