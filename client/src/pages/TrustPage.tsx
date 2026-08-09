@@ -124,7 +124,7 @@ export default function TrustPage() {
     },
     {
       icon: <LoyalHeartIcon />,
-      tone: 'amber' as const,
+      tone: 'primary' as const,
       title: 'Половина заказов — повторные',
       content:
         'Люди возвращаются туда, где корм оригинальный, сроки живые, а упаковка целая.',

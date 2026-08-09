@@ -83,7 +83,7 @@ const TONE = {
 const guarantees = [
   { icon: <VerifiedIcon />, tone: 'primary' as const, title: 'Оригинальная продукция', text: 'Прямые поставки от официальных дистрибьюторов, документы на каждую партию.' },
   { icon: <FreshDateIcon />, tone: 'primary' as const, title: 'Живые сроки годности', text: 'Проверяем каждую поставку на приёмке. Маркировку можно проверить при получении, до оплаты.' },
-  { icon: <LoyalHeartIcon />, tone: 'amber' as const, title: 'Половина заказов — повторные', text: 'Люди возвращаются туда, где корм оригинальный, а сроки живые.' },
+  { icon: <LoyalHeartIcon />, tone: 'primary' as const, title: 'Половина заказов — повторные', text: 'Люди возвращаются туда, где корм оригинальный, а сроки живые.' },
   { icon: <ReturnBoxIcon />, tone: 'amber' as const, title: 'Возврат без бюрократии', text: 'Невскрытую упаковку принимаем 30 дней. Брак меняем без вопросов.' },
 ]
 
