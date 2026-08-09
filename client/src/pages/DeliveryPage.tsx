@@ -152,7 +152,7 @@ export default function DeliveryPage() {
       </section>
 
       {/* Info block */}
-      <div className="bg-primary-tint rounded-card p-5 mt-10">
+      <div className="bg-blue-100 rounded-card p-5 mt-10">
         <div className="flex items-start gap-3">
           <ClockIcon size={24} className="text-primary-soft flex-shrink-0 mt-1" />
           <div>
