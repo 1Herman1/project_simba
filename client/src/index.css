@@ -248,6 +248,7 @@
 .trust-check,
 .trust-cycle,
 .trust-return,
+.trust-message > circle,
 .bonus-gift,
 .bonus-percent,
 .bonus-wallet {
@@ -263,7 +264,7 @@
   animation-play-state: running;
 }
 
-.trust-icons.is-onscreen :is(.trust-shield, .trust-check, .trust-cycle, .trust-return) {
+.trust-icons.is-onscreen :is(.trust-shield, .trust-check, .trust-cycle, .trust-return, .trust-message > circle) {
   animation-play-state: running;
 }
 
@@ -284,6 +285,10 @@
 .trust-cycle  { animation-name: trustCycle; transform-origin: 12px 12px; }
 /* Стрелка внутри посылки уезжает внутрь и возвращается. */
 .trust-return { animation-name: trustReturn; }
+/* Точки «печатает» подпрыгивают по очереди: волна слева направо. */
+.trust-message > circle { animation-name: trustTyping; }
+.trust-message > circle:nth-of-type(2) { animation-delay: calc(var(--idle-delay, 0ms) + 140ms); }
+.trust-message > circle:nth-of-type(3) { animation-delay: calc(var(--idle-delay, 0ms) + 280ms); }
 
 @keyframes trustSeal {
   0%   { transform: scale(1); }
@@ -311,6 +316,13 @@
   7%   { transform: translateX(2px); }
   18%  { transform: translateX(-2px); }
   25%, 100% { transform: translateX(0); }
+}
+
+@keyframes trustTyping {
+  0%   { transform: translateY(0); opacity: 0.65; }
+  4%   { transform: translateY(-1.75px); opacity: 1; }
+  10%  { transform: translateY(0); opacity: 0.65; }
+  25%, 100% { transform: translateY(0); opacity: 0.65; }
 }
 
 /* Крышка с бантом «приоткрывается» — подарок вручают. */
@@ -395,6 +407,7 @@
   .trust-check,
   .trust-cycle,
   .trust-return,
+  .trust-message > circle,
   .bonus-gift,
   .bonus-percent,
   .bonus-wallet {

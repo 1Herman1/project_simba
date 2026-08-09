@@ -1,59 +1,99 @@
 import { Link } from 'react-router-dom'
+import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
 import TelegramIcon from '../components/icons/TelegramIcon'
+import { useOnScreen } from '../hooks/useOnScreen'
 
-function ShieldIcon() {
+/** Те же 4 иконки, что в TrustSection.tsx на главной — это одни и те же
+    гарантии в двух местах сайта, у них должна быть одна визуальная форма. */
+function VerifiedIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <g className="trust-shield">
+        <circle cx="12" cy="9" r="6" />
+        <polyline points="9.5 9 11 10.5 14 7.5" />
+        <path d="M9 14 7.5 21 12 18 16.5 21 15 14" />
+      </g>
     </svg>
   )
 }
 
-function CalendarIcon() {
+function FreshDateIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M8 3v4" />
+      <path d="M16 3v4" />
+      <path d="M3 10h18" />
+      <circle cx="7.5" cy="14" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none" />
+      <g className="trust-check">
+        <polyline points="13.5 17 15 18.5 18 15.5" />
+      </g>
     </svg>
   )
 }
 
-function RepeatIcon() {
+function LoyalHeartIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="23 4 23 10 17 10" />
-      <polyline points="1 20 1 14 7 14" />
-      <path d="M3.51 9a9 9 0 0114.85-3.36M20.49 15a9 9 0 01-14.85 3.36" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <g className="trust-cycle">
+        <path d="M4 12a8 8 0 0 1 16 0" />
+        <polyline points="18 10 20 12 22 10" />
+        <path d="M20 12a8 8 0 0 1-16 0" />
+        <polyline points="6 14 4 12 2 14" />
+      </g>
+      <path d="M12 16C9.5 14 8 12.5 8 11A2 2 0 0 1 12 11A2 2 0 0 1 16 11C16 12.5 14.5 14 12 16Z" />
     </svg>
   )
 }
 
-function ArrowReturnIcon() {
+function ReturnBoxIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="3 7 3 13 9 13" />
-      <path d="M21 10a7 7 0 00-7-7 7 7 0 00-7 7" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="3" width="20" height="5" rx="1" />
+      <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+      <g className="trust-return">
+        <line x1="15.5" y1="14.5" x2="8.5" y2="14.5" />
+        <polyline points="11.5 11.5 8.5 14.5 11.5 17.5" />
+      </g>
     </svg>
   )
 }
 
-function MessageIcon() {
+/** Пузырь с «печатает» — точки подпрыгивают волной слева направо, ответ уже
+    набирают. Самолётик Telegram сюда не берём: он уже занят кнопкой ниже. */
+function TypingReplyIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-7l-4 3.5V16H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z" />
+      <g className="trust-message">
+        <circle cx="8" cy="10" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="10" r="1.1" fill="currentColor" stroke="none" />
+        <circle cx="16" cy="10" r="1.1" fill="currentColor" stroke="none" />
+      </g>
     </svg>
   )
 }
 
+/** Тот же тональный код, что в TrustSection.tsx: синий — про товар и проверку,
+    янтарный — про людей и сервис. */
+const TONE = {
+  primary: 'text-primary-soft',
+  amber: 'text-amber-600',
+} as const
+
+/** 5 карточек против 4 в TrustSection: шаг стаггера = цикл / число иконок,
+    иначе 5-я иконка (600+4*1400=6200мс ≡ 600мс) синхронизируется с первой. */
+const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 1120}ms` }) as CSSProperties
 
 
 export default function TrustPage() {
+  const iconsRef = useOnScreen<HTMLDivElement>()
+
   useMetaTags({
     title: 'Почему нам доверяют — Зоомагазин Симба',
     description:
@@ -62,7 +102,8 @@ export default function TrustPage() {
 
   const reasons = [
     {
-      icon: <ShieldIcon />,
+      icon: <VerifiedIcon />,
+      tone: 'primary' as const,
       title: 'Оригинальная продукция',
       content: (
         <>
@@ -75,18 +116,21 @@ export default function TrustPage() {
       ),
     },
     {
-      icon: <CalendarIcon />,
+      icon: <FreshDateIcon />,
+      tone: 'primary' as const,
       title: 'Живые сроки годности',
       content: 'Проверяем каждую поставку на приёмке. Вы можете проверить маркировку при получении, до оплаты.',
     },
     {
-      icon: <RepeatIcon />,
+      icon: <LoyalHeartIcon />,
+      tone: 'amber' as const,
       title: 'Половина заказов — повторные',
       content:
         'Люди возвращаются туда, где корм оригинальный, сроки живые, а упаковка целая.',
     },
     {
-      icon: <ArrowReturnIcon />,
+      icon: <ReturnBoxIcon />,
+      tone: 'amber' as const,
       title: 'Возврат без бюрократии',
       content: (
         <>
@@ -98,7 +142,8 @@ export default function TrustPage() {
       ),
     },
     {
-      icon: <MessageIcon />,
+      icon: <TypingReplyIcon />,
+      tone: 'amber' as const,
       title: 'Отвечаем быстро',
       content: 'Telegram, ежедневно 9:00–21:00, обычно в течение 10 минут.',
     },
@@ -134,13 +179,13 @@ export default function TrustPage() {
       {/* Reasons grid */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">Что мы гарантируем</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+        <div ref={iconsRef} className="trust-icons grid md:grid-cols-2 gap-4">
           {reasons.map((reason, index) => (
             <div
               key={reason.title}
               className={`bg-white border border-line rounded-card p-5 ${index === 0 ? 'md:col-span-2' : ''}`}
             >
-              <div className="text-primary-soft mb-3">{reason.icon}</div>
+              <div style={iconDelay(index)} className={`mb-3 ${TONE[reason.tone]}`}>{reason.icon}</div>
               <h3 className="font-bold text-navy-900 mb-2">{reason.title}</h3>
               <p className="text-navy-500 leading-relaxed">
                 {reason.content}
