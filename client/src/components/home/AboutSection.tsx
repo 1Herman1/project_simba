@@ -52,8 +52,8 @@ export default function AboutSection() {
     <section id="about" aria-labelledby="about-title" className="scroll-mt-24 py-12 md:py-16">
       <div ref={groupRef} className="reveal-group max-w-7xl mx-auto px-4">
         <div className="reveal-item" style={step(0)}>
-          <p className="text-sm font-semibold uppercase tracking-wide text-navy-500">О компании</p>
-          <h2 id="about-title" className="mt-1 text-2xl font-bold text-navy-900">Кто мы</h2>
+          <p className="text-base font-semibold uppercase tracking-wide text-navy-500">О компании</p>
+          <h2 id="about-title" className="mt-1 text-3xl font-bold text-navy-900">Кто мы</h2>
         </div>
 
         <div className="mt-8 grid md:grid-cols-2 gap-8 md:items-center">
@@ -69,10 +69,9 @@ export default function AboutSection() {
               Я обожаю животных и подбираю для магазина только те корма, которые готова дать своим питомцам. Если вы не уверены в выборе — напишите, разберёмся вместе.
             </p>
 
-            <div className="reveal-item mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4" style={step(3)}>
+            <div className="reveal-item mt-6" style={step(3)}>
               <p className="text-navy-500">Не знаете, какой корм подойдёт вашему питомцу —</p>
-              {/* flex-shrink-0 + nowrap: в узкой колонке кнопка сжималась и текст переносился на две строки */}
-              <Link to="/questionnaire" className="btn-primary flex-shrink-0 whitespace-nowrap px-6 rounded-xl font-bold">
+              <Link to="/questionnaire" className="btn-primary mt-3 inline-flex whitespace-nowrap px-6 rounded-xl font-bold">
                 Подобрать за минуту
               </Link>
             </div>
@@ -92,10 +91,13 @@ export default function AboutSection() {
           </div>
         </div>
 
-        {/* Тонкая юридическая строка */}
-        <p className="reveal-item mt-8 pt-6 border-t border-line max-w-3xl text-sm leading-relaxed text-navy-500" style={step(3)}>
-          {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip} · {LEGAL.address}
-        </p>
+        {/* Тонкая юридическая строка: разделитель на всю ширину секции,
+            сам текст — в одну строку с горизонтальным скроллом на узких экранах. */}
+        <div className="reveal-item mt-8 pt-6 border-t border-line" style={step(3)}>
+          <p className="whitespace-nowrap overflow-x-auto scrollbar-hide text-sm leading-relaxed text-navy-500">
+            {LEGAL.entity} · {LEGAL.inn} · {LEGAL.ogrnip} · {LEGAL.address}
+          </p>
+        </div>
       </div>
     </section>
   )
