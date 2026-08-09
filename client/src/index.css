@@ -243,12 +243,16 @@
 .adv-rock,
 .adv-pull,
 .adv-swing,
-.adv-sweep {
+.adv-sweep,
+.trust-shield,
+.trust-check,
+.trust-cycle,
+.trust-return {
   transform-box: view-box;
   animation-duration: 5600ms;
   animation-iteration-count: infinite;
   animation-timing-function: var(--ease-in-out);
-  animation-delay: var(--adv-delay, 0ms);
+  animation-delay: var(--idle-delay, var(--adv-delay, 0ms));
   animation-play-state: paused;
 }
 
@@ -256,10 +260,51 @@
   animation-play-state: running;
 }
 
+.trust-icons.is-onscreen :is(.trust-shield, .trust-check, .trust-cycle, .trust-return) {
+  animation-play-state: running;
+}
+
 .adv-rock  { animation-name: advRock;  transform-origin: 12px 20px; }
 .adv-swing { animation-name: advSwing; transform-origin: 7px 7px; }
 .adv-sweep { animation-name: advSweep; transform-origin: 12px 12px; }
 .adv-pull  { animation-name: advPull; }
+
+/* Медаль качается лёгким «оттиском печати» от нижнего края ленты. */
+.trust-shield { animation-name: trustSeal; transform-origin: 12px 21px; }
+/* Галочка календаря — просадка и возврат от своего начала. */
+.trust-check  { animation-name: trustCheck; transform-origin: 13.4px 17.2px; }
+/* Стрелки цикла разворачиваются на 180° — точечно-симметричны, переход бесшовный. */
+.trust-cycle  { animation-name: trustCycle; transform-origin: 12px 12px; }
+/* Стрелка внутри посылки уезжает внутрь и возвращается. */
+.trust-return { animation-name: trustReturn; }
+
+@keyframes trustSeal {
+  0%   { transform: scale(1); }
+  6%   { transform: scale(0.93); }
+  14%  { transform: scale(1.035); }
+  20%  { transform: scale(0.995); }
+  25%, 100% { transform: scale(1); }
+}
+
+@keyframes trustCheck {
+  0%   { transform: scale(1); opacity: 1; }
+  4%   { transform: scale(0.88); opacity: 0.5; }
+  13%  { transform: scale(1.06); opacity: 1; }
+  20%  { transform: scale(0.99); }
+  25%, 100% { transform: scale(1); }
+}
+
+@keyframes trustCycle {
+  0%   { transform: rotate(0deg); }
+  25%, 100% { transform: rotate(180deg); }
+}
+
+@keyframes trustReturn {
+  0%   { transform: translateX(0); }
+  7%   { transform: translateX(2px); }
+  18%  { transform: translateX(-2px); }
+  25%, 100% { transform: translateX(0); }
+}
 
 @keyframes advRock {
   0%   { transform: rotate(0deg); }
@@ -307,7 +352,11 @@
   .adv-rock,
   .adv-pull,
   .adv-swing,
-  .adv-sweep {
+  .adv-sweep,
+  .trust-shield,
+  .trust-check,
+  .trust-cycle,
+  .trust-return {
     animation: none !important;
   }
 }
