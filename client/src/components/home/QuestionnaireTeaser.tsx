@@ -37,10 +37,12 @@ export default function QuestionnaireTeaser() {
 
   return (
     <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16">
-      <div className="relative max-w-7xl mx-auto px-4">
-        {/* Карточка: края уходят под животных */}
-        <div className="relative z-10 mx-auto w-full max-w-5xl rounded-card bg-white border border-line px-8 py-14 text-center">
-          <h2 className="text-2xl font-bold text-navy-900 mb-2">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Якорь декора — сама карточка, а не внешний контейнер: иначе при
+            сужении окна животные заезжали на баннер всё глубже (до 181px). */}
+        <div className="relative mx-auto w-full max-w-5xl">
+        <div className="relative z-10 rounded-card bg-white border border-line px-8 py-14 text-center">
+          <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-2">
             Не знаете, какой корм выбрать?
           </h2>
           <p className="text-navy-500 mb-6 max-w-md mx-auto">
@@ -53,6 +55,7 @@ export default function QuestionnaireTeaser() {
 
         {/* Животные поверх карточки: лапа и нос ложатся на неё, остальное уходит за край */}
         {showDecor && DECOR.map((d) => <DecorImage key={d.side} {...d} />)}
+        </div>
       </div>
     </section>
   )
