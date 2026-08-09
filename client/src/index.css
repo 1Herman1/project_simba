@@ -272,7 +272,7 @@
 /* Медаль качается лёгким «оттиском печати» от нижнего края ленты. */
 .trust-shield { animation-name: trustSeal; transform-origin: 12px 21px; }
 /* Галочка календаря — просадка и возврат от своего начала. */
-.trust-check  { animation-name: trustCheck; transform-origin: 13.4px 17.2px; }
+.trust-check  { animation-name: trustCheck; transform-origin: 13.5px 17px; }
 /* Стрелки цикла разворачиваются на 180° — точечно-симметричны, переход бесшовный. */
 .trust-cycle  { animation-name: trustCycle; transform-origin: 12px 12px; }
 /* Стрелка внутри посылки уезжает внутрь и возвращается. */

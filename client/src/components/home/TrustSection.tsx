@@ -11,9 +11,9 @@ function VerifiedIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <g className="trust-shield">
-        <circle cx="12" cy="9" r="5.8" />
-        <polyline points="9.4 9 11.1 10.7 14.6 7.2" />
-        <path d="M8.3 13.4 L6.8 21.4 L12 18.7 L17.2 21.4 L15.7 13.4" />
+        <circle cx="12" cy="9" r="6" />
+        <polyline points="9.5 9 11 10.5 14 7.5" />
+        <path d="M9 14 7.5 21 12 18 16.5 21 15 14" />
       </g>
     </svg>
   )
@@ -24,14 +24,14 @@ function VerifiedIcon() {
 function FreshDateIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="3" y="5" width="18" height="16" rx="2.5" />
+      <rect x="3" y="5" width="18" height="16" rx="2" />
       <path d="M8 3v4" />
       <path d="M16 3v4" />
       <path d="M3 10h18" />
-      <circle cx="7.4" cy="13.8" r="1.05" fill="currentColor" stroke="none" />
-      <circle cx="11.4" cy="13.8" r="1.05" fill="currentColor" stroke="none" />
+      <circle cx="7.5" cy="14" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="14" r="1" fill="currentColor" stroke="none" />
       <g className="trust-check">
-        <polyline points="13.4 17.2 15.5 19.3 18.7 15.1" />
+        <polyline points="13.5 17 15 18.5 18 15.5" />
       </g>
     </svg>
   )
@@ -44,12 +44,12 @@ function LoyalHeartIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <g className="trust-cycle">
-        <path d="M12 4a8 8 0 0 1 8 8" />
-        <polyline points="17.5 9.5 20 12 22.5 9.5" />
-        <path d="M12 20a8 8 0 0 1-8-8" />
-        <polyline points="6.5 14.5 4 12 1.5 14.5" />
+        <path d="M4 12a8 8 0 0 1 16 0" />
+        <polyline points="18 10 20 12 22 10" />
+        <path d="M20 12a8 8 0 0 1-16 0" />
+        <polyline points="6 14 4 12 2 14" />
       </g>
-      <path d="M12 17l-3.8-3.7a3.1 3.1 0 0 1 3.8-3.6 3.1 3.1 0 0 1 3.8 3.6z" />
+      <path d="M12 16C9.5 14 8 12.5 8 11A2 2 0 0 1 12 11A2 2 0 0 1 16 11C16 12.5 14.5 14 12 16Z" />
     </svg>
   )
 }
@@ -59,11 +59,11 @@ function LoyalHeartIcon() {
 function ReturnBoxIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="2.6" y="4.6" width="18.8" height="4" rx="1" />
-      <path d="M4.2 8.6h15.6v9.6a1.8 1.8 0 0 1-1.8 1.8H6a1.8 1.8 0 0 1-1.8-1.8z" />
+      <rect x="2" y="3" width="20" height="5" rx="1" />
+      <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
       <g className="trust-return">
-        <path d="M15.4 14.3H8.6" />
-        <polyline points="11 11.9 8.6 14.3 11 16.7" />
+        <line x1="15.5" y1="14.5" x2="8.5" y2="14.5" />
+        <polyline points="11.5 11.5 8.5 14.5 11.5 17.5" />
       </g>
     </svg>
   )
