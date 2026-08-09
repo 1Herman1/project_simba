@@ -195,11 +195,11 @@
        Если заменят ассеты — пересчитать по позиции вертикального среза. */
     .quiz-decor--left {
       left: 0;
-      transform: translateX(-72%) scaleX(-1);
+      transform: translateX(-68%) scaleX(-1);
     }
     .quiz-decor--right {
       right: 0;
-      transform: translateX(75%);
+      transform: translateX(71%);
     }
   }
 

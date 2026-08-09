@@ -41,7 +41,7 @@ export default function QuestionnaireTeaser() {
         {/* Якорь декора — сама карточка, а не внешний контейнер: иначе при
             сужении окна животные заезжали на баннер всё глубже (до 181px). */}
         <div className="relative mx-auto w-full max-w-5xl">
-        <div className="quiz-card relative z-10 rounded-card bg-white border border-line px-8 py-14 text-center">
+        <div className="quiz-card relative z-10 rounded-card bg-white border-2 border-line px-8 py-14 text-center">
           <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-2">
             Не знаете, какой корм выбрать?
           </h2>
