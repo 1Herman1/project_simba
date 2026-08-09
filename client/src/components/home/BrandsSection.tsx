@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 // Brand colors are proprietary brand identities, not system design tokens
@@ -13,6 +14,31 @@ const brands = [
   { name: 'Orijen', slug: 'orijen', color: '#37474F' },
 ]
 
+/** Логотип бренда — файл кладётся в public/brands/<slug>.png (см. README там же).
+    Пока файла нет — показываем текстовое название, без «битой» картинки. */
+function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
+  const [failed, setFailed] = useState(false)
+
+  if (failed) {
+    return (
+      <span className="font-bold text-sm text-center px-2 leading-tight" style={{ color: brand.color }}>
+        {brand.name}
+      </span>
+    )
+  }
+
+  return (
+    <img
+      src={`/brands/${brand.slug}.png`}
+      alt={brand.name}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+      className="max-h-10 max-w-[80%] w-auto object-contain"
+    />
+  )
+}
+
 export default function BrandsSection() {
   return (
     <section id="brands" className="scroll-mt-24 py-12 md:py-16">
@@ -25,9 +51,7 @@ export default function BrandsSection() {
             to={`/catalog?brand=${brand.slug}`}
             className="flex-shrink-0 w-32 h-20 bg-white rounded-xl shadow-sm hover:shadow-md hover:scale-105 transition-[transform,box-shadow] duration-200 flex items-center justify-center cursor-pointer border border-blue-100"
           >
-            <span className="font-bold text-sm text-center px-2 leading-tight" style={{ color: brand.color }}>
-              {brand.name}
-            </span>
+            <BrandMark brand={brand} />
           </Link>
         ))}
       </div>
