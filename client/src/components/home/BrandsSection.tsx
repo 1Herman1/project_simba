@@ -41,7 +41,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
-        className="max-h-14 max-w-[80%] w-auto object-contain"
+        className="max-h-[4.75rem] max-w-[92%] w-auto object-contain"
       />
     )
   }
