@@ -74,7 +74,7 @@ export default function ReturnsPage() {
 
       {/* Info blocks */}
       <section ref={infoRef} className="returns-icons space-y-5 mb-12">
-        <div className="bg-primary-tint rounded-card p-5">
+        <div className="bg-blue-100 rounded-card p-5">
           <div className="flex items-start gap-3">
             <svg style={iconDelay(0)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
               <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
@@ -94,7 +94,7 @@ export default function ReturnsPage() {
           </div>
         </div>
 
-        <div className="bg-primary-tint rounded-card p-5">
+        <div className="bg-blue-100 rounded-card p-5">
           <div className="flex items-start gap-3">
             <svg style={iconDelay(1)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
               <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
