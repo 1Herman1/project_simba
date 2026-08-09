@@ -182,7 +182,7 @@
     position: absolute;
     inset: 0;
     z-index: 30;
-    border: 1px solid theme('colors.line');
+    border: 2px solid theme('colors.primary.soft');
     border-radius: theme('borderRadius.card');
     pointer-events: none;
   }
