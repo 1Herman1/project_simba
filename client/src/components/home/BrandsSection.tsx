@@ -2,19 +2,22 @@ import { useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useReveal } from '../../hooks/useReveal'
 
-/** mark: 'plaque' — логотип на собственной цветной подложке (Farmina/Brit/Orijen),
-    занимает почти весь бокс и рендерится мельче, чтобы не «перекрикивать» соседей.
+/** mark: 'plaque' — логотип на собственной цветной подложке (Farmina/Brit/Orijen).
+    Карточка красится фирменным цветом плашки (bg) целиком, а сам логотип
+    показывается ЦЕЛИКОМ без обрезки (object-contain) — так карточка залита
+    цветом до края, но верх/низ квадратных лого (Farmina, Orijen) не съедаются
+    в широком боксе, как было бы с object-cover.
     'mark' — логотип на прозрачном фоне, рендерится крупнее, чтобы не теряться
     рядом с плашками (см. design-reviewer: разброс оптического веса ×5). */
 const brands = [
   { name: "Hill's", slug: 'hills', kind: 'mark' as const },
-  { name: 'Farmina', slug: 'farmina', kind: 'plaque' as const },
+  { name: 'Farmina', slug: 'farmina', kind: 'plaque' as const, bg: '#0F70B5' },
   { name: 'Monge', slug: 'monge', kind: 'mark' as const },
   { name: 'Royal Canin', slug: 'royal-canin', kind: 'mark' as const },
   { name: 'Purina Pro Plan', slug: 'purina', kind: 'mark' as const },
-  { name: 'Brit', slug: 'brit', kind: 'plaque' as const },
+  { name: 'Brit', slug: 'brit', kind: 'plaque' as const, bg: '#082459' },
   { name: 'Acana', slug: 'acana', kind: 'mark' as const },
-  { name: 'Orijen', slug: 'orijen', kind: 'plaque' as const },
+  { name: 'Orijen', slug: 'orijen', kind: 'plaque' as const, bg: '#E2231B' },
 ]
 
 /** Логотип бренда — файл кладётся в public/brands/<slug>.png (см. README там же).
@@ -31,9 +34,6 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
   }
 
   if (brand.kind === 'plaque') {
-    // Плашка — часть логотипа, её цветной фон должен заливать всю карточку
-    // от края до края (как на самом лого), а не плавать маленькой картинкой
-    // на белом. Обрезаем по контуру карточки тем же радиусом.
     return (
       <img
         src={`/brands/${brand.slug}.png`}
@@ -41,7 +41,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
-        className="w-full h-full object-cover rounded-card"
+        className="max-h-14 max-w-[80%] w-auto object-contain"
       />
     )
   }
@@ -83,7 +83,8 @@ export default function BrandsSection() {
           >
             <Link
               to={`/catalog?brand=${brand.slug}`}
-              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center bg-white rounded-card border border-line overflow-hidden ${brand.kind === 'plaque' ? '' : 'p-3'}`}
+              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center rounded-card border border-line overflow-hidden ${brand.kind === 'plaque' ? 'p-2' : 'bg-white p-3'}`}
+              style={brand.kind === 'plaque' ? { backgroundColor: brand.bg } : undefined}
             >
               <BrandMark brand={brand} />
             </Link>
