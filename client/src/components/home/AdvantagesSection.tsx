@@ -1,4 +1,5 @@
-import { useEffect, useRef, type CSSProperties } from 'react'
+import { type CSSProperties } from 'react'
+import { useOnScreen } from '../../hooks/useOnScreen'
 
 function PackageIcon() {
   return (
@@ -88,26 +89,6 @@ const advantages = [
     в движении всегда ровно одна иконка. 600мс форы, чтобы жест не наложился
     на scroll-reveal самой секции (420мс). */
 const iconDelay = (i: number) => ({ '--adv-delay': `${600 + i * 1400}ms` }) as CSSProperties
-
-/** Петля бесконечная, поэтому её гасим вне вьюпорта: наблюдатель не
-    отписывается (в отличие от useReveal) — он и включает, и выключает. */
-function useOnScreen<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el || typeof IntersectionObserver === 'undefined') return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => el.classList.toggle('is-onscreen', entry.isIntersecting),
-      { threshold: 0 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
-  return ref
-}
 
 export default function AdvantagesSection() {
   const listRef = useOnScreen<HTMLUListElement>()
