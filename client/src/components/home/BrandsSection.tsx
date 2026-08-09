@@ -30,7 +30,21 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
     )
   }
 
-  const sizeClass = brand.kind === 'plaque' ? 'max-h-10 max-w-[70%]' : 'max-h-12 max-w-full'
+  if (brand.kind === 'plaque') {
+    // Плашка — часть логотипа, её цветной фон должен заливать всю карточку
+    // от края до края (как на самом лого), а не плавать маленькой картинкой
+    // на белом. Обрезаем по контуру карточки тем же радиусом.
+    return (
+      <img
+        src={`/brands/${brand.slug}.png`}
+        alt={brand.name}
+        loading="lazy"
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="w-full h-full object-cover rounded-card"
+      />
+    )
+  }
 
   return (
     <img
@@ -39,7 +53,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
       loading="lazy"
       decoding="async"
       onError={() => setFailed(true)}
-      className={`${sizeClass} w-auto object-contain rounded-md`}
+      className="max-h-16 max-w-full w-auto object-contain"
     />
   )
 }
@@ -69,7 +83,7 @@ export default function BrandsSection() {
           >
             <Link
               to={`/catalog?brand=${brand.slug}`}
-              className="brand-card flex w-36 h-24 lg:w-full items-center justify-center bg-white rounded-card border border-line p-3"
+              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center bg-white rounded-card border border-line overflow-hidden ${brand.kind === 'plaque' ? '' : 'p-3'}`}
             >
               <BrandMark brand={brand} />
             </Link>
