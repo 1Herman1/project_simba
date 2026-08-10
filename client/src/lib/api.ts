@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { QuizAnswers } from './quiz-config'
 
 // ─── HTTP клиент ────────────────────────────────────────────────────────────
 
@@ -271,4 +272,40 @@ export interface BonusTransaction {
 export const bonusesApi = {
   transactions: () =>
     api.get<BonusTransaction[]>('/api/bonuses/transactions'),
+}
+
+// ─── Квиз ────────────────────────────────────────────────────────────────
+
+export interface QuizProductCard {
+  id: string
+  slug: string
+  name: string
+  brandName: string | null
+  image: string | null
+  matchScore: number
+  variant: { id: string; weight: number; price: number; oldPrice: number | null; stock: number } | null
+  badges: string[]
+}
+
+export interface QuizMatchResponse {
+  sessionId: string
+  main: QuizProductCard
+  pair: QuizProductCard | null
+  alternatives: QuizProductCard[]
+  reasons: string[]
+  disclaimers: string[]
+  relaxed: string[]
+  fallbackNote: string | null
+  bonus: { amount: number; status: 'granted' | 'already_granted' | 'guest'; balance: number | null }
+}
+
+export const quizApi = {
+  match: (answers: Partial<QuizAnswers>) =>
+    api.post<QuizMatchResponse>('/api/quiz/match', answers),
+
+  getSession: (id: string) =>
+    api.get<QuizMatchResponse>(`/api/quiz/${id}`),
+
+  claimBonus: (sessionId: string) =>
+    api.post<{ granted: boolean; amount: number; balance: number }>('/api/quiz/claim', { sessionId }),
 }

@@ -14,8 +14,10 @@ import cartRoutes from './routes/cart/index'
 import orderRoutes from './routes/orders/index'
 import orderAdminRoutes from './routes/orders/admin'
 import bonusesRoutes from './routes/bonuses/index'
+import quizRoutes from './routes/quiz/index'
 import deliveryRoutes from './routes/delivery/index'
 import adminDashboard from './routes/admin/dashboard'
+import adminQuizRoutes from './routes/admin/quiz'
 import adminUsers from './routes/admin/users'
 import adminBrands from './routes/admin/brands'
 import adminBanners from './routes/admin/banners'
@@ -57,12 +59,14 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(orderRoutes, { prefix: '/api/orders' })
   await app.register(orderAdminRoutes, { prefix: '/api/admin/orders' })
   await app.register(bonusesRoutes, { prefix: '/api/bonuses' })
+  await app.register(quizRoutes, { prefix: '/api/quiz' })
   await app.register(adminDashboard, { prefix: '/api/admin/dashboard' })
   await app.register(adminUsers, { prefix: '/api/admin/users' })
   await app.register(adminBrands, { prefix: '/api/admin/brands' })
   await app.register(adminBanners, { prefix: '/api/admin/banners' })
   await app.register(adminImport, { prefix: '/api/admin/import' })
   await app.register(adminSync, { prefix: '/api/admin/sync' })
+  await app.register(adminQuizRoutes, { prefix: '/api/admin/quiz' })
   await app.register(deliveryRoutes, { prefix: '/api/delivery' })
 
   return app

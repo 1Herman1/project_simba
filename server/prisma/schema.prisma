@@ -76,6 +76,7 @@ enum BonusTxType {
   refund_used
   revoke_earned
   admin_adjust
+  quiz
 }
 
 enum PaymentStatus {
@@ -102,7 +103,7 @@ enum ChatRole {
   assistant
 }
 
-enum QuestionnaireSpecies {
+enum QuizSpecies {
   cat
   dog
 }
@@ -120,7 +121,7 @@ model User {
   role                UserRole   @default(customer)
   bonusPoints         Int        @default(0)
   bonusLevel          BonusLevel @default(newcomer)
-  /// Приветственные бонусы выдаются один раз за всю жизнь аккаунта
+  /// 300 бонусов выдаются один раз за всю жизнь аккаунта: при первом входе (welcome) либо по факту прохождения квиза (quiz) — что случится раньше.
   welcomeBonusGranted Boolean    @default(false)
   isActive            Boolean    @default(true)
   createdAt           DateTime   @default(now())
@@ -136,6 +137,7 @@ model User {
   comparison        Comparison?
   favorites         Favorite[]
   bonusTransactions BonusTransaction[]
+  quizSessions      QuizSession[]
 
   @@index([email])
   @@index([phone])
@@ -257,6 +259,8 @@ model Product {
   seoTitle         String?
   seoDescription   String?
   isActive         Boolean  @default(true)
+  /// Теги для квиза-подборщика. Закрытый словарь — server/src/lib/quiz-tags.ts. Пустой массив = товар в подборе не участвует.
+  quizTags         String[]             @default([])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -274,6 +278,7 @@ model Product {
   @@index([slug])
   @@index([brandId])
   @@index([isActive])
+  @@index([quizTags], type: Gin)
   @@map("products")
 }
 
@@ -557,23 +562,30 @@ model Favorite {
   @@map("favorites")
 }
 
-// ─── АНКЕТА ──────────────────────────────────────────────────────────────────
+// ─── КВИЗ ────────────────────────────────────────────────────────────────────
 
-/// Анкета подбора корма — может быть анонимной (userId = null)
-model Questionnaire {
-  id               String               @id @default(uuid())
+/// Одно прохождение квиза. userId = null у гостя: результат выдаётся сразу, без сбора контакта. Привязка к пользователю происходит позже, при claim после авторизации.
+model QuizSession {
+  id               String      @id @default(uuid())
   userId           String?
-  species          QuestionnaireSpecies
-  breed            String?
-  ageMonths        Int?
-  healthIssues     String[]
-  preferredBrands  String[]
-  discountCode     String?
+  species          QuizSpecies
+  /// Сырые ответы как их прислал фронт. Нужны, чтобы экран результата отзеркалил ответы и чтобы разбирать жалобы «подобрало не то» без реконструкции по тегам.
+  answers          Json
+  /// Плоский нормализованный набор тегов, по которому реально шёл скоринг
+  tags             String[]
+  /// Результат по порядку: [0] — главная рекомендация, [1] — пара для mixed или первая альтернатива, дальше альтернативы
   resultProductIds String[]
-  createdAt        DateTime             @default(now())
+  /// Какие жёсткие фильтры пришлось ослабить: ["brand","size"]. Пусто = точное совпадение
+  relaxed          String[]    @default([])
+  /// true, если именно эта сессия привела к начислению 300 бонусов
+  bonusGranted     Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
-  @@map("questionnaires")
+  @@index([createdAt])
+  @@map("quiz_sessions")
 }
 
 // ─── БАННЕРЫ ─────────────────────────────────────────────────────────────────

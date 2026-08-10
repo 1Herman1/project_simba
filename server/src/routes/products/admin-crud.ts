@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { checkRole } from '../../middleware/check-role'
+import { QUIZ_TAGS } from '../../lib/quiz-tags'
 
 const variantSchema = z.object({
   weight: z.number().positive(),
@@ -28,6 +29,7 @@ const createSchema = z.object({
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   categoryIds: z.array(z.string().uuid()).default([]),
+  quizTags: z.array(z.enum(QUIZ_TAGS)).default([]),
   variants: z.array(variantSchema).min(1),
 })
 
