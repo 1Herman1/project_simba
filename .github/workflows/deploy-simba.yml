@@ -1,0 +1,68 @@
+name: Deploy Simba to VPS
+
+on:
+  push:
+    branches:
+      - deploy/simba
+
+concurrency:
+  group: deploy-simba
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SIMBA_DEPLOY_HOST }}
+          username: ${{ secrets.SIMBA_DEPLOY_USER }}
+          key: ${{ secrets.SIMBA_DEPLOY_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            cd /var/www/simba-src
+
+            echo "==> Fetching deploy/simba"
+            git fetch origin deploy/simba
+            git checkout deploy/simba
+            git merge --ff-only origin/deploy/simba
+
+            echo "==> Installing dependencies"
+            npm install
+
+            echo "==> Generating Prisma client"
+            (cd server && npx prisma generate)
+
+            echo "==> Backing up database before any migration"
+            BACKUP_FILE="/tmp/simba_backup_$(date +%Y%m%d_%H%M%S).dump"
+            docker exec deploy-postgres-1 pg_dump -U simba -d simba -F c -f "$BACKUP_FILE"
+            docker exec deploy-postgres-1 test -s "$BACKUP_FILE"
+            echo "Backup OK: $BACKUP_FILE"
+
+            echo "==> Building server, client, admin"
+            npm run build --workspace=server
+            VITE_API_URL=http://147.45.157.11 npm run build --workspace=client
+            VITE_API_URL=http://147.45.157.11 npm run build --workspace=admin
+
+            echo "==> Applying migrations and reloading in one step (no old-code/new-schema window)"
+            (cd server && npx prisma migrate deploy)
+            pm2 reload simba-server --update-env
+
+            echo "==> Deploying static files"
+            mkdir -p /var/www/simba/client /var/www/simba/admin
+            rm -rf /var/www/simba/client/* /var/www/simba/admin/*
+            cp -r client/dist/* /var/www/simba/client/
+            cp -r admin/dist/*  /var/www/simba/admin/
+
+            echo "==> Health check"
+            sleep 2
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/products/list)
+            if [ "$STATUS" != "200" ]; then
+              echo "Health check FAILED: HTTP $STATUS"
+              pm2 logs simba-server --lines 40 --nostream --err
+              exit 1
+            fi
+            echo "Health check OK: HTTP $STATUS"
+            echo "==> Deploy complete"
