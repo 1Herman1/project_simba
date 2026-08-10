@@ -26,7 +26,10 @@ export default function QuestionnairePage() {
   // Get visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers)
   const currentQuestion = visibleQuestions[currentQuestionIndex]
-  const isLastQuestion = currentQuestionIndex === visibleQuestions.length - 1
+  // Пока species не выбран, видим только Q0 (длина списка = 1), и без этой
+  // проверки Q0 ошибочно считался бы «последним вопросом» — сработал бы
+  // автосабмит квиза сразу после выбора вида животного, с пустыми ответами.
+  const isLastQuestion = !!answers.species && currentQuestionIndex === visibleQuestions.length - 1
   const showPrevButton = currentQuestionIndex > 0
 
   // Handle answer
