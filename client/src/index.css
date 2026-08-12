@@ -149,7 +149,7 @@
   /* Логотип: лёгкое увеличение при наведении. Только на мышином ховере —
      на тач не залипает после касания. */
   .auth-logo-link {
-    transition: transform 140ms var(--ease-out);
+    transition: transform 220ms var(--ease-out);
   }
   @media (hover: hover) and (pointer: fine) {
     .auth-logo-link:hover {
