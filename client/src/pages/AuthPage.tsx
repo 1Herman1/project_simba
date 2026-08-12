@@ -134,7 +134,8 @@ export default function AuthPage() {
         <div className="bg-white rounded-2xl shadow-sm p-8">
 
           {/* Шаг: ввод email */}
-          <div className={`auth-step ${stepIn && step === 'input' ? 'is-in' : ''}`}>
+          <div className="relative">
+            <div className={`auth-step ${stepIn && step === 'input' ? 'is-in' : ''}`}>
             <h1 className="text-xl font-bold text-navy-900 mb-1">Вход в аккаунт</h1>
             <p className="text-sm text-navy-400 mb-6">
               Введите email — пришлём код для входа
@@ -202,10 +203,12 @@ export default function AuthPage() {
                 <span className="font-bold text-amber-600">+{WELCOME_BONUS} Scoins</span> за регистрацию — это {WELCOME_BONUS} ₽ скидки на первый заказ
               </p>
             </div>
+            </div>
           </div>
 
           {/* Шаг: ввод кода */}
-          <div className={`auth-step ${stepIn && step === 'code' ? 'is-in' : ''}`}>
+          <div className="relative">
+            <div className={`auth-step ${stepIn && step === 'code' ? 'is-in' : ''}`}>
             <button
               onClick={handleChangeEmail}
               aria-label="Изменить email"
@@ -281,6 +284,7 @@ export default function AuthPage() {
                   Отправить код повторно
                 </button>
               )}
+            </div>
             </div>
           </div>
 
