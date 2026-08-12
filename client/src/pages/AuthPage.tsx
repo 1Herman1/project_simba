@@ -125,8 +125,8 @@ export default function AuthPage() {
 
         {/* Логотип */}
         <div className="flex justify-center mb-8">
-          <Link to="/" aria-label="На главную" className="inline-flex rounded-xl">
-            <img src="/logo.png" alt="Симба — зоомагазин" width={160} height={48} className="h-12 w-auto" />
+          <Link to="/" aria-label="На главную" className="inline-flex rounded-xl auth-logo-link">
+            <img src="/logo.png" alt="Симба — зоомагазин" width={242} height={64} className="h-16 w-auto" />
           </Link>
         </div>
 
