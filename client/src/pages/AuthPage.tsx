@@ -18,11 +18,17 @@ export default function AuthPage() {
   const [resendTimer, setResendTimer] = useState(0)
   const [welcomeBonus, setWelcomeBonus] = useState(0)
   const [stepIn, setStepIn] = useState(false)
+  const [logoIn, setLogoIn] = useState(false)
 
   // Анимация появления шага
   useEffect(() => {
     setStepIn(true)
   }, [step])
+
+  // Анимация появления логотипа — один раз при заходе на страницу
+  useEffect(() => {
+    setLogoIn(true)
+  }, [])
 
   // Валидация email
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/.test(email)
@@ -124,9 +130,9 @@ export default function AuthPage() {
       <div className="w-full max-w-sm">
 
         {/* Логотип */}
-        <div className="flex justify-center mb-8">
+        <div className={`flex justify-center mt-4 mb-10 auth-logo-wrap ${logoIn ? 'is-in' : ''}`}>
           <Link to="/" aria-label="На главную" className="inline-flex rounded-xl auth-logo-link">
-            <img src="/logo.png" alt="Симба — зоомагазин" width={242} height={64} className="h-16 w-auto" />
+            <img src="/logo.png" alt="Симба — зоомагазин" width={227} height={80} className="h-20 w-auto" />
           </Link>
         </div>
 
