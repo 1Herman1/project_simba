@@ -157,6 +157,17 @@
     }
   }
 
+  /* Появление логотипа при заходе на страницу — один раз, лёгкий fade + подъём. */
+  .auth-logo-wrap {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 280ms var(--ease-out), transform 280ms var(--ease-out);
+  }
+  .auth-logo-wrap.is-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   /* Печать на карточке документа: единственная движущаяся часть иконки —
      проступает при наведении на карточку, лист остаётся неподвижным. */
   .cert-seal {
