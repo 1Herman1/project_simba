@@ -12,7 +12,13 @@ type DeliveryAddress = {
   postalCode: string
 }
 
-type CreateOrderData = {
+type ContactInfo = {
+  name?: string
+  email?: string
+  phone?: string
+}
+
+export type CreateOrderData = {
   cartId: string
   deliveryMethod: DeliveryMethod
   deliveryAddress?: DeliveryAddress
@@ -22,6 +28,12 @@ type CreateOrderData = {
   promoCode?: string
   expectedDeliveryCost?: number
   paymentMethod?: 'card' | 'cash_on_delivery'
+  contact?: ContactInfo
+}
+
+export type CreateOrderActor = {
+  cartOwnerId: string
+  customerUserId: string
 }
 
 /** Отмена — конечное состояние: бонусы за заказ уже вернулись покупателю. */
@@ -148,7 +160,7 @@ const orderItemsInclude = {
 
 async function resolveDeliveryCost(
   prisma: PrismaClient,
-  userId: string,
+  cartOwnerId: string,
   data: CreateOrderData
 ): Promise<number> {
   let serverDeliveryCost = 0
@@ -160,7 +172,7 @@ async function resolveDeliveryCost(
 
     // Вес берём из БД, а не из запроса — иначе доставку можно занизить.
     const cart = await prisma.cart.findUnique({
-      where: { id: data.cartId, userId },
+      where: { id: data.cartId, userId: cartOwnerId },
       include: { items: { include: { productVariant: true } } },
     })
 
@@ -193,16 +205,16 @@ async function resolveDeliveryCost(
 
 export async function createOrder(
   prisma: PrismaClient,
-  userId: string,
+  actor: CreateOrderActor,
   data: CreateOrderData
 ) {
   // Котировка доставки — до открытия транзакции: это HTTP-запрос к внешней
   // службе, держать на нём открытую транзакцию с блокировками нельзя.
-  const serverDeliveryCost = await resolveDeliveryCost(prisma, userId, data)
+  const serverDeliveryCost = await resolveDeliveryCost(prisma, actor.cartOwnerId, data)
 
   return prisma.$transaction(async (tx) => {
     const cart = await tx.cart.findUnique({
-      where: { id: data.cartId, userId },
+      where: { id: data.cartId, userId: actor.cartOwnerId },
       include: {
         items: {
           include: {
@@ -235,7 +247,7 @@ export async function createOrder(
     }
 
     const currentUser = await tx.user.findUnique({
-      where: { id: userId },
+      where: { id: actor.customerUserId },
       select: { bonusPoints: true },
     })
 
@@ -252,7 +264,7 @@ export async function createOrder(
 
     const order = await tx.order.create({
       data: {
-        userId,
+        userId: actor.customerUserId,
         deliveryMethod: data.deliveryMethod,
         deliveryAddress: data.deliveryAddress ?? undefined,
         comment: data.comment,
@@ -263,6 +275,9 @@ export async function createOrder(
         bonusEarned,
         deliveryCost: serverDeliveryCost,
         paymentMethod: data.paymentMethod ?? 'card',
+        contactName: data.contact?.name,
+        contactEmail: data.contact?.email,
+        contactPhone: data.contact?.phone,
         items: {
           create: cart.items.map((item) => ({
             productVariantId: item.productVariantId,
@@ -296,7 +311,7 @@ export async function createOrder(
     // Условное списание бонусов: вторая линия защиты от гонки
     if (bonusUsed > 0) {
       await applyBonusChange(tx, {
-        userId,
+        userId: actor.customerUserId,
         amount: -bonusUsed,
         type: 'spent',
         orderId: order.id,
@@ -307,7 +322,7 @@ export async function createOrder(
     // Бонусы не начисляются при оформлении — только при оплате (markOrderPaid).
     // Поле bonusEarned в заказе сохраняется как калькуляция, но на баланс попадает позже.
     const user = await tx.user.findUnique({
-      where: { id: userId },
+      where: { id: actor.customerUserId },
       select: { bonusPoints: true, bonusLevel: true },
     })
 

@@ -29,7 +29,7 @@ import adminSync from './routes/admin/sync'
  * через app.inject() без сети. Запуск сервера — в start() ниже.
  */
 export async function buildApp(opts: { logger?: boolean } = {}) {
-  const app = Fastify({ logger: opts.logger ?? true })
+  const app = Fastify({ logger: opts.logger ?? true, trustProxy: true })
 
   await app.register(cors, {
     origin: [process.env.CLIENT_URL!, process.env.ADMIN_URL!],
