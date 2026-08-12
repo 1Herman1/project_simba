@@ -50,7 +50,7 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
           {/* Логотип */}
           <Link to="/" className="flex items-center flex-shrink-0">
-            <img src="/logo.png" alt="Симба" className="h-10 w-auto block relative top-[8px]" />
+            <img src="/logo-header.png" alt="Симба" className="h-10 w-auto block relative top-[8px]" />
           </Link>
 
           {/* Поиск */}
@@ -191,7 +191,7 @@ export default function Header() {
 
           {/* Логотип */}
           <Link to="/" className="flex items-center gap-1.5">
-            <img src="/logo.png" alt="Симба" className="h-8 w-auto" />
+            <img src="/logo-header.png" alt="Симба" className="h-8 w-auto" />
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-amber-400">
               <path d="M7 5C7 3.9 7.9 3 9 3s2 .9 2 2-.9 2-2 2S7 6.1 7 5zm8 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM4 9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2S4 10.1 4 9zm12 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-4 2c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z" fill="currentColor"/>
             </svg>
