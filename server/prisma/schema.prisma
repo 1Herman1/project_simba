@@ -437,6 +437,10 @@ model Order {
   /// id документа возврата в МойСклад, если его удалось создать
   msReturnId          String?
   comment             String?
+  /// Снапшот контактов на момент оформления — для гостевых заказов и на случай смены данных в профиле
+  contactName         String?
+  contactEmail        String?
+  contactPhone        String?
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @updatedAt
 

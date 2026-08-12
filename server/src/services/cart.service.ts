@@ -160,3 +160,65 @@ export function calculateCartTotal(items: CartItemWithVariant[]) {
 
   return { subtotal, itemsCount }
 }
+
+/**
+ * Слить гостевую корзину в корзину целевого пользователя.
+ * Для каждого товара: если уже есть в целевой корзине, суммировать количество;
+ * если нет, добавить новый товар.
+ * Затем удалить все товары из гостевой корзины.
+ * Если у гостя нет корзины или она пуста — no-op.
+ */
+export async function mergeGuestCart(
+  tx: Parameters<Parameters<PrismaClient['$transaction']>[0]>[0],
+  guestUserId: string,
+  targetUserId: string
+): Promise<void> {
+  const guestCart = await tx.cart.findUnique({
+    where: { userId: guestUserId },
+    include: { items: true },
+  })
+
+  if (!guestCart || guestCart.items.length === 0) {
+    return
+  }
+
+  const targetCart = await tx.cart.findUnique({
+    where: { userId: targetUserId },
+  })
+
+  if (!targetCart) {
+    // Целевого пользователя обычно не должно быть без корзины, но создадим на всякий случай
+    await tx.cart.create({
+      data: { userId: targetUserId },
+    })
+  }
+
+  // Для каждого товара гостя: upsert в целевую корзину
+  for (const guestItem of guestCart.items) {
+    await tx.cartItem.upsert({
+      where: {
+        // unique constraint на [cartId, productVariantId]
+        cartId_productVariantId: {
+          cartId: targetCart?.id || (await tx.cart.findUniqueOrThrow({ where: { userId: targetUserId } })).id,
+          productVariantId: guestItem.productVariantId,
+        },
+      },
+      update: {
+        quantity: {
+          increment: guestItem.quantity,
+        },
+      },
+      create: {
+        cartId: targetCart?.id || (await tx.cart.findUniqueOrThrow({ where: { userId: targetUserId } })).id,
+        productVariantId: guestItem.productVariantId,
+        productId: guestItem.productId,
+        quantity: guestItem.quantity,
+      },
+    })
+  }
+
+  // Удалить все товары из гостевой корзины
+  await tx.cartItem.deleteMany({
+    where: { cartId: guestCart.id },
+  })
+}

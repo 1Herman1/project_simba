@@ -6,6 +6,11 @@ const claimSchema = z.object({ sessionId: z.string().uuid() })
 
 const claimRoute: FastifyPluginAsync = async (app) => {
   app.post('/claim', { preHandler: app.authenticate }, async (request, reply) => {
+    // Гостям не доступна раздача бонусов за квиз
+    if (request.user.type === 'guest') {
+      return reply.status(403).send({ error: 'Доступно после входа' })
+    }
+
     const parsed = claimSchema.safeParse(request.body)
     if (!parsed.success) {
       return reply.status(400).send({ error: parsed.error.errors[0].message })

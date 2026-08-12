@@ -48,10 +48,14 @@ const STEPS: { key: Step; label: string }[] = [
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const isLoggedIn = !!localStorage.getItem('token')
   const [step, setStep] = useState<Step>('delivery')
   const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
   const [payment, setPayment] = useState<PaymentMethod>('card')
   const [bonusSpend, setBonusSpend] = useState(false)
+  const [contactName, setContactName] = useState('')
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
   const [placingOrder, setPlacingOrder] = useState(false)
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderId, setOrderId] = useState('')
@@ -144,7 +148,7 @@ export default function CheckoutPage() {
     try {
       const promoCode = sessionStorage.getItem('promoCode') ?? undefined
       const cartRes = await cartApi.get()
-      const res = await ordersApi.create({
+      const createOrderPayload: Parameters<typeof ordersApi.create>[0] = {
         cartId: cartRes.data.id,
         deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
         deliveryAddress: delivery !== 'pickup' && address.street
@@ -155,7 +159,18 @@ export default function CheckoutPage() {
         promoCode,
         deliveryCost,
         paymentMethod: payment,
-      })
+      }
+
+      // Для гостя добавить контактные данные
+      if (!isLoggedIn && (contactName || contactEmail || contactPhone)) {
+        createOrderPayload.contact = {
+          name: contactName || undefined,
+          email: contactEmail || undefined,
+          phone: contactPhone || undefined,
+        }
+      }
+
+      const res = await ordersApi.create(createOrderPayload)
       setOrderId(res.data.id)
       setOrderPayment(payment)
       setOrderBonusEarned(res.data.bonusEarned)
@@ -216,17 +231,32 @@ export default function CheckoutPage() {
             </p>
           </div>
           <p className="text-xs text-navy-500 mb-6">
-            Мы отправим SMS и email как только заказ будет подтверждён
+            Отправим письмо, когда заказ будет подтверждён
           </p>
           <div className="flex flex-col gap-2">
-            <Link to="/profile"
-              className="block btn-primary font-bold py-3 rounded-xl text-sm">
-              Мои заказы
-            </Link>
-            <Link to="/"
-              className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
-              На главную
-            </Link>
+            {!isLoggedIn ? (
+              <>
+                <Link to={`/auth?email=${encodeURIComponent(contactEmail)}`}
+                  className="block btn-primary font-bold py-3 rounded-xl text-sm">
+                  Войти по {contactEmail} и получить 300 Scoins
+                </Link>
+                <Link to="/"
+                  className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
+                  На главную
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/profile"
+                  className="block btn-primary font-bold py-3 rounded-xl text-sm">
+                  Мои заказы
+                </Link>
+                <Link to="/"
+                  className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
+                  На главную
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -403,6 +433,39 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* Контактные данные для гостя */}
+                {!isLoggedIn && (
+                  <div className="mt-5">
+                    <h3 className="font-semibold text-navy-900 mb-3 text-sm">Контактные данные</h3>
+                    <div className="flex flex-col gap-3">
+                      <input
+                        type="text"
+                        placeholder="Имя"
+                        aria-label="Имя"
+                        value={contactName}
+                        onChange={e => setContactName(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
+                      />
+                      <input
+                        type="email"
+                        placeholder="Email"
+                        aria-label="Email"
+                        value={contactEmail}
+                        onChange={e => setContactEmail(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Телефон"
+                        aria-label="Телефон"
+                        value={contactPhone}
+                        onChange={e => setContactPhone(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <button
                   onClick={() => setStep('payment')}
                   className="w-full mt-5 btn-primary font-bold py-3 rounded-xl text-sm">
@@ -452,8 +515,8 @@ export default function CheckoutPage() {
                   })}
                 </div>
 
-                {/* Бонусы */}
-                {(() => {
+                {/* Бонусы — только для авторизованных */}
+                {isLoggedIn && (() => {
                   // Расчитаем максимально доступно в этом заказе
                   const totalsWithMaxBonus = calcOrderTotals({
                     items: cartItems.map(i => ({ price: i.productVariant.price, quantity: i.quantity })),
@@ -511,6 +574,15 @@ export default function CheckoutPage() {
                     </div>
                   )
                 })()}
+
+                {/* Сообщение для гостей */}
+                {!isLoggedIn && (
+                  <div className="rounded-xl border border-line bg-blue-50 p-4 mb-5">
+                    <p className="text-sm text-navy-700">
+                      Войдите, чтобы списать <span className="font-semibold">scoins</span>
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex gap-2">
                   <button

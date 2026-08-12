@@ -14,7 +14,9 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const guestToken = localStorage.getItem('guestToken')
+  const authToken = token || guestToken
+  if (authToken) config.headers.Authorization = `Bearer ${authToken}`
   return config
 })
 
@@ -22,12 +24,41 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/auth'
+      const token = localStorage.getItem('token')
+      // Если был обычный токен (не гостевой) — редирект на /auth
+      if (token) {
+        localStorage.removeItem('token')
+        window.location.href = '/auth'
+      } else {
+        // Гостевой токен истёк — просто удаляем, не выкидываем гостя
+        localStorage.removeItem('guestToken')
+      }
     }
     return Promise.reject(error)
   }
 )
+
+/**
+ * Убедиться, что у гостя есть гостевой токен.
+ * Если нет ни обычного токена, ни гостевого — запросить гостевую сессию.
+ */
+export async function ensureGuestSession(): Promise<void> {
+  const token = localStorage.getItem('token')
+  const guestToken = localStorage.getItem('guestToken')
+
+  if (token || guestToken) {
+    // Уже есть токен
+    return
+  }
+
+  try {
+    const res = await api.post<{ token: string }>('/api/auth/guest-session')
+    localStorage.setItem('guestToken', res.data.token)
+  } catch {
+    // Ошибка при создании гостевой сессии — просто продолжаем, может быть сетевая ошибка
+    console.error('Failed to create guest session')
+  }
+}
 
 // ─── Типы ───────────────────────────────────────────────────────────────────
 
@@ -118,14 +149,12 @@ export interface DeliveryQuote {
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export const authApi = {
-  sendOtp: (contact: string, channel: 'email' | 'sms') => {
-    const body = channel === 'email' ? { email: contact, channel } : { phone: contact, channel }
-    return api.post('/api/auth/send-otp', body)
-  },
+  sendOtp: (email: string) =>
+    api.post('/api/auth/send-otp', { email }),
 
-  verifyOtp: (contact: string, code: string) => {
-    const isEmail = contact.includes('@')
-    const body = isEmail ? { email: contact, code } : { phone: contact, code }
+  verifyOtp: (email: string, code: string, guestToken?: string) => {
+    const body: { email: string; code: string; guestToken?: string } = { email, code }
+    if (guestToken) body.guestToken = guestToken
     return api.post<{ token: string; user: User }>('/api/auth/verify-otp', body)
   },
 
@@ -198,20 +227,30 @@ export const favoritesApi = {
 // ─── Корзина ─────────────────────────────────────────────────────────────────
 
 export const cartApi = {
-  get: () =>
-    api.get<Cart>('/api/cart'),
+  get: async () => {
+    await ensureGuestSession()
+    return api.get<Cart>('/api/cart')
+  },
 
-  addItem: (productVariantId: string, quantity = 1) =>
-    api.post<Cart>('/api/cart/items', { productVariantId, quantity }),
+  addItem: async (productVariantId: string, quantity = 1) => {
+    await ensureGuestSession()
+    return api.post<Cart>('/api/cart/items', { productVariantId, quantity })
+  },
 
-  updateItem: (cartItemId: string, quantity: number) =>
-    api.put<Cart>(`/api/cart/items/${cartItemId}`, { quantity }),
+  updateItem: async (cartItemId: string, quantity: number) => {
+    await ensureGuestSession()
+    return api.put<Cart>(`/api/cart/items/${cartItemId}`, { quantity })
+  },
 
-  removeItem: (cartItemId: string) =>
-    api.delete<Cart>(`/api/cart/items/${cartItemId}`),
+  removeItem: async (cartItemId: string) => {
+    await ensureGuestSession()
+    return api.delete<Cart>(`/api/cart/items/${cartItemId}`)
+  },
 
-  clear: () =>
-    api.delete('/api/cart'),
+  clear: async () => {
+    await ensureGuestSession()
+    return api.delete('/api/cart')
+  },
 }
 
 // ─── Заказы ──────────────────────────────────────────────────────────────────
@@ -233,6 +272,7 @@ export const ordersApi = {
     promoCode?: string
     deliveryCost?: number
     paymentMethod?: 'card' | 'cash_on_delivery'
+    contact?: { name?: string; email?: string; phone?: string }
   }) => api.post<Order>('/api/orders', data),
 }
 

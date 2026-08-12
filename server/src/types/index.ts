@@ -6,7 +6,7 @@ export type OtpChannel = 'email' | 'sms'
 
 declare module '@fastify/jwt' {
   interface FastifyJWT {
-    payload: { userId: string; role: UserRole }
-    user: { userId: string; role: UserRole }
+    payload: { userId: string; role: UserRole; type?: 'guest' }
+    user: { userId: string; role: UserRole; type?: 'guest' }
   }
 }

@@ -70,6 +70,40 @@ export async function createCart(
   return cart
 }
 
+/**
+ * Гостевая сессия через настоящий роут: POST /api/auth/guest-session.
+ * Возвращает и заголовок, и id гостевого пользователя — гостю в БД принадлежит
+ * корзина, а заказ достаётся другому (реальному) пользователю, найденному по email.
+ *
+ * `ip` подменяет адрес клиента: rate-limit гостевых сессий и заказов живёт в
+ * памяти процесса и ключуется по IP, поэтому тесты, идущие с одного адреса,
+ * влияли бы друг на друга.
+ */
+export async function createGuestSession(app: FastifyInstance, ip?: string) {
+  const res = await app.inject({
+    method: 'POST',
+    url: '/api/auth/guest-session',
+    remoteAddress: ip,
+  })
+
+  if (res.statusCode !== 200) {
+    throw new Error(`guest-session вернул ${res.statusCode}: ${res.body}`)
+  }
+
+  const { token } = res.json() as { token: string }
+  const decoded = app.jwt.decode<{ userId: string; type: string }>(token)
+
+  if (!decoded) {
+    throw new Error('Гостевой токен не декодируется')
+  }
+
+  return {
+    token,
+    userId: decoded.userId,
+    headers: { authorization: `Bearer ${token}` },
+  }
+}
+
 export function authHeader(
   app: FastifyInstance,
   userId: string,

@@ -1,16 +1,16 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
 import { otpService } from '../../services/otp.service'
-import { OtpChannel } from '../../types'
+import { findOrCreateCustomerByEmail, normalizeEmail } from '../../services/customer.service'
 
-const bodySchema = z
-  .object({
-    email: z.string().email().optional(),
-    phone: z.string().min(10).optional(),
-  })
-  .refine((data) => data.email || data.phone, {
-    message: 'Укажите email или телефон',
-  })
+const bodySchema = z.object({
+  email: z.string().email(),
+})
+
+// Rate limit по IP: 5 запросов / 15 минут
+const sendOtpIpAttempts = new Map<string, { attempts: number; resetAt: Date }>()
+const SEND_OTP_RATE_LIMIT = 5
+const SEND_OTP_WINDOW_MS = 15 * 60 * 1000
 
 const sendOtp: FastifyPluginAsync = async (app) => {
   app.post('/send-otp', async (request, reply) => {
@@ -19,32 +19,37 @@ const sendOtp: FastifyPluginAsync = async (app) => {
       return reply.status(400).send({ error: result.error.errors[0].message })
     }
 
-    const { email, phone } = result.data
-    const channel: OtpChannel = email ? 'email' : 'sms'
-    const identifier = email ?? phone!
+    const { email } = result.data
+    const normalizedEmail = normalizeEmail(email)
 
-    let user = await app.prisma.user.findFirst({
-      where: email ? { email } : { phone },
+    // Rate limit по IP
+    const clientIp = request.ip
+    const now = new Date()
+    let ipRecord = sendOtpIpAttempts.get(clientIp)
+
+    if (ipRecord) {
+      if (now.getTime() < ipRecord.resetAt.getTime()) {
+        if (ipRecord.attempts >= SEND_OTP_RATE_LIMIT) {
+          return reply.status(429).send({ error: 'Слишком много запросов. Попробуйте через 15 минут.' })
+        }
+      } else {
+        sendOtpIpAttempts.delete(clientIp)
+        ipRecord = undefined
+      }
+    }
+
+    sendOtpIpAttempts.set(clientIp, {
+      attempts: (ipRecord?.attempts ?? 0) + 1,
+      resetAt: ipRecord?.resetAt || new Date(now.getTime() + SEND_OTP_WINDOW_MS),
     })
 
-    if (!user) {
-      // Приветственные бонусы здесь НЕ начисляем: запрос кода не доказывает,
-      // что человек владеет номером. Иначе перебором номеров создаются
-      // аккаунты с балансом. Начисление — в verify-otp, после подтверждения.
-      user = await app.prisma.user.create({
-        data: {
-          email: email ?? null,
-          phone: phone ?? null,
-          name: 'Пользователь',
-          role: 'customer',
-        },
-      })
-    }
+    // Найти или создать пользователя по email
+    const userId = await findOrCreateCustomerByEmail(app.prisma, normalizedEmail)
 
     // Rate limit: не чаще одного запроса в 60 секунд
     const recentOtp = await app.prisma.otpCode.findFirst({
       where: {
-        userId: user.id,
+        userId,
         createdAt: { gt: new Date(Date.now() - 60 * 1000) },
       },
       orderBy: { createdAt: 'desc' },
@@ -56,20 +61,16 @@ const sendOtp: FastifyPluginAsync = async (app) => {
 
     // Удалить старые неиспользованные OTP
     await app.prisma.otpCode.deleteMany({
-      where: { userId: user.id, usedAt: null },
+      where: { userId, usedAt: null },
     })
 
-    const code = await otpService.createOtp(app.prisma, user.id, channel)
+    const code = await otpService.createOtp(app.prisma, userId, 'email')
 
-    if (channel === 'email') {
-      await otpService.sendEmail(identifier, code)
-    } else {
-      await otpService.sendSms(identifier, code)
-    }
+    await otpService.sendEmail(normalizedEmail, code)
 
     return reply.send({
       message: 'Код отправлен',
-      channel,
+      channel: 'email',
       expiresIn: 600,
     })
   })

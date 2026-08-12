@@ -9,6 +9,7 @@ import {
   DeliveryCostMismatchError,
   InsufficientBonusError,
 } from '../../services/order.service'
+import { findOrCreateCustomerByEmail } from '../../services/customer.service'
 
 const deliveryAddressSchema = z.object({
   city: z.string().min(1),
@@ -16,6 +17,12 @@ const deliveryAddressSchema = z.object({
   house: z.string().min(1),
   apartment: z.string().optional(),
   postalCode: z.string().min(1),
+})
+
+const contactSchema = z.object({
+  name: z.string().trim().min(2).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
 })
 
 const createOrderSchema = z
@@ -29,6 +36,7 @@ const createOrderSchema = z
     promoCode: z.string().optional(),
     deliveryCost: z.number().int().min(0).default(0),
     paymentMethod: z.enum(['card', 'cash_on_delivery']).default('card'),
+    contact: contactSchema.optional(),
   })
   .refine(
     (data) => {
@@ -45,6 +53,11 @@ const createOrderSchema = z
     }
   )
 
+// Rate limit для гостевых заказов по IP: 5 в час
+const guestOrderAttempts = new Map<string, { attempts: number; resetAt: Date }>()
+const GUEST_ORDER_RATE_LIMIT = 5
+const GUEST_ORDER_WINDOW_MS = 60 * 60 * 1000 // 1 час
+
 const orderRoutes: FastifyPluginAsync = async (app) => {
   app.post('/', { preHandler: app.authenticate }, async (request, reply) => {
     const result = createOrderSchema.safeParse(request.body)
@@ -53,6 +66,7 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const { userId } = request.user
+    const isGuest = request.user.type === 'guest'
 
     const cart = await app.prisma.cart.findUnique({
       where: { id: result.data.cartId },
@@ -65,6 +79,41 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
 
     if (cart.userId !== userId) {
       return reply.status(403).send({ error: 'Доступ запрещён' })
+    }
+
+    // Гостевой заказ: обязателен contact с email
+    if (isGuest) {
+      if (!result.data.contact?.email) {
+        return reply.status(400).send({ error: 'Email обязателен для оформления' })
+      }
+
+      // При доставке (не pickup) телефон обязателен
+      if (result.data.deliveryMethod !== 'pickup' && !result.data.contact.phone) {
+        return reply.status(400).send({ error: 'Телефон обязателен для доставки' })
+      }
+
+      // Гость не может списывать бонусы
+      if (result.data.bonusUsed > 0) {
+        return reply.status(400).send({ error: 'Списание бонусов доступно после входа' })
+      }
+
+      // Rate limit гостевых заказов по IP
+      const clientIp = request.ip
+      const now = new Date()
+      let record = guestOrderAttempts.get(clientIp)
+
+      if (record) {
+        if (now.getTime() < record.resetAt.getTime()) {
+          if (record.attempts >= GUEST_ORDER_RATE_LIMIT) {
+            return reply
+              .status(429)
+              .send({ error: 'Слишком много заказов. Попробуйте через час.' })
+          }
+        } else {
+          guestOrderAttempts.delete(clientIp)
+          record = undefined
+        }
+      }
     }
 
     const { bonusUsed } = result.data
@@ -83,11 +132,38 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
     }
 
     try {
-      const order = await createOrder(app.prisma, userId, {
-        ...result.data,
-        expectedDeliveryCost: result.data.deliveryCost,
-        paymentMethod: result.data.paymentMethod,
-      })
+      let customerUserId = userId
+
+      // Гостевой заказ: найти или создать пользователя по email
+      if (isGuest && result.data.contact?.email) {
+        customerUserId = await findOrCreateCustomerByEmail(
+          app.prisma,
+          result.data.contact.email,
+          result.data.contact.name
+        )
+      }
+
+      const order = await createOrder(
+        app.prisma,
+        { cartOwnerId: userId, customerUserId },
+        {
+          ...result.data,
+          expectedDeliveryCost: result.data.deliveryCost,
+          paymentMethod: result.data.paymentMethod,
+        }
+      )
+
+      // Инкрементить счётчик гостевых заказов ПОСЛЕ успешного создания
+      if (isGuest) {
+        const clientIp = request.ip
+        const now = new Date()
+        const currentRecord = guestOrderAttempts.get(clientIp)
+        guestOrderAttempts.set(clientIp, {
+          attempts: (currentRecord?.attempts ?? 0) + 1,
+          resetAt: currentRecord?.resetAt || new Date(now.getTime() + GUEST_ORDER_WINDOW_MS),
+        })
+      }
+
       return reply.status(201).send(order)
     } catch (err) {
       if (err instanceof DuplicateOrderError) {

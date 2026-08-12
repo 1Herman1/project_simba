@@ -31,11 +31,6 @@ async function sendEmail(to: string, code: string): Promise<void> {
   })
 }
 
-async function sendSms(phone: string, code: string): Promise<void> {
-  // TODO: подключить реального SMS провайдера (например, SMSC, Twilio)
-  // demo-режим: вывод OTP в консоль до подключения SMS-провайдера
-  console.log(`[SMS] To: ${phone} | Code: ${code}`)
-}
 
 async function createOtp(
   prisma: PrismaClient,
@@ -87,7 +82,6 @@ export const otpService = {
   generateCode,
   hashCode,
   sendEmail,
-  sendSms,
   createOtp,
   verifyOtp,
 }
