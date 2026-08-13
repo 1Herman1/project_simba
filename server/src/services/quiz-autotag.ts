@@ -38,6 +38,15 @@ function determineSpecies(
     return 'dog'
   }
 
+  // «Шампунь для собак и кошек» — универсальный уход, а не корм для кого-то
+  // одного. Такой товар в подбор не идёт: иначе он всплывёт как рекомендация
+  // по питанию.
+  const mentionsCat = containsSubstring(nameLower, 'кошек') || containsSubstring(nameLower, 'кошки')
+  const mentionsDog = containsSubstring(nameLower, 'собак')
+  if (mentionsCat && mentionsDog) {
+    return null
+  }
+
   // Product name
   if (matchesRegex(nameLower, '\\bcat\\b') || containsSubstring(nameLower, 'для кошек') || containsSubstring(nameLower, 'кошачий')) {
     return 'cat'

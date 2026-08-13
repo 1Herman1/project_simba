@@ -60,6 +60,15 @@ describe('deriveQuizTags — вид животного', () => {
     expect(tags).toContain('species:cat')
   })
 
+  it('универсальный товар «для собак и кошек» остаётся вне подбора', () => {
+    for (const name of [
+      'Универсальный шампунь для собак и кошек',
+      'Гигиенический лосьон для глаз для собак и кошек',
+    ]) {
+      expect(deriveQuizTags(input({ categorySlugs: [], name })), name).toEqual([])
+    }
+  })
+
   it('без определимого вида не выдаёт тегов вообще', () => {
     // Товар вне квиза — лучше не показать ничего, чем предложить кошке собачий корм.
     expect(deriveQuizTags(input({ categorySlugs: [], name: 'Лакомство Мнямс' }))).toEqual([])
