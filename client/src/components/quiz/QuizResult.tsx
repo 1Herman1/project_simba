@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { cartApi, type QuizMatchResponse } from '../../lib/api'
 import QuizProductCard from './QuizProductCard'
+import { pluralize } from '../../lib/format'
 
 interface QuizResultProps {
   result: QuizMatchResponse
@@ -56,6 +57,16 @@ export default function QuizResult({ result, onClaimBonus }: QuizResultProps) {
         {/* Fallback note */}
         {result.fallbackNote && (
           <p className="text-navy-600 text-sm mb-8 italic">{result.fallbackNote}</p>
+        )}
+
+        {result.shortfall && (
+          <p className="text-navy-600 text-sm mb-8">
+            Под ваши условия подошло только{' '}
+            {pluralize(result.shortfall.found, 'вариант', 'варианта', 'вариантов')}.{' '}
+            <Link to="/catalog" className="underline">
+              Посмотреть весь каталог
+            </Link>
+          </p>
         )}
 
         {/* Main product */}
