@@ -419,6 +419,259 @@ describe('F. Предпочтение бренда', () => {
   })
 })
 
+/**
+ * Ниже — проверки нового поведения: подбор смотрит на объединение ручных
+ * quizTags и авто-тегов autoQuizTags. Фикстура каталога авто-тегов не содержит,
+ * поэтому здесь они выставляются явно.
+ */
+
+type LooseProduct = Record<string, unknown>
+
+/** Товар, у которого все теги лежат только в autoQuizTags (как у 489 товаров на проде). */
+function asAutoTagged(p: (typeof quizCatalog)[number]): LooseProduct {
+  return { ...p, quizTags: [], autoQuizTags: [...p.quizTags] }
+}
+
+function product(over: Partial<Record<string, unknown>> = {}): LooseProduct {
+  return {
+    id: 'p',
+    slug: 'p',
+    name: 'P',
+    brand: { name: 'Brand', slug: 'brand' },
+    images: [],
+    isFeatured: false,
+    quizTags: [],
+    autoQuizTags: [],
+    variants: [{ id: 'v', weight: 1, price: 100, oldPrice: null, stock: 5 }],
+    ...over,
+  }
+}
+
+describe('G. Вид животного не смешивается, включая авто-теги', () => {
+  // Кошачьи товары помечены ТОЛЬКО автоматически — если объединение тегов
+  // сломается, кошачий корм может утечь в собачью выдачу.
+  const mixedCatalog = quizCatalog.map((p) =>
+    p.quizTags.includes('species:cat') ? asAutoTagged(p) : p
+  )
+  const catIds = new Set(
+    quizCatalog.filter((p) => p.quizTags.includes('species:cat')).map((p) => p.id)
+  )
+  const dogIds = new Set(
+    quizCatalog.filter((p) => p.quizTags.includes('species:dog')).map((p) => p.id)
+  )
+
+  it('собачья анкета никогда не отдаёт кошачий корм', async () => {
+    const { prisma } = makePrisma(mixedCatalog as unknown as typeof quizCatalog)
+    const violations: string[] = []
+
+    for (const age of ['puppy', 'adult', 'senior'] as const) {
+      for (const size of ['mini', 'medium', 'giant'] as const) {
+        for (const format of ['dry', 'wet', 'mixed'] as const) {
+          const res = await runQuizMatch(prisma, dog({ age, size, format }))
+          for (const card of allCards(res)) {
+            if (catIds.has(card.id)) violations.push(`dog/${age}/${size}/${format} -> ${card.id}`)
+          }
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+
+  it('кошачья анкета никогда не отдаёт собачий корм и находит авто-размеченные товары', async () => {
+    const { prisma } = makePrisma(mixedCatalog as unknown as typeof quizCatalog)
+    const violations: string[] = []
+
+    for (const age of ['kitten', 'adult', 'senior'] as const) {
+      for (const format of ['dry', 'wet', 'mixed'] as const) {
+        const res = await runQuizMatch(prisma, cat({ age, format }))
+        expect(allCards(res).length).toBeGreaterThanOrEqual(1)
+        for (const card of allCards(res)) {
+          if (dogIds.has(card.id)) violations.push(`cat/${age}/${format} -> ${card.id}`)
+        }
+      }
+    }
+
+    expect(violations).toEqual([])
+  })
+})
+
+describe('H. Аллерген из авто-тегов исключается так же жёстко, как ручной', () => {
+  it('contains:chicken только в autoQuizTags — товар не выдаётся ни на одном уровне ослабления', async () => {
+    const catalog = [
+      product({
+        id: 'auto-chicken',
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'flavor:chicken', 'contains:chicken'],
+      }),
+      product({
+        id: 'safe-lamb',
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'flavor:lamb'],
+      }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+
+    // Анкета намеренно узкая (senior + giant + бренд), чтобы подбор дошёл до
+    // максимального ослабления и всё равно не взял курицу.
+    const res = await runQuizMatch(
+      prisma,
+      dog({ age: 'senior', size: 'giant', brand: 'farmina', health: ['allergy'], avoid: ['chicken'] })
+    )
+
+    expect(allCards(res).map((c) => c.id)).toEqual(['safe-lamb'])
+  })
+
+  it('ручной тег из другого пространства имён не отменяет авто-аллерген', async () => {
+    const catalog = [
+      product({
+        id: 'manual-flavor-auto-chicken',
+        quizTags: ['flavor:lamb'],
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'contains:chicken'],
+      }),
+      product({ id: 'safe', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ avoid: ['chicken'] }))
+
+    expect(allCards(res).map((c) => c.id)).toEqual(['safe'])
+  })
+
+  it('ручной contains: перекрывает авто-теги того же пространства — товар с курицей вручную исключён', async () => {
+    const catalog = [
+      product({
+        id: 'manual-says-lamb',
+        // Контент-менеджер вручную указал состав: авто-тег contains:chicken
+        // должен быть перекрыт целиком по namespace contains.
+        quizTags: ['contains:lamb'],
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'contains:chicken'],
+      }),
+      product({ id: 'other', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+
+    const withChickenAllergy = await runQuizMatch(prisma, dog({ avoid: ['chicken'] }))
+    expect(withChickenAllergy.main.id).toBe('manual-says-lamb')
+
+    const withLambAllergy = await runQuizMatch(prisma, dog({ avoid: ['lamb'] }))
+    expect(allCards(withLambAllergy).map((c) => c.id)).toEqual(['other'])
+  })
+})
+
+describe('I. Ручные quizTags перекрывают авто-теги', () => {
+  it('ручной format:wet перекрывает авто format:dry', async () => {
+    const catalog = [
+      product({
+        id: 'manual-wet',
+        quizTags: ['format:wet'],
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+      // Три сухих товара, чтобы подбор набрал выдачу на уровне 0 и не начал
+      // ослаблять формат — иначе проверка ничего не докажет.
+      ...['auto-dry-1', 'auto-dry-2', 'auto-dry-3'].map((id) =>
+        product({ id, autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] })
+      ),
+      ...['auto-wet-1', 'auto-wet-2'].map((id) =>
+        product({ id, autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:wet'] })
+      ),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+
+    const dry = await runQuizMatch(prisma, dog({ format: 'dry' }))
+    expect(allCards(dry).map((c) => c.id)).not.toContain('manual-wet')
+    expect(dry.relaxed).not.toContain('format')
+
+    const wet = await runQuizMatch(prisma, dog({ format: 'wet' }))
+    const wetIds = allCards(wet).map((c) => c.id)
+    expect(wetIds).toContain('manual-wet')
+    expect(wetIds.filter((id) => id.startsWith('auto-dry'))).toEqual([])
+  })
+
+  it('ручной age:senior перекрывает авто age:all — щенячья анкета товар не берёт', async () => {
+    const catalog = [
+      product({
+        id: 'manual-senior',
+        quizTags: ['age:senior'],
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+      product({ id: 'age-all', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ age: 'puppy' }))
+
+    expect(allCards(res).map((c) => c.id)).toEqual(['age-all'])
+  })
+
+  it('скоринг считается по объединению: авто health:joints поднимает товар в main', async () => {
+    const catalog = [
+      product({
+        id: 'joints',
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'health:joints'],
+      }),
+      product({ id: 'plain-a', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+      product({ id: 'plain-b', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ health: ['joints'] }))
+
+    expect(res.main.id).toBe('joints')
+    expect(res.main.matchScore).toBe(3)
+  })
+})
+
+describe('J. Бедный пул — shortfall вместо падения', () => {
+  it('единственный подходящий товар: 1 карточка и shortfall.found = 1', async () => {
+    const catalog = [
+      product({ id: 'only', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ format: 'dry' }))
+
+    expect(allCards(res).length).toBe(1)
+    expect(res.shortfall).toEqual({ found: 1 })
+    expect(res.main.variant).not.toBeNull()
+  })
+
+  it('mixed при единственном сухом товаре: pair = null, shortfall честный', async () => {
+    const catalog = [
+      product({ id: 'only-dry', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ format: 'mixed' }))
+
+    expect(res.pair).toBeNull()
+    expect(res.shortfall).toEqual({ found: 1 })
+  })
+
+  it('товар только с ручным аллергеном и никого больше — понятная ошибка, а не пустая выдача', async () => {
+    const catalog = [
+      product({
+        id: 'chicken-only',
+        autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry', 'contains:chicken'],
+      }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+
+    await expect(runQuizMatch(prisma, dog({ avoid: ['chicken'] }))).rejects.toThrow('Каталог подбора пуст')
+  })
+
+  it('при полной выдаче shortfall = null', async () => {
+    const { prisma } = makePrisma()
+    const res = await runQuizMatch(prisma, dog())
+    expect(res.shortfall).toBeNull()
+  })
+
+  it('товар без единого тега (не размечен ни вручную, ни авто) в подбор не попадает', async () => {
+    const catalog = [
+      product({ id: 'tagged', autoQuizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'] }),
+      // В выборку из БД такой товар не попадёт по species, но проверяем и сам фильтр.
+      product({ id: 'untagged', quizTags: [], autoQuizTags: [] }),
+    ]
+    const { prisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+    const res = await runQuizMatch(prisma, dog({ format: 'dry' }))
+
+    expect(allCards(res).map((c) => c.id)).toEqual(['tagged'])
+  })
+})
+
 describe('D. Интеграция autoQuizTags', () => {
   it('ровно 3 карточки при mixed: main + pair + 1 альтернатива', async () => {
     const { prisma } = makePrisma()

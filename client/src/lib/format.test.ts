@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { plural, pluralize, formatBonuses } from './format'
+import { plural, pluralize, formatBonuses, formatPrice } from './format'
 
 describe('plural', () => {
   it('выбирает форму по последней цифре', () => {
@@ -32,5 +32,21 @@ describe('pluralize / formatBonuses', () => {
     expect(formatBonuses(2)).toBe('2 бонуса')
     expect(formatBonuses(300)).toBe('300 бонусов')
     expect(formatBonuses(1500)).toContain('бонусов')
+  })
+
+  it('ноль и списание (отрицательное) не ломают склонение', () => {
+    expect(formatBonuses(0)).toBe('0 бонусов')
+    // Списание бонусов в корзине показывается со знаком минус.
+    expect(formatBonuses(-1)).toBe('-1 бонус')
+    expect(formatBonuses(-22)).toBe('-22 бонуса')
+  })
+})
+
+describe('formatPrice', () => {
+  it('копейки переводит в рубли', () => {
+    // toLocaleString('ru-RU') разделяет разряды неразрывным пробелом (U+00A0).
+    expect(formatPrice(249900)).toBe('2 499 ₽')
+    expect(formatPrice(0)).toBe('0 ₽')
+    expect(formatPrice(50)).toBe('0,5 ₽')
   })
 })
