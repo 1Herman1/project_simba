@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { brandsApi } from '../lib/api'
 import CatalogSearch from '../components/catalog/CatalogSearch'
-import CatalogTags from '../components/catalog/CatalogTags'
+import CatalogTags, { catalogTagLabel } from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
 
@@ -72,7 +72,7 @@ function CatalogHeader({ search, activeTag, category, brand }: { search: string;
   const title = search
     ? `Результаты поиска: "${search}"`
     : activeTag
-    ? activeTag
+    ? catalogTagLabel(activeTag)
     : brand
     ? brandName || 'Товары бренда'
     : category
