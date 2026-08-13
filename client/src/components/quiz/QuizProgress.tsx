@@ -15,7 +15,14 @@ export default function QuizProgress({ current, total }: QuizProgressProps) {
         </p>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-blue-50 rounded-full overflow-hidden">
+        <div
+          role="progressbar"
+          aria-valuenow={current}
+          aria-valuemin={1}
+          aria-valuemax={total}
+          aria-label={`Вопрос ${current} из ${total}`}
+          className="w-full h-2 bg-blue-50 rounded-full overflow-hidden"
+        >
           <div
             className="h-full w-full bg-primary transition-transform duration-300 ease-out origin-left"
             style={{ transform: `scaleX(${percentage / 100})` }}

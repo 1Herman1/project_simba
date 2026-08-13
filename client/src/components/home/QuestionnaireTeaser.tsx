@@ -46,7 +46,7 @@ export default function QuestionnaireTeaser() {
             Не знаете, какой корм выбрать?
           </h2>
           <p className="text-navy-500 mb-6 max-w-md mx-auto">
-            Пройдите короткую анкету — подберём оптимальное питание для вашего питомца за 2 минуты
+            Пройдите короткую анкету — подберём оптимальное питание для вашего питомца за минуту
           </p>
           <Link to="/questionnaire" className="btn-primary px-8 rounded-xl font-semibold">
             Подобрать корм
