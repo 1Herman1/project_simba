@@ -15,6 +15,7 @@ export default function CatalogPage() {
   // каталога менял адрес, но не выдачу.
   const category = searchParams.get('category') || ''
   const brand = searchParams.get('brand') || ''
+  const format = searchParams.get('format') || ''
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -22,8 +23,9 @@ export default function CatalogPage() {
     if (activeTag) params.tag = activeTag
     if (category) params.category = category
     if (brand) params.brand = brand
+    if (format) params.format = format
     setSearchParams(params, { replace: true })
-  }, [search, activeTag, category, brand])
+  }, [search, activeTag, category, brand, format])
 
   const handleTagClick = (tag: string) => {
     setActiveTag(prev => prev === tag ? '' : tag)
@@ -41,7 +43,7 @@ export default function CatalogPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <CatalogHeader search={search} activeTag={activeTag} category={category} brand={brand} />
-        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} />
+        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} />
       </div>
 
       <QuestionnaireTeaser />
