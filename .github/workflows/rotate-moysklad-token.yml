@@ -1,0 +1,90 @@
+name: Rotate MoySklad Token
+
+# Замена токена МойСклада на проде без пересылки самого токена людям в руки.
+# Значение берётся из секрета репозитория MOYSKLAD_TOKEN: GitHub маскирует
+# секреты в логах, поэтому в выводе токен не появится даже при ошибке.
+#
+# Порядок: обновить секрет в Settings → Secrets and variables → Actions,
+# затем запустить этот workflow вручную.
+
+on:
+  workflow_dispatch:
+    inputs:
+      verify_only:
+        description: 'Только проверить текущий токен, ничего не менять'
+        type: boolean
+        default: false
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update .env and restart
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          MS_TOKEN: ${{ secrets.MOYSKLAD_TOKEN }}
+          VERIFY_ONLY: ${{ inputs.verify_only }}
+        with:
+          host: ${{ secrets.SIMBA_DEPLOY_HOST }}
+          username: ${{ secrets.SIMBA_DEPLOY_USER }}
+          key: ${{ secrets.SIMBA_DEPLOY_SSH_KEY }}
+          envs: MS_TOKEN,VERIFY_ONLY
+          command_timeout: 5m
+          script: |
+            set -euo pipefail
+            cd /var/www/simba-src/server
+
+            if [ "$VERIFY_ONLY" != "true" ]; then
+              if [ -z "${MS_TOKEN:-}" ]; then
+                echo "Секрет MOYSKLAD_TOKEN пуст — добавьте его в настройках репозитория"
+                exit 1
+              fi
+
+              # Бэкап .env с отметкой времени: откатиться можно одной командой.
+              cp .env ".env.bak.$(date +%Y%m%d-%H%M%S)"
+
+              # Пишем через python, а не sed: токен может содержать символы,
+              # которые sed воспримет как часть выражения.
+              MS_TOKEN="$MS_TOKEN" python3 - <<'PY'
+            import os, pathlib, re
+            path = pathlib.Path('.env')
+            token = os.environ['MS_TOKEN']
+            lines = path.read_text().splitlines()
+            found = False
+            for i, line in enumerate(lines):
+                if re.match(r'\s*MOYSKLAD_TOKEN\s*=', line):
+                    lines[i] = f'MOYSKLAD_TOKEN={token}'
+                    found = True
+            if not found:
+                lines.append(f'MOYSKLAD_TOKEN={token}')
+            path.write_text('\n'.join(lines) + '\n')
+            print('Строка MOYSKLAD_TOKEN', 'заменена' if found else 'добавлена')
+            PY
+
+              # --update-env обязателен: без него процесс продолжит работать
+              # со старым значением из памяти.
+              pm2 reload simba-server --update-env
+              sleep 3
+            fi
+
+            # Проверка: спрашиваем у МойСклада, кто мы. Печатаем только код
+            # ответа и имя аккаунта — сам токен в вывод не попадает.
+            TOKEN_VALUE=$(grep -m1 '^MOYSKLAD_TOKEN=' .env | cut -d= -f2-)
+            CODE=$(curl -s -o /tmp/ms-check.json -w '%{http_code}' \
+              -H "Authorization: Bearer $TOKEN_VALUE" \
+              -H 'Accept-Encoding: gzip' --compressed \
+              'https://api.moysklad.ru/api/remap/1.2/context/employee')
+
+            echo "Ответ МойСклада: HTTP $CODE"
+            if [ "$CODE" = "200" ]; then
+              python3 -c "import json;d=json.load(open('/tmp/ms-check.json'));print('Аккаунт:', d.get('name','(без имени)'))"
+              echo "Токен принят."
+            else
+              echo "Токен не принят. Тело ответа:"
+              head -c 400 /tmp/ms-check.json
+              echo
+              echo "Откат: cp .env.bak.* .env && pm2 reload simba-server --update-env"
+              rm -f /tmp/ms-check.json
+              exit 1
+            fi
+            rm -f /tmp/ms-check.json
