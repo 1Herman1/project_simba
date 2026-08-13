@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi, ordersApi, usersApi, bonusesApi, type User, type Order, type BonusTransaction } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
+import { CheckIcon, StepCurrentIcon, StepPendingIcon } from '../components/icons'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -213,7 +214,13 @@ export default function ProfilePage() {
                                       ? 'bg-primary text-white'
                                       : 'bg-primary-tint text-navy-500'
                                   }`}>
-                                    {i < stepIndex ? '✓' : i === stepIndex ? '●' : '○'}
+                                    {i < stepIndex ? (
+                                      <CheckIcon className="w-4 h-4" />
+                                    ) : i === stepIndex ? (
+                                      <StepCurrentIcon className="w-4 h-4" />
+                                    ) : (
+                                      <StepPendingIcon className="w-4 h-4" />
+                                    )}
                                   </div>
                                   <span className="text-[10px] text-navy-400 mt-1 text-center leading-tight">
                                     {STATUS_LABEL[s]}

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
+import { CheckIcon } from '../components/icons'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'card' | 'cash_on_delivery'
@@ -290,7 +291,7 @@ export default function CheckoutPage() {
                   i === stepIndex ? 'bg-primary text-white' :
                   'bg-primary-tint text-navy-500'
                 }`}>
-                  {i < stepIndex ? '✓' : i + 1}
+                  {i < stepIndex ? <CheckIcon className="w-4 h-4" /> : i + 1}
                 </div>
                 <span className={`text-sm font-medium hidden sm:block ${
                   i === stepIndex ? 'text-navy-900' : 'text-navy-400'

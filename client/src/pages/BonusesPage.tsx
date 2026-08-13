@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { CheckIcon } from '../components/icons'
 import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
@@ -164,7 +165,7 @@ export default function BonusesPage() {
             <ul className="flex flex-col gap-1">
               {level.perks.map(perk => (
                 <li key={perk} className="text-sm text-navy-700 flex items-center gap-2">
-                  <span className="text-amber-600">✓</span> {perk}
+                  <CheckIcon className="w-4 h-4 text-amber-600" /> {perk}
                 </li>
               ))}
             </ul>
