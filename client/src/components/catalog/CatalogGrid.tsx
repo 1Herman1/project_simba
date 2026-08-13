@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { productsApi, type Product } from '../../lib/api'
 import ProductCard from './ProductCard'
+import { pluralize } from '../../lib/format'
 
 interface Props {
   search: string
@@ -58,7 +59,7 @@ export default function CatalogGrid({ search, activeTag, category, brand }: Prop
 
   return (
     <>
-      <p className="text-sm text-navy-300 mb-4">{total} товаров</p>
+      <p className="text-sm text-navy-300 mb-4">{pluralize(total, 'товар', 'товара', 'товаров')}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
-import { formatPrice } from '../lib/format'
+import { formatPrice, formatBonuses } from '../lib/format'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'card' | 'cash_on_delivery'
@@ -215,7 +215,7 @@ export default function CheckoutPage() {
             {orderBonusUsed > 0 && (
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-navy-500">Списано бонусов</span>
-                <span className="font-medium text-amber-600 tabular-nums">−{orderBonusUsed} scoins</span>
+                <span className="font-medium text-amber-600 tabular-nums">−{formatBonuses(orderBonusUsed)}</span>
               </div>
             )}
             <div className="flex justify-between text-sm mt-1">
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
           </div>
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
             <p className="text-sm text-navy-700">
-              Начислено <span className="font-bold text-amber-600">+{orderBonusEarned} scoins</span> на ваш счёт
+              Начислено <span className="font-bold text-amber-600">+{formatBonuses(orderBonusEarned)}</span> на ваш счёт
             </p>
           </div>
           <p className="text-xs text-navy-500 mb-6">
@@ -238,7 +238,7 @@ export default function CheckoutPage() {
               <>
                 <Link to={`/auth?email=${encodeURIComponent(contactEmail)}`}
                   className="block btn-primary font-bold py-3 rounded-xl text-sm">
-                  Войти по {contactEmail} и получить 300 Scoins
+                  Войти по {contactEmail} и получить 300 бонусов
                 </Link>
                 <Link to="/"
                   className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
@@ -552,7 +552,7 @@ export default function CheckoutPage() {
                               {bonusSpend ? (
                                 <>
                                   <p>
-                                    Спишем <span className="font-bold text-amber-600">{actualBonusUsed.toLocaleString('ru-RU')} scoins</span> = {actualBonusUsed.toLocaleString('ru-RU')} ₽
+                                    Спишем <span className="font-bold text-amber-600">{formatBonuses(actualBonusUsed)}</span> = {actualBonusUsed.toLocaleString('ru-RU')} ₽
                                     {userBonusPoints > 0 && ` из ${userBonusPoints.toLocaleString('ru-RU')}`}
                                   </p>
                                   {isBonusLimited && (
@@ -561,7 +561,7 @@ export default function CheckoutPage() {
                                 </>
                               ) : (
                                 <p>
-                                  Доступно к списанию: <span className="font-bold text-amber-600">{maxAvailableBonus.toLocaleString('ru-RU')} scoins</span> = {maxAvailableBonus.toLocaleString('ru-RU')} ₽
+                                  Доступно к списанию: <span className="font-bold text-amber-600">{formatBonuses(maxAvailableBonus)}</span> = {maxAvailableBonus.toLocaleString('ru-RU')} ₽
                                   {userBonusPoints > 0 && ` из ${userBonusPoints.toLocaleString('ru-RU')}`}
                                 </p>
                               )}
@@ -579,7 +579,7 @@ export default function CheckoutPage() {
                 {!isLoggedIn && (
                   <div className="rounded-xl border border-line bg-blue-50 p-4 mb-5">
                     <p className="text-sm text-navy-700">
-                      Войдите, чтобы списать <span className="font-semibold">scoins</span>
+                      Войдите, чтобы списать бонусы
                     </p>
                   </div>
                 )}
@@ -728,7 +728,7 @@ export default function CheckoutPage() {
               </div>
 
               <div className="bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 text-xs text-navy-600">
-                За этот заказ вы получите <span className="font-bold text-amber-600">+{bonusEarned} scoins</span>
+                За этот заказ вы получите <span className="font-bold text-amber-600">+{formatBonuses(bonusEarned)}</span>
               </div>
             </div>
           </div>

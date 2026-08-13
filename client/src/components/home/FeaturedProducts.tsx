@@ -159,7 +159,7 @@ function ProductCard({ product, isFavorited, onToggleFavorite }: {
                   : 'border-line text-navy-500 hover:border-primary-soft'
               }`}
             >
-              {v.weight < 1 ? `${v.weight * 1000}г` : `${v.weight}кг`}
+              {v.weight < 1 ? `${v.weight * 1000} г` : `${v.weight} кг`}
             </button>
           ))}
         </div>

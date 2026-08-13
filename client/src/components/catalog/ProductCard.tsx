@@ -46,7 +46,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={e => { e.preventDefault(); setLiked(!liked) }}
-          aria-label={liked ? 'Убрать из избранного' : 'В избранное'}
+          aria-label={liked ? 'Убрать из избранного' : 'Добавить в избранное'}
           className="absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform">
           <svg className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
             viewBox="0 0 24 24" strokeWidth="2">
@@ -73,7 +73,7 @@ export default function ProductCard({ product }: { product: Product }) {
                   ? 'bg-white border-primary-soft text-primary-hover font-medium'
                   : 'border-line text-navy-500 hover:border-primary-soft'
               }`}>
-              {v.weight}кг
+              {v.weight} кг
             </button>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { formatPrice } from '../lib/format'
+import { formatPrice, pluralize } from '../lib/format'
 import { favoritesApi, type Favorite } from '../lib/api'
 
 function ProductCard({ favorite, onRemove }: {
@@ -68,7 +68,7 @@ function ProductCard({ favorite, onRemove }: {
                   ? 'bg-white border-primary-soft text-primary-hover font-medium'
                   : 'border-line text-navy-500 hover:border-primary-soft'
               }`}>
-              {v.weight}кг
+              {v.weight} кг
             </button>
           ))}
         </div>
@@ -141,7 +141,7 @@ export default function FavoritesPage() {
 
     if (failed.length > 0) {
       setFavorites(failed)
-      setError(`Не удалось удалить ${failed.length} товаров`)
+      setError(`Не удалось удалить ${pluralize(failed.length, 'товар', 'товара', 'товаров')}`)
     }
   }
 
@@ -213,7 +213,7 @@ export default function FavoritesPage() {
             </div>
 
             <p className="text-center text-xs text-navy-300 mt-8">
-              Нажмите на сердечко на карточке товара чтобы убрать из избранного
+              Нажмите на сердечко на карточке товара, чтобы убрать его из избранного
             </p>
           </>
         )}

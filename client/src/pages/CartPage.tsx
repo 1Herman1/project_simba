@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
 import { cartApi, type CartItem } from '../lib/api'
-import { formatPrice } from '../lib/format'
+import { formatPrice, formatBonuses, pluralize } from '../lib/format'
 
 const FREE_DELIVERY_THRESHOLD = 200000
 
@@ -99,7 +99,7 @@ export default function CartPage() {
     <div className="min-h-[100dvh] bg-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold text-navy-900 mb-4">
-          Корзина <span className="text-navy-300 font-normal text-lg">({items.length} товара)</span>
+          Корзина <span className="text-navy-300 font-normal text-lg">({pluralize(items.length, 'товар', 'товара', 'товаров')})</span>
         </h1>
 
         {/* Полоса до бесплатной доставки */}
@@ -274,10 +274,10 @@ export default function CartPage() {
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-sm font-semibold text-navy-900">
                     За этот заказ вы получите{' '}
-                    <span className="text-amber-500">+{bonusEarned} scoins</span>
+                    <span className="text-amber-500">+{formatBonuses(bonusEarned)}</span>
                   </p>
                 </div>
-                <p className="text-xs text-navy-400 mb-2">1 scoin = 1 ₽ скидки на следующий заказ</p>
+                <p className="text-xs text-navy-400 mb-2">1 бонус = 1 ₽ скидки на следующий заказ</p>
                 <div className="flex gap-2 text-xs">
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Новичок: 0–999</span>
                   <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Активный: 1000+</span>
