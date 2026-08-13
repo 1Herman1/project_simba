@@ -10,6 +10,7 @@ type Row = {
   quizTags: string[]
   autoQuizTags: string[]
   derived: string[]
+  hasCategory: boolean
 }
 
 function countByPrefix(rows: Row[], prefix: string): Map<string, number> {
@@ -66,6 +67,7 @@ async function main() {
       quizTags: p.quizTags,
       autoQuizTags: p.autoQuizTags,
       derived: deriveQuizTags(input),
+      hasCategory: p.categories.length > 0,
     }
   })
 
@@ -94,6 +96,17 @@ async function main() {
   printDistribution('Размер породы', countByPrefix(rows, 'size:'))
   printDistribution('Здоровье', countByPrefix(rows, 'health:'))
   printDistribution('Аллергены в составе', countByPrefix(rows, 'contains:'))
+
+  // Товары без категорий: вид взят только из названия — самое рискованное место,
+  // поэтому печатаем выборку для глазной проверки.
+  const byNameOnly = tagged.filter((r) => !r.hasCategory)
+  if (byNameOnly.length > 0) {
+    console.log(`\n--- Вид определён только по названию (${byNameOnly.length}), первые 30 ---`)
+    for (const row of byNameOnly.slice(0, 30)) {
+      const species = row.derived.find((t) => t.startsWith('species:')) ?? '?'
+      console.log(`  ${species.replace('species:', '').padEnd(4)} ${row.name.slice(0, 68)}`)
+    }
+  }
 
   if (untagged.length > 0) {
     console.log(`\n--- Без вида животного (${untagged.length}), первые 10 ---`)
