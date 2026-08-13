@@ -194,9 +194,15 @@ export const productsApi = {
 
 // ─── Категории ───────────────────────────────────────────────────────────────
 
+export interface Category {
+  id: string
+  name: string
+  slug: string
+}
+
 export const categoriesApi = {
   tree: () =>
-    api.get('/api/categories/tree'),
+    api.get<Category[]>('/api/categories/tree'),
 }
 
 // ─── Бренды ──────────────────────────────────────────────────────────────────
