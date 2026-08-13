@@ -7,6 +7,8 @@ export interface ProductFilters {
   minPrice?: number
   maxPrice?: number
   search?: string
+  /** Сухой или влажный корм. Признак берётся из тегов подбора. */
+  format?: 'dry' | 'wet'
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular'
   featured?: boolean
   page?: number
@@ -40,6 +42,14 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
     where.AND = filters.filterValueIds.map((filterValueId) => ({
       filterValues: { some: { filterValueId } },
     }))
+  }
+
+  if (filters.format) {
+    // Отдельной колонки «формат» у товара нет: сухой/влажный проставлен тегами
+    // подбора, ручными или выведенными из прайса.
+    const tag = `format:${filters.format}`
+    const condition = { OR: [{ quizTags: { has: tag } }, { autoQuizTags: { has: tag } }] }
+    where.AND = Array.isArray(where.AND) ? [...where.AND, condition] : [condition]
   }
 
   if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
