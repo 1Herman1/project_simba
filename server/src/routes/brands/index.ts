@@ -2,16 +2,22 @@ import { FastifyInstance } from 'fastify'
 
 export default async function brandRoutes(app: FastifyInstance) {
   app.get('/', async (_request, reply) => {
+    // Только бренды, у которых есть что купить: иначе плитка на главной ведёт
+    // в пустой каталог. Счётчик отдаём наружу — им же сортируем витрину.
     const brands = await app.prisma.brand.findMany({
+      where: { products: { some: { isActive: true } } },
       orderBy: { name: 'asc' },
       select: {
         id: true,
         name: true,
         slug: true,
         logo: true,
+        _count: { select: { products: { where: { isActive: true } } } },
       },
     })
-    return reply.send(brands)
+    return reply.send(
+      brands.map(({ _count, ...brand }) => ({ ...brand, productCount: _count.products })),
+    )
   })
 
   app.get<{ Params: { slug: string } }>('/:slug', async (request, reply) => {

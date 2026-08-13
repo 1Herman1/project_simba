@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { brandsApi } from '../lib/api'
 import CatalogSearch from '../components/catalog/CatalogSearch'
 import CatalogTags from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
@@ -9,8 +10,11 @@ export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [activeTag, setActiveTag] = useState(searchParams.get('tag') || '')
-  const [category] = useState(searchParams.get('category') || '')
-  const [brand] = useState(searchParams.get('brand') || '')
+  // Категорию и бренд читаем из URL напрямую, а не через useState: состояние
+  // инициализируется один раз, поэтому клик по другому бренду с уже открытого
+  // каталога менял адрес, но не выдачу.
+  const category = searchParams.get('category') || ''
+  const brand = searchParams.get('brand') || ''
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -36,7 +40,7 @@ export default function CatalogPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <CatalogHeader search={search} activeTag={activeTag} category={category} />
+        <CatalogHeader search={search} activeTag={activeTag} category={category} brand={brand} />
         <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} />
       </div>
 
@@ -45,11 +49,28 @@ export default function CatalogPage() {
   )
 }
 
-function CatalogHeader({ search, activeTag, category }: { search: string; activeTag: string; category: string }) {
+function CatalogHeader({ search, activeTag, category, brand }: { search: string; activeTag: string; category: string; brand: string }) {
+  const [brandName, setBrandName] = useState('')
+
+  useEffect(() => {
+    if (!brand) {
+      setBrandName('')
+      return
+    }
+    // Без названия бренда заголовок остался бы «Все товары», и покупатель не
+    // понимал бы, что выдача уже отфильтрована.
+    brandsApi
+      .list()
+      .then((res) => setBrandName(res.data.find((b) => b.slug === brand)?.name || ''))
+      .catch(() => setBrandName(''))
+  }, [brand])
+
   const title = search
     ? `Результаты поиска: "${search}"`
     : activeTag
     ? activeTag
+    : brand
+    ? brandName || 'Товары бренда'
     : category
     ? category
     : 'Все товары'

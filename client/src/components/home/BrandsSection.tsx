@@ -1,6 +1,7 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useReveal } from '../../hooks/useReveal'
+import { brandsApi, type Brand } from '../../lib/api'
 
 /** mark: 'plaque' — логотип на собственной цветной подложке (Farmina/Brit/Orijen).
     Карточка красится фирменным цветом плашки (bg) целиком, а сам логотип
@@ -9,20 +10,25 @@ import { useReveal } from '../../hooks/useReveal'
     в широком боксе, как было бы с object-cover.
     'mark' — логотип на прозрачном фоне, рендерится крупнее, чтобы не теряться
     рядом с плашками (см. design-reviewer: разброс оптического веса ×5). */
-const brands = [
-  { name: "Hill's", slug: 'hills', kind: 'mark' as const },
-  { name: 'Farmina', slug: 'farmina', kind: 'plaque' as const, bg: '#0F70B5' },
-  { name: 'Monge', slug: 'monge', kind: 'mark' as const },
-  { name: 'Royal Canin', slug: 'royal-canin', kind: 'mark' as const },
-  { name: 'Purina Pro Plan', slug: 'purina', kind: 'mark' as const },
-  { name: 'Brit', slug: 'brit', kind: 'plaque' as const, bg: '#082459' },
-  { name: 'Acana', slug: 'acana', kind: 'mark' as const },
-  { name: 'Orijen', slug: 'orijen', kind: 'plaque' as const, bg: '#E2231B' },
-]
+type BrandStyle = { kind: 'plaque'; bg: string } | { kind: 'mark' }
+
+/** Оформление задаётся вручную только там, где у бренда фирменная плашка.
+    Сам список брендов приходит с сервера — раньше он был захардкожен, и
+    половина плиток (Purina, Brit, Acana, Orijen) вела в пустой каталог,
+    потому что таких брендов в базе нет. */
+const brandStyles: Record<string, BrandStyle> = {
+  farmina: { kind: 'plaque', bg: '#0F70B5' },
+  brit: { kind: 'plaque', bg: '#082459' },
+  orijen: { kind: 'plaque', bg: '#E2231B' },
+}
+
+const styleFor = (slug: string): BrandStyle => brandStyles[slug] ?? { kind: 'mark' }
+
+type BrandTile = Brand & { style: BrandStyle }
 
 /** Логотип бренда — файл кладётся в public/brands/<slug>.png (см. README там же).
     Пока файла нет — показываем текстовое название, без «битой» картинки. */
-function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
+function BrandMark({ brand }: { brand: BrandTile }) {
   const [failed, setFailed] = useState(false)
 
   if (failed) {
@@ -33,7 +39,7 @@ function BrandMark({ brand }: { brand: (typeof brands)[number] }) {
     )
   }
 
-  if (brand.kind === 'plaque') {
+  if (brand.style.kind === 'plaque') {
     return (
       <img
         src={`/brands/${brand.slug}.png`}
@@ -64,6 +70,24 @@ const revealDelay = (i: number) => `${60 + Math.min(i, 3) * 60}ms`
 
 export default function BrandsSection() {
   const groupRef = useReveal<HTMLDivElement>()
+  const [brands, setBrands] = useState<BrandTile[]>([])
+
+  useEffect(() => {
+    brandsApi
+      .list()
+      .then((res) =>
+        setBrands(
+          res.data
+            .slice()
+            .sort((a, b) => b.productCount - a.productCount)
+            .slice(0, 8)
+            .map((b) => ({ ...b, style: styleFor(b.slug) })),
+        ),
+      )
+      .catch(() => setBrands([]))
+  }, [])
+
+  if (brands.length === 0) return null
 
   return (
     <section id="brands" className="scroll-mt-24 py-12 md:py-16">
@@ -83,8 +107,8 @@ export default function BrandsSection() {
           >
             <Link
               to={`/catalog?brand=${brand.slug}`}
-              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center rounded-card border border-line overflow-hidden ${brand.kind === 'plaque' ? 'p-2' : 'bg-white p-3'}`}
-              style={brand.kind === 'plaque' ? { backgroundColor: brand.bg } : undefined}
+              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center rounded-card border border-line overflow-hidden ${brand.style.kind === 'plaque' ? 'p-2' : 'bg-white p-3'}`}
+              style={brand.style.kind === 'plaque' ? { backgroundColor: brand.style.bg } : undefined}
             >
               <BrandMark brand={brand} />
             </Link>
