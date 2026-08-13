@@ -177,6 +177,7 @@ export const productsApi = {
     category?: string
     brand?: string
     format?: 'dry' | 'wet'
+    purpose?: 'medical'
     tags?: string[]
     sort?: string
     page?: number

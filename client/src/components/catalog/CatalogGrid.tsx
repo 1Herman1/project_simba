@@ -10,9 +10,10 @@ interface Props {
   category: string
   brand?: string
   format?: string
+  purpose?: string
 }
 
-export default function CatalogGrid({ search, activeTag, category, brand, format }: Props) {
+export default function CatalogGrid({ search, activeTag, category, brand, format, purpose }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -27,6 +28,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
         if (category) params.category = category
         if (brand) params.brand = brand
         if (format === 'dry' || format === 'wet') params.format = format
+        if (purpose === 'medical') params.purpose = purpose
 
         const res = await productsApi.list(params)
         setProducts(res.data.items)
@@ -39,7 +41,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
       }
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, activeTag, category, brand, format])
+  }, [search, activeTag, category, brand, format, purpose])
 
   if (loading) {
     return (
@@ -54,7 +56,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
   if (products.length === 0) {
     // Пустой раздел и пустая выдача по фильтрам — разные истории, и текст должен
     // их различать: в первом случае покупатель ничего не делал не так.
-    const sectionEmpty = !search && !activeTag && !format && Boolean(category || brand)
+    const sectionEmpty = !search && !activeTag && !format && !purpose && Boolean(category || brand)
     return <EmptyCatalog sectionEmpty={sectionEmpty} />
   }
 
