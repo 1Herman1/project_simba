@@ -7,18 +7,19 @@ interface QuizProductCardProps {
   product: QuizProductCardType
   variant?: 'main' | 'alt'
   onAddToCart?: () => void
+  added?: boolean
 }
 
 export default function QuizProductCard({
   product,
   variant = 'main',
   onAddToCart,
+  added = false,
 }: QuizProductCardProps) {
   const isMain = variant === 'main'
   const [isAdding, setIsAdding] = useState(false)
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault()
+  const handleAddToCart = async () => {
     if (!product.variant || isAdding) return
 
     setIsAdding(true)
@@ -33,9 +34,8 @@ export default function QuizProductCard({
   }
 
   return (
-    <Link
-      to={`/product/${product.slug}`}
-      className={`block bg-white rounded-xl border border-line overflow-hidden hover:shadow-card transition-shadow duration-100 ease ${
+    <article
+      className={`relative bg-white rounded-card border border-line overflow-hidden hover:shadow-card transition-shadow duration-100 ease ${
         isMain ? 'md:flex gap-6' : ''
       }`}
     >
@@ -52,6 +52,10 @@ export default function QuizProductCard({
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover"
+            width={600}
+            height={600}
+            loading="lazy"
+            decoding="async"
           />
         )}
 
@@ -61,7 +65,7 @@ export default function QuizProductCard({
             {product.badges.map((badge) => (
               <span
                 key={badge}
-                className="bg-white/90 text-navy-700 text-[10px] font-medium px-2 py-1 rounded-full shadow-sm"
+                className="bg-white/90 text-navy-700 text-xs font-medium px-2 py-1 rounded-full shadow-sm"
               >
                 {badge}
               </span>
@@ -72,38 +76,41 @@ export default function QuizProductCard({
 
       {/* Content */}
       <div className={`${isMain ? 'md:w-1/2' : 'w-full'} p-4 md:p-6 flex flex-col`}>
-        {product.brandName && (
-          <p className="text-xs text-navy-500 mb-2">{product.brandName}</p>
-        )}
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs text-navy-500">{product.brandName}</p>
+          {product.matchScore >= 0.6 && (
+            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-navy-900 tabular-nums">
+              <span className="w-2 h-2 rounded-full bg-primary" aria-hidden="true" />
+              Совпадение {Math.round(product.matchScore * 100)}%
+            </span>
+          )}
+        </div>
 
         <h3 className="text-lg md:text-xl font-semibold text-navy-900 mb-3 flex-1">
-          {product.name}
+          <Link to={`/product/${product.slug}`} className="after:absolute after:inset-0 after:content-['']">
+            {product.name}
+          </Link>
         </h3>
 
-        {/* Price and score */}
+        {/* Price */}
         <div className="mb-4">
           {product.variant && (
             <>
               <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-2xl font-bold text-navy-900">
+                <span className="text-2xl font-bold text-navy-900 tabular-nums">
                   {formatPrice(product.variant.price)}
                 </span>
                 {product.variant.oldPrice && (
-                  <span className="text-sm text-navy-300 line-through">
+                  <span className="text-sm text-navy-300 line-through tabular-nums">
                     {formatPrice(product.variant.oldPrice)}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-navy-500">
+              <p className="text-xs text-navy-500 tabular-nums">
                 Вес: {product.variant.weight} кг
               </p>
             </>
           )}
-        </div>
-
-        {/* Match score */}
-        <div className="mb-4 text-xs text-navy-500">
-          Совпадение: {Math.round(product.matchScore * 100)}%
         </div>
 
         {/* CTA Button */}
@@ -111,16 +118,25 @@ export default function QuizProductCard({
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
-            className={`w-full py-3 rounded-xl font-medium transition-colors duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`relative z-10 w-full py-3 rounded-xl font-medium transition-colors duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed ${
               isMain
                 ? 'btn-primary text-base'
-                : 'bg-blue-50 text-primary border border-line hover:bg-blue-100'
+                : 'bg-blue-50 text-primary-hover border border-line hover:bg-blue-100'
             }`}
           >
-            {isMain ? 'В корзину' : 'Посмотреть'}
+            {added && isMain ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                В корзине
+              </span>
+            ) : (
+              isMain ? 'В корзину' : 'Посмотреть'
+            )}
           </button>
         )}
       </div>
-    </Link>
+    </article>
   )
 }
