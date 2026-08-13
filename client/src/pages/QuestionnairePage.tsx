@@ -6,6 +6,7 @@ import QuizIntro from '../components/quiz/QuizIntro'
 import QuizProgress from '../components/quiz/QuizProgress'
 import QuizQuestion from '../components/quiz/QuizQuestion'
 import QuizResult from '../components/quiz/QuizResult'
+import QuizLoading from '../components/quiz/QuizLoading'
 
 type Phase = 'intro' | 'quiz' | 'loading' | 'result' | 'error'
 
@@ -27,6 +28,11 @@ export default function QuestionnairePage() {
   // означало отправку без только что выбранного значения — сервер отвечал
   // «Required», а повторная попытка уже проходила. Читаем ответы из ref.
   const answersRef = useRef<Partial<QuizAnswers>>({})
+  // Индикатор не показываем первые 250мс: если сервер ответил быстро, вспышка
+  // «загрузки» читается как глюк. Показали — держим минимум 700мс, иначе то же
+  // мигание, просто сдвинутое.
+  const [showLoader, setShowLoader] = useState(false)
+  const loaderShownAt = useRef(0)
 
   // Get visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers)
@@ -98,6 +104,22 @@ export default function QuestionnairePage() {
   const submitQuiz = async () => {
     setPhase('loading')
     setError('')
+    setShowLoader(false)
+
+    const showTimer = window.setTimeout(() => {
+      loaderShownAt.current = Date.now()
+      setShowLoader(true)
+    }, 250)
+
+    const settle = async (next: () => void) => {
+      window.clearTimeout(showTimer)
+      if (loaderShownAt.current) {
+        const left = 700 - (Date.now() - loaderShownAt.current)
+        if (left > 0) await new Promise((r) => setTimeout(r, left))
+      }
+      loaderShownAt.current = 0
+      next()
+    }
 
     try {
       const answers = answersRef.current
@@ -129,18 +151,22 @@ export default function QuestionnairePage() {
       }
 
       const res = await quizApi.match(requestBody)
-      setResult(res.data)
 
       // Store session ID for bonus claim
       localStorage.setItem('quizSessionId', res.data.sessionId)
 
-      setPhase('result')
+      await settle(() => {
+        setResult(res.data)
+        setPhase('result')
+      })
     } catch (err: any) {
       console.error('Quiz submission error:', err)
-      setError(
-        err?.response?.data?.error || 'Не получилось подобрать корм. Попробуйте ещё раз'
-      )
-      setPhase('error')
+      await settle(() => {
+        setError(
+          err?.response?.data?.error || 'Не получилось подобрать корм. Попробуйте ещё раз'
+        )
+        setPhase('error')
+      })
     }
   }
 
@@ -198,28 +224,13 @@ export default function QuestionnairePage() {
   }
 
   if (phase === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <svg className="animate-spin w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v8z"
-              />
-            </svg>
-          </div>
-          <p className="text-navy-600">Подбираем идеальный корм...</p>
-        </div>
-      </div>
-    )
+    // Пустая подложка вместо null — чтобы страница не схлопывалась и не дёргала скролл.
+    return showLoader ? <QuizLoading /> : <div className="min-h-[100dvh] bg-blue-50" />
   }
 
   if (phase === 'error') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-blue-50 px-4">
         <div className="max-w-md text-center">
           <h1 className="text-2xl font-bold text-navy-900 mb-4">
             Что-то пошло не так
@@ -243,14 +254,14 @@ export default function QuestionnairePage() {
   // Quiz phase
   if (!currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-blue-50">
         <p className="text-navy-600">Загрузка вопроса...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-white">
       <QuizProgress current={currentQuestionIndex + 1} total={visibleQuestions.length} />
 
       <QuizQuestion

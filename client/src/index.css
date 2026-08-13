@@ -46,6 +46,14 @@
   .btn-primary:hover, .btn-primary:active { transform: none; }
   .btn-primary:hover, .btn-primary:active { --btn-spot: 0; }
   .btn-outline:active { transform: none; }
+  /* Для бесконечных петель `animation-duration: 0.01ms` означает не «выключено»,
+     а «мигает с частотой кадров» — гасим их поимённо. */
+  .quiz-track > g {
+    animation: none !important;
+    opacity: 1;
+  }
+  .quiz-stage { animation: none !important; }
+  .animate-spin { animation: none !important; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -183,6 +191,32 @@
 }
 
 @layer utilities {
+  /* Экран подбора корма: следы проступают один за другим, цикл 1560мс.
+     Анимируется только opacity — сцена статична, движение читается как
+     продвижение по следу, а не как дрожание. */
+  .quiz-track > g {
+    opacity: 0;
+    animation: quizTrack 1560ms var(--ease-out) infinite;
+  }
+  .quiz-track > g:nth-of-type(2) { animation-delay: 260ms; }
+  .quiz-track > g:nth-of-type(3) { animation-delay: 520ms; }
+
+  @keyframes quizTrack {
+    0%        { opacity: 0; }
+    18%       { opacity: 1; }
+    62%       { opacity: 1; }
+    88%, 100% { opacity: 0; }
+  }
+
+  /* Смена стадии — фейд без сдвига: текст меняет длину, любое движение
+     дёргало бы центрированный блок. */
+  .quiz-stage { animation: quizStageIn 200ms var(--ease-out); }
+
+  @keyframes quizStageIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
      прерываемо и корректно гаснет под reduced-motion (см. правило выше). */
   .reveal {
