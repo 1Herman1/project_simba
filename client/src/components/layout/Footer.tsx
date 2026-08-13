@@ -169,7 +169,7 @@ export default function Footer() {
                       <span className="text-base md:text-sm text-navy-500 cursor-default">
                         {item.label}
                         {/* Подсказка title на телефоне не показывается — пишем словом. */}
-                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">скоро</span>
+                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">Скоро</span>
                       </span>
                     ) : item.hash ? (
                       <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">

@@ -25,7 +25,7 @@ async function sendEmail(to: string, code: string): Promise<void> {
   await transporter.sendMail({
     from: process.env.SMTP_FROM || 'noreply@simba.ru',
     to,
-    subject: 'Ваш код входа в Simba',
+    subject: 'Ваш код входа в Симбу',
     text: `Ваш код для входа: ${code}\n\nКод действителен 10 минут.`,
     html: `<p>Ваш код для входа: <strong>${code}</strong></p><p>Код действителен 10 минут.</p>`,
   })

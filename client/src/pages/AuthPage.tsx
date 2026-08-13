@@ -206,7 +206,7 @@ export default function AuthPage() {
                 <text x="12" y="15" textAnchor="middle" fill="white" className="text-xs font-bold">$</text>
               </svg>
               <p className="text-xs leading-relaxed text-navy-700">
-                <span className="font-bold text-amber-600">+{WELCOME_BONUS} Scoins</span> за регистрацию — это {WELCOME_BONUS} ₽ скидки на первый заказ
+                <span className="font-bold text-amber-600">+{WELCOME_BONUS} бонусов</span> за регистрацию — это {WELCOME_BONUS} ₽ скидки на первый заказ
               </p>
             </div>
             </div>

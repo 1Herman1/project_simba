@@ -2,6 +2,7 @@ import { Prisma, BonusTxType } from '@prisma/client'
 import type { QuizAnswers } from '../schemas/quiz.schema'
 import { isQuizTag } from '../lib/quiz-tags'
 import { applyBonusChange } from './bonus.service'
+import { mergeQuizTags } from './quiz-autotag'
 
 const QUIZ_BONUS = 300
 
@@ -37,6 +38,7 @@ export interface QuizMatchResponse {
   disclaimers: string[]
   relaxed: string[]
   fallbackNote: string | null
+  shortfall: { found: number } | null
   bonus: { amount: 300; status: 'granted' | 'already_granted' | 'guest'; balance: number | null }
 }
 
@@ -241,7 +243,7 @@ function getBrandPriority(brandSlug?: string): number {
 async function matchQuiz(
   prisma: Prisma.TransactionClient,
   answers: QuizAnswers,
-): Promise<Omit<QuizMatchResponse, 'sessionId' | 'bonus'> & { relaxed: string[] }> {
+): Promise<Omit<QuizMatchResponse, 'sessionId' | 'bonus'>> {
   const u = normalizeAnswers(answers)
 
   const speciesValue = u.species.replace('species:', '')
@@ -249,7 +251,7 @@ async function matchQuiz(
   const products = await prisma.product.findMany({
     where: {
       isActive: true,
-      quizTags: { has: u.species },
+      OR: [{ quizTags: { has: u.species } }, { autoQuizTags: { has: u.species } }],
     },
     take: 500,
     select: {
@@ -258,6 +260,7 @@ async function matchQuiz(
       slug: true,
       images: true,
       quizTags: true,
+      autoQuizTags: true,
       isFeatured: true,
       brand: { select: { name: true, slug: true } },
       variants: {
@@ -273,6 +276,7 @@ async function matchQuiz(
     slug: string
     images: string[]
     quizTags: string[]
+    allTags: string[]
     isFeatured: boolean
     brand: { name: string; slug: string } | null
     variants: Array<{ id: string; weight: number; price: number; oldPrice: number | null; stock: number }>
@@ -281,39 +285,71 @@ async function matchQuiz(
     format: 'dry' | 'wet'
   }
 
+  // Precompute merged tags и format один раз для каждого товара
+  interface PrecomputedProduct {
+    id: string
+    name: string
+    slug: string
+    images: string[]
+    quizTags: string[]
+    allTags: string[]
+    isFeatured: boolean
+    brand: { name: string; slug: string } | null
+    variants: Array<{ id: string; weight: number; price: number; oldPrice: number | null; stock: number }>
+    format: 'dry' | 'wet'
+  }
+
+  const precomputed: PrecomputedProduct[] = products.map((p) => {
+    const allTags = mergeQuizTags(p.quizTags, p.autoQuizTags || [])
+    return {
+      id: p.id,
+      name: p.name,
+      slug: p.slug,
+      images: p.images,
+      quizTags: p.quizTags,
+      allTags,
+      isFeatured: p.isFeatured,
+      brand: p.brand,
+      variants: p.variants,
+      format: allTags.includes('format:wet') ? 'wet' : 'dry',
+    }
+  })
+
   const getDryPool = (lvl: number): ProductWithScore[] => {
-    return products
-      .filter((p) => passesHardFilters(u, { quizTags: p.quizTags, brandSlug: p.brand?.slug, variants: p.variants }, 'format:dry', lvl))
+    return precomputed
+      .filter((p) => passesHardFilters(u, { quizTags: p.allTags, brandSlug: p.brand?.slug, variants: p.variants }, 'format:dry', lvl))
       .map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
         images: p.images,
         quizTags: p.quizTags,
+        allTags: p.allTags,
         isFeatured: p.isFeatured,
         brand: p.brand,
         variants: p.variants,
-        score: scoreProduct(u, p.quizTags),
+        score: scoreProduct(u, p.allTags),
         relaxed: getRelaxedForLevel(lvl),
-        format: p.quizTags.includes('format:wet') ? 'wet' : 'dry',
+        format: p.format,
       }))
   }
 
   const getWetPool = (lvl: number): ProductWithScore[] => {
-    return products
-      .filter((p) => passesHardFilters(u, { quizTags: p.quizTags, brandSlug: p.brand?.slug, variants: p.variants }, 'format:wet', lvl))
+    return precomputed
+      .filter((p) => passesHardFilters(u, { quizTags: p.allTags, brandSlug: p.brand?.slug, variants: p.variants }, 'format:wet', lvl))
       .map((p) => ({
         id: p.id,
         name: p.name,
         slug: p.slug,
         images: p.images,
         quizTags: p.quizTags,
+        allTags: p.allTags,
         isFeatured: p.isFeatured,
         brand: p.brand,
         variants: p.variants,
-        score: scoreProduct(u, p.quizTags),
+        score: scoreProduct(u, p.allTags),
         relaxed: getRelaxedForLevel(lvl),
-        format: p.quizTags.includes('format:wet') ? 'wet' : 'dry',
+        format: p.format,
       }))
   }
 
@@ -354,7 +390,8 @@ async function matchQuiz(
       const dryPool = getDryPool(level)
       const wetPool = getWetPool(level)
       if (dryPool.length >= 1 && wetPool.length >= 1 && dryPool.length + wetPool.length >= 3) {
-        pool = [...sortAndTiebreak(dryPool), ...sortAndTiebreak(wetPool)]
+        // При mixed сортируем сквозным score, чтобы main выбирался оптимально
+        pool = sortAndTiebreak([...dryPool, ...wetPool])
         relaxedUsed = getRelaxedForLevel(level)
         break
       }
@@ -375,7 +412,7 @@ async function matchQuiz(
         const dryPool = getDryPool(level)
         const wetPool = getWetPool(level)
         if (dryPool.length >= 1 && wetPool.length >= 1) {
-          pool = [...sortAndTiebreak(dryPool), ...sortAndTiebreak(wetPool)]
+          pool = sortAndTiebreak([...dryPool, ...wetPool])
           relaxedUsed = getRelaxedForLevel(level)
           break
         }
@@ -403,10 +440,10 @@ async function matchQuiz(
     if (priorityProduct) {
       main = priorityProduct
     } else {
+      // Бренд владелец не называл, значит и ослаблять нечего: попадали сюда
+      // всегда, из-за чего подпись «Специально подобрано…» висела почти на
+      // каждой выдаче и обесценивалась.
       main = pool[0]
-      if (!relaxedUsed.includes('brand')) {
-        relaxedUsed = [...relaxedUsed, 'brand']
-      }
     }
   }
 
@@ -418,15 +455,23 @@ async function matchQuiz(
     pair = pool.find((p) => p.id !== main.id && p.format === pairFormat) || null
   }
 
-  // Альтернативы: следующие 2 товара, исключая главную и пару
+  // Альтернативы: при mixed — 1 товар, иначе — 2
   const usedIds = new Set<string>([main.id])
   if (pair) usedIds.add(pair.id)
-  const alternatives = pool.filter((p) => !usedIds.has(p.id)).slice(0, 2)
+  const altCount = u.format === 'mixed' && pair ? 1 : 2
+  const alternatives = pool.filter((p) => !usedIds.has(p.id)).slice(0, altCount)
 
   const resultProductIds = [main.id, pair?.id, ...alternatives.map((a) => a.id)].filter((id): id is string => id !== undefined)
 
+  const selectVariant = (variants: Array<{ id: string; weight: number; price: number; oldPrice: number | null; stock: number }>) => {
+    // Выбираем первый со stock > 0, при равенстве остатка — более дешёвый
+    const available = variants.filter((v) => v.stock > 0)
+    if (available.length === 0) return variants[0] || null
+    return available.reduce((best, v) => v.price < best.price ? v : best)
+  }
+
   const buildProductCard = (p: ProductWithScore): QuizProductCard => {
-    const variant = p.variants[0]
+    const variant = selectVariant(p.variants)
     return {
       id: p.id,
       slug: p.slug,
@@ -443,13 +488,16 @@ async function matchQuiz(
             stock: variant.stock,
           }
         : null,
-      badges: getBadges(p.quizTags),
+      badges: getBadges(p.allTags),
     }
   }
 
-  const reasons = buildReasons(u, main.quizTags)
+  const reasons = buildReasons(u, main.allTags)
   const disclaimers = buildDisclaimers(u)
   const fallbackNote = relaxedUsed.length > 0 ? 'Специально подобрано под особенности вашего питомца' : null
+
+  const totalCards = 1 + (pair ? 1 : 0) + alternatives.length
+  const shortfall = totalCards < 3 ? { found: totalCards } : null
 
   return {
     main: buildProductCard(main),
@@ -459,6 +507,7 @@ async function matchQuiz(
     disclaimers,
     relaxed: relaxedUsed,
     fallbackNote,
+    shortfall,
   }
 }
 
@@ -618,6 +667,7 @@ export async function runQuizMatch(
     disclaimers: matchResult.disclaimers,
     relaxed: matchResult.relaxed,
     fallbackNote: matchResult.fallbackNote,
+    shortfall: matchResult.shortfall,
     bonus,
   }
 }
@@ -635,6 +685,7 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
       slug: true,
       images: true,
       quizTags: true,
+      autoQuizTags: true,
       isFeatured: true,
       brand: { select: { name: true, slug: true } },
       variants: {
@@ -647,19 +698,26 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
   const productMap = new Map(products.map((p) => [p.id, p]))
   const u = normalizeAnswers(session.answers as unknown as QuizAnswers)
 
+  const selectVariant = (variants: Array<{ id: string; weight: number; price: number; oldPrice: number | null; stock: number }>) => {
+    const available = variants.filter((v) => v.stock > 0)
+    if (available.length === 0) return variants[0] || null
+    return available.reduce((best, v) => v.price < best.price ? v : best)
+  }
+
   const buildCard = (id: string): QuizProductCard => {
     const p = productMap.get(id)
     if (!p) throw new Error(`Product ${id} not found`)
-    const variant = p.variants[0]
+    const allTags = mergeQuizTags(p.quizTags, p.autoQuizTags)
+    const variant = selectVariant(p.variants)
     return {
       id: p.id,
       slug: p.slug,
       name: p.name,
       brandName: p.brand?.name || null,
       image: p.images[0] || null,
-      matchScore: scoreProduct(u, p.quizTags),
+      matchScore: scoreProduct(u, allTags),
       variant: variant ? { id: variant.id, weight: variant.weight, price: variant.price, oldPrice: variant.oldPrice, stock: variant.stock } : null,
-      badges: getBadges(p.quizTags),
+      badges: getBadges(allTags),
     }
   }
 
@@ -667,7 +725,14 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
   const pair = session.resultProductIds[1] ? buildCard(session.resultProductIds[1]) : null
   const alternatives = session.resultProductIds.slice(pair ? 2 : 1, pair ? 4 : 3).map(buildCard)
 
-  const reasons = buildReasons(u, productMap.get(session.resultProductIds[0])?.quizTags || [])
+  const mainTags = mergeQuizTags(
+    productMap.get(session.resultProductIds[0])?.quizTags || [],
+    productMap.get(session.resultProductIds[0])?.autoQuizTags || []
+  )
+  const reasons = buildReasons(u, mainTags)
+
+  const totalCards = 1 + (pair ? 1 : 0) + alternatives.length
+  const shortfall = totalCards < 3 ? { found: totalCards } : null
 
   return {
     sessionId: session.id,
@@ -678,6 +743,7 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
     disclaimers: buildDisclaimers(u),
     relaxed: session.relaxed,
     fallbackNote: session.relaxed.length > 0 ? 'Специально подобрано под особенности вашего питомца' : null,
+    shortfall,
     bonus: { amount: 300, status: session.bonusGranted ? 'already_granted' : 'guest', balance: null },
   }
 }

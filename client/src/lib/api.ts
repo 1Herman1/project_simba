@@ -336,6 +336,7 @@ export interface QuizMatchResponse {
   disclaimers: string[]
   relaxed: string[]
   fallbackNote: string | null
+  shortfall: { found: number } | null
   bonus: { amount: number; status: 'granted' | 'already_granted' | 'guest'; balance: number | null }
 }
 
