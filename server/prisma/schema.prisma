@@ -261,6 +261,9 @@ model Product {
   isActive         Boolean  @default(true)
   /// Теги для квиза-подборщика. Закрытый словарь — server/src/lib/quiz-tags.ts. Пустой массив = товар в подборе не участвует.
   quizTags         String[]             @default([])
+  /// Теги, выведенные автоматически из фильтров/категорий/названия (backfill-quiz-tags.ts).
+  /// Ручные quizTags приоритетнее: при совпадении пространства имён выигрывают они.
+  autoQuizTags     String[]             @default([])
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -279,6 +282,7 @@ model Product {
   @@index([brandId])
   @@index([isActive])
   @@index([quizTags], type: Gin)
+  @@index([autoQuizTags], type: Gin)
   @@map("products")
 }
 
