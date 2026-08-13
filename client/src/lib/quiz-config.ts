@@ -78,35 +78,11 @@ const d2: QuizQuestion = {
   ],
 }
 
-// D3. Активность
-const d3: QuizQuestion = {
-  id: 'activity',
-  branch: 'dog',
-  question: 'Насколько активен образ жизни собаки?',
-  options: [
-    { value: 'low', label: 'Спокойный: прогулки 2 раза в день по 20–30 мин' },
-    { value: 'normal', label: 'Обычный: активные прогулки, игры каждый день' },
-    { value: 'high', label: 'Высокий: спорт, дрессировка, бег, длинные выгулы' },
-  ],
-}
-
-// D4. Кондиция (вес)
-const d4: QuizQuestion = {
-  id: 'weight',
-  branch: 'dog',
-  question: 'Как оцениваете вес собаки?',
-  options: [
-    { value: 'normal', label: 'В норме' },
-    { value: 'overweight', label: 'Есть лишний вес / склонность к набору' },
-    { value: 'underweight', label: 'Худовата / плохо набирает вес' },
-  ],
-}
-
 // D5. Особенности здоровья (множественный выбор)
 const d5: QuizQuestion = {
   id: 'health',
   branch: 'dog',
-  question: 'Есть ли что-то из этого? — можно выбрать несколько',
+  question: 'Что из этого про вашего питомца? (можно выбрать несколько или ничего)',
   multiple: true,
   options: [
     {
@@ -122,6 +98,14 @@ const d5: QuizQuestion = {
       value: 'allergy',
       label: 'Пищевая аллергия / непереносимость',
       description: 'подтверждённая или подозрение',
+    },
+    {
+      value: 'overweight',
+      label: 'Есть лишний вес',
+    },
+    {
+      value: 'underweight',
+      label: 'Худовата — рёбра видно',
     },
     {
       value: 'sterilized',
@@ -142,7 +126,7 @@ const d5: QuizQuestion = {
 const d5a: QuizQuestion = {
   id: 'avoid',
   branch: 'dog',
-  question: 'На какой белок ваш питомец реагирует негативно?',
+  question: 'От чего была реакция?',
   multiple: true,
   showIf: (a) => a.health?.includes('allergy') ?? false,
   options: [
@@ -183,23 +167,24 @@ const d7: QuizQuestion = {
 const d8: QuizQuestion = {
   id: 'philosophy',
   branch: 'dog',
-  question: 'Что для вас важнее в составе?',
+  question: 'Как относитесь к зерну в корме?',
   options: [
     {
+      value: 'any',
+      label: 'Не разбираюсь — решите за меня',
+    },
+    {
       value: 'grainfree',
-      label: 'Беззерновой, максимум мяса (холистик-подход)',
+      label: 'Без зерна, побольше мяса',
+      description: 'Ближе к natural-подходу',
     },
     {
       value: 'lowgrain',
-      label: 'Низкозерновой со спельтой/овсом — мягкий баланс',
+      label: 'Немного зерна — так мягче для желудка',
     },
     {
       value: 'classic',
-      label: 'Классический проверенный рацион, рекомендации ветврачей',
-    },
-    {
-      value: 'any',
-      label: 'Не разбираюсь — подберите оптимальное',
+      label: 'Обычный состав, который советуют ветврачи',
     },
   ],
 }
@@ -214,7 +199,7 @@ const d9: QuizQuestion = {
     { value: 'monge', label: 'Monge' },
     { value: 'hills', label: "Hill's" },
     { value: 'happydog', label: 'Happy Dog' },
-    { value: 'any', label: 'Нет предпочтений — подберите лучший вариант' },
+    { value: 'any', label: 'Нет предпочтений — подберите лучший вариант', description: 'Так подбор точнее — мы не ограничены одной маркой' },
   ],
 }
 
@@ -232,18 +217,6 @@ const c1: QuizQuestion = {
   ],
 }
 
-// C2. Стерилизация
-const c2: QuizQuestion = {
-  id: 'sterilized',
-  branch: 'cat',
-  question: 'Кошка стерилизована / кот кастрирован?',
-  options: [
-    { value: 'true', label: 'Да' },
-    { value: 'false', label: 'Нет' },
-    { value: 'planned', label: 'Планируем в ближайшее время' },
-  ],
-}
-
 // C3. Образ жизни
 const c3: QuizQuestion = {
   id: 'lifestyle',
@@ -255,23 +228,11 @@ const c3: QuizQuestion = {
   ],
 }
 
-// C4. Кондиция (вес)
-const c4: QuizQuestion = {
-  id: 'weight',
-  branch: 'cat',
-  question: 'Как оцениваете вес кошки/кота?',
-  options: [
-    { value: 'normal', label: 'В норме' },
-    { value: 'overweight', label: 'Есть лишний вес' },
-    { value: 'underweight', label: 'Худовата(-ый)' },
-  ],
-}
-
 // C5. Особенности здоровья (множественный выбор)
 const c5: QuizQuestion = {
   id: 'health',
   branch: 'cat',
-  question: 'Есть ли что-то из этого? — можно выбрать несколько',
+  question: 'Что из этого про вашего питомца? (можно выбрать несколько или ничего)',
   multiple: true,
   options: [
     {
@@ -300,6 +261,18 @@ const c5: QuizQuestion = {
       label: 'Длинношёрстная порода (мейн-кун, перс, сибирская)',
     },
     {
+      value: 'overweight',
+      label: 'Есть лишний вес',
+    },
+    {
+      value: 'underweight',
+      label: 'Худовата — рёбра видно',
+    },
+    {
+      value: 'sterilized',
+      label: 'Стерилизована или кастрирован',
+    },
+    {
       value: 'none',
       label: 'Ничего из перечисленного',
     },
@@ -310,7 +283,7 @@ const c5: QuizQuestion = {
 const c5a: QuizQuestion = {
   id: 'avoid',
   branch: 'cat',
-  question: 'На какой белок ваш питомец реагирует негативно?',
+  question: 'От чего была реакция?',
   multiple: true,
   showIf: (a) => a.health?.includes('allergy') ?? false,
   options: [
@@ -354,23 +327,24 @@ const c7: QuizQuestion = {
 const c8: QuizQuestion = {
   id: 'philosophy',
   branch: 'cat',
-  question: 'Что для вас важнее в составе?',
+  question: 'Как относитесь к зерну в корме?',
   options: [
     {
+      value: 'any',
+      label: 'Не разбираюсь — решите за меня',
+    },
+    {
       value: 'grainfree',
-      label: 'Беззерновой, максимум мяса',
+      label: 'Без зерна, побольше мяса',
+      description: 'Ближе к natural-подходу',
     },
     {
       value: 'lowgrain',
-      label: 'Низкозерновой, мягкий баланс',
+      label: 'Немного зерна — так мягче для желудка',
     },
     {
       value: 'classic',
-      label: 'Классический, рекомендованный ветврачами',
-    },
-    {
-      value: 'any',
-      label: 'Подберите оптимальное',
+      label: 'Обычный состав, который советуют ветврачи',
     },
   ],
 }
@@ -385,7 +359,7 @@ const c9: QuizQuestion = {
     { value: 'monge', label: 'Monge' },
     { value: 'hills', label: "Hill's" },
     { value: 'happycat', label: 'Happy Cat' },
-    { value: 'any', label: 'Нет предпочтений — подберите лучший вариант' },
+    { value: 'any', label: 'Нет предпочтений — подберите лучший вариант', description: 'Так подбор точнее — мы не ограничены одной маркой' },
   ],
 }
 
@@ -395,8 +369,6 @@ export const allQuestions: QuizQuestion[] = [
   // Dog
   d1,
   d2,
-  d3,
-  d4,
   d5,
   d5a,
   d6,
@@ -405,9 +377,7 @@ export const allQuestions: QuizQuestion[] = [
   d9,
   // Cat
   c1,
-  c2,
   c3,
-  c4,
   c5,
   c5a,
   c6,
