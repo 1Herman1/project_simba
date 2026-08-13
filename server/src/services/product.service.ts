@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { buildTagCondition, isCatalogTag } from '../lib/catalog-tags'
 
 export interface ProductFilters {
   categorySlug?: string
@@ -11,6 +12,8 @@ export interface ProductFilters {
   format?: 'dry' | 'wet'
   /** Ветеринарные диеты. Отдельного признака у товара нет — отбираем по линейке. */
   purpose?: 'medical'
+  /** Быстрые фильтры-кнопки над выдачей. */
+  tags?: string[]
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular'
   featured?: boolean
   page?: number
@@ -47,6 +50,13 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
     where.AND = filters.filterValueIds.map((filterValueId) => ({
       filterValues: { some: { filterValueId } },
     }))
+  }
+
+  if (filters.tags && filters.tags.length > 0) {
+    const conditions = filters.tags.filter(isCatalogTag).map(buildTagCondition)
+    if (conditions.length > 0) {
+      where.AND = Array.isArray(where.AND) ? [...where.AND, ...conditions] : conditions
+    }
   }
 
   if (filters.purpose === 'medical') {

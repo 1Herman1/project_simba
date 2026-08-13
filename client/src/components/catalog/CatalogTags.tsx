@@ -1,4 +1,4 @@
-const tags = [
+export const CATALOG_TAGS = [
   { id: 'kidney', label: 'При болезнях почек' },
   { id: 'allergy', label: 'Без аллергенов' },
   { id: 'kitten', label: 'Для котят' },
@@ -19,7 +19,7 @@ interface Props {
 export default function CatalogTags({ activeTag, onTagClick }: Props) {
   return (
     <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-      {tags.map(tag => (
+      {CATALOG_TAGS.map(tag => (
         <button
           key={tag.id}
           onClick={() => onTagClick(tag.id)}
@@ -33,4 +33,9 @@ export default function CatalogTags({ activeTag, onTagClick }: Props) {
       ))}
     </div>
   )
+}
+
+/** Человеческое название фильтра для заголовка страницы. */
+export function catalogTagLabel(id: string): string {
+  return CATALOG_TAGS.find(t => t.id === id)?.label ?? id
 }
