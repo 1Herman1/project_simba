@@ -26,41 +26,34 @@ const styleFor = (slug: string): BrandStyle => brandStyles[slug] ?? { kind: 'mar
 
 type BrandTile = Brand & { style: BrandStyle }
 
-/** Логотип бренда — файл кладётся в public/brands/<slug>.png (см. README там же).
-    Пока файла нет — показываем текстовое название, без «битой» картинки. */
-function BrandMark({ brand }: { brand: BrandTile }) {
+/** Плитка бренда. Логотип кладётся в public/brands/<slug>.png (см. README там же).
+    Пока файла нет — показываем название текстом, и тогда фирменная плашка
+    снимается: тёмно-синий текст на тёмно-синей заливке Farmina не читался бы. */
+function BrandTileLink({ brand }: { brand: BrandTile }) {
   const [failed, setFailed] = useState(false)
-
-  if (failed) {
-    return (
-      <span className="font-bold text-sm text-center px-2 leading-tight text-navy-900">
-        {brand.name}
-      </span>
-    )
-  }
-
-  if (brand.style.kind === 'plaque') {
-    return (
-      <img
-        src={`/brands/${brand.slug}.png`}
-        alt={brand.name}
-        loading="lazy"
-        decoding="async"
-        onError={() => setFailed(true)}
-        className="max-h-[4.75rem] max-w-[92%] w-auto object-contain"
-      />
-    )
-  }
+  const plaque = brand.style.kind === 'plaque' && !failed
 
   return (
-    <img
-      src={`/brands/${brand.slug}.png`}
-      alt={brand.name}
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-      className="max-h-16 max-w-full w-auto object-contain"
-    />
+    <Link
+      to={`/catalog?brand=${brand.slug}`}
+      className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center rounded-card border border-line overflow-hidden ${plaque ? 'p-2' : 'bg-white p-3'}`}
+      style={plaque && brand.style.kind === 'plaque' ? { backgroundColor: brand.style.bg } : undefined}
+    >
+      {failed ? (
+        <span className="font-bold text-sm text-center px-2 leading-tight text-navy-900">
+          {brand.name}
+        </span>
+      ) : (
+        <img
+          src={`/brands/${brand.slug}.png`}
+          alt={brand.name}
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+          className={plaque ? 'max-h-[4.75rem] max-w-[92%] w-auto object-contain' : 'max-h-16 max-w-full w-auto object-contain'}
+        />
+      )}
+    </Link>
   )
 }
 
@@ -105,13 +98,7 @@ export default function BrandsSection() {
             className="reveal-item flex-shrink-0 lg:flex-shrink lg:w-full"
             style={{ '--reveal-delay': revealDelay(i) } as CSSProperties}
           >
-            <Link
-              to={`/catalog?brand=${brand.slug}`}
-              className={`brand-card flex w-36 h-24 lg:w-full items-center justify-center rounded-card border border-line overflow-hidden ${brand.style.kind === 'plaque' ? 'p-2' : 'bg-white p-3'}`}
-              style={brand.style.kind === 'plaque' ? { backgroundColor: brand.style.bg } : undefined}
-            >
-              <BrandMark brand={brand} />
-            </Link>
+            <BrandTileLink brand={brand} />
           </div>
         ))}
       </div>
