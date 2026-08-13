@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { brandsApi } from '../lib/api'
+import { brandsApi, categoriesApi } from '../lib/api'
 import CatalogSearch from '../components/catalog/CatalogSearch'
 import CatalogTags, { catalogTagLabel } from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
@@ -55,6 +55,19 @@ export default function CatalogPage() {
 
 function CatalogHeader({ search, activeTag, category, brand }: { search: string; activeTag: string; category: string; brand: string }) {
   const [brandName, setBrandName] = useState('')
+  const [categoryName, setCategoryName] = useState('')
+
+  useEffect(() => {
+    if (!category) {
+      setCategoryName('')
+      return
+    }
+    // Иначе в заголовке висел служебный слаг вроде «pharmacy».
+    categoriesApi
+      .tree()
+      .then((res) => setCategoryName(res.data.find((c) => c.slug === category)?.name || ''))
+      .catch(() => setCategoryName(''))
+  }, [category])
 
   useEffect(() => {
     if (!brand) {
@@ -76,7 +89,7 @@ function CatalogHeader({ search, activeTag, category, brand }: { search: string;
     : brand
     ? brandName || 'Товары бренда'
     : category
-    ? category
+    ? categoryName || 'Каталог'
     : 'Все товары'
 
   return (

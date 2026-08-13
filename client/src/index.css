@@ -198,6 +198,29 @@
     transform: translateY(0);
   }
 
+  /* Пустое состояние каталога: единичный вход при монтировании, без циклов.
+     Окно старта 50мс — группа входит почти синхронно и не рассыпается. */
+  .empty-in > * {
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 280ms var(--ease-out),
+      transform 360ms var(--ease-out);
+    transition-delay: var(--in-delay, 0ms);
+  }
+  .empty-in > svg { transform: translateY(12px); }
+  .empty-in.is-in > * { opacity: 1; transform: translateY(0); }
+
+  /* Точки сна проступают после силуэта — единственный акцент сцены. */
+  .empty-in .dog-zzz circle {
+    opacity: 0;
+    transition: opacity 240ms var(--ease-out);
+  }
+  .empty-in.is-in .dog-zzz circle { opacity: 1; }
+  .empty-in.is-in .dog-zzz circle:nth-of-type(1) { transition-delay: 420ms; }
+  .empty-in.is-in .dog-zzz circle:nth-of-type(2) { transition-delay: 540ms; }
+  .empty-in.is-in .dog-zzz circle:nth-of-type(3) { transition-delay: 660ms; }
+
   /* Каскад внутри секции: наблюдатель один — на .reveal-group, дети едут
      по --reveal-delay. Переживает ремоунт детей при смене фильтра: группа
      уже .is-visible, новые карточки рождаются в финальном состоянии и
