@@ -9,11 +9,16 @@ export interface ProductFilters {
   search?: string
   /** Сухой или влажный корм. Признак берётся из тегов подбора. */
   format?: 'dry' | 'wet'
+  /** Ветеринарные диеты. Отдельного признака у товара нет — отбираем по линейке. */
+  purpose?: 'medical'
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular'
   featured?: boolean
   page?: number
   limit?: number
 }
+
+/** Ветеринарные линейки, представленные в каталоге. */
+const MEDICAL_LINES = ['Vet Life', 'VetSolution', 'Prescription Diet']
 
 export async function getProducts(prisma: PrismaClient, filters: ProductFilters) {
   const page = filters.page ?? 1
@@ -42,6 +47,18 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
     where.AND = filters.filterValueIds.map((filterValueId) => ({
       filterValues: { some: { filterValueId } },
     }))
+  }
+
+  if (filters.purpose === 'medical') {
+    // Только названия ветеринарных линеек. Названия болезней (Renal, Urinary,
+    // Struvite) в отбор не берём: они встречаются и у обычных функциональных
+    // кормов, а выдавать их за лечебные — вводить покупателя в заблуждение.
+    const condition = {
+      OR: MEDICAL_LINES.map((line) => ({
+        name: { contains: line, mode: 'insensitive' as const },
+      })),
+    }
+    where.AND = Array.isArray(where.AND) ? [...where.AND, condition] : [condition]
   }
 
   if (filters.format) {

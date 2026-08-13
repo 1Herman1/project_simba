@@ -16,6 +16,7 @@ export default function CatalogPage() {
   const category = searchParams.get('category') || ''
   const brand = searchParams.get('brand') || ''
   const format = searchParams.get('format') || ''
+  const purpose = searchParams.get('purpose') || ''
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -24,8 +25,9 @@ export default function CatalogPage() {
     if (category) params.category = category
     if (brand) params.brand = brand
     if (format) params.format = format
+    if (purpose) params.purpose = purpose
     setSearchParams(params, { replace: true })
-  }, [search, activeTag, category, brand, format])
+  }, [search, activeTag, category, brand, format, purpose])
 
   const handleTagClick = (tag: string) => {
     setActiveTag(prev => prev === tag ? '' : tag)
@@ -43,7 +45,7 @@ export default function CatalogPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <CatalogHeader search={search} activeTag={activeTag} category={category} brand={brand} />
-        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} />
+        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} purpose={purpose} />
       </div>
 
       <QuestionnaireTeaser />

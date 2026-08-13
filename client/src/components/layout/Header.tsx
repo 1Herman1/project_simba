@@ -9,7 +9,7 @@ const categories = [
     subcategories: [
       { label: 'Сухой корм', href: '/catalog?category=cats-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=cats-food&format=wet' },
-      { label: 'Лечебное питание', href: '/catalog?category=cats-medical' },
+      { label: 'Лечебное питание', href: '/catalog?category=cats-food&purpose=medical' },
       { label: 'Наполнители', href: '/catalog?category=cats-litter' },
       { label: 'Игрушки', href: '/catalog?category=cats-toys' },
       { label: 'Когтеточки', href: '/catalog?category=cats-scratching' },
@@ -23,7 +23,7 @@ const categories = [
     subcategories: [
       { label: 'Сухой корм', href: '/catalog?category=dogs-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=dogs-food&format=wet' },
-      { label: 'Лечебное питание', href: '/catalog?category=dogs-medical' },
+      { label: 'Лечебное питание', href: '/catalog?category=dogs-food&purpose=medical' },
       { label: 'Лакомства', href: '/catalog?category=dogs-treats' },
       { label: 'Игрушки', href: '/catalog?category=dogs-toys' },
       { label: 'Поводки и ошейники', href: '/catalog?category=dogs-leashes' },
