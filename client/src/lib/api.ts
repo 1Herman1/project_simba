@@ -199,9 +199,17 @@ export const categoriesApi = {
 
 // ─── Бренды ──────────────────────────────────────────────────────────────────
 
+export interface Brand {
+  id: string
+  name: string
+  slug: string
+  logo: string | null
+  productCount: number
+}
+
 export const brandsApi = {
   list: () =>
-    api.get('/api/brands'),
+    api.get<Brand[]>('/api/brands'),
 }
 
 // ─── Избранное ───────────────────────────────────────────────────────────────

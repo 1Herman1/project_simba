@@ -782,17 +782,25 @@ export async function claimQuizBonus(prisma: Prisma.TransactionClient, sessionId
 }
 
 export async function getQuizCoverage(prisma: Prisma.TransactionClient) {
-  const products = await prisma.product.findMany({
-    where: { isActive: true, quizTags: { has: 'species:dog' } },
-    take: 500,
-    select: { quizTags: true },
-  })
+  // Считаем по тем же тегам, что и сам подбор: иначе отчёт показывает дыры
+  // там, где квиз на самом деле находит товары.
+  const load = async (species: 'dog' | 'cat') => {
+    const rows = await prisma.product.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { quizTags: { has: `species:${species}` } },
+          { autoQuizTags: { has: `species:${species}` } },
+        ],
+      },
+      take: 500,
+      select: { quizTags: true, autoQuizTags: true },
+    })
+    return rows.map((p) => ({ quizTags: mergeQuizTags(p.quizTags, p.autoQuizTags) }))
+  }
 
-  const catProducts = await prisma.product.findMany({
-    where: { isActive: true, quizTags: { has: 'species:cat' } },
-    take: 500,
-    select: { quizTags: true },
-  })
+  const products = await load('dog')
+  const catProducts = await load('cat')
 
   const ages = {
     dog: ['puppy', 'adult', 'senior'],
