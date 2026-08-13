@@ -229,7 +229,8 @@ function scoreProduct(u: QuizUserTags, quizTags: string[]): number {
 const BRAND_ANSWER_TO_SLUG: Record<string, string> = {
   farmina: 'farmina',
   monge: 'monge',
-  hills: 'hills',
+  // После слияния дублей у Hill's в базе остался слаг с дефисом.
+  hills: 'hill-s',
   happydog: 'happy-dog',
   happycat: 'happy-cat',
 }
@@ -494,7 +495,14 @@ async function matchQuiz(
 
   const reasons = buildReasons(u, main.allTags)
   const disclaimers = buildDisclaimers(u)
-  const fallbackNote = relaxedUsed.length > 0 ? 'Специально подобрано под особенности вашего питомца' : null
+  // Про снятый бренд говорим прямо: покупатель выбрал Happy Dog, получил
+  // Farmina и без объяснения считает подбор сломанным.
+  const brandRelaxed = u.brand !== null && relaxedUsed.includes('brand')
+  const fallbackNote = brandRelaxed
+    ? 'В выбранной марке под ваши условия ничего не подошло — показываем близкие корма других марок'
+    : relaxedUsed.length > 0
+      ? 'Специально подобрано под особенности вашего питомца'
+      : null
 
   const totalCards = 1 + (pair ? 1 : 0) + alternatives.length
   const shortfall = totalCards < 3 ? { found: totalCards } : null

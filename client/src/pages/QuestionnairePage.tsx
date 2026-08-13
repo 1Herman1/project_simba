@@ -22,6 +22,11 @@ export default function QuestionnairePage() {
   const [result, setResult] = useState<QuizMatchResponse | null>(null)
   const [error, setError] = useState<string>('')
   const bonusClaimedRef = useRef(false)
+  // Переход к следующему вопросу планируется через setTimeout, и его колбэк
+  // держит ответы того рендера, в котором был клик. На последнем вопросе это
+  // означало отправку без только что выбранного значения — сервер отвечал
+  // «Required», а повторная попытка уже проходила. Читаем ответы из ref.
+  const answersRef = useRef<Partial<QuizAnswers>>({})
 
   // Get visible questions based on current answers
   const visibleQuestions = getVisibleQuestions(answers)
@@ -37,11 +42,13 @@ export default function QuestionnairePage() {
     // Special handling for sterilized (cat-only boolean field)
     if (fieldId === 'sterilized') {
       const isTrue = value === 'true' || value === 'planned'
+      answersRef.current = { ...answersRef.current, [fieldId]: isTrue }
       setAnswers((prev) => ({
         ...prev,
         [fieldId]: isTrue,
       }))
     } else {
+      answersRef.current = { ...answersRef.current, [fieldId]: value }
       setAnswers((prev) => ({
         ...prev,
         [fieldId]: value,
@@ -54,6 +61,7 @@ export default function QuestionnairePage() {
     }
     if (fieldId === 'health' && Array.isArray(value) && !value.includes('allergy')) {
       // Clear avoid when allergy is deselected
+      answersRef.current = { ...answersRef.current, avoid: [] }
       setAnswers((prev) => ({
         ...prev,
         avoid: [],
@@ -63,7 +71,14 @@ export default function QuestionnairePage() {
 
   // Handle next question
   const handleNext = () => {
-    if (isLastQuestion) {
+    // Тот же стилевой момент, что и с отправкой: отложенный колбэк видит ответы
+    // предыдущего рендера, поэтому «последний ли это вопрос» считаем по ref.
+    const current = answersRef.current
+    const isLast =
+      !!current.species &&
+      currentQuestionIndex === getVisibleQuestions(current).length - 1
+
+    if (isLast) {
       // Last question answered - submit quiz
       submitQuiz()
     } else {
@@ -85,6 +100,8 @@ export default function QuestionnairePage() {
     setError('')
 
     try {
+      const answers = answersRef.current
+
       // Build request body matching backend contract
       const requestBody: any = {
         species: answers.species,
@@ -136,6 +153,7 @@ export default function QuestionnairePage() {
   const handleStart = () => {
     setPhase('quiz')
     setAnswers({})
+    answersRef.current = {}
     setCurrentQuestionIndex(0)
   }
 
