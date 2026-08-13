@@ -1,4 +1,6 @@
 export interface QuizOption {
+  /** Силуэт питомца рядом с текстом. Только у первого вопроса. */
+  pet?: 'dog' | 'cat'
   value: string
   label: string
   description?: string
@@ -45,8 +47,8 @@ const q0: QuizQuestion = {
   branch: 'common',
   question: 'Для кого подбираем корм?',
   options: [
-    { value: 'dog', label: '🐕 Для собаки' },
-    { value: 'cat', label: '🐈 Для кошки' },
+    { value: 'dog', label: 'Для собаки', pet: 'dog' },
+    { value: 'cat', label: 'Для кошки', pet: 'cat' },
   ],
 }
 
@@ -105,7 +107,7 @@ const d5: QuizQuestion = {
     },
     {
       value: 'underweight',
-      label: 'Худовата — рёбра видно',
+      label: 'Есть недостаток веса — видны рёбра',
     },
     {
       value: 'sterilized',
@@ -176,7 +178,7 @@ const d8: QuizQuestion = {
     {
       value: 'grainfree',
       label: 'Без зерна, побольше мяса',
-      description: 'Ближе к natural-подходу',
+      description: 'Похоже на натуральное питание',
     },
     {
       value: 'lowgrain',
@@ -184,7 +186,7 @@ const d8: QuizQuestion = {
     },
     {
       value: 'classic',
-      label: 'Обычный состав, который советуют ветврачи',
+      label: 'Классический состав — сбалансированный, без ограничений',
     },
   ],
 }
@@ -266,7 +268,7 @@ const c5: QuizQuestion = {
     },
     {
       value: 'underweight',
-      label: 'Худовата — рёбра видно',
+      label: 'Есть недостаток веса — видны рёбра',
     },
     {
       value: 'sterilized',
@@ -336,7 +338,7 @@ const c8: QuizQuestion = {
     {
       value: 'grainfree',
       label: 'Без зерна, побольше мяса',
-      description: 'Ближе к natural-подходу',
+      description: 'Похоже на натуральное питание',
     },
     {
       value: 'lowgrain',
@@ -344,7 +346,7 @@ const c8: QuizQuestion = {
     },
     {
       value: 'classic',
-      label: 'Обычный состав, который советуют ветврачи',
+      label: 'Классический состав — сбалансированный, без ограничений',
     },
   ],
 }

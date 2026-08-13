@@ -65,7 +65,7 @@ function SniffingDog() {
   )
 }
 
-const STAGES = ['Смотрим состав кормов', 'Сверяем с возрастом и весом', 'Выбираем лучшее совпадение']
+const STAGES = ['Смотрим состав кормов', 'Сверяем с возрастом и весом', 'Подбираем оптимальный вариант']
 
 export default function QuizLoading() {
   const [stage, setStage] = useState(0)

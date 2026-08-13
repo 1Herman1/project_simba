@@ -499,7 +499,7 @@ async function matchQuiz(
   // Farmina и без объяснения считает подбор сломанным.
   const brandRelaxed = u.brand !== null && relaxedUsed.includes('brand')
   const fallbackNote = brandRelaxed
-    ? 'В выбранной марке под ваши условия ничего не подошло — показываем близкие корма других марок'
+    ? 'Точного совпадения в выбранной марке нет — подобрали похожий корм другого проверенного бренда'
     : relaxedUsed.length > 0
       ? 'Специально подобрано под особенности вашего питомца'
       : null
@@ -544,7 +544,7 @@ function buildReasons(u: QuizUserTags, productTags: string[]): string[] {
   const healthMap: Record<string, string> = {
     'health:digestion': 'Мягко для чувствительного пищеварения',
     'health:skin': 'Поддержка кожи и блеска шерсти',
-    'health:allergy': 'Ограниченный список ингредиентов — при пищевой аллергии',
+    'health:allergy': 'Ограниченный список ингредиентов — снижает риск реакции при аллергии',
     'health:sterilized': 'Рассчитан для стерилизованных питомцев',
     'health:joints': 'Поддержка суставов и связок',
     'health:hairball': 'Помогает выводить комки шерсти',
@@ -559,7 +559,7 @@ function buildReasons(u: QuizUserTags, productTags: string[]): string[] {
   }
 
   const sizeMap: Record<string, string> = {
-    'size:mini': 'Подходит для мини пород',
+    'size:mini': 'Подходит для мини-пород',
     'size:small': 'Подходит для малых пород',
     'size:medium': 'Подходит для средних пород',
     'size:large': 'Подходит для крупных пород',
@@ -571,10 +571,10 @@ function buildReasons(u: QuizUserTags, productTags: string[]): string[] {
   }
 
   const ageMap: Record<string, string> = {
-    'age:puppy': 'Формула для возраста: щенок',
-    'age:kitten': 'Формула для возраста: котёнок',
-    'age:adult': 'Формула для возраста: взрослый',
-    'age:senior': 'Формула для возраста: пожилой',
+    'age:puppy': 'Возрастная формула — для щенков',
+    'age:kitten': 'Возрастная формула — для котят',
+    'age:adult': 'Возрастная формула — для взрослых питомцев',
+    'age:senior': 'Возрастная формула — для пожилых питомцев',
   }
 
   if (has(u.age) && reasons.length < 4) {
@@ -582,14 +582,14 @@ function buildReasons(u: QuizUserTags, productTags: string[]): string[] {
   }
 
   const flavorMap: Record<string, string> = {
-    'flavor:chicken': 'Вкус: курица — любимый у вашего питомца',
-    'flavor:lamb': 'Вкус: ягнёнок — любимый у вашего питомца',
-    'flavor:fish': 'Вкус: рыба — любимый у вашего питомца',
-    'flavor:game': 'Вкус: дичь — любимый у вашего питомца',
-    'flavor:beef': 'Вкус: говядина — любимый у вашего питомца',
-    'flavor:turkey': 'Вкус: индейка — любимый у вашего питомца',
-    'flavor:duck': 'Вкус: утка — любимый у вашего питомца',
-    'flavor:rabbit': 'Вкус: кролик — любимый у вашего питомца',
+    'flavor:chicken': 'Курица — вкус, который любит ваш питомец',
+    'flavor:lamb': 'Ягнёнок — вкус, который любит ваш питомец',
+    'flavor:fish': 'Рыба — вкус, который любит ваш питомец',
+    'flavor:game': 'Дичь — вкус, который любит ваш питомец',
+    'flavor:beef': 'Говядина — вкус, который любит ваш питомец',
+    'flavor:turkey': 'Индейка — вкус, который любит ваш питомец',
+    'flavor:duck': 'Утка — вкус, который любит ваш питомец',
+    'flavor:rabbit': 'Кролик — вкус, который любит ваш питомец',
   }
 
   for (const f of u.soft) {

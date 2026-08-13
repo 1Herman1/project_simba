@@ -10,6 +10,9 @@ import QuizLoading from '../components/quiz/QuizLoading'
 
 type Phase = 'intro' | 'quiz' | 'loading' | 'result' | 'error'
 
+/** Вопросов в каждой ветке: вид + 7 профильных. Условный про аллерген сверх. */
+const QUESTIONS_IN_BRANCH = 8
+
 export default function QuestionnairePage() {
   useMetaTags({
     title: 'Подбор корма для кошки и собаки — Симба',
@@ -268,7 +271,14 @@ export default function QuestionnairePage() {
 
   return (
     <div className="min-h-[100dvh] bg-white">
-      <QuizProgress current={currentQuestionIndex + 1} total={visibleQuestions.length} />
+      {/* Знаменатель фиксированный: пока вид животного не выбран, видимых
+          вопросов всего один, и полоса показывала бы «1 из 1» с полной заливкой.
+          Условный вопрос про аллерген знаменатель не увеличивает — полоса,
+          которая едет назад, разрушает доверие к оценке «осталось немного». */}
+      <QuizProgress
+        current={Math.min(currentQuestionIndex + 1, QUESTIONS_IN_BRANCH)}
+        total={QUESTIONS_IN_BRANCH}
+      />
 
       <QuizQuestion
         question={currentQuestion}
