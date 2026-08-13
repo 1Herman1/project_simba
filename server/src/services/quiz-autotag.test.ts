@@ -31,6 +31,35 @@ describe('deriveQuizTags — вид животного', () => {
     expect(dog).toContain('species:dog')
   })
 
+  it('читает вид по маркерам линейки, когда категорий нет (251 товар на проде)', () => {
+    const cats = [
+      'Grandorf Fresh Adult Sterilised (Индейка и батат)',
+      'Grandorf Kitten (Ягненок, индейка)',
+      'Grandorf Adult Indoor (Ягненок, индейка)',
+      'Farmina Matisse Neutered (Лосось)',
+    ]
+    for (const name of cats) {
+      expect(deriveQuizTags(input({ categorySlugs: [], name })), name).toContain('species:cat')
+    }
+
+    const dogs = [
+      'Farmina N&D Prime Puppy Chicken Mini',
+      'Grandorf Fresh Adult Medium & Maxi (Утка и батат)',
+      'Farmina Cibau Adult Medium (Курица)',
+      'Grandorf Fresh Puppy All Breeds (Ягненок и батат)',
+      'Grandorf Junior Medium & Maxi (Ягненок и индейка)',
+    ]
+    for (const name of dogs) {
+      expect(deriveQuizTags(input({ categorySlugs: [], name })), name).toContain('species:dog')
+    }
+  })
+
+  it('кошачий маркер сильнее размерного', () => {
+    // «Стерилизованный» — кошачья линейка; Mini рядом не должен перетянуть в собак.
+    const tags = deriveQuizTags(input({ categorySlugs: [], name: 'Grandorf Sterilised Mini' }))
+    expect(tags).toContain('species:cat')
+  })
+
   it('без определимого вида не выдаёт тегов вообще', () => {
     // Товар вне квиза — лучше не показать ничего, чем предложить кошке собачий корм.
     expect(deriveQuizTags(input({ categorySlugs: [], name: 'Лакомство Мнямс' }))).toEqual([])

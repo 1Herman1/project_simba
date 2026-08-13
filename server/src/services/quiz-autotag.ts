@@ -46,6 +46,34 @@ function determineSpecies(
     return 'dog'
   }
 
+  // 251 товар в каталоге вообще без категорий, и вид у них читается только по
+  // маркерам линейки. Маркеры ниже в этом каталоге однозначны: стерилизация и
+  // «indoor» — исключительно кошачьи линейки, размер породы — исключительно
+  // собачьи. Кошачьи проверяем первыми: «Sterilised Mini» не бывает, а вот
+  // осечься на слове Adult легко.
+  if (
+    matchesRegex(nameLower, 'kitten') ||
+    matchesRegex(nameLower, 'steril') ||
+    matchesRegex(nameLower, 'neutered') ||
+    matchesRegex(nameLower, 'indoor') ||
+    matchesRegex(nameLower, 'matisse')
+  ) {
+    return 'cat'
+  }
+  if (
+    matchesRegex(nameLower, 'puppy') ||
+    matchesRegex(nameLower, 'junior') ||
+    matchesRegex(nameLower, 'cibau') ||
+    matchesRegex(nameLower, 'mini') ||
+    matchesRegex(nameLower, 'medium') ||
+    matchesRegex(nameLower, 'maxi') ||
+    matchesRegex(nameLower, 'giant') ||
+    matchesRegex(nameLower, '\\bsmall\\b') ||
+    matchesRegex(nameLower, 'all breeds')
+  ) {
+    return 'dog'
+  }
+
   return null
 }
 
