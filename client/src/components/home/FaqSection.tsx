@@ -1,5 +1,6 @@
 import { useState, useId } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowRightIcon } from '../icons'
 import { FAQ, renderFaqAnswer, type FaqEntry } from '../../lib/faq'
 
 /** На главной — четыре вопроса, остальные на /faq. Источник текста один. */
@@ -60,8 +61,12 @@ export default function FaqSection() {
         ))}
       </div>
       <div className="mt-8">
-        <Link to="/faq" className="text-primary-hover hover:underline transition-colors duration-100 ease">
-          Все вопросы и ответы →
+        <Link
+          to="/faq"
+          className="link-arrow inline-flex items-center gap-1.5 text-primary-hover hover:underline transition-colors duration-100 ease"
+        >
+          Все вопросы и ответы
+          <ArrowRightIcon className="w-4 h-4" />
         </Link>
       </div>
       </div>

@@ -10,7 +10,7 @@ export default function QuizIntro({ onStart }: QuizIntroProps) {
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-4">
-            Подберём идеальный корм за минуту
+            Подберём корм под вашего питомца за пару минут
           </h1>
           <p className="text-lg text-navy-600 mb-6 max-w-prose mx-auto">
             Ответим на несколько вопросов о питомце — возраст, вес, здоровье, вкусы. В ответ получите не бренд, а конкретный корм: линейку и вкус.
@@ -28,11 +28,11 @@ export default function QuizIntro({ onStart }: QuizIntroProps) {
           <span className="text-amber-500">
             <GiftIcon />
           </span>
-          <span className="text-navy-700 font-medium">После подбора — 300 бонусов на первую покупку</span>
+          <span className="text-navy-700 font-medium">После подбора — 300 бонусов на первую покупку. Заберёте их после входа в аккаунт</span>
         </div>
 
         <p className="text-sm text-navy-500">
-          Результат сразу же — без регистрации и звонков.
+          Результат — сразу, без звонков и регистрации.
         </p>
       </div>
     </div>

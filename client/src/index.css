@@ -53,6 +53,7 @@
     opacity: 1;
   }
   .quiz-stage { animation: none !important; }
+  .icon-check-path { animation: none !important; stroke-dashoffset: 0; }
   .animate-spin { animation: none !important; }
 }
 
@@ -191,6 +192,25 @@
 }
 
 @layer utilities {
+  /* Галочка подтверждения прочерчивается, а не возникает: 300мс роста линии
+     читаются как «сделано», статичная галочка — как ещё один элемент макета. */
+  .icon-check-path {
+    stroke-dasharray: 24;
+    stroke-dashoffset: 24;
+    animation: iconCheckDraw 300ms var(--ease-out) forwards;
+  }
+
+  @keyframes iconCheckDraw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* Стрелка в текстовой ссылке подаётся вперёд под курсором — подсказывает
+     направление перехода. Только на мыши: на тач-устройстве hover залипает. */
+  @media (hover: hover) and (pointer: fine) {
+    .link-arrow svg { transition: transform 160ms var(--ease-out); }
+    .link-arrow:hover svg { transform: translateX(3px); }
+  }
+
   /* Экран подбора корма: следы проступают один за другим, цикл 1560мс.
      Анимируется только opacity — сцена статична, движение читается как
      продвижение по следу, а не как дрожание. */

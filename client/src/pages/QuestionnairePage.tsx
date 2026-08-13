@@ -10,6 +10,9 @@ import QuizLoading from '../components/quiz/QuizLoading'
 
 type Phase = 'intro' | 'quiz' | 'loading' | 'result' | 'error'
 
+/** Вопросов в каждой ветке: вид + 7 профильных. Условный про аллерген сверх. */
+const QUESTIONS_IN_BRANCH = 8
+
 export default function QuestionnairePage() {
   useMetaTags({
     title: 'Подбор корма для кошки и собаки — Симба',
@@ -45,26 +48,13 @@ export default function QuestionnairePage() {
 
   // Handle answer
   const handleAnswer = (value: string | string[], fieldId: string) => {
-    // Special handling for sterilized (cat-only boolean field)
-    if (fieldId === 'sterilized') {
-      const isTrue = value === 'true' || value === 'planned'
-      answersRef.current = { ...answersRef.current, [fieldId]: isTrue }
-      setAnswers((prev) => ({
-        ...prev,
-        [fieldId]: isTrue,
-      }))
-    } else {
-      answersRef.current = { ...answersRef.current, [fieldId]: value }
-      setAnswers((prev) => ({
-        ...prev,
-        [fieldId]: value,
-      }))
-    }
+    answersRef.current = { ...answersRef.current, [fieldId]: value }
+    setAnswers((prev) => ({
+      ...prev,
+      [fieldId]: value,
+    }))
 
     // Clear conditional fields if condition no longer applies
-    if (fieldId === 'health' && !Array.isArray(value)) {
-      // health should always be an array, but just in case
-    }
     if (fieldId === 'health' && Array.isArray(value) && !value.includes('allergy')) {
       // Clear avoid when allergy is deselected
       answersRef.current = { ...answersRef.current, avoid: [] }
@@ -124,13 +114,31 @@ export default function QuestionnairePage() {
     try {
       const answers = answersRef.current
 
+      // Prepare health array - filter out weight/sterilized values that shouldn't be sent to server
+      let cleanHealth = (answers.health || []).filter((v) =>
+        v !== 'overweight' && v !== 'underweight' && v !== 'sterilized'
+      )
+
+      // Extract weight from health (can be set by user choosing overweight/underweight)
+      let weight = answers.weight || 'normal'
+      if (answers.health?.includes('overweight')) {
+        weight = 'overweight'
+      } else if (answers.health?.includes('underweight')) {
+        weight = 'underweight'
+      }
+
+      // If health is empty after filtering, send 'none' (server requires min(1))
+      if (cleanHealth.length === 0) {
+        cleanHealth = ['none']
+      }
+
       // Build request body matching backend contract
       const requestBody: any = {
         species: answers.species,
         // Common fields
         age: answers.age,
-        weight: answers.weight,
-        health: answers.health || [],
+        weight: weight,
+        health: cleanHealth,
         avoid: answers.avoid || [],
         format: answers.format,
         flavor: answers.flavor,
@@ -141,12 +149,13 @@ export default function QuestionnairePage() {
       // Dog-specific fields
       if (answers.species === 'dog') {
         requestBody.size = answers.size
-        requestBody.activity = answers.activity
+        requestBody.activity = answers.activity || 'normal'
       }
 
       // Cat-specific fields
       if (answers.species === 'cat') {
-        requestBody.sterilized = answers.sterilized ?? false
+        // Extract sterilized status from health array
+        requestBody.sterilized = answers.health?.includes('sterilized') ?? false
         requestBody.lifestyle = answers.lifestyle
       }
 
@@ -262,7 +271,14 @@ export default function QuestionnairePage() {
 
   return (
     <div className="min-h-[100dvh] bg-white">
-      <QuizProgress current={currentQuestionIndex + 1} total={visibleQuestions.length} />
+      {/* Знаменатель фиксированный: пока вид животного не выбран, видимых
+          вопросов всего один, и полоса показывала бы «1 из 1» с полной заливкой.
+          Условный вопрос про аллерген знаменатель не увеличивает — полоса,
+          которая едет назад, разрушает доверие к оценке «осталось немного». */}
+      <QuizProgress
+        current={Math.min(currentQuestionIndex + 1, QUESTIONS_IN_BRANCH)}
+        total={QUESTIONS_IN_BRANCH}
+      />
 
       <QuizQuestion
         question={currentQuestion}

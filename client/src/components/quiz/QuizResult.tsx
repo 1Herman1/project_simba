@@ -74,10 +74,10 @@ export default function QuizResult({ result }: QuizResultProps) {
 
         {result.shortfall && (
           <p className="text-navy-600 text-sm mb-8">
-            Ваши условия довольно точные — под них идеально подходит{' '}
+            По вашим условиям в каталоге нашлось{' '}
             {pluralize(result.shortfall.found, 'вариант', 'варианта', 'вариантов')}.{' '}
             <Link to="/catalog" className="text-primary-hover font-medium underline underline-offset-2">
-              Показать похожие в каталоге
+              Посмотреть похожие в каталоге
             </Link>
           </p>
         )}
@@ -87,12 +87,12 @@ export default function QuizResult({ result }: QuizResultProps) {
           <div className="relative">
             <QuizProductCard product={result.main} variant="main" onAddToCart={handleAddMainToCart} added={addedMain} />
             <span className="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
-              Лучшее совпадение
+              Основная рекомендация
             </span>
           </div>
           {errorMain && (
             <div role="alert" className="text-sm text-red-600 mt-2">
-              Не получилось добавить. Попробуйте ещё раз
+              Не получилось добавить. Попробуйте ещё раз.
             </div>
           )}
         </div>
@@ -119,7 +119,7 @@ export default function QuizResult({ result }: QuizResultProps) {
             <QuizProductCard product={result.pair} variant="alt" added={addedBoth} />
             {errorBoth && (
               <div role="alert" className="text-sm text-red-600 mt-2">
-                Не получилось добавить. Попробуйте ещё раз
+                Не получилось добавить. Попробуйте ещё раз.
               </div>
             )}
             <button
@@ -167,7 +167,7 @@ export default function QuizResult({ result }: QuizResultProps) {
               {result.bonus.status === 'granted' && (
                 <>
                   <h3 className="font-semibold text-navy-900 mb-2">
-                    Вам начислено {result.bonus.amount} бонусов за прохождение подбора!
+                    Вам начислено {result.bonus.amount} бонусов за подбор корма
                   </h3>
                   <p className="text-navy-600">
                     Спишите их при оформлении первого заказа.
@@ -189,7 +189,7 @@ export default function QuizResult({ result }: QuizResultProps) {
               {result.bonus.status === 'guest' && (
                 <>
                   <h3 className="font-semibold text-navy-900 mb-2">
-                    {result.bonus.amount} бонусов ждут вас!
+                    {result.bonus.amount} бонусов ждут вас
                   </h3>
                   <p className="text-navy-600 mb-4">
                     Войдите или зарегистрируйтесь, чтобы забрать бонусы и применить их к заказу.

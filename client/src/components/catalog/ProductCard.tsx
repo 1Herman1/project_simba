@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { CheckIcon } from '../icons'
 import { cartApi, type Product } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
 
@@ -93,10 +94,17 @@ export default function ProductCard({ product }: { product: Product }) {
           onClick={handleAddToCart}
           className={`w-full py-2 rounded-xl text-sm font-medium ${
             added
-              ? 'bg-green-100 text-green-700'
+              ? 'bg-white border border-line text-navy-900'
               : 'btn-primary'
           }`}>
-          {added ? '✓ Добавлено' : 'В корзину'}
+          {added ? (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              <CheckIcon className="w-4 h-4 text-[#1E7B4D]" />
+              Добавлено
+            </span>
+          ) : (
+            'В корзину'
+          )}
         </button>
       </div>
     </Link>

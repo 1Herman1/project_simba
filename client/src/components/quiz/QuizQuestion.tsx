@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { QuizQuestion, QuizAnswers } from '../../lib/quiz-config'
+import { DogSilhouette, CatSilhouette } from './PetIcons'
 
 interface QuizQuestionProps {
   question: QuizQuestion
@@ -106,6 +107,12 @@ export default function QuizQuestionComponent({
                   'min-h-[44px] flex items-center'
                 }`}
               >
+                {option.pet === 'dog' && (
+                  <DogSilhouette className="w-12 h-12 mr-4 flex-shrink-0 text-navy-200" />
+                )}
+                {option.pet === 'cat' && (
+                  <CatSilhouette className="w-12 h-12 mr-4 flex-shrink-0 text-navy-200" />
+                )}
                 <div className="flex-1">
                   <div className="font-medium text-base">{option.label}</div>
                   {option.description && (

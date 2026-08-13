@@ -124,7 +124,7 @@ export default function QuizProductCard({
                 : 'bg-blue-50 text-primary-hover border border-line hover:bg-blue-100'
             }`}
           >
-            {added && isMain ? (
+            {added ? (
               <span className="flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                   <polyline points="20 6 9 17 4 12" />
@@ -132,7 +132,7 @@ export default function QuizProductCard({
                 В корзине
               </span>
             ) : (
-              isMain ? 'В корзину' : 'Посмотреть'
+              'В корзину'
             )}
           </button>
         )}
