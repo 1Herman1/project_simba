@@ -85,3 +85,18 @@ export function StepPendingIcon({ className = '' }: IconProps) {
     </svg>
   )
 }
+
+/** Отпечаток лапы — заглушка на месте отсутствующего фото товара. */
+export function PawIcon({ className = '' }: IconProps) {
+  return (
+    <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" className={className}>
+      <g fill="currentColor">
+        <ellipse cx="32" cy="42" rx="15" ry="12" />
+        <ellipse cx="15" cy="27" rx="6.5" ry="8.5" transform="rotate(-18 15 27)" />
+        <ellipse cx="49" cy="27" rx="6.5" ry="8.5" transform="rotate(18 49 27)" />
+        <ellipse cx="24" cy="15" rx="6" ry="8" transform="rotate(-8 24 15)" />
+        <ellipse cx="40" cy="15" rx="6" ry="8" transform="rotate(8 40 15)" />
+      </g>
+    </svg>
+  )
+}

@@ -3,7 +3,6 @@ import BannerCarousel from '../components/home/BannerCarousel'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
 import CategoryAccordion from '../components/home/CategoryAccordion'
 import AdvantagesSection from '../components/home/AdvantagesSection'
-import FeaturedProducts from '../components/home/FeaturedProducts'
 import BrandsSection from '../components/home/BrandsSection'
 import AboutSection from '../components/home/AboutSection'
 import FaqSection from '../components/home/FaqSection'
@@ -37,7 +36,6 @@ export default function HomePage() {
       <Reveal><QuestionnaireTeaser /></Reveal>
       <Reveal><CategoryAccordion /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
-      <Reveal><FeaturedProducts title="Популярные товары" /></Reveal>
       {/* Без <Reveal>: у секции собственный каскад .reveal-group */}
       <BrandsSection />
       <AboutSection />
