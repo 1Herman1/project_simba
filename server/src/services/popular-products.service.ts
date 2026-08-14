@@ -126,9 +126,11 @@ export async function getPopularProducts(
     orderBy: { createdAt: 'desc' },
   })
 
-  // Фильтруем клиентской стороной те что с изображениями
+  // Наличие фотографии не требуем: в каталоге её сейчас нет ни у одного товара,
+  // и с таким условием секция оставалась пустой. Карточка без фото показывает
+  // заглушку-лапу, так что витрина выглядит целой.
   const newProducts = allNewProducts
-    .filter(p => p.images.length > 0)
+    .filter((p) => !topProducts.some((t) => t.id === p.id))
     .slice(0, maxLimit - topProducts.length)
 
   topProducts.push(...newProducts)
