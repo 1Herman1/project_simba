@@ -185,6 +185,9 @@ export const productsApi = {
     featured?: 'true' | 'false'
   }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products/list', { params }),
 
+  popular: (limit?: number) =>
+    api.get<{ items: Product[]; basis: 'sales' | 'curated' }>('/api/products/popular', { params: { limit } }),
+
   bySlug: (slug: string) =>
     api.get<Product>(`/api/products/${slug}`),
 

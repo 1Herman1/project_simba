@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CheckIcon } from '../icons'
+import { CheckIcon, PawIcon } from '../icons'
 import { cartApi, type Product } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
 
@@ -29,7 +29,22 @@ export default function ProductCard({ product }: { product: Product }) {
       className="group bg-white rounded-card overflow-hidden hover:shadow-card hover:-translate-y-0.5 transition-[transform,box-shadow,border-color] duration-100 ease flex flex-col">
 
       {/* Изображение */}
-      <div className="relative bg-blue-50 h-44 flex items-center justify-center">
+      <div className="relative bg-white h-44 flex items-center justify-center border-b border-line">
+        {/* Фото товара, а при его отсутствии — лапа: раньше здесь был пустой
+            прямоугольник цвета фона страницы, и карточка выглядела обрезанной. */}
+        {product.images[0] ? (
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            width={400}
+            height={400}
+            loading="lazy"
+            decoding="async"
+            className="max-h-full max-w-full object-contain p-2"
+          />
+        ) : (
+          <PawIcon className="w-16 h-16 text-navy-100" />
+        )}
         {discount && (
           <span className="absolute top-2 left-2 bg-amber-400 text-navy-900 text-xs font-bold px-2 py-0.5 rounded-full">
             -{discount}%
