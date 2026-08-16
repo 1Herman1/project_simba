@@ -25,7 +25,24 @@ export default function PopularProducts() {
       })
   }, [])
 
-  if (loading || error || products.length === 0) {
+  // Пока грузится — держим место скелетонами: без них между шапкой и
+  // подвалом на миг образуется пустая яма, и на медленной сети это заметно.
+  if (loading) {
+    return (
+      <section className="py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="h-8 w-56 bg-blue-50 rounded animate-pulse mb-6" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-blue-50 rounded-card h-72 animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error || products.length === 0) {
     return null
   }
 

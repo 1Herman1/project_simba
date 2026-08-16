@@ -366,6 +366,7 @@
 .bonus-wallet,
 .delivery-pickup,
 .delivery-courier,
+.delivery-trail path,
 .returns-alert,
 .returns-check {
   transform-box: view-box;
@@ -392,6 +393,22 @@
   animation-play-state: running;
 }
 
+.delivery-trail path {
+  /* Пока animation не запущена (fill-mode по умолчанию не держит 0%-кадр
+     до старта), линия должна быть скрыта явно — иначе видна как постоянная
+     чёрточка, а не вспышка ветра. */
+  opacity: 0;
+}
+
+.delivery-icons.is-onscreen .delivery-trail path {
+  animation-play-state: running;
+}
+
+/* Три линии ветра проступают по очереди — та же логика стаггера, что у следов
+   пса на экране подбора корма (.quiz-track), только через animation-delay. */
+.delivery-trail path:nth-child(2) { animation-delay: calc(var(--idle-delay, var(--adv-delay, 0ms)) + 90ms); }
+.delivery-trail path:nth-child(3) { animation-delay: calc(var(--idle-delay, var(--adv-delay, 0ms)) + 180ms); }
+
 .returns-icons.is-onscreen :is(.returns-alert, .returns-check) {
   animation-play-state: running;
 }
@@ -412,8 +429,10 @@
 
 /* Коробка «принимается» на полку ПВЗ: короткий подъём и посадка. */
 .delivery-pickup  { animation-name: deliveryDrop; transform-origin: 12px 20px; }
-/* Курьер трогается и возвращается — сдвиг с лёгким креном. */
+/* Машина едет: корпус целиком (колёса+кузов) слегка покачивается на ходу. */
 .delivery-courier { animation-name: deliveryRun;  transform-origin: 12px 18px; }
+/* Линии ветра слева от кабины — гасятся/загораются, создавая ощущение скорости. */
+.delivery-trail path { animation-name: deliveryTrail; }
 /* Восклицательный знак внутри круга — подсказка «внимание», не тряска. */
 .returns-alert     { animation-name: returnsAlert; transform-origin: 12px 12px; }
 /* Галочка «ставится» — тот же жест, что у trust-check, свой origin. */
@@ -460,11 +479,18 @@
 }
 
 @keyframes deliveryRun {
-  0%   { transform: translateX(0) rotate(0deg); }
-  7%   { transform: translateX(-1.5px) rotate(-2deg); }
-  16%  { transform: translateX(2px) rotate(1.5deg); }
-  21%  { transform: translateX(0.5px) rotate(0deg); }
-  25%, 100% { transform: translateX(0) rotate(0deg); }
+  0%   { transform: translate(0, 0); }
+  7%   { transform: translate(1px, -1px); }
+  16%  { transform: translate(2.5px, 0.5px); }
+  21%  { transform: translate(0.5px, 0); }
+  25%, 100% { transform: translate(0, 0); }
+}
+
+@keyframes deliveryTrail {
+  0%        { opacity: 0; }
+  4%        { opacity: 1; }
+  18%       { opacity: 1; }
+  25%, 100% { opacity: 0; }
 }
 
 @keyframes returnsAlert {
@@ -570,8 +596,15 @@
   .bonus-wallet,
   .delivery-pickup,
   .delivery-courier,
+  .delivery-trail path,
   .returns-alert,
   .returns-check {
     animation: none !important;
+  }
+
+  /* Без анимации подсказка «скорость» неуместна — прячем линии насовсем,
+     а не оставляем их вспышкой на 0.01мс (строб). */
+  .delivery-trail path {
+    opacity: 0 !important;
   }
 }
