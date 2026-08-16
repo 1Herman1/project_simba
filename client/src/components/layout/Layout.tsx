@@ -6,7 +6,10 @@ import PopularProducts from '../PopularProducts'
 
 export default function Layout() {
   const location = useLocation()
-  const hiddenRoutes = ['/privacy', '/offer']
+  // Главная исключена по просьбе владельца: там своя вёрстка секций, и блок
+  // внизу дублировал бы то, что уже показано выше. Юридические страницы —
+  // не место для витрины.
+  const hiddenRoutes = ['/', '/privacy', '/offer']
   const showPopularProducts = !hiddenRoutes.includes(location.pathname)
 
   return (
