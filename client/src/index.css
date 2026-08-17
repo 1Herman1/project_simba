@@ -177,6 +177,39 @@
   .btn-outline:hover { background-color: theme('colors.primary.tint'); border-color: theme('colors.primary.soft'); }
   .btn-outline:active { transform: scale(0.98); }
 
+  /* Кнопка с синим градиентом: брендовый градиент от DEFAULT к hover оттенкам. */
+  .btn-gradient-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    color: theme('colors.primary.fg');
+    background: linear-gradient(to right, theme('colors.primary.DEFAULT'), theme('colors.primary.hover'));
+    border: none;
+    transition: transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
+    box-shadow: 0 2px 8px rgba(58, 111, 224, 0.16);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-gradient-primary:hover:not(:disabled):not([aria-disabled='true']) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(58, 111, 224, 0.28);
+    }
+  }
+  .btn-gradient-primary:active:not(:disabled):not([aria-disabled='true']) {
+    transform: translateY(0) scale(0.98);
+  }
+  .btn-gradient-primary:focus-visible {
+    outline: 2px solid theme('colors.primary.soft');
+    outline-offset: 2px;
+  }
+  .btn-gradient-primary:disabled,
+  .btn-gradient-primary[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
   /* Карточка бренда: подъём + окраска рамки только на мышином ховере — на тач
      устройствах :hover залипал бы после тапа при протягивании ряда пальцем. */
   .brand-card {
@@ -399,9 +432,7 @@
 .bonus-percent,
 .bonus-wallet,
 .delivery-pickup,
-.delivery-body,
-.delivery-wheel-l,
-.delivery-wheel-r,
+.delivery-sweep,
 .delivery-trail path,
 .returns-alert,
 .returns-check {
@@ -425,7 +456,7 @@
   animation-play-state: running;
 }
 
-.delivery-icons.is-onscreen :is(.delivery-pickup, .delivery-body, .delivery-wheel-l, .delivery-wheel-r) {
+.delivery-icons.is-onscreen :is(.delivery-pickup, .delivery-sweep) {
   animation-play-state: running;
 }
 
@@ -465,13 +496,14 @@
 
 /* Коробка «принимается» на полку ПВЗ: короткий подъём и посадка. */
 .delivery-pickup  { animation-name: deliveryDrop; transform-origin: 12px 20px; }
-/* Машина едет: кузов на подвеске покачивается вперёд-вниз, каждое колесо
-   отдельно крутится вокруг своего центра — спица-метка делает оборот. */
-.delivery-body    { animation-name: deliveryRun;       transform-origin: 12px 18px; }
-.delivery-wheel-l { animation-name: deliveryWheelSpin; transform-origin: 7px 17px; }
-.delivery-wheel-r { animation-name: deliveryWheelSpin; transform-origin: 17px 17px; }
-/* Линии ветра слева от кабины — гасятся/загораются, создавая ощущение скорости. */
-.delivery-trail path { animation-name: deliveryTrail; }
+/* Бегущая подсветка вдоль верхнего контура машины — пробегает слева направо за 25% цикла.
+   Цвет акцентный (primary-soft), видна только во время анимации. */
+.delivery-sweep {
+  animation-name: deliverySweep;
+  stroke: #4C82F7;
+}
+/* Чёрточки скорости справа-сверху сдвигаются вправо вместе с подсветкой. */
+.delivery-trail path { animation-name: deliveryTrailShift; }
 /* Восклицательный знак внутри круга — подсказка «внимание», не тряска. */
 .returns-alert     { animation-name: returnsAlert; transform-origin: 12px 12px; }
 /* Галочка «ставится» — тот же жест, что у trust-check, свой origin. */
@@ -517,25 +549,24 @@
   25%, 100% { transform: translateY(0) scale(1); }
 }
 
-@keyframes deliveryRun {
-  0%   { transform: translate(0, 0); }
-  7%   { transform: translate(1px, -1px); }
-  16%  { transform: translate(2.5px, 0.5px); }
-  21%  { transform: translate(0.5px, 0); }
-  25%, 100% { transform: translate(0, 0); }
+/* Бегущая подсветка: сегмент пробегает вдоль контура от 0 до 100% за 25% цикла,
+   потом исчезает. stroke-dashoffset анимирует путём пути (pathLength="100"). */
+@keyframes deliverySweep {
+  0%        { stroke-dashoffset: 100; stroke-dasharray: 8, 92; opacity: 0; }
+  1%        { opacity: 1; }
+  25%       { stroke-dashoffset: 0; stroke-dasharray: 8, 92; opacity: 1; }
+  26%       { opacity: 0; }
+  100%      { stroke-dashoffset: 0; stroke-dasharray: 8, 92; opacity: 0; }
 }
 
-@keyframes deliveryWheelSpin {
-  0%   { transform: rotate(0deg); }
-  25%  { transform: rotate(360deg); }
-  25.01%, 100% { transform: rotate(360deg); }
-}
-
-@keyframes deliveryTrail {
-  0%        { opacity: 0; }
-  4%        { opacity: 1; }
-  18%       { opacity: 1; }
-  25%, 100% { opacity: 0; }
+/* Чёрточки скорости сдвигаются вправо за 25% цикла вместе с подсветкой,
+   потом пропадают и появляются заново. */
+@keyframes deliveryTrailShift {
+  0%        { transform: translateX(0); opacity: 0; }
+  1%        { opacity: 1; }
+  25%       { transform: translateX(8px); opacity: 1; }
+  26%       { opacity: 0; }
+  100%      { transform: translateX(0); opacity: 0; }
 }
 
 @keyframes returnsAlert {
@@ -641,16 +672,14 @@
   .bonus-percent,
   .bonus-wallet,
   .delivery-pickup,
-  .delivery-body,
-  .delivery-wheel-l,
-  .delivery-wheel-r,
+  .delivery-sweep,
   .delivery-trail path,
   .returns-alert,
   .returns-check {
     animation: none !important;
   }
 
-  /* Без анимации подсказка «скорость» неуместна — прячем линии насовсем,
+  /* Без анимации подсказка «скорость» неуместна — прячем чёрточки насовсем,
      а не оставляем их вспышкой на 0.01мс (строб). */
   .delivery-trail path {
     opacity: 0 !important;
