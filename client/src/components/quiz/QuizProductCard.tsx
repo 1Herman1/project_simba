@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { cartApi, type QuizProductCard as QuizProductCardType } from '../../lib/api'
+import { useCart } from '../../context/CartContext'
+import type { QuizProductCard as QuizProductCardType } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
 
 interface QuizProductCardProps {
@@ -18,13 +19,14 @@ export default function QuizProductCard({
 }: QuizProductCardProps) {
   const isMain = variant === 'main'
   const [isAdding, setIsAdding] = useState(false)
+  const { addItem } = useCart()
 
   const handleAddToCart = async () => {
     if (!product.variant || isAdding) return
 
     setIsAdding(true)
     try {
-      await cartApi.addItem(product.variant.id, 1)
+      await addItem(product.variant.id, 1)
       onAddToCart?.()
     } catch (error) {
       console.error('Failed to add to cart:', error)

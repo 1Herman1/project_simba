@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
+import { useCart } from '../../context/CartContext'
+import { useScrolled } from '../../hooks/useScrolled'
 import { CONTACTS } from '../../lib/contacts'
 
 const categories = [
@@ -40,16 +42,17 @@ const categories = [
 export default function Header() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [cartCount] = useState(3)
+  const { count: cartCount } = useCart()
+  const isScrolled = useScrolled(10)
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-40">
+    <header className={`sticky top-0 z-40 transition-[background-color,box-shadow] duration-200 ease-smooth ${isScrolled ? 'bg-white/95 supports-[backdrop-filter]:bg-white/80 backdrop-blur-md shadow-md' : 'bg-white shadow-sm'}`}>
       {/* Десктоп шапка */}
       <div className="hidden md:block">
         {/* Строка 1 */}
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
           {/* Логотип */}
-          <Link to="/" className="flex items-center flex-shrink-0">
+          <Link to="/" className="flex items-center flex-shrink-0 header-logo">
             <img src="/logo-header.png" alt="Симба" className="h-10 w-auto block relative top-[8px]" />
           </Link>
 
@@ -61,8 +64,8 @@ export default function Header() {
               aria-label="Поиск по каталогу"
               className="w-full pl-4 pr-12 py-2.5 rounded-full border border-blue-100 bg-white focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-100 transition-[border-color,box-shadow] duration-150 ease-smooth text-navy-900 placeholder-navy-300"
             />
-            <button className="absolute inset-y-0 right-3 flex items-center text-navy-500 hover:text-primary-hover transition-[color,transform] duration-100 ease-smooth hover:scale-110 active:scale-95">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <button className="absolute inset-y-0 right-3 flex items-center text-navy-500 hover:text-primary-hover transition-[color,transform] duration-100 ease-smooth hover:scale-110 active:scale-95" aria-label="Найти" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
@@ -72,7 +75,7 @@ export default function Header() {
           {/* Иконки справа */}
           <div className="flex items-center gap-5 flex-shrink-0">
             {/* Телефон */}
-            <a href={CONTACTS.phoneHref} className="flex items-center gap-1.5 text-navy-700 hover:text-primary-hover transition-[color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+            <a href={CONTACTS.phoneHref} className="flex items-center gap-1.5 text-navy-700 hover:text-primary-hover transition-colors duration-100 ease-smooth-smooth" aria-label="Позвонить">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
               </svg>
@@ -80,28 +83,28 @@ export default function Header() {
             </a>
 
             {/* Избранное */}
-            <Link to="/favorites" aria-label="Избранное" className="inline-flex text-navy-500 hover:text-amber-400 transition-[color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+            <Link to="/favorites" aria-label="Избранное" className="inline-flex text-navy-500 header-icon-link-favorite">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
               </svg>
             </Link>
 
             {/* Корзина */}
-            <Link to="/cart" aria-label="Корзина" className="relative inline-flex text-navy-500 hover:text-primary-hover transition-[color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+            <Link to="/cart" aria-label="Корзина" className="relative inline-flex text-navy-500 header-icon-link">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"/>
                 <circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
               </svg>
               {cartCount > 0 && (
-                <span key={cartCount} className="absolute -top-1.5 -right-1.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop motion-reduce:animate-none">
+                <span key={`cart-${cartCount}`} className="absolute -top-1.5 -right-1.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
                 </span>
               )}
             </Link>
 
             {/* Профиль */}
-            <Link to="/profile" aria-label="Профиль" className="inline-flex text-navy-500 hover:text-primary-hover transition-[color,transform] duration-100 ease-smooth hover:-translate-y-0.5 active:translate-y-0 active:scale-95">
+            <Link to="/profile" aria-label="Профиль" className="inline-flex text-navy-500 header-icon-link">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
                 <circle cx="12" cy="7" r="4"/>
@@ -112,10 +115,11 @@ export default function Header() {
 
         {/* Строка 2 — навигация с мегаменю */}
         <div
-          className="border-t border-line relative"
+          className={`grid transition-[grid-template-rows,opacity] duration-200 ease-smooth ${isScrolled ? 'grid-rows-[0fr] opacity-0 pointer-events-none' : 'grid-rows-[1fr] opacity-100'} border-t border-line relative`}
           onMouseLeave={() => setActiveCategory(null)}
         >
-          <nav className="max-w-7xl mx-auto px-4">
+          <div className="overflow-hidden">
+            <nav className="max-w-7xl mx-auto px-4">
             <ul className="flex items-center gap-0">
               {categories.map((cat) => (
                 <li
@@ -126,12 +130,12 @@ export default function Header() {
                   {cat.href ? (
                     <Link
                       to={cat.href}
-                      className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease"
+                      className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease-smooth"
                     >
                       {cat.label}
                     </Link>
                   ) : (
-                    <span className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease cursor-default">
+                    <span className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease-smooth cursor-default">
                       {cat.label}
                     </span>
                   )}
@@ -139,30 +143,31 @@ export default function Header() {
               ))}
             </ul>
           </nav>
+          </div>
+        </div>
 
-          {/* Мегаменю */}
-          {activeCategory && (
-            <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line animate-slide-down z-50">
-              <div className="max-w-7xl mx-auto px-4 py-6">
-                <div className="grid grid-cols-4 gap-4">
-                  {categories
-                    .find((c) => c.key === activeCategory)
-                    ?.subcategories?.map((sub) => (
-                      <Link
-                        key={sub.label}
-                        to={sub.href}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover transition-colors duration-100 ease text-sm"
-                        onClick={() => setActiveCategory(null)}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-200 flex-shrink-0" />
-                        {sub.label}
-                      </Link>
-                    ))}
-                </div>
+        {/* Мегаменю */}
+        {activeCategory && (
+          <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line animate-slide-down z-50">
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <div className="grid grid-cols-4 gap-4">
+                {categories
+                  .find((c) => c.key === activeCategory)
+                  ?.subcategories?.map((sub) => (
+                    <Link
+                      key={sub.label}
+                      to={sub.href}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover transition-colors duration-100 ease-smooth-smooth text-sm"
+                      onClick={() => setActiveCategory(null)}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-200 flex-shrink-0" />
+                      {sub.label}
+                    </Link>
+                  ))}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Мобильная шапка */}
@@ -171,7 +176,10 @@ export default function Header() {
           {/* Бургер */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-navy-700 p-1"
+            className="text-navy-700 -ml-2 w-11 h-11 flex items-center justify-center"
+            aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            aria-expanded={mobileMenuOpen}
+            type="button"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               {mobileMenuOpen ? (
@@ -198,21 +206,21 @@ export default function Header() {
           </Link>
 
           {/* Правые иконки */}
-          <div className="flex items-center gap-3">
-            <button aria-label="Поиск" className="text-navy-500">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center gap-1">
+            <button aria-label="Поиск" className="text-navy-500 w-11 h-11 flex items-center justify-center" type="button">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="8"/>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
             </button>
-            <Link to="/cart" aria-label="Корзина" className="relative text-navy-500">
+            <Link to="/cart" aria-label="Корзина" className="relative text-navy-500 w-11 h-11 flex items-center justify-center">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="9" cy="21" r="1"/>
                 <circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
               </svg>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1">
+                <span key={`cart-mobile-${cartCount}`} className="absolute -top-1.5 -right-1.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
                 </span>
               )}
@@ -228,7 +236,7 @@ export default function Header() {
                 <Link
                   key={cat.label}
                   to={cat.href ?? `/catalog?category=${cat.key}`}
-                  className="py-2.5 px-3 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover font-medium transition-colors duration-100 ease"
+                  className="py-2.5 px-3 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover font-medium transition-colors duration-100 ease-smooth"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {cat.label}

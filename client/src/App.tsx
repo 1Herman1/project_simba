@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { initButtonSpotlight } from './lib/button-spotlight'
 import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/layout/Layout'
+import { CartProvider } from './context/CartContext'
 import HomePage from './pages/HomePage'
 import CatalogPage from './pages/CatalogPage'
 import CartPage from './pages/CartPage'
@@ -30,7 +31,7 @@ export default function App() {
   useEffect(() => initButtonSpotlight(), [])
 
   return (
-    <>
+    <CartProvider>
     <ScrollToTop />
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
@@ -58,6 +59,6 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
-    </>
+    </CartProvider>
   )
 }

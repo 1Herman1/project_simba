@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { productsApi, cartApi, type Product, type ProductVariant } from '../lib/api'
+import { productsApi, type Product, type ProductVariant } from '../lib/api'
+import { useCart } from '../context/CartContext'
 import { formatPrice } from '../lib/format'
 
 export default function ProductPage() {
@@ -14,6 +15,7 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const { addItem } = useCart()
 
   useEffect(() => {
     if (!slug) return
@@ -33,7 +35,7 @@ export default function ProductPage() {
   const handleAddToCart = async () => {
     if (!selectedVariant) return
     try {
-      await cartApi.addItem(selectedVariant.id, quantity)
+      await addItem(selectedVariant.id, quantity)
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
     } catch { /* ignore */ }
