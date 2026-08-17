@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { cartApi, type QuizMatchResponse } from '../../lib/api'
+import { useCart } from '../../context/CartContext'
+import type { QuizMatchResponse } from '../../lib/api'
 import QuizProductCard from './QuizProductCard'
 import GiftIcon from './GiftIcon'
 import { pluralize } from '../../lib/format'
@@ -16,13 +17,14 @@ export default function QuizResult({ result }: QuizResultProps) {
   const [errorBoth, setErrorBoth] = useState(false)
   const [isAddingMain, setIsAddingMain] = useState(false)
   const [isAddingBoth, setIsAddingBoth] = useState(false)
+  const { addItem } = useCart()
 
   const handleAddMainToCart = async () => {
     if (!result.main.variant || isAddingMain) return
     setIsAddingMain(true)
     setErrorMain(false)
     try {
-      await cartApi.addItem(result.main.variant.id, 1)
+      await addItem(result.main.variant.id, 1)
       setAddedMain(true)
       setTimeout(() => setAddedMain(false), 2000)
     } catch (error) {
@@ -38,10 +40,8 @@ export default function QuizResult({ result }: QuizResultProps) {
     setIsAddingBoth(true)
     setErrorBoth(false)
     try {
-      await Promise.all([
-        cartApi.addItem(result.main.variant.id, 1),
-        cartApi.addItem(result.pair.variant.id, 1),
-      ])
+      await addItem(result.main.variant.id, 1)
+      await addItem(result.pair.variant.id, 1)
       setAddedBoth(true)
       setTimeout(() => setAddedBoth(false), 2000)
     } catch (error) {

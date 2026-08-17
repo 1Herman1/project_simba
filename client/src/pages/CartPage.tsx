@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
+import { useCart } from '../context/CartContext'
 import { cartApi, type CartItem } from '../lib/api'
 import { formatPrice, formatBonuses, pluralize } from '../lib/format'
 
 const FREE_DELIVERY_THRESHOLD = 200000
 
 export default function CartPage() {
+  const { updateItem: updateItemFromCart, removeItem: removeItemFromCart } = useCart()
   const [items, setItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(true)
   const [promoCode, setPromoCode] = useState('')
@@ -24,7 +26,7 @@ export default function CartPage() {
     const newQty = Math.max(1, Math.min(item.productVariant.stock, item.quantity + delta))
     if (newQty === item.quantity) return
     try {
-      const res = await cartApi.updateItem(item.id, newQty)
+      const res = await updateItemFromCart(item.id, newQty)
       setItems(res.data.items)
     } catch { /* ignore */ }
   }
@@ -33,7 +35,7 @@ export default function CartPage() {
     setRemovingId(itemId)
     setTimeout(async () => {
       try {
-        const res = await cartApi.removeItem(itemId)
+        const res = await removeItemFromCart(itemId)
         setItems(res.data.items)
       } catch {
         setItems(prev => prev.filter(i => i.id !== itemId))

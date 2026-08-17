@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckIcon, PawIcon } from '../icons'
-import { cartApi, type Product } from '../../lib/api'
+import { useCart } from '../../context/CartContext'
+import type { Product } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
 
 export default function ProductCard({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
   const [added, setAdded] = useState(false)
   const [liked, setLiked] = useState(false)
+  const { addItem } = useCart()
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     try {
-      await cartApi.addItem(selectedVariant.id, 1)
+      await addItem(selectedVariant.id, 1)
     } catch {
       // ignore, optimistic UI
     }

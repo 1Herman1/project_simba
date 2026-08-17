@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
+import { useCart } from '../context/CartContext'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
 import { CheckIcon } from '../components/icons'
@@ -49,6 +50,7 @@ const STEPS: { key: Step; label: string }[] = [
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
+  const { clear: clearCart } = useCart()
   const isLoggedIn = !!localStorage.getItem('token')
   const [step, setStep] = useState<Step>('delivery')
   const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
@@ -178,6 +180,7 @@ export default function CheckoutPage() {
       setOrderTotal(res.data.total)
       setOrderBonusUsed(res.data.bonusUsed)
       setOrderPlaced(true)
+      await clearCart()
       sessionStorage.removeItem('promoCode')
     } catch (err: unknown) {
       const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error

@@ -6,6 +6,7 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Регистрация делает альфу пятна анимируемой. Без @property (старые браузеры)
@@ -130,6 +131,39 @@
     transform: none;
     box-shadow: none;
   }
+
+  /* Логотип в шапке: лёгкое масштабирование при наведении */
+  .header-logo {
+    transition: transform 120ms var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .header-logo:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Иконки в шапке (профиль, корзина) — масштабируются при наведении */
+  .header-icon-link {
+    transition: transform 100ms var(--ease-out), color 100ms ease-smooth;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .header-icon-link:hover {
+      transform: scale(1.1);
+      color: theme('colors.primary.hover');
+    }
+  }
+
+  /* Избранное — жёлтый цвет при hover */
+  .header-icon-link-favorite {
+    transition: transform 100ms var(--ease-out), color 100ms ease-smooth;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .header-icon-link-favorite:hover {
+      transform: scale(1.1);
+      color: theme('colors.amber.600');
+    }
+  }
+
   .btn-outline {
     display: inline-flex;
     align-items: center;
@@ -365,7 +399,9 @@
 .bonus-percent,
 .bonus-wallet,
 .delivery-pickup,
-.delivery-courier,
+.delivery-body,
+.delivery-wheel-l,
+.delivery-wheel-r,
 .delivery-trail path,
 .returns-alert,
 .returns-check {
@@ -389,7 +425,7 @@
   animation-play-state: running;
 }
 
-.delivery-icons.is-onscreen :is(.delivery-pickup, .delivery-courier) {
+.delivery-icons.is-onscreen :is(.delivery-pickup, .delivery-body, .delivery-wheel-l, .delivery-wheel-r) {
   animation-play-state: running;
 }
 
@@ -429,8 +465,11 @@
 
 /* Коробка «принимается» на полку ПВЗ: короткий подъём и посадка. */
 .delivery-pickup  { animation-name: deliveryDrop; transform-origin: 12px 20px; }
-/* Машина едет: корпус целиком (колёса+кузов) слегка покачивается на ходу. */
-.delivery-courier { animation-name: deliveryRun;  transform-origin: 12px 18px; }
+/* Машина едет: кузов на подвеске покачивается вперёд-вниз, каждое колесо
+   отдельно крутится вокруг своего центра — спица-метка делает оборот. */
+.delivery-body    { animation-name: deliveryRun;       transform-origin: 12px 18px; }
+.delivery-wheel-l { animation-name: deliveryWheelSpin; transform-origin: 7px 17px; }
+.delivery-wheel-r { animation-name: deliveryWheelSpin; transform-origin: 17px 17px; }
 /* Линии ветра слева от кабины — гасятся/загораются, создавая ощущение скорости. */
 .delivery-trail path { animation-name: deliveryTrail; }
 /* Восклицательный знак внутри круга — подсказка «внимание», не тряска. */
@@ -484,6 +523,12 @@
   16%  { transform: translate(2.5px, 0.5px); }
   21%  { transform: translate(0.5px, 0); }
   25%, 100% { transform: translate(0, 0); }
+}
+
+@keyframes deliveryWheelSpin {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(360deg); }
+  25.01%, 100% { transform: rotate(360deg); }
 }
 
 @keyframes deliveryTrail {
@@ -573,7 +618,8 @@
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal-group .reveal-item,
-  .animate-card-in {
+  .animate-card-in,
+  .animate-badge-pop {
     transition-delay: 0ms !important;
     animation-delay: 0ms !important;
     animation-fill-mode: none !important;
@@ -595,7 +641,9 @@
   .bonus-percent,
   .bonus-wallet,
   .delivery-pickup,
-  .delivery-courier,
+  .delivery-body,
+  .delivery-wheel-l,
+  .delivery-wheel-r,
   .delivery-trail path,
   .returns-alert,
   .returns-check {

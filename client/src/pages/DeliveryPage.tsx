@@ -34,16 +34,23 @@ function PickupPointIcon() {
 
 /** Геометрия — Tabler Icons (MIT), icons/outline/truck-delivery.svg.
     Раньше двигался только штрих поверх кабины — читалось как дрожащая
-    палочка, а не как едущая машина. Теперь корпус (колёса+кузов) слегка
-    покачивается на ходу, а слева проступают три линии ветра по очереди —
-    это и продаёт ощущение скорости. */
+    палочка, а не как едущая машина. Теперь кузов покачивается на подвеске,
+    оба колеса реально крутятся (спица-метка делает оборот), а слева
+    проступают три линии ветра по очереди — читается как машина в движении,
+    а не одна дрожащая деталь. */
 function CourierIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <g className="delivery-courier">
-        <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-        <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <g className="delivery-body">
         <path d="M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
+        <g className="delivery-wheel-l">
+          <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M7 17v-2" />
+        </g>
+        <g className="delivery-wheel-r">
+          <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M17 17v-2" />
+        </g>
       </g>
       <g className="delivery-trail">
         <path d="M0 7l3 0" />
