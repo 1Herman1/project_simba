@@ -3,14 +3,18 @@ import { productsApi, type Product } from '../lib/api'
 import ProductCard from './catalog/ProductCard'
 import { ArrowLeftIcon, ArrowRightIcon } from './icons'
 
-type Basis = 'sales' | 'curated'
-
 /** Ширина карточки в ленте: на десктопе ровно четыре в ряд с зазором gap-6. */
 const CARD_WIDTH = 'w-[62%] sm:w-[31%] md:w-[calc((100%-4.5rem)/4)]'
 
-export default function PopularProducts() {
+type Props = {
+  /** Главная страница всегда показывает «Популярные товары»; на остальных
+      страницах секция называется «Рекомендуем» — это не то же самое место,
+      что на главной, и заголовок не должен путать пользователя. */
+  variant?: 'home' | 'default'
+}
+
+export default function PopularProducts({ variant = 'default' }: Props) {
   const [products, setProducts] = useState<Product[]>([])
-  const [basis, setBasis] = useState<Basis>('curated')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -23,7 +27,6 @@ export default function PopularProducts() {
       .popular(8)
       .then((res) => {
         setProducts(res.data.items)
-        setBasis(res.data.basis)
       })
       .catch((err) => {
         setError(err?.response?.data?.error || 'Ошибка при загрузке товаров')
@@ -54,12 +57,14 @@ export default function PopularProducts() {
     }
   }, [products, syncArrows])
 
-  /** Листаем ровно на видимую ширину — «страницу», а не на одну карточку. */
-  const scrollByPage = (direction: 1 | -1) => {
+  /** Листаем на одну карточку, вычисляя её реальную ширину с gap. */
+  const scrollByCard = (direction: 1 | -1) => {
     const el = trackRef.current
-    if (!el) return
+    if (!el || el.children.length < 2) return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    el.scrollBy({ left: direction * el.clientWidth, behavior: reduce ? 'auto' : 'smooth' })
+    // Шаг между началами соседних карточек = ширина карточки + gap
+    const cardStep = el.children[1].getBoundingClientRect().left - el.children[0].getBoundingClientRect().left
+    el.scrollBy({ left: direction * cardStep, behavior: reduce ? 'auto' : 'smooth' })
   }
 
   // Пока грузится — держим место скелетонами: без них между шапкой и
@@ -83,7 +88,7 @@ export default function PopularProducts() {
     return null
   }
 
-  const title = basis === 'sales' ? 'Популярные товары' : 'Рекомендуем'
+  const title = variant === 'home' ? 'Популярные товары' : 'Рекомендуем'
   const hasArrows = canScrollLeft || canScrollRight
 
   return (
@@ -96,7 +101,7 @@ export default function PopularProducts() {
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => scrollByPage(-1)}
+                onClick={() => scrollByCard(-1)}
                 disabled={!canScrollLeft}
                 aria-label="Предыдущие товары"
                 className="w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 transition-[opacity,border-color] duration-100 ease hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
@@ -105,7 +110,7 @@ export default function PopularProducts() {
               </button>
               <button
                 type="button"
-                onClick={() => scrollByPage(1)}
+                onClick={() => scrollByCard(1)}
                 disabled={!canScrollRight}
                 aria-label="Следующие товары"
                 className="w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 transition-[opacity,border-color] duration-100 ease hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
@@ -132,7 +137,7 @@ export default function PopularProducts() {
         </div>
 
         <div className="flex justify-center mt-8">
-          <a href="/catalog" className="btn-outline px-8 py-3 rounded-xl font-semibold">
+          <a href="/catalog" className="btn-gradient-primary px-8 py-3 rounded-xl font-semibold">
             Весь каталог
           </a>
         </div>

@@ -32,30 +32,52 @@ function PickupPointIcon() {
   )
 }
 
-/** Геометрия — Tabler Icons (MIT), icons/outline/truck-delivery.svg.
-    Раньше двигался только штрих поверх кабины — читалось как дрожащая
-    палочка, а не как едущая машина. Теперь кузов покачивается на подвеске,
-    оба колеса реально крутятся (спица-метка делает оборот), а слева
-    проступают три линии ветра по очереди — читается как машина в движении,
-    а не одна дрожащая деталь. */
+/** Геометрия: прямоугольный кузов-фургон (слева) + трапециевидная кабина (справа),
+    колёса контуром. Анимация: бегущая подсветка пробегает по верхнему контуру
+    машины один раз за цикл (вдоль крыши кузова, скоса лобового стекла, верха окна
+    кабины). Чёрточка скорости справа-сверху сдвигается вправо вместе с подсветкой.
+    Техника: второй path со stroke-dasharray/stroke-dashoffset поверх статичного контура. */
 function CourierIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <g className="delivery-body">
-        <path d="M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
-        <g className="delivery-wheel-l">
-          <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-          <path d="M7 17v-2" />
-        </g>
-        <g className="delivery-wheel-r">
-          <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-          <path d="M17 17v-2" />
-        </g>
+      {/* Кузов фургона: прямоугольник скруглённые углы слева */}
+      <path d="M3 15 L3 6 C3 5 3.5 5 4 5 L11 5 L11 15" />
+      {/* Иконка посылки внутри кузова */}
+      <g transform="translate(5, 8)">
+        <rect x="1" y="0" width="3" height="3" fill="none" stroke="currentColor" strokeWidth="0.7" />
+        <path d="M2.5 0 L3 1 L2 1 Z" fill="none" stroke="currentColor" strokeWidth="0.7" />
       </g>
+      {/* Кабина: трапеция (верх кузова продолжается прямо, потом скос вниз-вправо) */}
+      <path d="M11 5 L17 5 L19 8 L19 15" />
+      {/* Верхняя линия кузова до кабины (база для подсветки) */}
+      <path d="M3 5 L11 5" />
+      {/* Окно кабины: маленький прямоугольник */}
+      <rect x="12" y="7" width="4.5" height="2.5" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Фара: точка внизу спереди кабины */}
+      <circle cx="19" cy="14" r="0.6" fill="none" stroke="currentColor" strokeWidth="0.7" />
+      {/* Левое колесо: контур */}
+      <circle cx="6" cy="15" r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
+      {/* Правое колесо: контур */}
+      <circle cx="16" cy="15" r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
+      {/* Дно кузова и кабины */}
+      <path d="M3 15 L19 15" />
+
+      {/* Бегущая подсветка: второй path вдоль верхнего контура (крыша кузова + скос + верх окна)
+          pathLength="100" позволяет считать dasharray/offset в процентах, независимо от реальной длины */}
+      <path
+        d="M3 5 L11 5 L17 5 L19 8 L19 10"
+        className="delivery-sweep"
+        fill="none"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        pathLength="100"
+      />
+
+      {/* Чёрточки скорости справа-сверху: сдвигаются вправо вместе с подсветкой */}
       <g className="delivery-trail">
-        <path d="M0 7l3 0" />
-        <path d="M0 10.5l3 0" />
-        <path d="M0 14l3 0" />
+        <path d="M20 4 l2.5 0" strokeWidth="1.2" strokeLinecap="round" />
+        <path d="M20 6 l2 0" strokeWidth="1.2" strokeLinecap="round" />
       </g>
     </svg>
   )

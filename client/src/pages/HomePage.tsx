@@ -37,7 +37,7 @@ export default function HomePage() {
       <Reveal><QuestionnaireTeaser /></Reveal>
       <Reveal><CategoryAccordion /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
-      <PopularProducts />
+      <PopularProducts variant="home" />
       {/* Без <Reveal>: у секции собственный каскад .reveal-group */}
       <BrandsSection />
       <AboutSection />
