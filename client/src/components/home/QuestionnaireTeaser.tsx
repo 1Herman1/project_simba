@@ -42,7 +42,7 @@ function DecorImage({ name, type, width, height }: (typeof DECOR)[number]) {
 
 export default function QuestionnaireTeaser() {
   const { openQuiz } = useDrawer()
-  const sceneRef = useReveal<HTMLDivElement>()
+  const sceneRef = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -25% 0px' })
 
   /** Показываем декор только на 1280px и выше — вся геометрия выверена на этих ширинах. */
   const showDecor = useMediaQuery('(min-width: 1280px)')
