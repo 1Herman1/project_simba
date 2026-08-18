@@ -80,6 +80,7 @@
   .quiz-scene .quiz-card,
   .quiz-scene .quiz-decor,
   .quiz-scene .quiz-prop { transition-delay: 0ms !important; }
+  .quiz-scene .quiz-prop--paw { transform: scaleX(-1) !important; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -394,6 +395,10 @@
   }
   .quiz-scene .quiz-prop--paw {
     --prop-x: -18px;
+    transform: scaleX(-1) translate(var(--prop-x, 0), 24px) scale(0.9);
+  }
+  .quiz-scene.is-visible .quiz-prop--paw {
+    transform: scaleX(-1) translate(0, 0) scale(1);
   }
   .quiz-scene .quiz-prop--nose {
     --prop-x: 18px;
