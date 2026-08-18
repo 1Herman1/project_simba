@@ -1,13 +1,14 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { initButtonSpotlight } from './lib/button-spotlight'
+import { initButtonPress } from './lib/button-press'
 import ScrollToTop from './components/ScrollToTop'
 import Layout from './components/layout/Layout'
 import { CartProvider } from './context/CartContext'
+import { FavoritesProvider } from './context/FavoritesContext'
+import { DrawerProvider } from './context/DrawerContext'
 import HomePage from './pages/HomePage'
 import CatalogPage from './pages/CatalogPage'
-import CartPage from './pages/CartPage'
-import FavoritesPage from './pages/FavoritesPage'
 import ProfilePage from './pages/ProfilePage'
 import ProductPage from './pages/ProductPage'
 import AuthPage from './pages/AuthPage'
@@ -26,39 +27,51 @@ import BlogPostPage from './pages/BlogPostPage'
 import PrivacyPage from './pages/PrivacyPage'
 import OfferPage from './pages/OfferPage'
 import NotFoundPage from './pages/NotFoundPage'
+import DrawerRoute from './pages/DrawerRoute'
 
 export default function App() {
-  useEffect(() => initButtonSpotlight(), [])
+  useEffect(() => {
+    const disposeSpotlight = initButtonSpotlight()
+    const disposePress = initButtonPress()
+    return () => {
+      disposeSpotlight()
+      disposePress()
+    }
+  }, [])
 
   return (
     <CartProvider>
-    <ScrollToTop />
-    <Routes>
-      <Route path="/auth" element={<AuthPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/product/:slug" element={<ProductPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/bonuses" element={<BonusesPage />} />
-        <Route path="/delivery" element={<DeliveryPage />} />
-        <Route path="/returns" element={<ReturnsPage />} />
-        <Route path="/faq" element={<FaqPage />} />
-        <Route path="/questionnaire" element={<QuestionnairePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/trust" element={<TrustPage />} />
-        <Route path="/certificates" element={<CertificatesPage />} />
-        <Route path="/reviews" element={<ReviewsPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/offer" element={<OfferPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+      <FavoritesProvider>
+        <DrawerProvider>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/catalog" element={<CatalogPage />} />
+              <Route path="/product/:slug" element={<ProductPage />} />
+              <Route path="/cart" element={<DrawerRoute which="cart" />} />
+              <Route path="/favorites" element={<DrawerRoute which="favorites" />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/bonuses" element={<BonusesPage />} />
+              <Route path="/delivery" element={<DeliveryPage />} />
+              <Route path="/returns" element={<ReturnsPage />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/questionnaire" element={<QuestionnairePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/trust" element={<TrustPage />} />
+              <Route path="/certificates" element={<CertificatesPage />} />
+              <Route path="/reviews" element={<ReviewsPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/offer" element={<OfferPage />} />
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
+          </Routes>
+        </DrawerProvider>
+      </FavoritesProvider>
     </CartProvider>
   )
 }

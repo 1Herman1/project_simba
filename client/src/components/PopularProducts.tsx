@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { productsApi, type Product } from '../lib/api'
 import ProductCard from './catalog/ProductCard'
 import { ArrowLeftIcon, ArrowRightIcon } from './icons'
@@ -104,7 +105,7 @@ export default function PopularProducts({ variant = 'default' }: Props) {
                 onClick={() => scrollByCard(-1)}
                 disabled={!canScrollLeft}
                 aria-label="Предыдущие товары"
-                className="w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 transition-[opacity,border-color] duration-100 ease hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
+                className="btn-press w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
               >
                 <ArrowLeftIcon />
               </button>
@@ -113,7 +114,7 @@ export default function PopularProducts({ variant = 'default' }: Props) {
                 onClick={() => scrollByCard(1)}
                 disabled={!canScrollRight}
                 aria-label="Следующие товары"
-                className="w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 transition-[opacity,border-color] duration-100 ease hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
+                className="btn-press w-11 h-11 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 hover:border-primary-soft disabled:opacity-40 disabled:pointer-events-none"
               >
                 <ArrowRightIcon />
               </button>
@@ -137,9 +138,9 @@ export default function PopularProducts({ variant = 'default' }: Props) {
         </div>
 
         <div className="flex justify-center mt-8">
-          <a href="/catalog" className="btn-gradient-primary px-8 py-3 rounded-xl font-semibold">
+          <Link to="/catalog" className="btn-primary px-8 py-3 rounded-xl font-semibold">
             Весь каталог
-          </a>
+          </Link>
         </div>
       </div>
     </section>

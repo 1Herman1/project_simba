@@ -10,6 +10,7 @@ interface QuizQuestionProps {
   onPrev?: () => void
   showPrevButton: boolean
   isLastQuestion: boolean
+  inModal?: boolean
 }
 
 export default function QuizQuestionComponent({
@@ -20,6 +21,7 @@ export default function QuizQuestionComponent({
   onPrev,
   showPrevButton,
   isLastQuestion,
+  inModal,
 }: QuizQuestionProps) {
   const fieldValue = currentAnswers[question.id as keyof QuizAnswers]
   const isMultiple = question.multiple ?? false
@@ -69,7 +71,9 @@ export default function QuizQuestionComponent({
     : selectedSingle !== null && selectedSingle !== undefined
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-blue-50">
+    <div className={`flex flex-col bg-blue-50 ${
+      inModal ? 'min-h-0' : 'min-h-[100dvh]'
+    }`}>
       <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 md:py-12">
         {/* Question title */}
         <h2
@@ -143,7 +147,7 @@ export default function QuizQuestionComponent({
           {showPrevButton && (
             <button
               onClick={onPrev}
-              className="px-6 py-3 rounded-xl border border-line text-navy-700 font-medium hover:bg-white transition-colors duration-100 ease flex items-center gap-2"
+              className="px-6 py-3 rounded-xl border border-line text-navy-700 font-medium hover:bg-white flex items-center gap-2"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="19" y1="12" x2="5" y2="12" />
@@ -159,7 +163,7 @@ export default function QuizQuestionComponent({
             <button
               onClick={onNext}
               disabled={!isAnswered}
-              className="px-6 py-3 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed btn-primary transition-colors duration-100 ease flex items-center gap-2"
+              className="px-6 py-3 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed btn-primary flex items-center gap-2"
             >
               {isLastQuestion ? (
                 <>

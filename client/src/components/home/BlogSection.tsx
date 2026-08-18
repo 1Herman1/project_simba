@@ -57,10 +57,10 @@ export default function BlogSection() {
     <section id="blog" aria-labelledby="blog-title" className="scroll-mt-24 py-12 md:py-16">
       <div ref={groupRef} className="reveal-group max-w-7xl mx-auto px-4">
         <div className="reveal-item">
-          <h2 id="blog-title" className="text-2xl font-bold text-navy-900">
+          <h2 id="blog-title" className="text-3xl md:text-4xl font-bold text-navy-900">
             Блог
           </h2>
-          <p className="mt-2 text-navy-500 max-w-prose leading-relaxed">
+          <p className="mt-3 text-base md:text-lg text-navy-500 max-w-prose leading-relaxed">
             Разбираем составы кормов и отвечаем на вопросы, которые чаще всего задают на консультациях.
           </p>
         </div>
@@ -148,7 +148,7 @@ export default function BlogSection() {
           </div>
         )}
 
-        <div className="reveal-item mt-8" style={{ '--reveal-delay': '300ms' } as CSSProperties}>
+        <div className="reveal-item mt-8 flex justify-center" style={{ '--reveal-delay': '300ms' } as CSSProperties}>
           <Link to="/blog" className="btn-primary px-6 rounded-xl font-bold">
             Все статьи
           </Link>

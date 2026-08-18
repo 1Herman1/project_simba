@@ -1,60 +1,82 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { useReveal } from '../../hooks/useReveal'
+import { useDrawer } from '../../context/DrawerContext'
+import GiftIcon from '../quiz/GiftIcon'
 
-/** Декор по бокам карточки. Файлы — в client/public/decor/.
-    Пока файла нет, место остаётся пустым (см. onError). */
+/** Декор по бокам карточки — новые ассеты с поворотом запечённым.
+    Файлы в client/public/decor/. */
 const DECOR = [
-  { side: 'left' as const, png: '/decor/quiz-left.png', webp: '/decor/quiz-left.webp' },
-  { side: 'right' as const, png: '/decor/quiz-right.png', webp: '/decor/quiz-right.webp' },
+  { name: 'quiz-left-back', type: 'back' as const, width: 478, height: 861 },
+  { name: 'quiz-right-back', type: 'back' as const, width: 537, height: 780 },
+  { name: 'paw-front', type: 'front' as const, width: 300, height: 367 },
+  { name: 'nose-front', type: 'front' as const, width: 340, height: 361 },
 ]
 
-function DecorImage({ side, png, webp }: (typeof DECOR)[number]) {
+function DecorImage({ name, type, width, height }: (typeof DECOR)[number]) {
   const [failed, setFailed] = useState(false)
   if (failed) return null
 
+  const side = name.includes('left') ? 'left' : 'right'
+  const decorClass = type === 'back'
+    ? `quiz-decor quiz-decor--${side}`
+    : `quiz-prop ${name.includes('paw') ? 'quiz-prop--paw' : 'quiz-prop--nose'}`
+
   return (
     <picture>
-      <source srcSet={webp} type="image/webp" />
+      <source srcSet={`/decor/${name}.webp`} type="image/webp" />
       <img
-        src={png}
+        src={`/decor/${name}.png`}
         alt=""
         aria-hidden="true"
         loading="lazy"
         decoding="async"
+        width={width}
+        height={height}
         onError={() => setFailed(true)}
-        className={`quiz-decor quiz-decor--${side}`}
+        className={decorClass}
       />
     </picture>
   )
 }
 
 export default function QuestionnaireTeaser() {
-  /** Ниже 1024px декор не показывается — на узком экране места по бокам нет.
-      Условный рендер вместо display:none: иначе браузер скачал бы картинки
-      и на телефоне, где их всё равно не видно. */
-  const showDecor = useMediaQuery('(min-width: 1024px)')
+  const { openQuiz } = useDrawer()
+  const sceneRef = useReveal<HTMLDivElement>()
+
+  /** Показываем декор только на 1280px и выше — вся геометрия выверена на этих ширинах. */
+  const showDecor = useMediaQuery('(min-width: 1280px)')
 
   return (
-    <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16">
+    <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16 overflow-x-clip">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Якорь декора — сама карточка, а не внешний контейнер: иначе при
-            сужении окна животные заезжали на баннер всё глубже (до 181px). */}
-        <div className="relative mx-auto w-full max-w-5xl">
-        <div className="quiz-card relative z-10 rounded-card bg-white border border-line px-8 py-14 text-center">
-          <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-2">
-            Не знаете, какой корм выбрать?
-          </h2>
-          <p className="text-navy-500 mb-6 max-w-md mx-auto">
-            Ответьте на несколько вопросов — подберём корм под вашего питомца за пару минут
-          </p>
-          <Link to="/questionnaire" className="btn-primary px-8 rounded-xl font-semibold">
-            Начать подбор
-          </Link>
-        </div>
+        {/* Якорь для Reveal: сама сцена с карточкой. Четыре декора входят в этот контекст. */}
+        <div ref={sceneRef} className="quiz-scene relative mx-auto w-full max-w-4xl">
+          {/* Два фоновых декора (кот + пёс) входят первыми — они за карточкой. */}
+          {showDecor && DECOR.filter(d => d.type === 'back').map((d) => <DecorImage key={d.name} {...d} />)}
 
-        {/* Животные поверх карточки: лапа и нос ложатся на неё, остальное уходит за край */}
-        {showDecor && DECOR.map((d) => <DecorImage key={d.side} {...d} />)}
+          <div className="quiz-card relative z-10 rounded-card bg-white border border-line shadow-card px-5 py-8 md:px-8 md:py-10 text-center">
+            <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-3">
+              Не знаете, какой корм выбрать?
+            </h2>
+            <p className="text-base leading-relaxed text-navy-500 max-w-xl mx-auto mb-6">
+              Ответьте на несколько вопросов о вашем питомце — возраст, размер, особенности здоровья и вкусовые предпочтения. Мы порекомендуем конкретный корм: <strong className="font-semibold text-navy-700">линейку и вкус, а не просто бренд</strong>. Это займёт около минуты.
+            </p>
+            <button
+              type="button"
+              onClick={openQuiz}
+              className="btn-primary px-8 rounded-xl font-semibold"
+            >
+              Подобрать корм
+            </button>
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-navy-500">
+              <span className="text-amber-600 shrink-0" aria-hidden="true"><GiftIcon /></span>
+              После подбора вы получите <strong className="font-semibold text-navy-700">300 бонусов</strong> на первую покупку.
+            </p>
+          </div>
+
+          {/* Два передних декора (лапа + нос) входят последними — они поверх карточки. */}
+          {showDecor && DECOR.filter(d => d.type === 'front').map((d) => <DecorImage key={d.name} {...d} />)}
         </div>
       </div>
     </section>

@@ -17,6 +17,24 @@
   initial-value: 0;
 }
 
+@property --btn-dim {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@property --btn-g1 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #3A6FE0;
+}
+
+@property --btn-g2 {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #2E5DC8;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -44,9 +62,10 @@
     animation-duration: 0.01ms !important;
   }
   .btn-primary { transition-property: background-color, box-shadow; }
-  .btn-primary:hover, .btn-primary:active { transform: none; }
-  .btn-primary:hover, .btn-primary:active { --btn-spot: 0; }
-  .btn-outline:active { transform: none; }
+  .btn-primary:hover, .btn-primary:active, .btn-primary.is-pressed { transform: none; }
+  .btn-primary:hover, .btn-primary.is-pressed { --btn-spot: 0; }
+  .btn-outline:active, .btn-outline.is-pressed,
+  .btn-press:active,  .btn-press.is-pressed { transform: none; }
   /* Для бесконечных петель `animation-duration: 0.01ms` означает не «выключено»,
      а «мигает с частотой кадров» — гасим их поимённо. */
   .quiz-track > g {
@@ -56,6 +75,11 @@
   .quiz-stage { animation: none !important; }
   .icon-check-path { animation: none !important; stroke-dashoffset: 0; }
   .animate-spin { animation: none !important; }
+  .animate-pulse { animation: none !important; }
+  /* Квиз: элементы оказываются в финальных позициях без задержек */
+  .quiz-scene .quiz-card,
+  .quiz-scene .quiz-decor,
+  .quiz-scene .quiz-prop { transition-delay: 0ms !important; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -70,6 +94,10 @@
      Координаты курсора приходят из lib/button-spotlight.ts (--mx/--my). */
   .btn-primary {
     --btn-spot: 0;
+    --btn-dim: 0;
+    --btn-g1: theme('colors.primary.DEFAULT');
+    --btn-g2: theme('colors.primary.hover');
+    --press-scale: 0.97;
     position: relative;
     overflow: hidden;
     display: inline-flex;
@@ -77,18 +105,26 @@
     justify-content: center;
     min-height: 2.75rem;
     color: theme('colors.primary.fg');
-    background-color: theme('colors.primary.DEFAULT');
-    background-image: radial-gradient(
-      circle 9rem at var(--mx, 50%) var(--my, 50%),
-      rgb(255 248 236 / calc(var(--btn-spot) * 0.12)) 0%,
-      rgb(76 130 247 / calc(var(--btn-spot) * 0.30)) 42%,
-      rgb(76 130 247 / 0) 100%
-    );
+    background-color: theme('colors.primary.hover');
+    background-image:
+      linear-gradient(rgb(22 35 60 / var(--btn-dim)), rgb(22 35 60 / var(--btn-dim))),
+      radial-gradient(
+        circle 9rem at var(--mx, 50%) var(--my, 50%),
+        rgb(255 248 236 / calc(var(--btn-spot) * 0.12)) 0%,
+        rgb(76 130 247 / calc(var(--btn-spot) * 0.30)) 42%,
+        rgb(76 130 247 / 0) 100%
+      ),
+      linear-gradient(to bottom, var(--btn-g1), var(--btn-g2));
     box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.14);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
     transition:
-      background-color 100ms ease,
       --btn-spot 140ms var(--ease-out),
-      transform 120ms var(--ease-out),
+      --btn-dim  160ms var(--ease-out),
+      --btn-g1   120ms var(--ease-out),
+      --btn-g2   120ms var(--ease-out),
+      transform  160ms var(--ease-out),
       box-shadow 120ms var(--ease-out);
   }
 
@@ -96,7 +132,8 @@
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
       --btn-spot: 1;
-      background-color: theme('colors.primary.hover');
+      --btn-g1: theme('colors.primary.hover');
+      --btn-g2: theme('colors.primary.hover');
       transform: translateY(-1px);
       box-shadow:
         inset 0 1px 0 0 rgb(255 255 255 / 0.10),
@@ -106,15 +143,20 @@
 
   /* Тач: курсора нет — пятно распускается из центра (--mx/--my = дефолт 50%). */
   @media (hover: none) {
-    .btn-primary:active:not(:disabled):not([aria-disabled='true']) {
+    .btn-primary:active:not(:disabled):not([aria-disabled='true']),
+    .btn-primary.is-pressed:not(:disabled):not([aria-disabled='true']) {
       --btn-spot: 0.7;
     }
   }
 
-  .btn-primary:active:not(:disabled):not([aria-disabled='true']) {
-    background-color: theme('colors.primary.hover');
-    transform: translateY(0) scale(0.98);
+  .btn-primary:active:not(:disabled):not([aria-disabled='true']),
+  .btn-primary.is-pressed:not(:disabled):not([aria-disabled='true']) {
+    --btn-g1: theme('colors.primary.hover');
+    --btn-g2: theme('colors.primary.hover');
+    --btn-dim: 0.12;
+    transform: translateY(0) scale(var(--press-scale));
     box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.10);
+    transition-duration: 100ms;
   }
 
   .btn-primary:focus-visible {
@@ -125,7 +167,7 @@
   .btn-primary:disabled,
   .btn-primary[aria-disabled='true'] {
     --btn-spot: 0;
-    background-color: theme('colors.primary.DEFAULT');
+    --btn-dim: 0;
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
@@ -142,29 +184,23 @@
     }
   }
 
-  /* Иконки в шапке (профиль, корзина) — масштабируются при наведении */
-  .header-icon-link {
-    transition: transform 100ms var(--ease-out), color 100ms ease-smooth;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .header-icon-link:hover {
-      transform: scale(1.1);
-      color: theme('colors.primary.hover');
-    }
-  }
+  /* Иконки в шапке — все используют одну стилизацию с icon-swap */
+  .header-icon-link { transition: color 100ms ease; }
+  .icon-swap { transition: transform 100ms var(--ease-out); }
+  .icon-outline, .icon-filled { transition: opacity 100ms ease; }
+  .icon-filled { opacity: 0; }
 
-  /* Избранное — жёлтый цвет при hover */
-  .header-icon-link-favorite {
-    transition: transform 100ms var(--ease-out), color 100ms ease-smooth;
-  }
   @media (hover: hover) and (pointer: fine) {
-    .header-icon-link-favorite:hover {
-      transform: scale(1.1);
-      color: theme('colors.amber.600');
-    }
+    .header-icon-link:hover { color: theme('colors.primary.hover'); }
+    .header-icon-link:hover .icon-swap { transform: scale(1.08); }
+    .header-icon-link:hover .icon-outline { opacity: 0; }
+    .header-icon-link:hover .icon-filled  { opacity: 1; }
   }
+  .header-icon-link:focus-visible .icon-outline { opacity: 0; }
+  .header-icon-link:focus-visible .icon-filled  { opacity: 1; }
 
   .btn-outline {
+    --press-scale: 0.97;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -172,42 +208,23 @@
     color: theme('colors.navy.900');
     background-color: #fff;
     border: 1px solid theme('colors.line');
-    transition: background-color 100ms ease, border-color 100ms ease, transform 120ms var(--ease-out);
-  }
-  .btn-outline:hover { background-color: theme('colors.primary.tint'); border-color: theme('colors.primary.soft'); }
-  .btn-outline:active { transform: scale(0.98); }
-
-  /* Кнопка с синим градиентом: брендовый градиент от DEFAULT к hover оттенкам. */
-  .btn-gradient-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.75rem;
-    color: theme('colors.primary.fg');
-    background: linear-gradient(to right, theme('colors.primary.DEFAULT'), theme('colors.primary.hover'));
-    border: none;
-    transition: transform 120ms var(--ease-out), box-shadow 120ms var(--ease-out);
-    box-shadow: 0 2px 8px rgba(58, 111, 224, 0.16);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 100ms ease, border-color 100ms ease, transform 160ms var(--ease-out);
   }
   @media (hover: hover) and (pointer: fine) {
-    .btn-gradient-primary:hover:not(:disabled):not([aria-disabled='true']) {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(58, 111, 224, 0.28);
+    .btn-outline:hover {
+      background-color: theme('colors.primary.tint');
+      border-color: theme('colors.primary.soft');
     }
   }
-  .btn-gradient-primary:active:not(:disabled):not([aria-disabled='true']) {
-    transform: translateY(0) scale(0.98);
-  }
-  .btn-gradient-primary:focus-visible {
-    outline: 2px solid theme('colors.primary.soft');
-    outline-offset: 2px;
-  }
-  .btn-gradient-primary:disabled,
-  .btn-gradient-primary[aria-disabled='true'] {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+  .btn-outline:active:not(:disabled),
+  .btn-outline.is-pressed:not(:disabled) {
+    background-color: theme('colors.primary.tint');
+    border-color: theme('colors.primary.soft');
+    transform: scale(var(--press-scale));
+    transition-duration: 100ms;
   }
 
   /* Карточка бренда: подъём + окраска рамки только на мышином ховере — на тач
@@ -256,6 +273,28 @@
       transform: scale(1.12);
     }
   }
+
+  /* transition здесь покрывает и transform, и цвет/фон/рамку одним списком —
+     не оставлять это на соседние utility-классы (transition-colors, duration-*,
+     ease*): они живут в @tailwind utilities, каскад позже @layer components,
+     и при той же специфичности молча перетирают весь transition-property
+     этого правила, оставляя scale-press без анимации (уже так ловили баг
+     в QuizIntro/QuizQuestion — здесь та же причина, просто на других кнопках). */
+  .btn-press {
+    --press-scale: 0.94;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 160ms var(--ease-out), background-color 100ms ease, color 100ms ease, border-color 100ms ease, opacity 100ms ease;
+  }
+  .btn-press:active:not(:disabled):not([aria-disabled='true']),
+  .btn-press.is-pressed:not(:disabled):not([aria-disabled='true']) {
+    transform: scale(var(--press-scale));
+    transition-duration: 100ms;
+  }
+  .press-wide {
+    --press-scale: 0.985;
+  }
 }
 
 @layer utilities {
@@ -302,6 +341,62 @@
   @keyframes quizStageIn {
     from { opacity: 0; }
     to   { opacity: 1; }
+  }
+
+  /* Вылазание из-под баннера: карточка → фоновый декор → передний декор.
+     Разная амплитуда по Y (10 → 16 → 24px) и scale (нет → 3.5% → 10%)
+     даёт ощущение глубины: ближний план проходит больший путь. */
+
+  /* Карточка: только подъём 10px, БЕЗ анимации прозрачности. Полупрозрачная
+     карточка на старте пропускала сквозь себя задний декор — кот и пёс
+     просвечивали внутри баннера призраками (поймано визуальным тестом).
+     Карточка — непрозрачная сцена, из-за которой выходят животные. */
+  .quiz-scene .quiz-card {
+    transform: translateY(10px);
+    transition: transform 420ms var(--ease-out);
+  }
+  .quiz-scene.is-visible .quiz-card {
+    transform: translateY(0);
+  }
+
+  /* Фоновый декор: встаёт из-за карточки с глубины, с боков по 56px */
+  .quiz-scene .quiz-decor {
+    opacity: 0;
+    transform: translate(var(--decor-x, 0), 16px) scale(0.965);
+    transition:
+      opacity 300ms var(--ease-out),
+      transform 460ms var(--ease-out);
+    transition-delay: 90ms;
+  }
+  .quiz-scene.is-visible .quiz-decor {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  .quiz-scene .quiz-decor--left {
+    --decor-x: 56px;
+  }
+  .quiz-scene .quiz-decor--right {
+    --decor-x: -56px;
+  }
+
+  /* Передний декор: входит снаружи и ложится на карточку */
+  .quiz-scene .quiz-prop {
+    opacity: 0;
+    transform: translate(var(--prop-x, 0), 24px) scale(0.9);
+    transition:
+      opacity 240ms var(--ease-out),
+      transform 380ms var(--ease-out);
+    transition-delay: 250ms;
+  }
+  .quiz-scene.is-visible .quiz-prop {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  .quiz-scene .quiz-prop--paw {
+    --prop-x: -18px;
+  }
+  .quiz-scene .quiz-prop--nose {
+    --prop-x: 18px;
   }
 
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
@@ -359,49 +454,39 @@
     transform: translateY(0);
   }
 
-  /* Декор секции подбора корма: животные ровно по высоте карточки и стоят
-     ПОВЕРХ неё — лапа и нос ложатся на баннер, а белая кромка исходных PNG
-     совпадает с белым фоном карточки и потому не видна. Анимации нет:
-     движение здесь отвлекало от кнопки.
-     Ниже lg скрыты — на узком экране места по бокам нет. */
+  .quiz-scene { isolation: isolate; }
+
   .quiz-decor {
     display: none;
+    position: absolute;
+    bottom: 0;
+    z-index: 0;
+    width: var(--decor-w);
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    pointer-events: none;
+    user-select: none;
   }
-  @media (min-width: 1024px) {
-    .quiz-decor {
-      display: block;
-      position: absolute;
-      bottom: 0;
-      z-index: 20;
-      height: 100%;
-      width: auto;
-      pointer-events: none;
-      user-select: none;
-    }
-    /* scaleX(-1) — зеркало: на исходнике животное смотрит вправо, слева
-       от карточки оно должно смотреть внутрь, к центру. */
-    /* Сдвиг подобран по ровному срезу картинки: срез животного встаёт РОВНО
-       на границу карточки, а за границу заходят только лапа кота и нос собаки.
-       Доли — от СОБСТВЕННОЙ ширины PNG (срез кота ~82%, собаки ~80% от края).
-       Если заменят ассеты — пересчитать по позиции вертикального среза. */
-    .quiz-decor--left {
-      left: 0;
-      transform: translateX(-82%) scaleX(-1);
-    }
-    .quiz-decor--right {
-      right: 0;
-      transform: translateX(80%);
-    }
+  .quiz-prop {
+    display: none;
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 6px 10px rgb(22 35 60 / 0.16));
+  }
 
-    /* Растушёвка шва: жёсткий ровный срез PNG (там, где картинка встречается
-       с карточкой) размывается градиентом альфы, а не резкой линией.
-       Полоса среза начинается ~64px от левого края исходника — фейдим
-       именно в этой зоне, дальше (лапа/нос/тело) остаётся чётким. */
-    .quiz-decor--left,
-    .quiz-decor--right {
-      -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px);
-      mask-image: linear-gradient(to right, transparent 0, black 24px);
-    }
+  @media (min-width: 1280px) {
+    .quiz-decor, .quiz-prop { display: block; }
+    .quiz-scene { --decor-w: 240px; }
+    /* Заход за карточку: у кота 88px, у пса 120px — у пса больше, чтобы его
+       собственная морда ушла ЗА карточку и её продолжением стал передний нос
+       (иначе на макете читались «две морды», проверено рендером). */
+    .quiz-decor--left  { left:  calc(88px  - var(--decor-w)); }
+    .quiz-decor--right { right: calc(120px - var(--decor-w)); }
+    .quiz-prop--paw  { left:  -40px; bottom:  6px; width: 104px; }
+    .quiz-prop--nose { right: -34px; bottom: 96px; width: 132px; }
   }
 
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
@@ -552,11 +637,11 @@
 /* Бегущая подсветка: сегмент пробегает вдоль контура от 0 до 100% за 25% цикла,
    потом исчезает. stroke-dashoffset анимирует путём пути (pathLength="100"). */
 @keyframes deliverySweep {
-  0%        { stroke-dashoffset: 100; stroke-dasharray: 8, 92; opacity: 0; }
+  0%        { stroke-dashoffset: 100; stroke-dasharray: 22, 78; opacity: 0; }
   1%        { opacity: 1; }
-  25%       { stroke-dashoffset: 0; stroke-dasharray: 8, 92; opacity: 1; }
+  25%       { stroke-dashoffset: 0; stroke-dasharray: 22, 78; opacity: 1; }
   26%       { opacity: 0; }
-  100%      { stroke-dashoffset: 0; stroke-dasharray: 8, 92; opacity: 0; }
+  100%      { stroke-dashoffset: 0; stroke-dasharray: 22, 78; opacity: 0; }
 }
 
 /* Чёрточки скорости сдвигаются вправо за 25% цикла вместе с подсветкой,

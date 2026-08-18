@@ -2,14 +2,16 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckIcon, PawIcon } from '../icons'
 import { useCart } from '../../context/CartContext'
+import { useFavorites } from '../../context/FavoritesContext'
 import type { Product } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
 
 export default function ProductCard({ product }: { product: Product }) {
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0])
   const [added, setAdded] = useState(false)
-  const [liked, setLiked] = useState(false)
   const { addItem } = useCart()
+  const { isFavorite, toggle } = useFavorites()
+  const liked = isFavorite(product.id)
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -20,6 +22,15 @@ export default function ProductCard({ product }: { product: Product }) {
     }
     setAdded(true)
     setTimeout(() => setAdded(false), 1500)
+  }
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    try {
+      await toggle(product.id)
+    } catch {
+      // ignore
+    }
   }
 
   const discount = selectedVariant.oldPrice
@@ -63,9 +74,9 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <button
-          onClick={e => { e.preventDefault(); setLiked(!liked) }}
+          onClick={handleToggleFavorite}
           aria-label={liked ? 'Убрать из избранного' : 'Добавить в избранное'}
-          className="absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center hover:scale-110 transition-transform">
+          className="btn-press absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center">
           <svg className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
             viewBox="0 0 24 24" strokeWidth="2">
             <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -86,7 +97,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <button
               key={v.id}
               onClick={e => { e.preventDefault(); setSelectedVariant(v) }}
-              className={`text-xs px-2 py-0.5 rounded-full border transition-colors duration-100 ease ${
+              className={`btn-press text-xs px-2 py-0.5 rounded-full border ${
                 selectedVariant.id === v.id
                   ? 'bg-white border-primary-soft text-primary-hover font-medium'
                   : 'border-line text-navy-500 hover:border-primary-soft'
