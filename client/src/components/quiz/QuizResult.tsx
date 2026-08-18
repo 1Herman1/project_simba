@@ -8,9 +8,10 @@ import { pluralize } from '../../lib/format'
 
 interface QuizResultProps {
   result: QuizMatchResponse
+  inModal?: boolean
 }
 
-export default function QuizResult({ result }: QuizResultProps) {
+export default function QuizResult({ result, inModal }: QuizResultProps) {
   const [addedMain, setAddedMain] = useState(false)
   const [addedBoth, setAddedBoth] = useState(false)
   const [errorMain, setErrorMain] = useState(false)
@@ -53,7 +54,9 @@ export default function QuizResult({ result }: QuizResultProps) {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-blue-50">
+    <div className={`bg-blue-50 ${
+      inModal ? 'min-h-0' : 'min-h-[100dvh]'
+    }`}>
       <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
         {/* Header */}
         <h1 className="text-3xl md:text-4xl font-bold text-navy-900 mb-6">

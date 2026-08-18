@@ -233,14 +233,20 @@ export interface Favorite {
 }
 
 export const favoritesApi = {
-  getAll: () =>
-    api.get<Favorite[]>('/api/favorites'),
+  getAll: async () => {
+    await ensureGuestSession()
+    return api.get<Favorite[]>('/api/favorites')
+  },
 
-  add: (productId: string) =>
-    api.post<Favorite>(`/api/favorites/${productId}`),
+  add: async (productId: string) => {
+    await ensureGuestSession()
+    return api.post<Favorite>(`/api/favorites/${productId}`)
+  },
 
-  remove: (productId: string) =>
-    api.delete(`/api/favorites/${productId}`),
+  remove: async (productId: string) => {
+    await ensureGuestSession()
+    return api.delete(`/api/favorites/${productId}`)
+  },
 }
 
 // ─── Корзина ─────────────────────────────────────────────────────────────────

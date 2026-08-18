@@ -34,7 +34,8 @@ export default function HomePage() {
       {/* Постоянный H1 страницы: заголовки баннера ротируются и на эту роль не годятся. */}
       <h1 className="sr-only">Зоомагазин Симба — корм для кошек и собак с доставкой</h1>
       <BannerCarousel />
-      <Reveal><QuestionnaireTeaser /></Reveal>
+      {/* Секция квиза теперь имеет свой useReveal и наблюдатель — не оборачиваем */}
+      <QuestionnaireTeaser />
       <Reveal><CategoryAccordion /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
       <PopularProducts variant="home" />

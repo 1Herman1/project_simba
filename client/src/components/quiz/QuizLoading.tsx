@@ -67,7 +67,11 @@ function SniffingDog() {
 
 const STAGES = ['Смотрим состав кормов', 'Сверяем с возрастом и весом', 'Подбираем оптимальный вариант']
 
-export default function QuizLoading() {
+interface QuizLoadingProps {
+  inModal?: boolean
+}
+
+export default function QuizLoading({ inModal }: QuizLoadingProps) {
   const [stage, setStage] = useState(0)
 
   useEffect(() => {
@@ -80,7 +84,9 @@ export default function QuizLoading() {
   }, [])
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-blue-50 px-4">
+    <div className={`flex items-center justify-center bg-blue-50 px-4 ${
+      inModal ? 'min-h-0' : 'min-h-[100dvh]'
+    }`}>
       <div className="text-center" role="status" aria-live="polite">
         <SniffingDog />
         <h1 className="text-2xl font-bold text-navy-900 mb-2">Подбираем корм</h1>

@@ -2,11 +2,14 @@ import GiftIcon from './GiftIcon'
 
 interface QuizIntroProps {
   onStart: () => void
+  inModal?: boolean
 }
 
-export default function QuizIntro({ onStart }: QuizIntroProps) {
+export default function QuizIntro({ onStart, inModal }: QuizIntroProps) {
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-blue-50 px-4 py-12">
+    <div className={`flex items-center justify-center bg-blue-50 px-4 py-12 ${
+      inModal ? 'min-h-0' : 'min-h-[100dvh]'
+    }`}>
       <div className="max-w-2xl w-full text-center">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-navy-900 mb-4">
@@ -19,7 +22,7 @@ export default function QuizIntro({ onStart }: QuizIntroProps) {
 
         <button
           onClick={onStart}
-          className="btn-primary rounded-xl px-8 py-4 font-bold text-lg mb-8 inline-block transition-colors duration-100 ease"
+          className="btn-primary rounded-xl px-8 py-4 font-bold text-lg mb-8 inline-block"
         >
           Начать подбор
         </button>

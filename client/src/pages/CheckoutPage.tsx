@@ -472,7 +472,7 @@ export default function CheckoutPage() {
 
                 <button
                   onClick={() => setStep('payment')}
-                  className="w-full mt-5 btn-primary font-bold py-3 rounded-xl text-sm">
+                  className="w-full mt-5 btn-primary press-wide font-bold py-3 rounded-xl text-sm">
                   Далее: Оплата
                 </button>
               </div>
@@ -596,7 +596,7 @@ export default function CheckoutPage() {
                   </button>
                   <button
                     onClick={() => setStep('confirm')}
-                    className="flex-[2] btn-primary font-bold py-3 rounded-xl text-sm">
+                    className="flex-[2] btn-primary press-wide font-bold py-3 rounded-xl text-sm">
                     Далее: Подтверждение
                   </button>
                 </div>
@@ -662,7 +662,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={placingOrder}
-                    className="flex-[2] btn-primary font-bold py-3 rounded-xl text-sm disabled:opacity-60">
+                    className="flex-[2] btn-primary press-wide font-bold py-3 rounded-xl text-sm disabled:opacity-60">
                     {placingOrder ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">

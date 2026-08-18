@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { productsApi, type Product, type ProductVariant } from '../lib/api'
 import { useCart } from '../context/CartContext'
+import { useFavorites } from '../context/FavoritesContext'
 import { formatPrice } from '../lib/format'
 
 export default function ProductPage() {
@@ -11,11 +12,11 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true)
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
   const [activeTab, setActiveTab] = useState<'about' | 'specs' | 'reviews'>('about')
-  const [liked, setLiked] = useState(false)
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
+  const { isFavorite, toggle } = useFavorites()
 
   useEffect(() => {
     if (!slug) return
@@ -150,7 +151,7 @@ export default function ProductPage() {
                   <button
                     key={v.id}
                     onClick={() => setSelectedVariant(v)}
-                    className={`flex flex-col items-center px-4 py-2 rounded-xl border transition-[border-color,background-color] ${
+                    className={`btn-press flex flex-col items-center px-4 py-2 rounded-xl border ${
                       selectedVariant.id === v.id
                         ? 'bg-white border-primary-soft text-primary-hover font-semibold'
                         : 'bg-white border-line text-navy-500 hover:border-primary-soft'
@@ -182,12 +183,12 @@ export default function ProductPage() {
               {/* Счётчик */}
               <div className="flex items-center border border-blue-100 rounded-xl overflow-hidden bg-white">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  className="w-10 h-11 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors text-lg font-bold">
+                  className="btn-press w-11 h-11 flex items-center justify-center text-navy-500 hover:bg-blue-50 text-lg font-bold">
                   −
                 </button>
                 <span className="w-10 text-center font-bold text-navy-900">{quantity}</span>
                 <button onClick={() => setQuantity(q => q + 1)}
-                  className="w-10 h-11 flex items-center justify-center text-navy-500 hover:bg-blue-50 transition-colors text-lg font-bold">
+                  className="btn-press w-11 h-11 flex items-center justify-center text-navy-500 hover:bg-blue-50 text-lg font-bold">
                   +
                 </button>
               </div>
@@ -203,9 +204,10 @@ export default function ProductPage() {
 
               {/* В избранное */}
               <button
-                onClick={() => setLiked(!liked)}
-                className="w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200 transition-[border-color] hover:scale-110">
-                <svg className={`w-5 h-5 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
+                onClick={() => toggle(product.id)}
+                aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
+                className="btn-press w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200">
+                <svg className={`w-5 h-5 transition-colors ${isFavorite(product.id) ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
                   viewBox="0 0 24 24" strokeWidth="2">
                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
                 </svg>
@@ -249,7 +251,7 @@ export default function ProductPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as 'about' | 'specs' | 'reviews')}
-                className={`px-6 py-4 text-sm font-medium transition-colors duration-100 ease border-b-2 ${
+                className={`btn-press px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === tab.key
                     ? 'border-primary-soft text-primary-hover'
                     : 'border-transparent text-navy-500 hover:text-navy-700'
@@ -323,7 +325,7 @@ export default function ProductPage() {
                 const v = r.variants[0]
                 return (
                   <Link key={r.id} to={`/product/${r.slug}`}
-                    className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-300">
+                    className="bg-white rounded-2xl p-4 hover:shadow-lg hover:-translate-y-1 transition-[transform,box-shadow] duration-100">
                     <div className="bg-blue-50 rounded-xl h-32 flex items-center justify-center mb-3 overflow-hidden">
                       {r.images?.[0] && <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover" />}
                     </div>

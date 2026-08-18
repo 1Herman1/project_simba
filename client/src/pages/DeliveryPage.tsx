@@ -32,40 +32,30 @@ function PickupPointIcon() {
   )
 }
 
-/** Геометрия: прямоугольный кузов-фургон (слева) + трапециевидная кабина (справа),
-    колёса контуром. Анимация: бегущая подсветка пробегает по верхнему контуру
-    машины один раз за цикл (вдоль крыши кузова, скоса лобового стекла, верха окна
-    кабины). Чёрточка скорости справа-сверху сдвигается вправо вместе с подсветкой.
-    Техника: второй path со stroke-dasharray/stroke-dashoffset поверх статичного контура. */
+/** Геометрия — Tabler Icons (MIT), icons/outline/truck-delivery.svg (проверенный
+    контур, уже был на сайте и хорошо читается). Анимация: бегущая подсветка
+    пробегает по верхнему контуру кузова и кабины один раз за цикл — отдельный
+    path поверх статичного чёрного контура, со своим stroke-dasharray/dashoffset
+    (pathLength="100" считает офсет в процентах, а не в пикселях). Колёса
+    и чёрточки скорости — отдельные элементы, подсветка их не задевает. */
 function CourierIcon() {
+  const bodyPath = 'M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5'
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {/* Кузов фургона: прямоугольник скруглённые углы слева */}
-      <path d="M3 15 L3 6 C3 5 3.5 5 4 5 L11 5 L11 15" />
-      {/* Иконка посылки внутри кузова */}
-      <g transform="translate(5, 8)">
-        <rect x="1" y="0" width="3" height="3" fill="none" stroke="currentColor" strokeWidth="0.7" />
-        <path d="M2.5 0 L3 1 L2 1 Z" fill="none" stroke="currentColor" strokeWidth="0.7" />
-      </g>
-      {/* Кабина: трапеция (верх кузова продолжается прямо, потом скос вниз-вправо) */}
-      <path d="M11 5 L17 5 L19 8 L19 15" />
-      {/* Верхняя линия кузова до кабины (база для подсветки) */}
-      <path d="M3 5 L11 5" />
-      {/* Окно кабины: маленький прямоугольник */}
-      <rect x="12" y="7" width="4.5" height="2.5" fill="none" stroke="currentColor" strokeWidth="0.7" strokeLinecap="round" strokeLinejoin="round" />
-      {/* Фара: точка внизу спереди кабины */}
-      <circle cx="19" cy="14" r="0.6" fill="none" stroke="currentColor" strokeWidth="0.7" />
-      {/* Левое колесо: контур */}
-      <circle cx="6" cy="15" r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
-      {/* Правое колесо: контур */}
-      <circle cx="16" cy="15" r="2" fill="none" stroke="currentColor" strokeWidth="1.75" />
-      {/* Дно кузова и кабины */}
-      <path d="M3 15 L19 15" />
+      {/* Кузов и кабина: статичный контур */}
+      <path d={bodyPath} />
+      {/* Колёса: контур, без заливки */}
+      <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+      <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
 
-      {/* Бегущая подсветка: второй path вдоль верхнего контура (крыша кузова + скос + верх окна)
-          pathLength="100" позволяет считать dasharray/offset в процентах, независимо от реальной длины */}
+      {/* Бегущая подсветка: отдельный непрерывный путь по верхнему контуру
+          (крыша кузова → крыша кабины → скос лобового стекла), совпадает с
+          основным контуром визуально, но не наследует его разрывы (bodyPath
+          состоит из нескольких несвязанных подпутей — общий dashoffset на нём
+          давал одновременно несколько беспорядочных вспышек вместо одной
+          плавной линии, проверено рендером перед этой правкой). */}
       <path
-        d="M3 5 L11 5 L17 5 L19 8 L19 10"
+        d="M4 5 L13 5 L13 6 L18 6 L21 11"
         className="delivery-sweep"
         fill="none"
         strokeWidth="1.75"
@@ -214,7 +204,7 @@ export default function DeliveryPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2 whitespace-nowrap"
+          className="btn-primary press-wide rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2 whitespace-nowrap"
         >
           <TelegramIcon />
           Написать в Telegram

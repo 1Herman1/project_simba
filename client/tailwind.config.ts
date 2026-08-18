@@ -9,6 +9,7 @@ const config: Config = {
         // почти сливался с фоном страницы bg-blue-50 (#F5F8FF). Один шаг темнее
         // по той же шкале (navy-200) — видимая рамка без потери лёгкости бренда.
         line: '#C4D3E0',
+        destructive: '#C0392B',
         // Действие. Насыщенный синий макета #4C82F7 даёт с белым текстом
         // только 3.59:1 — под текстом идёт затемнённый DEFAULT (4.63:1),
         // а исходный оттенок остаётся на иконках и рамках, где текста нет.
@@ -61,6 +62,7 @@ const config: Config = {
       },
       transitionTimingFunction: {
         smooth: 'var(--ease-out)',
+        drawer: 'var(--ease-drawer)',
       },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-out',

@@ -187,7 +187,7 @@ export default function AuthPage() {
             <button
               onClick={handleSendCode}
               disabled={loading || !email.trim() || !isEmailValid}
-              className="w-full btn-primary font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
+              className="w-full btn-primary press-wide font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -264,7 +264,7 @@ export default function AuthPage() {
             <button
               onClick={handleVerifyCode}
               disabled={loading || code.length < CODE_LENGTH}
-              className="w-full btn-primary font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed mb-4">
+              className="w-full btn-primary press-wide font-bold py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed mb-4">
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
