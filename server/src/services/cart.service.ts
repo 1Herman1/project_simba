@@ -37,7 +37,8 @@ export async function addToCart(
   prisma: PrismaClient,
   userId: string,
   productVariantId: string,
-  quantity: number
+  quantity: number,
+  subscription?: { isSubscription?: boolean; subscriptionIntervalDays?: number }
 ) {
   const variant = await prisma.productVariant.findUnique({
     where: { id: productVariantId },
@@ -52,10 +53,16 @@ export async function addToCart(
     throw new Error('Товар недоступен для заказа')
   }
 
+  const isSubscription = subscription?.isSubscription ?? false
+  const subscriptionIntervalDays = isSubscription
+    ? subscription?.subscriptionIntervalDays ?? null
+    : null
+
   const cart = await getOrCreateCart(prisma, userId)
 
+  // Разово и по подписке — раздельные строки (@@unique с isSubscription).
   const existingItem = cart.items.find(
-    (item) => item.productVariantId === productVariantId
+    (item) => item.productVariantId === productVariantId && item.isSubscription === isSubscription
   )
 
   const totalQuantity = existingItem
@@ -69,7 +76,7 @@ export async function addToCart(
   if (existingItem) {
     await prisma.cartItem.update({
       where: { id: existingItem.id },
-      data: { quantity: totalQuantity },
+      data: { quantity: totalQuantity, subscriptionIntervalDays },
     })
   } else {
     await prisma.cartItem.create({
@@ -78,6 +85,8 @@ export async function addToCart(
         productVariantId,
         productId: variant.productId,
         quantity,
+        isSubscription,
+        subscriptionIntervalDays,
       },
     })
   }
@@ -89,7 +98,8 @@ export async function updateCartItem(
   prisma: PrismaClient,
   cartItemId: string,
   userId: string,
-  quantity: number
+  quantity: number,
+  subscription?: { isSubscription?: boolean; subscriptionIntervalDays?: number }
 ) {
   const item = await prisma.cartItem.findUnique({
     where: { id: cartItemId },
@@ -111,10 +121,39 @@ export async function updateCartItem(
       throw new Error('Недостаточно товара на складе')
     }
 
-    await prisma.cartItem.update({
-      where: { id: cartItemId },
-      data: { quantity },
+    const isSubscription = subscription?.isSubscription ?? item.isSubscription
+    const subscriptionIntervalDays = isSubscription
+      ? subscription?.subscriptionIntervalDays ?? item.subscriptionIntervalDays
+      : null
+
+    // Переключение "Разово ↔ Подписка" может задеть @@unique([cartId, productVariantId, isSubscription]),
+    // если для того же варианта уже есть строка с целевым isSubscription — сливаем количества в неё,
+    // а не падаем на конфликте уникального индекса.
+    const conflicting = await prisma.cartItem.findFirst({
+      where: {
+        cartId: item.cartId,
+        productVariantId: item.productVariantId,
+        isSubscription,
+        id: { not: cartItemId },
+      },
     })
+
+    if (conflicting) {
+      const mergedQuantity = conflicting.quantity + quantity
+      if (variant.stock < mergedQuantity) {
+        throw new Error('Недостаточно товара на складе')
+      }
+      await prisma.cartItem.update({
+        where: { id: conflicting.id },
+        data: { quantity: mergedQuantity, subscriptionIntervalDays },
+      })
+      await prisma.cartItem.delete({ where: { id: cartItemId } })
+    } else {
+      await prisma.cartItem.update({
+        where: { id: cartItemId },
+        data: { quantity, isSubscription, subscriptionIntervalDays },
+      })
+    }
   }
 
   return getOrCreateCart(prisma, userId)
@@ -197,10 +236,11 @@ export async function mergeGuestCart(
   for (const guestItem of guestCart.items) {
     await tx.cartItem.upsert({
       where: {
-        // unique constraint на [cartId, productVariantId]
-        cartId_productVariantId: {
+        // unique constraint на [cartId, productVariantId, isSubscription]
+        cartId_productVariantId_isSubscription: {
           cartId: targetCart?.id || (await tx.cart.findUniqueOrThrow({ where: { userId: targetUserId } })).id,
           productVariantId: guestItem.productVariantId,
+          isSubscription: guestItem.isSubscription ?? false,
         },
       },
       update: {
@@ -213,6 +253,7 @@ export async function mergeGuestCart(
         productVariantId: guestItem.productVariantId,
         productId: guestItem.productId,
         quantity: guestItem.quantity,
+        isSubscription: guestItem.isSubscription ?? false,
       },
     })
   }

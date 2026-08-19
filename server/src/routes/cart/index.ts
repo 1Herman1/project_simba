@@ -24,6 +24,8 @@ const cartRoutes: FastifyPluginAsync = async (app) => {
   const addItemSchema = z.object({
     productVariantId: z.string().uuid(),
     quantity: z.number().int().min(1),
+    isSubscription: z.boolean().optional(),
+    subscriptionIntervalDays: z.number().int().min(1).optional(),
   })
 
   app.post('/items', { preHandler: app.authenticate }, async (request, reply) => {
@@ -39,7 +41,11 @@ const cartRoutes: FastifyPluginAsync = async (app) => {
         app.prisma,
         userId,
         result.data.productVariantId,
-        result.data.quantity
+        result.data.quantity,
+        {
+          isSubscription: result.data.isSubscription,
+          subscriptionIntervalDays: result.data.subscriptionIntervalDays,
+        }
       )
       return reply.status(201).send(formatCart(cart))
     } catch (err) {
@@ -50,6 +56,8 @@ const cartRoutes: FastifyPluginAsync = async (app) => {
 
   const updateItemSchema = z.object({
     quantity: z.number().int().min(0),
+    isSubscription: z.boolean().optional(),
+    subscriptionIntervalDays: z.number().int().min(1).optional(),
   })
 
   app.put('/items/:itemId', { preHandler: app.authenticate }, async (request, reply) => {
@@ -62,7 +70,10 @@ const cartRoutes: FastifyPluginAsync = async (app) => {
     const { itemId } = request.params as { itemId: string }
 
     try {
-      const cart = await updateCartItem(app.prisma, itemId, userId, result.data.quantity)
+      const cart = await updateCartItem(app.prisma, itemId, userId, result.data.quantity, {
+        isSubscription: result.data.isSubscription,
+        subscriptionIntervalDays: result.data.subscriptionIntervalDays,
+      })
       return reply.send(formatCart(cart))
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Ошибка обновления товара'

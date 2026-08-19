@@ -15,6 +15,8 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false)
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [mode, setMode] = useState<'once' | 'subscription'>('once')
+  const [intervalWeeks, setIntervalWeeks] = useState(2)
   const { addItem } = useCart()
   const { isFavorite, toggle } = useFavorites()
 
@@ -36,7 +38,10 @@ export default function ProductPage() {
   const handleAddToCart = async () => {
     if (!selectedVariant) return
     try {
-      await addItem(selectedVariant.id, quantity)
+      await addItem(selectedVariant.id, quantity, {
+        isSubscription: mode === 'subscription',
+        intervalWeeks: mode === 'subscription' ? intervalWeeks : undefined,
+      })
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
     } catch { /* ignore */ }
@@ -162,6 +167,46 @@ export default function ProductPage() {
                 ))}
               </div>
             </div>
+
+            {/* Режим покупки — разово или подписка */}
+            <div>
+              <p className="text-sm text-navy-500 mb-2">Способ покупки:</p>
+              <div className="flex gap-2">
+                {(['once', 'subscription'] as const).map(m => (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`btn-press flex-1 px-4 py-2 rounded-xl border ${
+                      mode === m
+                        ? 'bg-white border-primary-soft text-primary-hover font-semibold'
+                        : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                    }`}>
+                    {m === 'once' ? 'Разово' : 'Подписка −7%'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Интервал подписки */}
+            {mode === 'subscription' && (
+              <div>
+                <p className="text-sm text-navy-500 mb-2">Интервал доставки:</p>
+                <div className="flex flex-wrap gap-2">
+                  {[2, 4, 6, 8].map(weeks => (
+                    <button
+                      key={weeks}
+                      onClick={() => setIntervalWeeks(weeks)}
+                      className={`btn-press px-4 py-2 rounded-xl border ${
+                        intervalWeeks === weeks
+                          ? 'bg-white border-primary-soft text-primary-hover font-semibold'
+                          : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                      }`}>
+                      {weeks} недель
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Цена */}
             <div className="flex items-baseline gap-3">

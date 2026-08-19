@@ -399,19 +399,21 @@ model Cart {
 
 /// Позиция в корзине — конкретный вариант товара и количество
 model CartItem {
-  id               String   @id @default(uuid())
-  cartId           String
-  productVariantId String
-  productId        String
-  quantity         Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                      String   @id @default(uuid())
+  cartId                  String
+  productVariantId        String
+  productId               String
+  quantity                Int
+  isSubscription          Boolean  @default(false)
+  subscriptionIntervalDays Int?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
   cart           Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   product        Product        @relation(fields: [productId], references: [id])
 
-  @@unique([cartId, productVariantId])
+  @@unique([cartId, productVariantId, isSubscription])
   @@index([cartId])
   @@map("cart_items")
 }
@@ -492,6 +494,8 @@ model OrderItem {
   variantWeight    Float
   price            Int
   quantity         Int
+  isSubscription   Boolean  @default(false)
+  subscriptionId   String?
   createdAt        DateTime @default(now())
 
   order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -514,6 +518,9 @@ model Subscription {
   intervalDays     Int
   nextDeliveryAt   DateTime
   paymentMethodId  String?
+  deliveryMethod   DeliveryMethod?
+  deliveryAddress  Json?
+  isPaused         Boolean  @default(false)
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -522,9 +529,12 @@ model Subscription {
   productVariant ProductVariant @relation(fields: [productVariantId], references: [id])
   product        Product        @relation(fields: [productId], references: [id])
 
-  @@index([userId])
+  // Уникальность userId+productVariantId только среди активных подписок — частичный
+  // индекс (не выразим в @@unique, Prisma не поддерживает WHERE), создан вручную в
+  // миграции 20260819075814_subscription_stage1. Иначе отмена (isActive: false) не
+  // освобождала бы вариант для повторной подписки.
+  @@index([userId, isActive, createdAt(sort: Desc)])
   @@index([nextDeliveryAt])
-  @@index([isActive])
   @@map("subscriptions")
 }
 

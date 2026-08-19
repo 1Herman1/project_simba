@@ -79,6 +79,18 @@ export default function Footer() {
             </span>
           </a>
 
+          {/* Telegram-канал */}
+          <a
+            href={CONTACTS.telegramChannel}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease min-h-11 md:min-h-auto"
+            aria-label="Наш Telegram-канал"
+          >
+            <TelegramIcon />
+            Наш Telegram-канал
+          </a>
+
           {/* Телефон */}
           <a
             href={CONTACTS.phoneHref}
@@ -199,7 +211,7 @@ export default function Footer() {
                 rating={marketplace.rating}
                 stats={marketplace.stats}
                 url={marketplace.url}
-                showLink={marketplace.name === 'Яндекс Маркет'}
+                showLink={marketplace.name === 'Яндекс Маркет' || marketplace.name === 'Ozon'}
               />
             ))}
           </div>

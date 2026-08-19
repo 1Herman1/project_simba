@@ -154,6 +154,8 @@ const orderItemsInclude = {
       quantity: true,
       productVariantId: true,
       productId: true,
+      isSubscription: true,
+      subscriptionId: true,
     },
   },
 }
@@ -255,6 +257,7 @@ export async function createOrder(
       items: cart.items.map((item) => ({
         price: item.productVariant.price,
         quantity: item.quantity,
+        isSubscription: item.isSubscription,
       })),
       promoCode: data.promoCode,
       bonusRequested: data.bonusUsed,
@@ -278,17 +281,80 @@ export async function createOrder(
         contactName: data.contact?.name,
         contactEmail: data.contact?.email,
         contactPhone: data.contact?.phone,
-        items: {
-          create: cart.items.map((item) => ({
-            productVariantId: item.productVariantId,
-            productId: item.productId,
-            productName: item.productVariant.product.name,
-            variantWeight: item.productVariant.weight,
-            price: item.productVariant.price,
-            quantity: item.quantity,
-          })),
-        },
       },
+    })
+
+    // Create order items and handle subscriptions
+    for (const cartItem of cart.items) {
+      const itemPrice = cartItem.isSubscription
+        ? Math.round(cartItem.productVariant.price * 0.93)
+        : cartItem.productVariant.price
+
+      const orderItem = await tx.orderItem.create({
+        data: {
+          orderId: order.id,
+          productVariantId: cartItem.productVariantId,
+          productId: cartItem.productId,
+          productName: cartItem.productVariant.product.name,
+          variantWeight: cartItem.productVariant.weight,
+          price: itemPrice,
+          quantity: cartItem.quantity,
+          isSubscription: cartItem.isSubscription,
+        },
+      })
+
+      // Create/update subscription if this is a subscription item.
+      // Уникальность userId+productVariantId у Subscription — частичный индекс
+      // (только среди isActive: true, см. миграцию subscription_stage1), Prisma не
+      // умеет строить upsert по такому ключу — ищем активную запись вручную.
+      if (cartItem.isSubscription && cartItem.subscriptionIntervalDays) {
+        const existingSubscription = await tx.subscription.findFirst({
+          where: {
+            userId: actor.customerUserId,
+            productVariantId: cartItem.productVariantId,
+            isActive: true,
+          },
+        })
+
+        const subscription = existingSubscription
+          ? await tx.subscription.update({
+              where: { id: existingSubscription.id },
+              data: {
+                intervalDays: cartItem.subscriptionIntervalDays,
+                deliveryMethod: data.deliveryMethod,
+                deliveryAddress: data.deliveryAddress ?? undefined,
+                isPaused: false,
+                isActive: true,
+              },
+            })
+          : await tx.subscription.create({
+              data: {
+                userId: actor.customerUserId,
+                productVariantId: cartItem.productVariantId,
+                productId: cartItem.productId,
+                intervalDays: cartItem.subscriptionIntervalDays,
+                nextDeliveryAt: new Date(
+                  Date.now() + cartItem.subscriptionIntervalDays * 24 * 60 * 60 * 1000
+                ),
+                deliveryMethod: data.deliveryMethod,
+                deliveryAddress: data.deliveryAddress ?? undefined,
+                paymentMethodId: null,
+                isActive: true,
+                isPaused: false,
+              },
+            })
+
+        // Link subscription to order item
+        await tx.orderItem.update({
+          where: { id: orderItem.id },
+          data: { subscriptionId: subscription.id },
+        })
+      }
+    }
+
+    // Fetch order with items for return
+    const orderWithItems = await tx.order.findUniqueOrThrow({
+      where: { id: order.id },
       include: orderItemsInclude,
     })
 
@@ -335,7 +401,7 @@ export async function createOrder(
       throw new DuplicateOrderError()
     }
 
-    return order
+    return orderWithItems
   })
 }
 

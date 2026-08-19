@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { authApi, ordersApi, usersApi, bonusesApi, type User, type Order, type BonusTransaction } from '../lib/api'
+import { authApi, ordersApi, usersApi, bonusesApi, subscriptionsApi, type User, type Order, type BonusTransaction, type Subscription } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
 import { CheckIcon, StepCurrentIcon, StepPendingIcon } from '../components/icons'
 
@@ -32,7 +32,7 @@ const BONUS_LEVELS = [
 ]
 
 
-type Tab = 'orders' | 'bonuses' | 'settings'
+type Tab = 'orders' | 'bonuses' | 'subscriptions' | 'settings'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
@@ -42,13 +42,43 @@ export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
   const [bonusTransactions, setBonusTransactions] = useState<BonusTransaction[]>([])
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loadingUser, setLoadingUser] = useState(true)
   const [loadingBonuses, setLoadingBonuses] = useState(false)
   const [bonusesError, setBonusesError] = useState<string | null>(null)
+  const [loadingSubscriptions, setLoadingSubscriptions] = useState(false)
+  const [subscriptionsError, setSubscriptionsError] = useState<string | null>(null)
   const [profileForm, setProfileForm] = useState({ name: '', phone: '', email: '' })
   const [savingProfile, setSavingProfile] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [editingSubscription, setEditingSubscription] = useState<string | null>(null)
+  const [editingIntervalWeeks, setEditingIntervalWeeks] = useState(2)
+  const [editingNextDate, setEditingNextDate] = useState('')
+  const [pendingSubscriptionId, setPendingSubscriptionId] = useState<string | null>(null)
+  const [subscriptionActionError, setSubscriptionActionError] = useState<string | null>(null)
+
+  async function runSubscriptionAction(id: string, action: () => Promise<unknown>) {
+    setPendingSubscriptionId(id)
+    setSubscriptionActionError(null)
+    try {
+      await action()
+      const res = await subscriptionsApi.list()
+      setSubscriptions(res.data)
+      setEditingSubscription(null)
+    } catch (err) {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      setSubscriptionActionError(
+        status === 404
+          ? 'Подписка уже отменена или не найдена'
+          : status === 403
+          ? 'Нет доступа к этой подписке'
+          : 'Не удалось выполнить действие, попробуйте ещё раз'
+      )
+    } finally {
+      setPendingSubscriptionId(null)
+    }
+  }
 
   useEffect(() => {
     authApi.me()
@@ -76,6 +106,17 @@ export default function ProfilePage() {
       .then(res => setBonusTransactions(res.data))
       .catch(() => setBonusesError('Не удалось загрузить историю'))
       .finally(() => setLoadingBonuses(false))
+  }, [tab])
+
+  // Загружаем подписки когда переходим на таб "subscriptions"
+  useEffect(() => {
+    if (tab !== 'subscriptions') return
+    setLoadingSubscriptions(true)
+    setSubscriptionsError(null)
+    subscriptionsApi.list()
+      .then(res => setSubscriptions(res.data))
+      .catch(() => setSubscriptionsError('Не удалось загрузить подписки'))
+      .finally(() => setLoadingSubscriptions(false))
   }, [tab])
 
   const currentLevel = BONUS_LEVELS.find(l => (user?.bonusLevel ?? 'newcomer') === l.key) ?? BONUS_LEVELS[0]
@@ -119,6 +160,7 @@ export default function ProfilePage() {
           {([
             { key: 'orders', label: 'Заказы' },
             { key: 'bonuses', label: 'Бонусы' },
+            { key: 'subscriptions', label: 'Подписки' },
             { key: 'settings', label: 'Настройки' },
           ] as { key: Tab; label: string }[]).map(t => (
             <button
@@ -416,6 +458,178 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ── ПОДПИСКИ ── */}
+        {tab === 'subscriptions' && (
+          <div className="flex flex-col gap-4">
+            {loadingSubscriptions && (
+              <div className="bg-white rounded-2xl p-10 flex items-center justify-center">
+                <svg className="animate-spin w-6 h-6 text-navy-400" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+              </div>
+            )}
+
+            {!loadingSubscriptions && subscriptionsError && (
+              <div className="bg-red-50 border border-red-100 rounded-2xl p-5 text-center">
+                <p className="text-sm text-red-600">{subscriptionsError}</p>
+              </div>
+            )}
+
+            {subscriptionActionError && (
+              <div className="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+                <p className="text-sm text-red-600">{subscriptionActionError}</p>
+              </div>
+            )}
+
+            {!loadingSubscriptions && !subscriptionsError && subscriptions.length === 0 && (
+              <div className="bg-white rounded-2xl p-10 text-center">
+                <p className="text-navy-500 mb-3">У вас ещё нет активных подписок</p>
+                <Link to="/catalog" className="inline-block btn-primary px-6 py-2 rounded-xl font-bold text-sm">
+                  Перейти в каталог
+                </Link>
+              </div>
+            )}
+
+            {!loadingSubscriptions && !subscriptionsError && subscriptions.length > 0 && (
+              <div className="flex flex-col gap-3">
+                {subscriptions.map(sub => {
+                  const intervalWeeks = Math.round(sub.intervalDays / 7)
+                  const nextDate = new Date(sub.nextDeliveryAt)
+                  const dateStr = nextDate.toLocaleDateString('ru-RU', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: nextDate.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+                  })
+
+                  const isEditing = editingSubscription === sub.id
+
+                  return (
+                    <div key={sub.id} className="bg-white rounded-2xl p-5">
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="w-16 h-16 bg-blue-50 rounded-xl flex-shrink-0 flex items-center justify-center">
+                          {sub.product?.images?.[0] ? (
+                            <img src={sub.product.images[0]} alt="" className="max-h-full max-w-full object-contain p-1" />
+                          ) : (
+                            <span className="text-2xl">🐾</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-navy-900 mb-1">{sub.product?.name ?? 'Товар'}</h4>
+                          <p className="text-sm text-navy-500 mb-2">
+                            {intervalWeeks} недель · Следующая доставка {dateStr}
+                          </p>
+                          <p className="text-xs text-navy-400">{sub.deliveryMethod}</p>
+                        </div>
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
+                          sub.isPaused ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+                        }`}>
+                          {sub.isPaused ? 'Пауза' : 'Активна'}
+                        </span>
+                      </div>
+
+                      {/* Редактирование */}
+                      {isEditing && (
+                        <div className="mb-4 p-3 bg-blue-50 rounded-xl flex flex-col gap-2">
+                          <label className="text-xs text-navy-500 font-medium">Интервал доставки</label>
+                          <div className="flex gap-2">
+                            {[2, 4, 6, 8].map(weeks => (
+                              <button
+                                key={weeks}
+                                onClick={() => setEditingIntervalWeeks(weeks)}
+                                className={`flex-1 text-xs px-2 py-1.5 rounded-lg border ${
+                                  editingIntervalWeeks === weeks
+                                    ? 'bg-primary text-white border-primary'
+                                    : 'bg-white border-line text-navy-500 hover:border-primary'
+                                }`}>
+                                {weeks}н
+                              </button>
+                            ))}
+                          </div>
+
+                          <label className="text-xs text-navy-500 font-medium mt-2">Дата следующей доставки</label>
+                          <input
+                            type="date"
+                            value={editingNextDate}
+                            onChange={e => setEditingNextDate(e.target.value)}
+                            className="px-3 py-2 rounded-lg border border-line text-sm focus:outline-none focus:ring-2 focus:ring-blue-100"
+                          />
+
+                          <div className="flex gap-2 mt-2">
+                            <button
+                              disabled={pendingSubscriptionId === sub.id}
+                              onClick={() =>
+                                runSubscriptionAction(sub.id, () =>
+                                  subscriptionsApi.update(sub.id, {
+                                    intervalDays: editingIntervalWeeks * 7,
+                                    nextDeliveryAt: editingNextDate ? new Date(editingNextDate).toISOString() : undefined,
+                                  })
+                                )
+                              }
+                              className="flex-1 bg-primary text-white text-xs py-1.5 rounded-lg font-medium hover:opacity-90 disabled:opacity-50">
+                              {pendingSubscriptionId === sub.id ? 'Сохранение…' : 'Сохранить'}
+                            </button>
+                            <button
+                              disabled={pendingSubscriptionId === sub.id}
+                              onClick={() => setEditingSubscription(null)}
+                              className="flex-1 bg-blue-50 text-navy-700 text-xs py-1.5 rounded-lg font-medium hover:bg-blue-100 disabled:opacity-50">
+                              Отменить
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Кнопки действий */}
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          disabled={pendingSubscriptionId === sub.id}
+                          onClick={() =>
+                            runSubscriptionAction(sub.id, () =>
+                              subscriptionsApi.update(sub.id, { isPaused: !sub.isPaused })
+                            )
+                          }
+                          className="flex-1 text-xs py-2 rounded-lg border border-primary text-primary-hover font-medium hover:bg-blue-50 disabled:opacity-50">
+                          {sub.isPaused ? 'Возобновить' : 'Пауза'}
+                        </button>
+
+                        <button
+                          disabled={pendingSubscriptionId === sub.id}
+                          onClick={() => runSubscriptionAction(sub.id, () => subscriptionsApi.skip(sub.id))}
+                          className="flex-1 text-xs py-2 rounded-lg border border-line text-navy-700 font-medium hover:bg-blue-50 disabled:opacity-50">
+                          Пропустить
+                        </button>
+
+                        <button
+                          disabled={pendingSubscriptionId === sub.id}
+                          onClick={() => {
+                            setSubscriptionActionError(null)
+                            setEditingSubscription(sub.id)
+                            setEditingIntervalWeeks(intervalWeeks)
+                            setEditingNextDate(sub.nextDeliveryAt.split('T')[0])
+                          }}
+                          className="flex-1 text-xs py-2 rounded-lg border border-line text-navy-700 font-medium hover:bg-blue-50 disabled:opacity-50">
+                          Изменить
+                        </button>
+
+                        <button
+                          disabled={pendingSubscriptionId === sub.id}
+                          onClick={() => {
+                            if (confirm('Вы уверены, что хотите отменить подписку?')) {
+                              runSubscriptionAction(sub.id, () => subscriptionsApi.cancel(sub.id))
+                            }
+                          }}
+                          className="flex-1 text-xs py-2 rounded-lg border border-red-100 text-red-400 font-medium hover:bg-red-50 disabled:opacity-50">
+                          {pendingSubscriptionId === sub.id ? 'Отмена…' : 'Отменить подписку'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 

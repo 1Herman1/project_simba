@@ -21,6 +21,8 @@ export default function CartDrawer({ open, onClose }: Props) {
   const [promoCode, setPromoCode] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [removingId, setRemovingId] = useState<string | null>(null)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
+  const [toggleErrorId, setToggleErrorId] = useState<string | null>(null)
 
   // Загружаем корзину при открытии шторки
   useEffect(() => {
@@ -196,7 +198,39 @@ export default function CartDrawer({ open, onClose }: Props) {
                   >
                     {p.name}
                   </Link>
-                  <p className="mt-0.5 text-xs text-navy-500">{v.weight} кг</p>
+                  {/* Toggle подписка/разово */}
+                  <div className="mt-1 flex gap-1">
+                    {(['once', 'subscription'] as const).map(m => (
+                      <button
+                        key={m}
+                        disabled={togglingId === item.id}
+                        onClick={async () => {
+                          setTogglingId(item.id)
+                          setToggleErrorId(null)
+                          try {
+                            const res = await updateItemFromCart(item.id, item.quantity, {
+                              isSubscription: m === 'subscription',
+                            })
+                            setItems(res.data.items)
+                          } catch {
+                            setToggleErrorId(item.id)
+                          } finally {
+                            setTogglingId(null)
+                          }
+                        }}
+                        className={`btn-press text-xs px-2.5 py-1 rounded-md border disabled:opacity-50 ${
+                          (item.isSubscription ? 'subscription' : 'once') === m
+                            ? 'bg-blue-50 border-primary-soft text-primary-hover font-medium'
+                            : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                        }`}>
+                        {m === 'once' ? 'Разово' : 'Подписка'}
+                      </button>
+                    ))}
+                  </div>
+                  {toggleErrorId === item.id && (
+                    <p className="mt-1 text-xs text-red-500">Не удалось изменить режим покупки, попробуйте ещё раз</p>
+                  )}
+                  <p className="mt-1 text-xs text-navy-500">{v.weight} кг</p>
                   <div className="mt-2 flex items-center justify-between gap-2">
                     {/* Степпер */}
                     <div className="inline-flex items-center rounded-xl border border-line">
@@ -222,13 +256,26 @@ export default function CartDrawer({ open, onClose }: Props) {
 
                     {/* Цена */}
                     <div className="flex items-baseline gap-1">
-                      <span className="text-sm font-bold text-navy-900 tabular-nums">
-                        {formatPrice(v.price * item.quantity)}
-                      </span>
-                      {v.oldPrice && (
-                        <span className="text-xs text-navy-300 line-through tabular-nums">
-                          {formatPrice(v.oldPrice * item.quantity)}
-                        </span>
+                      {item.isSubscription ? (
+                        <>
+                          <span className="text-sm font-bold text-navy-900 tabular-nums">
+                            {formatPrice(Math.round(v.price * item.quantity * 0.93))}
+                          </span>
+                          <span className="text-xs text-navy-300 line-through tabular-nums">
+                            {formatPrice(v.price * item.quantity)}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-sm font-bold text-navy-900 tabular-nums">
+                            {formatPrice(v.price * item.quantity)}
+                          </span>
+                          {v.oldPrice && (
+                            <span className="text-xs text-navy-300 line-through tabular-nums">
+                              {formatPrice(v.oldPrice * item.quantity)}
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
