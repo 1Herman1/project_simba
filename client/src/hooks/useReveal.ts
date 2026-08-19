@@ -5,8 +5,9 @@ import { useEffect, useRef } from 'react'
  * Добавляет класс `is-visible`, когда элемент входит во вьюпорт, и отписывается.
  * При reduced-motion или отсутствии IO — показывает сразу, без анимации.
  */
-export function useReveal<T extends HTMLElement = HTMLDivElement>() {
+export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: { rootMargin?: string }) {
   const ref = useRef<T>(null)
+  const rootMargin = options?.rootMargin ?? '0px 0px -12% 0px'
 
   useEffect(() => {
     const el = ref.current
@@ -33,11 +34,12 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>() {
       // порог считался от площади элемента: короткие секции вспыхивали сразу,
       // высокие — заметно позже, ритм плавал. Плюс секция выше ~6 вьюпортов
       // никогда не набирала 15% и оставалась скрытой.
-      { threshold: 0, rootMargin: '0px 0px -12% 0px' }
+      { threshold: 0, rootMargin }
     )
 
     observer.observe(el)
     return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return ref

@@ -42,7 +42,7 @@ function DecorImage({ name, type, width, height }: (typeof DECOR)[number]) {
 
 export default function QuestionnaireTeaser() {
   const { openQuiz } = useDrawer()
-  const sceneRef = useReveal<HTMLDivElement>()
+  const sceneRef = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -25% 0px' })
 
   /** Показываем декор только на 1280px и выше — вся геометрия выверена на этих ширинах. */
   const showDecor = useMediaQuery('(min-width: 1280px)')
@@ -59,8 +59,8 @@ export default function QuestionnaireTeaser() {
             <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-3">
               Не знаете, какой корм выбрать?
             </h2>
-            <p className="text-base leading-relaxed text-navy-500 max-w-xl mx-auto mb-6">
-              Ответьте на несколько вопросов о вашем питомце — возраст, размер, особенности здоровья и вкусовые предпочтения. Мы порекомендуем конкретный корм: <strong className="font-semibold text-navy-700">линейку и вкус, а не просто бренд</strong>. Это займёт около минуты.
+            <p className="text-base leading-relaxed text-navy-500 text-pretty max-w-xl mx-auto mb-6">
+              Несколько вопросов о питомце: возраст, размер, здоровье. Подберём не просто бренд, а <strong className="font-semibold text-navy-700">конкретную линейку и вкус</strong>. Займёт около минуты.
             </p>
             <button
               type="button"
@@ -69,9 +69,9 @@ export default function QuestionnaireTeaser() {
             >
               Подобрать корм
             </button>
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-navy-500">
-              <span className="text-amber-600 shrink-0" aria-hidden="true"><GiftIcon /></span>
-              После подбора вы получите <strong className="font-semibold text-navy-700">300 бонусов</strong> на первую покупку.
+            <p className="mt-3 flex items-center justify-center gap-2 text-sm text-navy-500">
+              <span className="shrink-0 text-amber-600" aria-hidden="true"><GiftIcon size={16} /></span>
+              <span><strong className="font-semibold">+300 бонусов</strong> на первую покупку</span>
             </p>
           </div>
 

@@ -96,6 +96,8 @@ export interface CartItem {
   productVariantId: string
   productId: string
   quantity: number
+  isSubscription?: boolean
+  subscriptionIntervalDays?: number
   productVariant: ProductVariant & { product: Pick<Product, 'id' | 'name' | 'slug' | 'images'> }
 }
 
@@ -257,14 +259,32 @@ export const cartApi = {
     return api.get<Cart>('/api/cart')
   },
 
-  addItem: async (productVariantId: string, quantity = 1) => {
+  addItem: async (
+    productVariantId: string,
+    quantity = 1,
+    options?: { isSubscription?: boolean; intervalWeeks?: number }
+  ) => {
     await ensureGuestSession()
-    return api.post<Cart>('/api/cart/items', { productVariantId, quantity })
+    const data: any = { productVariantId, quantity }
+    if (options?.isSubscription) {
+      data.isSubscription = true
+      if (options.intervalWeeks) {
+        data.subscriptionIntervalDays = options.intervalWeeks * 7
+      }
+    }
+    return api.post<Cart>('/api/cart/items', data)
   },
 
-  updateItem: async (cartItemId: string, quantity: number) => {
+  updateItem: async (cartItemId: string, quantity: number, options?: { isSubscription?: boolean; intervalWeeks?: number }) => {
     await ensureGuestSession()
-    return api.put<Cart>(`/api/cart/items/${cartItemId}`, { quantity })
+    const data: any = { quantity }
+    if (options?.isSubscription !== undefined) {
+      data.isSubscription = options.isSubscription
+      if (options.isSubscription && options.intervalWeeks) {
+        data.subscriptionIntervalDays = options.intervalWeeks * 7
+      }
+    }
+    return api.put<Cart>(`/api/cart/items/${cartItemId}`, data)
   },
 
   removeItem: async (cartItemId: string) => {
@@ -374,4 +394,37 @@ export const quizApi = {
 
   claimBonus: (sessionId: string) =>
     api.post<{ granted: boolean; amount: number; balance: number }>('/api/quiz/claim', { sessionId }),
+}
+
+// ─── Подписки ───────────────────────────────────────────────────────────────
+
+export interface Subscription {
+  id: string
+  userId: string
+  productVariantId: string
+  productId: string
+  intervalDays: number
+  nextDeliveryAt: string
+  deliveryMethod: string
+  deliveryAddress: object | null
+  isPaused: boolean
+  isActive: boolean
+  paymentMethodId: string | null
+  createdAt: string
+  product?: Product
+  productVariant?: ProductVariant
+}
+
+export const subscriptionsApi = {
+  list: () =>
+    api.get<Subscription[]>('/api/subscriptions'),
+
+  update: (id: string, patch: Partial<{ isPaused: boolean; nextDeliveryAt: string; intervalDays: number; productVariantId: string; deliveryMethod: string; deliveryAddress: object }>) =>
+    api.patch<Subscription>(`/api/subscriptions/${id}`, patch),
+
+  skip: (id: string) =>
+    api.post<Subscription>(`/api/subscriptions/${id}/skip`),
+
+  cancel: (id: string) =>
+    api.delete<void>(`/api/subscriptions/${id}`),
 }

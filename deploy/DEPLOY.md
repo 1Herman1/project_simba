@@ -78,7 +78,7 @@ npm install
 # Prisma: сгенерировать клиент и применить схему к БД
 cd server
 npx prisma generate
-npx prisma migrate deploy || npx prisma db push
+npx prisma migrate deploy
 cd ..
 
 # Сборка сервера

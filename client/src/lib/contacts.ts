@@ -10,7 +10,8 @@ export const CONTACTS = {
   returnsPhoneHref: 'tel:+79150183012',
   email: 'info@simba.ru',
   emailHref: 'mailto:info@simba.ru',
-  telegram: 'https://t.me/simbazoo',
+  telegram: 'https://t.me/simbazooru',
+  telegramChannel: 'https://t.me/simbachanel',
   hours: 'Отвечаем ежедневно 9:00–21:00',
   orders: 'Заказы на сайте — круглосуточно.',
 } as const
@@ -20,13 +21,13 @@ export const MARKETPLACES = [
     name: 'Яндекс Маркет',
     rating: '4,9',
     stats: '13 000+ заказов · 3 000+ отзывов',
-    url: 'https://market.yandex.ru/',
+    url: 'https://market.yandex.ru/cc/82doRs',
   },
   {
     name: 'Ozon',
     rating: '4,9',
     stats: '6 200+ заказов · 1 200+ отзывов',
-    url: 'https://www.ozon.ru/',
+    url: 'https://ozon.ru/s/simba-2856486',
   },
   {
     name: 'Авито',

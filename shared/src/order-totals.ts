@@ -1,5 +1,5 @@
 export type OrderCalcInput = {
-  items: { price: number; quantity: number }[]
+  items: { price: number; quantity: number; isSubscription?: boolean }[]
   promoCode?: string
   bonusRequested?: number
   availableBonus: number
@@ -15,10 +15,10 @@ export type OrderTotals = {
 }
 
 export function calcOrderTotals(input: OrderCalcInput): OrderTotals {
-  const subtotal = input.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  )
+  const subtotal = input.items.reduce((sum, item) => {
+    const price = item.isSubscription ? Math.round(item.price * 0.93) : item.price
+    return sum + price * item.quantity
+  }, 0)
   const promoDiscount =
     input.promoCode === 'SIMBA10' ? Math.round(subtotal * 0.1) : 0
 

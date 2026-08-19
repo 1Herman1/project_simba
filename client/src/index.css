@@ -80,6 +80,7 @@
   .quiz-scene .quiz-card,
   .quiz-scene .quiz-decor,
   .quiz-scene .quiz-prop { transition-delay: 0ms !important; }
+  .quiz-scene .quiz-prop--paw { transform: scaleX(-1) !important; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -352,51 +353,59 @@
      просвечивали внутри баннера призраками (поймано визуальным тестом).
      Карточка — непрозрачная сцена, из-за которой выходят животные. */
   .quiz-scene .quiz-card {
-    transform: translateY(10px);
-    transition: transform 420ms var(--ease-out);
+    transform: translateY(12px);
+    transition: transform 440ms var(--ease-out);
   }
   .quiz-scene.is-visible .quiz-card {
     transform: translateY(0);
   }
 
-  /* Фоновый декор: встаёт из-за карточки с глубины, с боков по 56px */
+  /* Фоновый декор: встаёт из-за карточки с глубины. transform-origin у скрытого
+     под карточкой края — рост читается как выдвижение, а не как зум с центра. */
   .quiz-scene .quiz-decor {
     opacity: 0;
-    transform: translate(var(--decor-x, 0), 16px) scale(0.965);
+    transform: translate(var(--decor-x, 0), 22px) scale(0.94);
     transition:
-      opacity 300ms var(--ease-out),
-      transform 460ms var(--ease-out);
-    transition-delay: 90ms;
+      opacity 220ms var(--ease-out),
+      transform 500ms var(--ease-out);
+    transition-delay: 120ms;
   }
   .quiz-scene.is-visible .quiz-decor {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
   .quiz-scene .quiz-decor--left {
-    --decor-x: 56px;
+    --decor-x: 104px;
+    transform-origin: 100% 100%;
   }
   .quiz-scene .quiz-decor--right {
-    --decor-x: -56px;
+    --decor-x: -84px;
+    transform-origin: 0% 100%;
   }
 
-  /* Передний декор: входит снаружи и ложится на карточку */
+  /* Передний декор: входит снаружи и ложится на карточку — самый короткий
+     заход при самой большой scale-дельте, читается как "прилетает" ближе всех. */
   .quiz-scene .quiz-prop {
     opacity: 0;
-    transform: translate(var(--prop-x, 0), 24px) scale(0.9);
+    transform: translate(var(--prop-x, 0), 44px) scale(0.86);
     transition:
-      opacity 240ms var(--ease-out),
-      transform 380ms var(--ease-out);
-    transition-delay: 250ms;
+      opacity 200ms var(--ease-out),
+      transform 420ms var(--ease-out);
+    transition-delay: 300ms;
   }
   .quiz-scene.is-visible .quiz-prop {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
   .quiz-scene .quiz-prop--paw {
-    --prop-x: -18px;
+    --prop-x: -30px;
+    transform: scaleX(-1) translate(var(--prop-x, 0), 44px) scale(0.86);
+  }
+  .quiz-scene.is-visible .quiz-prop--paw {
+    transform: scaleX(-1) translate(0, 0) scale(1);
   }
   .quiz-scene .quiz-prop--nose {
-    --prop-x: 18px;
+    --prop-x: 30px;
   }
 
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
@@ -467,6 +476,8 @@
     object-position: top;
     pointer-events: none;
     user-select: none;
+    /* Воздушная перспектива: дальний план чуть менее контрастный, чем карточка. */
+    filter: saturate(0.94);
   }
   .quiz-prop {
     display: none;
@@ -474,7 +485,12 @@
     z-index: 20;
     pointer-events: none;
     user-select: none;
-    filter: drop-shadow(0 6px 10px rgb(22 35 60 / 0.16));
+    /* Двойная тень: короткая плотная — контакт с карточкой, широкая мягкая —
+       высота над сценой. Источник света один (сверху) — X-офсет всегда 0,
+       иначе зеркальная .quiz-prop--paw получит свет с другой стороны, чем нос. */
+    filter:
+      drop-shadow(0 2px 3px rgb(22 35 60 / 0.20))
+      drop-shadow(0 16px 24px rgb(22 35 60 / 0.16));
   }
 
   @media (min-width: 1280px) {
@@ -485,6 +501,14 @@
        (иначе на макете читались «две морды», проверено рендером). */
     .quiz-decor--left  { left:  calc(88px  - var(--decor-w)); }
     .quiz-decor--right { right: calc(120px - var(--decor-w)); }
+    /* Тень карточки на сцену: отклонение от MASTER (контентная карточка обычно
+       без постоянной тени) — здесь карточка средний слой физической сцены,
+       без собственной тени слоистость не читается. Ограничено этим брейкпойнтом. */
+    .quiz-card {
+      box-shadow:
+        0 2px 4px rgb(22 35 60 / 0.07),
+        0 20px 40px -12px rgb(22 35 60 / 0.20);
+    }
     .quiz-prop--paw  { left:  -40px; bottom:  6px; width: 104px; }
     .quiz-prop--nose { right: -34px; bottom: 96px; width: 132px; }
   }

@@ -13,6 +13,7 @@ import brandRoutes from './routes/brands'
 import cartRoutes from './routes/cart/index'
 import orderRoutes from './routes/orders/index'
 import orderAdminRoutes from './routes/orders/admin'
+import subscriptionsRoutes from './routes/subscriptions/index'
 import bonusesRoutes from './routes/bonuses/index'
 import quizRoutes from './routes/quiz/index'
 import deliveryRoutes from './routes/delivery/index'
@@ -58,6 +59,7 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(cartRoutes, { prefix: '/api/cart' })
   await app.register(orderRoutes, { prefix: '/api/orders' })
   await app.register(orderAdminRoutes, { prefix: '/api/admin/orders' })
+  await app.register(subscriptionsRoutes, { prefix: '/api/subscriptions' })
   await app.register(bonusesRoutes, { prefix: '/api/bonuses' })
   await app.register(quizRoutes, { prefix: '/api/quiz' })
   await app.register(adminDashboard, { prefix: '/api/admin/dashboard' })

@@ -3,8 +3,8 @@ import { cartApi, type CartItem } from '../lib/api'
 
 interface CartContextType {
   count: number
-  addItem: (productVariantId: string, quantity?: number) => Promise<{ data: { items: CartItem[] } }>
-  updateItem: (cartItemId: string, quantity: number) => Promise<{ data: { items: CartItem[] } }>
+  addItem: (productVariantId: string, quantity?: number, options?: { isSubscription?: boolean; intervalWeeks?: number }) => Promise<{ data: { items: CartItem[] } }>
+  updateItem: (cartItemId: string, quantity: number, options?: { isSubscription?: boolean; intervalWeeks?: number }) => Promise<{ data: { items: CartItem[] } }>
   removeItem: (cartItemId: string) => Promise<{ data: { items: CartItem[] } }>
   clear: () => Promise<void>
   isLoading: boolean
@@ -32,9 +32,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     loadCart()
   }, [])
 
-  const addItem = async (productVariantId: string, quantity = 1) => {
+  const addItem = async (productVariantId: string, quantity = 1, options?: { isSubscription?: boolean; intervalWeeks?: number }) => {
     try {
-      const res = await cartApi.addItem(productVariantId, quantity)
+      const res = await cartApi.addItem(productVariantId, quantity, options)
       const total = res.data.items.reduce((sum, item) => sum + item.quantity, 0)
       setCount(total)
       return res
@@ -44,9 +44,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const updateItem = async (cartItemId: string, quantity: number) => {
+  const updateItem = async (cartItemId: string, quantity: number, options?: { isSubscription?: boolean; intervalWeeks?: number }) => {
     try {
-      const res = await cartApi.updateItem(cartItemId, quantity)
+      const res = await cartApi.updateItem(cartItemId, quantity, options)
       const total = res.data.items.reduce((sum, item) => sum + item.quantity, 0)
       setCount(total)
       return res
