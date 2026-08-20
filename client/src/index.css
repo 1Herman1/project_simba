@@ -399,7 +399,9 @@
   }
   .quiz-scene .quiz-prop--paw {
     --prop-x: -30px;
-    transform: scaleX(-1) translate(var(--prop-x, 0), 44px) scale(0.86);
+    /* 20px, а не общие 44px: лапа теперь висит на -56px под карточкой (bottom),
+       вход с 44px+56px нырял бы в футер секции ниже. */
+    transform: scaleX(-1) translate(var(--prop-x, 0), 20px) scale(0.86);
   }
   .quiz-scene.is-visible .quiz-prop--paw {
     transform: scaleX(-1) translate(0, 0) scale(1);
@@ -496,10 +498,11 @@
   @media (min-width: 1280px) {
     .quiz-decor, .quiz-prop { display: block; }
     .quiz-scene { --decor-w: 240px; }
-    /* Заход за карточку: у кота 88px, у пса 120px — у пса больше, чтобы его
+    /* Заход за карточку: у кота 76px, у пса 120px — у пса больше, чтобы его
        собственная морда ушла ЗА карточку и её продолжением стал передний нос
-       (иначе на макете читались «две морды», проверено рендером). */
-    .quiz-decor--left  { left:  calc(88px  - var(--decor-w)); }
+       (иначе на макете читались «две морды», проверено рендером). У кота заход
+       меньше — 88px резал кончик носа краем карточки (проверено рендером). */
+    .quiz-decor--left  { left:  calc(76px  - var(--decor-w)); }
     .quiz-decor--right { right: calc(120px - var(--decor-w)); }
     /* Тень карточки на сцену: отклонение от MASTER (контентная карточка обычно
        без постоянной тени) — здесь карточка средний слой физической сцены,
@@ -509,7 +512,7 @@
         0 2px 4px rgb(22 35 60 / 0.07),
         0 20px 40px -12px rgb(22 35 60 / 0.20);
     }
-    .quiz-prop--paw  { left:  -40px; bottom:  6px; width: 104px; }
+    .quiz-prop--paw  { left:  -22px; bottom: -56px; width: 88px; }
     .quiz-prop--nose { right: -34px; bottom: 96px; width: 132px; }
   }
 
