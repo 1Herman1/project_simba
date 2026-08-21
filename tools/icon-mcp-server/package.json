@@ -6,6 +6,7 @@
   "description": "MCP-сервер для поиска и получения иконок (Iconify) и Lottie-анимаций (LottieFiles) — только легитимные бесплатные официальные API, без скрейпинга.",
   "scripts": {
     "start": "tsx src/index.ts",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

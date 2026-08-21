@@ -11,6 +11,8 @@
 // свериться с https://developers.lottiefiles.com/docs и поправить BASE_URL /
 // заголовок авторизации здесь, это единственное место, которое это трогает.
 
+import { fetchWithTimeout } from "./net.js";
+
 const BASE_URL = "https://api.lottiefiles.com/v1";
 
 export type LottieSearchResult = {
@@ -36,7 +38,7 @@ export async function searchAnimatedIcon(
   limit = 20,
 ): Promise<LottieSearchResult[]> {
   const params = new URLSearchParams({ query, limit: String(limit) });
-  const res = await fetch(`${BASE_URL}/search?${params.toString()}`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/search?${params.toString()}`, {
     headers: authHeaders(),
   });
   if (!res.ok) {
@@ -57,7 +59,7 @@ export async function searchAnimatedIcon(
 }
 
 export async function getAnimatedIconJson(id: string): Promise<string> {
-  const res = await fetch(`${BASE_URL}/animations/${encodeURIComponent(id)}/download`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/animations/${encodeURIComponent(id)}/download`, {
     headers: authHeaders(),
   });
   if (!res.ok) {
