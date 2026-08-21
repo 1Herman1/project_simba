@@ -81,9 +81,6 @@
   .quiz-scene .quiz-decor,
   .quiz-scene .quiz-prop { transition-delay: 0ms !important; }
   .quiz-scene .quiz-prop--paw { transform: scaleX(-1) !important; }
-  /* Универсальный сброс выше гасит только transform — параллакс декора живёт
-     в отдельном свойстве translate и пережил бы reduced-motion без этой строки. */
-  .quiz-scene .quiz-decor { translate: none !important; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -508,18 +505,6 @@
        менять только по новой примерке, а не из соображений симметрии. */
     .quiz-decor--left  { left:  calc(21px - var(--decor-w)); }
     .quiz-decor--right { right: calc(26px - var(--decor-w)); }
-    /* Параллакс дальнего плана по курсору. Пишем в `translate`, а не в transform:
-       тот занят reveal-ом, а у лапы ещё и зеркалом scaleX(-1) — translate живёт
-       отдельным свойством и не переворачивается зеркалом. Амплитуда ±6px при
-       заходе кота за карточку 21px: запечённый прямой срез ассета остаётся
-       скрытым с запасом 2.5× (больше 10px — срез вылезет). Пропы не двигаем:
-       лапа лежит НА карточке, нос — продолжение морды пса через скрытый стык. */
-    .quiz-decor {
-      translate: var(--quiz-px, 0px) var(--quiz-py, 0px);
-      transition: translate 220ms var(--ease-out);
-    }
-    .quiz-decor--right { transition-duration: 260ms; }
-    .quiz-scene.is-parallax .quiz-decor { will-change: translate; }
     /* Тень карточки на сцену: отклонение от MASTER (контентная карточка обычно
        без постоянной тени) — здесь карточка средний слой физической сцены,
        без собственной тени слоистость не читается. Ограничено этим брейкпойнтом.

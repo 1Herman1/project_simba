@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { useReveal } from '../../hooks/useReveal'
-import { useQuizParallax } from '../../hooks/useQuizParallax'
 import { useDrawer } from '../../context/DrawerContext'
 import GiftIcon from '../quiz/GiftIcon'
 
@@ -47,9 +46,6 @@ export default function QuestionnaireTeaser() {
 
   /** Показываем декор только на 1280px и выше — вся геометрия выверена на этих ширинах. */
   const showDecor = useMediaQuery('(min-width: 1280px)')
-
-  /** Параллакс животных по курсору — только там, где декор вообще смонтирован. */
-  useQuizParallax(sceneRef, showDecor)
 
   return (
     <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16 overflow-x-clip">
