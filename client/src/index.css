@@ -408,6 +408,14 @@
   }
   .quiz-scene .quiz-prop--nose {
     --prop-x: 30px;
+    /* Нос — визуальное продолжение морды пса, а не отдельный передний план:
+       едет с той же задержкой/длительностью, что .quiz-decor--right, а не
+       с общим таймингом .quiz-prop (300/200/420мс) — иначе на входе они
+       на мгновение расходятся, и стык между ними на долю секунды читается. */
+    transition:
+      opacity 220ms var(--ease-out),
+      transform 500ms var(--ease-out);
+    transition-delay: 120ms;
   }
 
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
@@ -519,7 +527,7 @@
         0 20px 40px -12px rgb(22 35 60 / 0.20);
     }
     .quiz-prop--paw  { left: -41px; bottom: -11px; width: 63px; }
-    .quiz-prop--nose { right: -110px; bottom: 39px; width: 147px; }
+    .quiz-prop--nose { right: -109px; bottom: 36px; width: 147px; }
   }
 
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
