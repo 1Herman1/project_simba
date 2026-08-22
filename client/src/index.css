@@ -527,7 +527,7 @@
         0 20px 40px -12px rgb(22 35 60 / 0.20);
     }
     .quiz-prop--paw  { left: -41px; bottom: -11px; width: 63px; }
-    .quiz-prop--nose { right: -110px; bottom: 39px; width: 147px; }
+    .quiz-prop--nose { right: -109px; bottom: 36px; width: 147px; }
   }
 
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
