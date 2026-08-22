@@ -1,6 +1,13 @@
-// Клиент Iconify — публичный REST API, без ключа, официально предназначен
-// для программного доступа. https://iconify.design/docs/api/
+// Клиент Iconify — сначала локальные npm-пакеты @iconify-json/<набор> (см.
+// localIconify.ts, не требуют сети), сеть на api.iconify.design — как
+// расширение покрытия сверх установленных локально наборов. См. ADR-003.
 import { fetchWithTimeout } from "./net.js";
+import {
+  searchLocalIcon,
+  getLocalIconSvg,
+  listLocalIconSets,
+  isSetInstalledLocally,
+} from "./localIconify.js";
 
 const BASE_URL = "https://api.iconify.design";
 
@@ -37,7 +44,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function searchStaticIcon(
+async function searchStaticIconNetwork(
   query: string,
   set?: string,
   limit = 20,
@@ -62,10 +69,30 @@ export async function searchStaticIcon(
   });
 }
 
-export async function getStaticIconSvg(
-  prefix: string,
-  name: string,
-): Promise<string> {
+export async function searchStaticIcon(
+  query: string,
+  set?: string,
+  limit = 20,
+): Promise<IconSearchResult[]> {
+  const local = searchLocalIcon(query, set, limit);
+  if (local.length > 0) return local;
+
+  // Локально либо нет совпадений, либо запрошенный набор не установлен —
+  // расширяем поиск на живой API. Если сеть недоступна, честная ошибка сети
+  // долетит до вызывающего — это ожидаемо для наборов вне локального покрытия.
+  return searchStaticIconNetwork(query, set, limit);
+}
+
+export async function getStaticIconSvg(prefix: string, name: string): Promise<string> {
+  if (isSetInstalledLocally(prefix)) {
+    const svg = getLocalIconSvg(prefix, name);
+    if (svg) return svg;
+    throw new Error(
+      `Иконка "${name}" не найдена в локально установленном наборе "${prefix}". ` +
+        `Проверь имя через search_static_icon — набор точно установлен, значит имя просто другое.`,
+    );
+  }
+
   const res = await fetchWithTimeout(`${BASE_URL}/${prefix}/${name}.svg`);
   if (!res.ok) {
     throw new Error(
@@ -78,12 +105,21 @@ export async function getStaticIconSvg(
 export async function listIconSets(
   category?: string,
 ): Promise<{ prefix: string; name: string; license: string }[]> {
-  const data = await fetchJson<IconifyCollectionsResponse>(
-    `${BASE_URL}/collections${category ? `?category=${encodeURIComponent(category)}` : ""}`,
-  );
-  return Object.entries(data).map(([prefix, meta]) => ({
-    prefix,
-    name: meta.name ?? prefix,
-    license: meta.license?.spdx ?? meta.license?.title ?? "не указана",
-  }));
+  const local = listLocalIconSets();
+  try {
+    const data = await fetchJson<IconifyCollectionsResponse>(
+      `${BASE_URL}/collections${category ? `?category=${encodeURIComponent(category)}` : ""}`,
+    );
+    const network = Object.entries(data).map(([prefix, meta]) => ({
+      prefix,
+      name: meta.name ?? prefix,
+      license: meta.license?.spdx ?? meta.license?.title ?? "не указана",
+    }));
+    const localPrefixes = new Set(local.map((s) => s.prefix));
+    return [...local, ...network.filter((s) => !localPrefixes.has(s.prefix))];
+  } catch {
+    // Сеть недоступна — у нас всё равно есть реальные локальные наборы,
+    // отдать их, а не падать целиком.
+    return local;
+  }
 }
