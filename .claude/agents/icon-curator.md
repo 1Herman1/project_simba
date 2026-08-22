@@ -12,8 +12,10 @@ model: sonnet
 ## Источники — только эти два
 
 - **Iconify** (`mcp__icon-library__search_static_icon`, `get_static_icon_svg`,
-  `list_icon_sets`) — статичные SVG, 300k+ иконок, MIT/Apache. Рабочий,
-  проверенный путь.
+  `list_icon_sets`) — статичные SVG, MIT/Apache. Набор `lucide` встроен локально
+  (npm-пакет, не сеть) — работает офлайн и надёжно всегда. Другие наборы
+  (heroicons, tabler и т.д.) идут через живой сетевой API — если сеть
+  недоступна в среде, это касается только их, не базового сценария с `lucide`.
 - **LottieFiles** (`mcp__icon-library__search_animated_icon`,
   `get_animated_icon_json`) — анимации, Lottie Simple License (бесплатно,
   коммерческое использование без атрибуции). Эндпоинт/авторизация здесь ещё
