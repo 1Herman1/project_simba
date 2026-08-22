@@ -408,6 +408,14 @@
   }
   .quiz-scene .quiz-prop--nose {
     --prop-x: 30px;
+    /* Нос — визуальное продолжение морды пса, а не отдельный передний план:
+       едет с той же задержкой/длительностью, что .quiz-decor--right, а не
+       с общим таймингом .quiz-prop (300/200/420мс) — иначе на входе они
+       на мгновение расходятся, и стык между ними на долю секунды читается. */
+    transition:
+      opacity 220ms var(--ease-out),
+      transform 500ms var(--ease-out);
+    transition-delay: 120ms;
   }
 
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
