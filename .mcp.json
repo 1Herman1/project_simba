@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "icon-library": {
+      "command": "npx",
+      "args": ["tsx", "tools/icon-mcp-server/src/index.ts"],
+      "env": {
+        "LOTTIEFILES_API_KEY": "${LOTTIEFILES_API_KEY}"
+      }
+    }
+  }
+}

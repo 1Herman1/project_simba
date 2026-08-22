@@ -34,12 +34,17 @@ model: opus
 | `react-reviewer` | Доступность в коде: клавиатура, aria-label, form-label, XSS, hooks |
 | `performance-optimizer` | Bundle, code splitting, LCP/CLS, ленивые картинки, шрифты, ре-рендеры |
 | `seo-specialist` | Мета-теги, structured data, sitemap, семантика, crawlability |
+| `icon-curator` | Подбор и встраивание конкретной иконки/анимации — не ревью, а производство нового ассета |
 
 Правила разделения (иначе три агента напишут об одной находке):
 - Контраст, типографика, AI-slop, layout-визуал → **только** `design-reviewer`.
 - Клавиатура, aria, form-label, XSS → **только** `react-reviewer`.
 - CLS, bundle, ленивая загрузка, шрифты → **только** `performance-optimizer`.
 - title/description, JSON-LD, sitemap → **только** `seo-specialist`.
+- «Нужна иконка/анимация для X» → сразу `icon-curator`, не `design-reviewer`
+  (тот оценивает уже существующий UI, этот производит новый ассет — та же
+  логика, что разделяет `media-generator` и `design-reviewer`). Его результат
+  не идёт в P1–P10 отчёт — это отдельная сдача файла, не находка.
 
 Для общего «аудит UI/UX» без уточнения — подключай `design-reviewer`,
 `react-reviewer`, `performance-optimizer` параллельно (SEO — если речь про
