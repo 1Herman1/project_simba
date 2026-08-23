@@ -230,13 +230,27 @@
   /* Карточка бренда: подъём + окраска рамки только на мышином ховере — на тач
      устройствах :hover залипал бы после тапа при протягивании ряда пальцем. */
   .brand-card {
-    transition: transform 100ms var(--ease-out), border-color 100ms var(--ease-out);
+    transition:
+      transform 100ms var(--ease-out),
+      border-color 100ms var(--ease-out),
+      box-shadow 100ms var(--ease-out);
+    /* Убирает 300мс-задержку и серый системный флеш при тапе — как у .btn-outline. */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   @media (hover: hover) and (pointer: fine) {
     .brand-card:hover {
       transform: translateY(-2px);
       border-color: theme('colors.primary.soft');
+      /* Товарная карточка по MASTER: на hover подъём + рамка + тень.
+         Тени не хватало — состояние было исполнено на две трети. */
+      box-shadow: theme('boxShadow.card');
     }
+  }
+  /* На тач-устройствах hover не существует: без этого тап по плитке
+     не давал никакого отклика. */
+  .brand-card:active {
+    transform: scale(0.98);
   }
 
   /* Логотип: лёгкое увеличение при наведении. Только на мышином ховере —
