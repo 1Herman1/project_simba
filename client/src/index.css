@@ -76,10 +76,9 @@
   .icon-check-path { animation: none !important; stroke-dashoffset: 0; }
   .animate-spin { animation: none !important; }
   .animate-pulse { animation: none !important; }
-  /* Квиз: элементы оказываются в финальных позициях без задержек */
-  .quiz-scene .quiz-card,
-  .quiz-scene .quiz-decor,
-  .quiz-scene .quiz-prop { transition-delay: 0ms !important; }
+  /* Квиз: карточка ловит reveal без задержки; лапа держит зеркало —
+     кот/пёс/нос больше не анимируются отдельно, их сбрасывать не нужно. */
+  .quiz-scene .quiz-card { transition-delay: 0ms !important; }
   .quiz-scene .quiz-prop--paw { transform: scaleX(-1) !important; }
 }
 
@@ -360,62 +359,19 @@
     transform: translateY(0);
   }
 
-  /* Фоновый декор: встаёт из-за карточки с глубины. transform-origin у скрытого
-     под карточкой края — рост читается как выдвижение, а не как зум с центра. */
-  .quiz-scene .quiz-decor {
-    opacity: 0;
-    transform: translate(var(--decor-x, 0), 22px) scale(0.94);
-    transition:
-      opacity 220ms var(--ease-out),
-      transform 500ms var(--ease-out);
-    transition-delay: 120ms;
-  }
-  .quiz-scene.is-visible .quiz-decor {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
+  /* Кот/пёс/лапа/нос больше не выезжают отдельно — появляются сразу вместе
+     с карточкой (только .quiz-card ловит reveal). Раздельная анимация носа
+     и пса, даже с одинаковым таймингом, на глаз всё равно читалась как
+     рассинхрон — надёжнее вообще без раздельного движения переднего/заднего
+     плана. transform-origin у кота/пса — не для анимации, просто на будущее. */
   .quiz-scene .quiz-decor--left {
-    --decor-x: 104px;
     transform-origin: 100% 100%;
   }
   .quiz-scene .quiz-decor--right {
-    --decor-x: -84px;
     transform-origin: 0% 100%;
   }
-
-  /* Передний декор: входит снаружи и ложится на карточку — самый короткий
-     заход при самой большой scale-дельте, читается как "прилетает" ближе всех. */
-  .quiz-scene .quiz-prop {
-    opacity: 0;
-    transform: translate(var(--prop-x, 0), 44px) scale(0.86);
-    transition:
-      opacity 200ms var(--ease-out),
-      transform 420ms var(--ease-out);
-    transition-delay: 300ms;
-  }
-  .quiz-scene.is-visible .quiz-prop {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
   .quiz-scene .quiz-prop--paw {
-    --prop-x: -30px;
-    /* 20px, а не общие 44px: лапа свисает ниже карточки, полный заход
-       нырял бы в подвал секции. scaleX(-1) — зеркало (см. reduced-motion). */
-    transform: scaleX(-1) translate(var(--prop-x, 0), 20px) scale(0.86);
-  }
-  .quiz-scene.is-visible .quiz-prop--paw {
-    transform: scaleX(-1) translate(0, 0) scale(1);
-  }
-  .quiz-scene .quiz-prop--nose {
-    --prop-x: 30px;
-    /* Нос — визуальное продолжение морды пса, а не отдельный передний план:
-       едет с той же задержкой/длительностью, что .quiz-decor--right, а не
-       с общим таймингом .quiz-prop (300/200/420мс) — иначе на входе они
-       на мгновение расходятся, и стык между ними на долю секунды читается. */
-    transition:
-      opacity 220ms var(--ease-out),
-      transform 500ms var(--ease-out);
-    transition-delay: 120ms;
+    transform: scaleX(-1);
   }
 
   /* Scroll-reveal: fade + подъём 16px. transition, а не keyframes —
@@ -527,7 +483,7 @@
         0 20px 40px -12px rgb(22 35 60 / 0.20);
     }
     .quiz-prop--paw  { left: -41px; bottom: -11px; width: 63px; }
-    .quiz-prop--nose { right: -109px; bottom: 36px; width: 147px; }
+    .quiz-prop--nose { right: -99px; bottom: 32px; width: 147px; }
   }
 
   /* Гард от двойного подъёма: секция либо в <Reveal>, либо со своим
