@@ -13,7 +13,9 @@ const DECOR = [
   { name: 'nose-front', type: 'front' as const, width: 340, height: 361 },
 ]
 
-function DecorImage({ name, type, width, height }: (typeof DECOR)[number]) {
+function DecorImage({
+  name, type, width, height, onReady,
+}: (typeof DECOR)[number] & { onReady: () => void }) {
   const [failed, setFailed] = useState(false)
   if (failed) return null
 
@@ -33,27 +35,49 @@ function DecorImage({ name, type, width, height }: (typeof DECOR)[number]) {
         decoding="async"
         width={width}
         height={height}
-        onError={() => setFailed(true)}
+        onLoad={onReady}
+        onError={() => { setFailed(true); onReady() }}
         className={decorClass}
       />
     </picture>
   )
 }
 
+/** Каждая сторона — пара "фон + перед" (кот+лапа, пёс+нос): нос — визуальное
+    продолжение морды, поэтому оба грузятся независимо (lazy), но должны
+    ПОЯВИТЬСЯ одним кадром, а не по мере готовности каждой картинки —
+    иначе видно, как один силуэт возникает раньше другого. */
+const SIDES = {
+  left: ['quiz-left-back', 'paw-front'],
+  right: ['quiz-right-back', 'nose-front'],
+} as const
+
 export default function QuestionnaireTeaser() {
   const { openQuiz } = useDrawer()
   const sceneRef = useReveal<HTMLDivElement>({ rootMargin: '0px 0px -25% 0px' })
+  const [loaded, setLoaded] = useState<Set<string>>(new Set())
 
   /** Показываем декор только на 1280px и выше — вся геометрия выверена на этих ширинах. */
   const showDecor = useMediaQuery('(min-width: 1280px)')
+
+  const markLoaded = (name: string) =>
+    setLoaded(prev => (prev.has(name) ? prev : new Set(prev).add(name)))
+
+  const sideReady = (side: keyof typeof SIDES) => SIDES[side].every(name => loaded.has(name))
 
   return (
     <section id="questionnaire" className="scroll-mt-24 py-12 md:py-16 overflow-x-clip">
       <div className="max-w-7xl mx-auto px-4">
         {/* Якорь для Reveal: сама сцена с карточкой. Четыре декора входят в этот контекст. */}
         <div ref={sceneRef} className="quiz-scene relative mx-auto w-full max-w-4xl">
-          {/* Два фоновых декора (кот + пёс) входят первыми — они за карточкой. */}
-          {showDecor && DECOR.filter(d => d.type === 'back').map((d) => <DecorImage key={d.name} {...d} />)}
+          {/* Два фоновых декора (кот + пёс) входят первыми — они за карточкой.
+              Пара скрыта, пока не готовы ОБЕ картинки её стороны (см. SIDES) —
+              появляются одним кадром, без анимации, просто без "проявляется раньше". */}
+          {showDecor && DECOR.filter(d => d.type === 'back').map((d) => (
+            <div key={d.name} style={{ opacity: sideReady(d.name.includes('left') ? 'left' : 'right') ? 1 : 0 }}>
+              <DecorImage {...d} onReady={() => markLoaded(d.name)} />
+            </div>
+          ))}
 
           <div className="quiz-card relative z-10 rounded-card bg-white border border-line shadow-card px-5 py-8 md:px-8 md:py-10 text-center">
             <h2 className="text-2xl xl:text-3xl font-bold text-navy-900 mb-3">
@@ -76,7 +100,11 @@ export default function QuestionnaireTeaser() {
           </div>
 
           {/* Два передних декора (лапа + нос) входят последними — они поверх карточки. */}
-          {showDecor && DECOR.filter(d => d.type === 'front').map((d) => <DecorImage key={d.name} {...d} />)}
+          {showDecor && DECOR.filter(d => d.type === 'front').map((d) => (
+            <div key={d.name} style={{ opacity: sideReady(d.name.includes('paw') ? 'left' : 'right') ? 1 : 0 }}>
+              <DecorImage {...d} onReady={() => markLoaded(d.name)} />
+            </div>
+          ))}
         </div>
       </div>
     </section>
