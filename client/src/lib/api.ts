@@ -10,6 +10,28 @@ import type { QuizAnswers } from './quiz-config'
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3000'),
   withCredentials: true,
+  // Массивы — повторяющимся ключом (tags=a&tags=b), а не скобками (tags[]=a).
+  // Fastify поднят без своего парсера query, то есть разбирает её парсером Node,
+  // а тот скобки не раскрывает: `tags[]=kidney` приходил ключом "tags[]", zod
+  // видел tags === undefined и МОЛЧА отбрасывал фильтр — все кнопки быстрых
+  // фильтров каталога показывали весь каталог. Чиним на клиенте, а не заплаткой
+  // в схеме: так закрыты разом все текущие и будущие массивные параметры.
+  paramsSerializer: {
+    serialize: (params: Record<string, unknown>) => {
+      const search = new URLSearchParams()
+      for (const [key, value] of Object.entries(params)) {
+        if (value === undefined || value === null) continue
+        if (Array.isArray(value)) {
+          for (const item of value) {
+            if (item !== undefined && item !== null) search.append(key, String(item))
+          }
+        } else {
+          search.append(key, String(value))
+        }
+      }
+      return search.toString()
+    },
+  },
 })
 
 api.interceptors.request.use((config) => {
@@ -185,7 +207,7 @@ export const productsApi = {
     page?: number
     limit?: number
     featured?: 'true' | 'false'
-  }) => api.get<{ items: Product[]; total: number; page: number; pages: number }>('/api/products/list', { params }),
+  }) => api.get<{ items: Product[]; total: number; page: number; totalPages: number }>('/api/products/list', { params }),
 
   popular: (limit?: number) =>
     api.get<{ items: Product[]; basis: 'sales' | 'curated' }>('/api/products/popular', { params: { limit } }),

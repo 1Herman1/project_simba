@@ -23,6 +23,29 @@ export interface ProductFilters {
 /** Ветеринарные линейки, представленные в каталоге. */
 const MEDICAL_LINES = ['Vet Life', 'VetSolution', 'Prescription Diet']
 
+/** Поля карточки в выдаче каталога. Общие для обычной ветки и сортировки по цене —
+    иначе две ветки незаметно разъедутся по форме ответа. */
+const productListSelect = {
+  id: true,
+  name: true,
+  slug: true,
+  images: true,
+  isGrainFree: true,
+  isHypoallergenic: true,
+  brand: { select: { name: true } },
+  variants: {
+    where: { isActive: true },
+    orderBy: { weight: 'asc' },
+    select: {
+      id: true,
+      weight: true,
+      price: true,
+      oldPrice: true,
+      stock: true,
+    },
+  },
+} as const
+
 export async function getProducts(prisma: PrismaClient, filters: ProductFilters) {
   const page = filters.page ?? 1
   const limit = Math.min(filters.limit ?? 20, 100)
@@ -95,32 +118,45 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
 
   const orderBy = buildOrderBy(filters.sortBy)
 
+  // Сортировка по цене — особый случай: цена лежит у вариантов, а Prisma не умеет
+  // orderBy по минимальной цене связи внутри findMany. Раньше здесь стоял
+  // комментарий «делается после выборки», но самой постобработки в файле не было —
+  // price_asc/price_desc молча отдавали порядок по дате. Берём порядок и страницу
+  // через groupBy по вариантам, затем догружаем товары и восстанавливаем порядок.
+  if (filters.sortBy === 'price_asc' || filters.sortBy === 'price_desc') {
+    const direction = filters.sortBy === 'price_asc' ? 'asc' : 'desc'
+    const priceWhere = { ...where, variants: { some: { isActive: true } } }
+
+    const [grouped, total] = await Promise.all([
+      prisma.productVariant.groupBy({
+        by: ['productId'],
+        where: { isActive: true, product: where },
+        _min: { price: true },
+        orderBy: { _min: { price: direction } },
+        skip,
+        take: limit,
+      }),
+      prisma.product.count({ where: priceWhere }),
+    ])
+
+    const ids = grouped.map((g) => g.productId)
+    const found = await prisma.product.findMany({
+      where: { id: { in: ids } },
+      select: productListSelect,
+    })
+    const byId = new Map(found.map((p) => [p.id, p]))
+    const items = ids.map((id) => byId.get(id)).filter((p): p is (typeof found)[number] => Boolean(p))
+
+    return { items, total, page, totalPages: Math.ceil(total / limit) }
+  }
+
   const [items, total] = await Promise.all([
     prisma.product.findMany({
       where,
       skip,
       take: limit,
       orderBy,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        images: true,
-        isGrainFree: true,
-        isHypoallergenic: true,
-        brand: { select: { name: true } },
-        variants: {
-          where: { isActive: true },
-          orderBy: { weight: 'asc' },
-          select: {
-            id: true,
-            weight: true,
-            price: true,
-            oldPrice: true,
-            stock: true,
-          },
-        },
-      },
+      select: productListSelect,
     }),
     prisma.product.count({ where }),
   ])

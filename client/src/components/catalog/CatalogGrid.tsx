@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { productsApi, type Product } from '../../lib/api'
 import ProductCard from './ProductCard'
 import { pluralize } from '../../lib/format'
 import EmptyCatalog from './EmptyCatalog'
+
+type ListParams = NonNullable<Parameters<typeof productsApi.list>[0]>
 
 interface Props {
   search: string
@@ -11,26 +13,40 @@ interface Props {
   brand?: string
   format?: string
   purpose?: string
+  sort?: string
 }
 
-export default function CatalogGrid({ search, activeTag, category, brand, format, purpose }: Props) {
+const PAGE_SIZE = 24
+
+export default function CatalogGrid({ search, activeTag, category, brand, format, purpose, sort }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
 
+  const buildParams = useCallback(
+    (targetPage: number): ListParams => {
+      const params: ListParams = { page: targetPage, limit: PAGE_SIZE }
+      if (search) params.search = search
+      if (activeTag) params.tags = [activeTag]
+      if (category) params.category = category
+      if (brand) params.brand = brand
+      if (format === 'dry' || format === 'wet') params.format = format
+      if (purpose === 'medical') params.purpose = purpose
+      if (sort && sort !== 'popular') params.sort = sort
+      return params
+    },
+    [search, activeTag, category, brand, format, purpose, sort],
+  )
+
+  // Смена любого фильтра — это новая выдача: страницу сбрасываем и грузим заново.
   useEffect(() => {
     const timer = setTimeout(async () => {
       setLoading(true)
+      setPage(1)
       try {
-        const params: Record<string, string | string[]> = {}
-        if (search) params.search = search
-        if (activeTag) params.tags = [activeTag]
-        if (category) params.category = category
-        if (brand) params.brand = brand
-        if (format === 'dry' || format === 'wet') params.format = format
-        if (purpose === 'medical') params.purpose = purpose
-
-        const res = await productsApi.list(params)
+        const res = await productsApi.list(buildParams(1))
         setProducts(res.data.items)
         setTotal(res.data.total)
       } catch {
@@ -41,7 +57,24 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
       }
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, activeTag, category, brand, format, purpose])
+  }, [buildParams])
+
+  // Догрузка ДОПИСЫВАЕТ товары к уже показанным: подменять всю сетку скелетоном
+  // на «Показать ещё» нельзя — покупатель потеряет то, что уже просматривал.
+  const loadMore = async () => {
+    const next = page + 1
+    setLoadingMore(true)
+    try {
+      const res = await productsApi.list(buildParams(next))
+      setProducts(prev => [...prev, ...res.data.items])
+      setTotal(res.data.total)
+      setPage(next)
+    } catch {
+      /* оставляем показанное как есть — молча теряют только неудачную догрузку */
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -60,6 +93,8 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
     return <EmptyCatalog sectionEmpty={sectionEmpty} />
   }
 
+  const hasMore = products.length < total
+
   return (
     <>
       <p className="text-sm text-navy-300 mb-4">{pluralize(total, 'товар', 'товара', 'товаров')}</p>
@@ -68,6 +103,22 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
+
+      {hasMore && (
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="btn-outline px-8 py-3 rounded-xl font-semibold disabled:opacity-60"
+          >
+            {loadingMore ? 'Загружаем…' : 'Показать ещё'}
+          </button>
+          <p className="text-sm text-navy-300">
+            Показано {products.length} из {total}
+          </p>
+        </div>
+      )}
     </>
   )
 }
