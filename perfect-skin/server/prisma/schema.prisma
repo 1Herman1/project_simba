@@ -38,6 +38,7 @@ enum SkinType {
   combination
   sensitive
   mature
+  all_types
 }
 
 /// Задача, которую решает средство.
@@ -53,6 +54,15 @@ enum Concern {
   firming
   eye_area
   post_procedure
+  regeneration
+  radiance
+  sebum_control
+  hygiene
+  barrier
+  daily_care
+  express_care
+  intensive_care
+  nourishing
 }
 
 /// Единица фасовки: мл для флаконов, г для банок, шт для наборов.
@@ -319,6 +329,8 @@ model Product {
   inciText           String? // полный состав как на этикетке
   seoTitle           String?
   seoDescription     String?
+  minPrice           Int        @default(0) // минимальная розничная цена активных фасовок, копейки
+  maxPrice           Int        @default(0) // максимальная розничная цена активных фасовок, копейки
   isActive           Boolean    @default(true)
   isFeatured         Boolean    @default(false)
   createdAt          DateTime   @default(now())
@@ -338,8 +350,8 @@ model Product {
   @@index([slug])
   @@index([brandId])
   @@index([lineId])
-  @@index([isActive, deletedAt])
-  @@index([createdAt])
+  @@index([isActive, deletedAt, createdAt])
+  @@index([minPrice])
   @@map("products")
 }
 
@@ -366,7 +378,7 @@ model ProductVariant {
   cartItems  CartItem[]
   orderItems OrderItem[]
 
-  @@index([productId])
+  @@index([productId, isActive])
   @@index([isActive, deletedAt])
   @@index([retailPrice])
   @@map("product_variants")
@@ -562,7 +574,7 @@ model OrderItem {
   product        Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
-  @@index([productId])
+  @@index([productId, createdAt])
   @@index([productVariantId])
   @@map("order_items")
 }
