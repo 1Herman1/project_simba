@@ -17,6 +17,8 @@ export async function sendOtpRoute(app: FastifyInstance) {
   app.post<{ Body: { phone: string } }>(
     '/api/v1/auth/send-otp',
     {
+      // Контракт 3.18: 5 запросов / 15 минут по IP (плюс лимит на номер внутри).
+      config: { rateLimit: { max: 5, timeWindow: '15 minutes' } },
       schema: {
         response: {
           200: {

@@ -13,7 +13,8 @@
     "seed": "NODE_ENV=development tsx prisma/seed.ts",
     "studio": "prisma studio",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cleanup:carts": "node --env-file=.env tools/cleanup-guest-carts.mjs"
   },
   "dependencies": {
     "@fastify/cookie": "^9.4.0",

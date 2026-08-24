@@ -51,6 +51,8 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   app.post<{ Body: { variantId: string; quantity: number }; Reply: any }>(
     '/api/v1/cart/items',
     {
+      // Контракт 3.11: 60/мин по IP.
+      config: { rateLimit: { max: 60, timeWindow: '1 minute' } },
       schema: {
         body: {
           type: 'object',

@@ -9,6 +9,8 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   app.post<{ Body: { code: string }; Reply: any }>(
     '/api/v1/promo/validate',
     {
+      // Контракт 3.15: 20/мин по IP — защита от перебора кодов.
+      config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
       schema: {
         body: {
           type: 'object',

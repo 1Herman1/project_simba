@@ -6,7 +6,9 @@ const { calcOrderTotals } = ((psSharedNs as any).default ?? psSharedNs) as any
 import { toCalcMethod } from '../lib/delivery.js'
 import crypto from 'crypto'
 
-type CartOwnerInput = { userId: string } | { sessionId: string }
+// Заказ оформляет только вошедший пользователь (Order.userId обязателен) —
+// гость проходит вход до этого шага, сигнатура это закрепляет.
+type OrderOwner = { userId: string }
 
 export class OrderService {
   /**
@@ -23,7 +25,7 @@ export class OrderService {
    * 10. Clear cart
    */
   async createOrder(
-    owner: CartOwnerInput,
+    owner: OrderOwner,
     payload: {
       deliveryMethod: DeliveryMethod
       cdekPvzCode?: string | null
@@ -34,32 +36,16 @@ export class OrderService {
       expectedTotal: number
     }
   ) {
-    // Find cart
-    let cart
-
-    if ('userId' in owner) {
-      cart = await db.cart.findUnique({
-        where: { userId: owner.userId },
-        include: {
-          items: {
-            include: {
-              productVariant: { include: { product: { include: { brand: true } } } },
-            },
+    const cart = await db.cart.findUnique({
+      where: { userId: owner.userId },
+      include: {
+        items: {
+          include: {
+            productVariant: { include: { product: { include: { brand: true } } } },
           },
         },
-      })
-    } else {
-      cart = await db.cart.findUnique({
-        where: { sessionId: owner.sessionId },
-        include: {
-          items: {
-            include: {
-              productVariant: { include: { product: { include: { brand: true } } } },
-            },
-          },
-        },
-      })
-    }
+      },
+    })
 
     if (!cart || cart.items.length === 0) {
       throw new ApiError(409, 'CART_EMPTY', 'Корзина пуста')
@@ -140,8 +126,14 @@ export class OrderService {
 
     // Execute order creation in transaction
     const order = await db.$transaction(async (tx) => {
-      // Step 3: Conditional stock deduction with race condition protection
-      for (const item of availableItems) {
+      // Step 3: Conditional stock deduction with race condition protection.
+      // Порядок обхода фиксируем по productVariantId: два параллельных заказа
+      // с пересекающимися позициями иначе берут row-lock в разном порядке —
+      // классический deadlock Postgres.
+      const orderedItems = [...availableItems].sort((a, b) =>
+        a.productVariantId.localeCompare(b.productVariantId)
+      )
+      for (const item of orderedItems) {
         const deducted = await tx.productVariant.updateMany({
           where: {
             id: item.productVariantId,
@@ -209,7 +201,7 @@ export class OrderService {
       const newOrder = await tx.order.create({
         data: {
           number: orderNumber,
-          userId: 'userId' in owner ? owner.userId : null as any, // Will be set in verify-otp flow
+          userId: owner.userId,
           status: 'new',
           deliveryMethod: payload.deliveryMethod,
           cdekPvzCode: payload.cdekPvzCode || null,
@@ -280,6 +272,7 @@ export class OrderService {
       where: { id: order.id },
       include: {
         items: { include: { product: { select: { slug: true, images: true } } } },
+        redemption: { include: { promoCode: { select: { code: true, percent: true } } } },
       },
     })
 
@@ -318,8 +311,8 @@ export class OrderService {
       subtotal: order.subtotal,
       promo: order.promoDiscount > 0
         ? {
-            code: '', // Will be filled from PromoCodeRedemption
-            percent: 0,
+            code: order.redemption?.promoCode?.code ?? '',
+            percent: order.redemption?.promoCode?.percent ?? 0,
             discount: order.promoDiscount,
           }
         : null,

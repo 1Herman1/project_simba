@@ -39,6 +39,14 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   app.post<{ Body: any; Reply: any }>(
     '/api/v1/orders',
     {
+      // Контракт 3.16: 10/час на пользователя.
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: '1 hour',
+          keyGenerator: (req: any) => req.user?.id ?? req.ip,
+        },
+      },
       schema: {
         body: {
           type: 'object',

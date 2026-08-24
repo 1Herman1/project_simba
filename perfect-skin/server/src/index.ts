@@ -20,6 +20,20 @@ const app = Fastify({
   logger: true,
 })
 
+// Прод без настоящих секретов не поднимается: дефолтные значения означают,
+// что cookie корзины и JWT можно подделать офлайн.
+if (process.env.NODE_ENV === 'production') {
+  const required = ['PS_COOKIE_SECRET', 'JWT_SECRET', 'PS_PROMO_HMAC_SECRET', 'PS_DATABASE_URL'] as const
+  const missing = required.filter((k) => {
+    const v = process.env[k]
+    return !v || v.includes('dev-secret') || v === 'change-me'
+  })
+  if (missing.length) {
+    app.log.fatal({ missing }, 'production start refused: secrets are missing or defaulted')
+    process.exit(1)
+  }
+}
+
 // Register common schemas
 registerCommonSchemas(app)
 

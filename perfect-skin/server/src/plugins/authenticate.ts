@@ -25,6 +25,8 @@ async function authenticatePlugin(fastify: FastifyInstance) {
       // Verify user still exists and hasn't been modified
       const user = await fastify.prisma.user.findUnique({
         where: { id: payload.userId },
+        // Полная запись тянула бы passwordHash и счётчики в память на каждый запрос.
+        select: { id: true, isActive: true, deletedAt: true, tokenVersion: true, name: true, phone: true, email: true, role: true },
       })
 
       if (!user || !user.isActive || user.deletedAt) {

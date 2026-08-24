@@ -2,6 +2,7 @@ import { PrismaClient, type Concern } from '../../../node_modules/.prisma/ps-cli
 import * as fs from 'fs'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
+import { recalcProductPrices } from '../src/services/product-prices.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const prisma = new PrismaClient()
@@ -287,28 +288,10 @@ async function seed() {
     if (count % 10 === 0) console.log(`  ${count}/57 products seeded`)
   }
 
-  // 4. Recalculate minPrice/maxPrice
+  // 4. Recalculate minPrice/maxPrice — общей функцией (контракт 5.2Б),
+  // одним SQL вместо цикла из ~114 запросов.
   console.log('💰 Recalculating prices...')
-  const products = await prisma.product.findMany()
-  for (const product of products) {
-    const variants = await prisma.productVariant.findMany({
-      where: {
-        productId: product.id,
-        isActive: true,
-        deletedAt: null,
-      },
-      select: { retailPrice: true },
-    })
-    if (variants.length > 0) {
-      const prices = variants.map((v) => v.retailPrice)
-      const minPrice = Math.min(...prices)
-      const maxPrice = Math.max(...prices)
-      await prisma.product.update({
-        where: { id: product.id },
-        data: { minPrice, maxPrice },
-      })
-    }
-  }
+  await recalcProductPrices(prisma)
 
   console.log('✅ Seed completed!')
 }
