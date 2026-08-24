@@ -26,8 +26,9 @@ export default function Layout() {
 
   // Главная исключена по просьбе владельца: там своя вёрстка секций, и блок
   // внизу дублировал бы то, что уже показано выше. Юридические страницы —
-  // не место для витрины.
-  const hiddenRoutes = ['/', '/privacy', '/offer']
+  // не место для витрины. Каталог — тоже по просьбе владельца: под выдачей
+  // товаров ещё одна лента товаров сбивает с толку и мешает пагинации.
+  const hiddenRoutes = ['/', '/catalog', '/privacy', '/offer']
   const showPopularProducts = !hiddenRoutes.includes(location.pathname)
 
   return (

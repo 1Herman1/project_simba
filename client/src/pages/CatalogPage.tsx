@@ -49,7 +49,9 @@ export default function CatalogPage() {
   return (
     <div className="min-h-[100dvh] bg-blue-50">
       <div className="bg-white border-b border-blue-100 sticky top-[73px] z-30">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        {/* lg:py-3 — компенсация высоты: на десктопе ряд фильтров переносится
+            на две строки, и без этого липкая шапка съедала бы больше экрана. */}
+        <div className="max-w-7xl mx-auto px-4 py-4 lg:py-3">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
           <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} />
         </div>
@@ -128,13 +130,16 @@ function CatalogHeader({
   )
 }
 
+/** Без focus:outline-none/focus:border-line: они гасили кольцо фокуса и
+    подменяли его цветом рамки покоя — с клавиатуры было не видно, где ты.
+    Глобальное *:focus-visible в index.css справляется само. */
 function SortSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
       aria-label="Сортировка товаров"
-      className="text-sm border border-line rounded-xl px-3 py-2 bg-white text-navy-700 focus:outline-none focus:border-line cursor-pointer">
+      className="text-sm border border-line rounded-xl px-3 py-2 bg-white text-navy-700 cursor-pointer">
       <option value="popular">По популярности</option>
       <option value="price_asc">Сначала дешевле</option>
       <option value="price_desc">Сначала дороже</option>
