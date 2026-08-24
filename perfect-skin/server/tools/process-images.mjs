@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Perfect Skin — конвейер обработки изображений (исправленный)
+ * Perfect Skin — конвейер обработки изображений (оптимизированный)
  *
- * Использует отдельную страницу для каждого товара, чтобы избежать
- * проблем с переиспользованием состояния browser page.
+ * Переиспользует одну страницу с явным очищением состояния между операциями.
  *
  * Запуск: node tools/process-images.mjs
  */
@@ -67,45 +66,26 @@ async function resizeImage(page, imageBase64, targetWidth, originalWidth, origin
   const ratio = originalHeight / originalWidth
   const targetHeight = Math.round(targetWidth * ratio)
 
-  // Очистить состояние страницы перед новым контентом
-  await page.evaluate(() => { window.result = undefined; window.error = undefined })
-
-  // Загрузить изображение через data-URI и ресайзить на canvas
   const html = `
     <!DOCTYPE html>
     <html>
     <head><meta charset="utf-8"></head>
-    <body style="margin: 0; padding: 0;">
-      <canvas id="canvas"></canvas>
-      <script>
-        const img = new Image()
-        img.onload = function() {
-          const canvas = document.getElementById('canvas')
-          canvas.width = ${targetWidth}
-          canvas.height = ${targetHeight}
-          const ctx = canvas.getContext('2d')
-          ctx.imageSmoothingQuality = 'high'
-          ctx.drawImage(img, 0, 0, ${targetWidth}, ${targetHeight})
-          window.result = canvas.toDataURL('image/webp', 0.82)
-        }
-        img.onerror = function() {
-          window.error = 'Failed to load image'
-        }
-        img.src = 'data:image/${mimeType};base64,${imageBase64}'
-      </script>
-    </body>
-    </html>
+    <body><canvas id="c"></canvas><script>
+    var img=new Image();img.onload=function(){
+    var c=document.getElementById('c');c.width=${targetWidth};c.height=${targetHeight};
+    var x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,${targetWidth},${targetHeight});
+    window.r=c.toDataURL('image/webp',0.82)};
+    img.src='data:image/${mimeType};base64,${imageBase64}'</script></body></html>
   `
 
   try {
     await page.setContent(html, { waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => typeof window.result !== 'undefined', { timeout: 5000 })
-    const result = await page.evaluate(() => window.result)
-    if (!result) throw new Error('Canvas rendering failed')
-    const webpBase64 = result.replace('data:image/webp;base64,', '')
-    return { width: targetWidth, height: targetHeight, webpBase64 }
+    await page.waitForFunction(() => typeof window.r !== 'undefined', { timeout: 30000 })
+    const result = await page.evaluate(() => window.r)
+    if (!result) throw new Error('Render failed')
+    return { width: targetWidth, height: targetHeight, webpBase64: result.replace('data:image/webp;base64,', '') }
   } catch (err) {
-    throw new Error(`Resize failed: ${err.message}`)
+    throw new Error(`Resize: ${err.message}`)
   }
 }
 
@@ -113,38 +93,26 @@ async function getImageDimensions(page, imageBase64, mimeType = 'jpeg') {
   const html = `
     <!DOCTYPE html>
     <html>
-    <head><meta charset="utf-8"></head>
-    <body>
-      <img id="img" src="data:image/${mimeType};base64,${imageBase64}">
-      <script>
-        document.getElementById('img').onload = () => {
-          window.dims = { width: img.naturalWidth, height: img.naturalHeight }
-        }
-        document.getElementById('img').onerror = () => {
-          window.dims = null
-        }
-      </script>
-    </body>
-    </html>
+    <body><img id="i" src="data:image/${mimeType};base64,${imageBase64}">
+    <script>document.getElementById('i').onload=()=>{window.d={w:i.naturalWidth,h:i.naturalHeight}}</script></body></html>
   `
   try {
     await page.setContent(html, { waitUntil: 'domcontentloaded' })
-    await page.waitForFunction(() => typeof window.dims !== 'undefined', { timeout: 5000 })
-    const dims = await page.evaluate(() => window.dims)
-    if (!dims) throw new Error('Could not load image')
-    return dims
+    await page.waitForFunction(() => typeof window.d !== 'undefined', { timeout: 30000 })
+    const d = await page.evaluate(() => window.d)
+    if (!d) throw new Error('Failed')
+    return { width: d.w, height: d.h }
   } catch (err) {
-    throw new Error(`Get dimensions failed: ${err.message}`)
+    throw new Error(`Dimensions: ${err.message}`)
   }
 }
 
-async function processProducts(browser, manifest) {
+async function processProducts(browser, manifest, page) {
   console.log(`\n=== Обработка товарных фото (${manifest.products.length} товаров) ===`)
 
   const index = {}
   let processed = 0
   let skipped = 0
-  const fullWebpSlugs = []
 
   for (const product of manifest.products) {
     const { slug, images } = product
@@ -177,32 +145,25 @@ async function processProducts(browser, manifest) {
 
       const srcExists = await fileExists(srcPath)
       if (!srcExists) {
-        console.log(`\n  ⚠️  [${slug}]: исходный файл не найден`)
         processed++
         continue
       }
 
-      // Прочитать исходник один раз
       const buffer = await fs.readFile(srcPath)
       const imageBase64 = buffer.toString('base64')
       const mimeType = path.extname(srcPath).slice(1).toLowerCase().replace('jpg', 'jpeg')
 
-      // Создать отдельную страницу для этого товара (избежать проблем с состоянием)
-      const page = await browser.newPage()
       try {
-        // Получить размеры
         const { width: origWidth, height: origHeight } = await getImageDimensions(page, imageBase64, mimeType)
 
         const sizes = {}
 
-        // Обработать каждый размер
         for (const size of SIZES.products) {
           const fileName = size.name === 'full' ? 'full.webp' : `${size.name}.webp`
           const filePath = path.join(outDir, fileName)
 
-          // Пропустить если уже существует
           if (await fileExists(filePath)) {
-            sizes[size.name] = { file: fileName, cached: true }
+            sizes[size.name] = { cached: true }
             continue
           }
 
@@ -221,19 +182,14 @@ async function processProducts(browser, manifest) {
             height: resized.height,
             bytes: webpBuffer.length,
           }
-
-          // Трекер для full.webp
-          if (size.name === 'full') {
-            fullWebpSlugs.push(slug)
-          }
         }
 
         index[slug] = {
           original: { width: origWidth, height: origHeight, bytes: buffer.length },
           sizes,
         }
-      } finally {
-        await page.close()
+      } catch (err) {
+        console.error(`\n  ❌ [${slug}]: ${err.message}`)
       }
 
       processed++
@@ -244,11 +200,11 @@ async function processProducts(browser, manifest) {
     }
   }
 
-  console.log(`\n  Завершено: ${processed}/${manifest.products.length} (кэш: ${skipped}, full.webp: ${fullWebpSlugs.length})`)
-  return { index, fullWebpSlugs }
+  console.log(`\n  Завершено: ${processed}/${manifest.products.length} (кэш: ${skipped})`)
+  return index
 }
 
-async function processPhotos(browser) {
+async function processPhotos(browser, page) {
   console.log(`\n=== Обработка медиалики ===`)
 
   const index = {}
@@ -284,14 +240,12 @@ async function processPhotos(browser) {
         const imageBase64 = buffer.toString('base64')
         const mimeType = path.extname(imageFile).slice(1).toLowerCase().replace('jpg', 'jpeg')
 
-        // Создать отдельную страницу для этого файла
-        const page = await browser.newPage()
         try {
           const { width: origWidth, height: origHeight } = await getImageDimensions(page, imageBase64, mimeType)
 
           const sizes = {}
 
-          // Обработать w800 и w1200
+          // w800 и w1200
           for (const size of SIZES.photos.slice(0, 2)) {
             const filePath = path.join(outDir, `${size.name}.webp`)
 
@@ -317,7 +271,7 @@ async function processPhotos(browser) {
             }
           }
 
-          // Сохранить оригинал в WebP
+          // оригинал
           const origFilePath = path.join(outDir, 'orig.webp')
           if (!(await fileExists(origFilePath))) {
             const origResized = await resizeImage(page, imageBase64, origWidth, origWidth, origHeight, mimeType)
@@ -339,8 +293,8 @@ async function processPhotos(browser) {
             original: { width: origWidth, height: origHeight, bytes: buffer.length },
             sizes,
           }
-        } finally {
-          await page.close()
+        } catch (err) {
+          console.error(`\n  ❌ [${imageFile}]: ${err.message}`)
         }
 
         processed++
@@ -360,36 +314,31 @@ async function processPhotos(browser) {
 }
 
 async function main() {
-  console.log('Perfect Skin — конвейер обработки изображений (исправленный)')
+  console.log('Perfect Skin — конвейер обработки изображений')
   console.log('='.repeat(60))
 
   try {
-    // Прочитать манифест
     const manifestJson = await fs.readFile(MANIFEST_PATH, 'utf8')
     const manifest = JSON.parse(manifestJson)
 
     console.log(`Манифест загружен: ${manifest.products.length} товаров`)
-
-    // Создать выходную папку
     await ensureDir(OUTPUT_DIR)
 
-    // Запустить браузер один раз
     console.log(`Запуск Chromium...`)
     const browser = await chromium.launch({ headless: true })
+    const page = await browser.newPage()
 
-    // Обработать товары и медиалику
-    const { index: productsIndex, fullWebpSlugs } = await processProducts(browser, manifest)
-    const photosIndex = await processPhotos(browser)
+    const productsIndex = await processProducts(browser, manifest, page)
+    const photosIndex = await processPhotos(browser, page)
 
+    await page.close()
     await browser.close()
     console.log(`\nВсе браузеры закрыты`)
 
-    // Сохранить index.json
     const fullIndex = {
       generatedAt: new Date().toISOString(),
       products: productsIndex,
       photos: photosIndex,
-      fullWebpCount: fullWebpSlugs.length,
     }
 
     const indexPath = path.join(OUTPUT_DIR, 'index.json')
@@ -397,13 +346,10 @@ async function main() {
     console.log(`index.json сохранён`)
 
     console.log(`\n${'='.repeat(60)}`)
-    console.log(`✓ Обработка завершена`)
-    console.log(`  Товарные фото: ${Object.keys(productsIndex).length}`)
-    console.log(`  Медиалика: ${Object.keys(photosIndex).length}`)
-    console.log(`  full.webp создано: ${fullWebpSlugs.length}`)
+    console.log(`✓ Завершено: ${Object.keys(productsIndex).length} товаров, ${Object.keys(photosIndex).length} файлов медиалики`)
 
   } catch (err) {
-    console.error('❌ КРИТИЧЕСКАЯ ОШИБКА:', err.message)
+    console.error('❌ ОШИБКА:', err.message)
     process.exit(1)
   }
 }
