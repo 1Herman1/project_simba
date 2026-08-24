@@ -15,6 +15,16 @@ const navItems = [
 ]
 
 export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+  // Закрытие по Escape — стандарт для модальных шторок.
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'

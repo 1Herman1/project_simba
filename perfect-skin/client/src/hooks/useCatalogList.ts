@@ -56,19 +56,26 @@ export function useCatalogList(filters: CatalogFilters): UseCatalogListReturn {
         const response = await fetchApi<ProductsListResponse>(
           `/api/v1/products?${params.toString()}`
         )
-        setData(response)
+        if (!cancelled) setData(response)
       } catch (err) {
+        if (cancelled) return
         if (err instanceof ApiError) {
           setError(err)
         } else {
           setError(new ApiError(500, 'UNKNOWN_ERROR', 'Неизвестная ошибка'))
         }
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
+    // Быстрая смена фильтров: поздний запрос может финишировать раньше
+    // раннего, и устаревший ответ перетёр бы свежие данные.
+    let cancelled = false
     fetchData()
+    return () => {
+      cancelled = true
+    }
   }, [filters])
 
   return { data, loading, error }

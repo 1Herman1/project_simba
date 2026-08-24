@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useCatalogList } from '@/hooks/useCatalogList'
 import { ProductCard } from '@/components/catalog/ProductCard'
 
@@ -10,11 +11,13 @@ export function RelatedProducts({
   categorySlug,
   currentProductSlug,
 }: RelatedProductsProps) {
-  const { data: products, loading } = useCatalogList({
-    category: categorySlug,
-    limit: 3,
-    offset: 0,
-  })
+  // Нестабильная ссылка на объект фильтров зацикливала фетч: каждый рендер —
+  // новый объект — новый запрос — новый рендер. Мемоизация рвёт петлю.
+  const filters = useMemo(
+    () => ({ category: categorySlug, limit: 3, offset: 0 }),
+    [categorySlug]
+  )
+  const { data: products, loading } = useCatalogList(filters)
 
   if (!categorySlug) return null
 

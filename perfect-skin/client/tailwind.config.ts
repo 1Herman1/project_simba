@@ -11,6 +11,10 @@ export default {
         muted: { DEFAULT: '#EAE6DA', foreground: '#55606E' },
         primary: { DEFAULT: '#1F3A5F', foreground: '#F6F1E3' },
         accent: { DEFAULT: '#E4D3AC', foreground: '#14202E' },
+        // Алиасы имён из статического макета: часть компонентов писалась по
+        // ним. Значения = primary/primary-foreground, не новые цвета.
+        'accent-ink': '#1F3A5F',
+        'accent-text': '#F6F1E3',
         dark: { DEFAULT: '#16273D', foreground: '#ECE5D5' },
         border: { DEFAULT: '#D8D1BE', strong: '#8E8574' },
         gold: { text: '#7E5F26', mark: '#A87C2F', artwork: '#D6A75E' },

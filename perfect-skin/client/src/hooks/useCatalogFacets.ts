@@ -41,7 +41,7 @@ export function useCatalogFacets(filters: Omit<CatalogFilters, 'sort' | 'limit' 
         const response = await fetchApi<Facets>(
           `/api/v1/products/facets?${params.toString()}`
         )
-        setData(response)
+        if (!cancelled) setData(response)
       } catch (err) {
         if (err instanceof ApiError) {
           setError(err)
@@ -52,8 +52,11 @@ export function useCatalogFacets(filters: Omit<CatalogFilters, 'sort' | 'limit' 
         setLoading(false)
       }
     }
-
+    let cancelled = false
     fetchData()
+    return () => {
+      cancelled = true
+    }
   }, [filters])
 
   return { data, loading, error }

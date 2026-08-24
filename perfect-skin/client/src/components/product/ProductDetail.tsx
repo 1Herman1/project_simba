@@ -190,7 +190,7 @@ export function ProductDetail({ product, loading, error }: ProductDetailProps) {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {product.ingredients
-                .sort((a, b) => {
+                .toSorted((a, b) => {
                   if (a.isKey !== b.isKey) return a.isKey ? -1 : 1
                   return a.name.localeCompare(b.name)
                 })

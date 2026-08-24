@@ -83,6 +83,11 @@ describe('Checkout Integration Tests', () => {
   })
 
   afterAll(async () => {
+    // Тестовые товары гонки не должны утекать в каталог витрины.
+    await db.product.updateMany({
+      where: { slug: { startsWith: 'race-' } },
+      data: { isActive: false },
+    })
     await app.close()
   })
 

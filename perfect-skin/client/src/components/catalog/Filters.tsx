@@ -246,10 +246,17 @@ export function Filters({
             <div
               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto z-50"
               onClick={e => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Фильтры каталога"
             >
               <div className="sticky top-0 flex items-center justify-between px-4 py-4 border-b border-divider bg-white">
                 <h2 className="font-heading font-bold text-text">Фильтры</h2>
-                <button onClick={() => setIsOpen(false)} className="text-2xl text-text">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Закрыть фильтры"
+                  className="min-w-11 min-h-11 flex items-center justify-center text-2xl text-text"
+                >
                   ×
                 </button>
               </div>
