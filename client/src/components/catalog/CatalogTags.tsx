@@ -1,3 +1,7 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
+
 export const CATALOG_TAGS = [
   { id: 'kidney', label: 'При болезнях почек' },
   { id: 'allergy', label: 'Без аллергенов' },
@@ -16,44 +20,151 @@ interface Props {
   onTagClick: (tag: string) => void
 }
 
-/** Ряд быстрых фильтров.
+/** Ширина растушёвки у края: чуть больше кнопки (36px), чтобы она целиком стояла
+    внутри затухания — иначе её край читается как обрез вёрстки, а не как «чип
+    уходит под кнопку». */
+const FADE = 44
+
+function maskFor(left: boolean, right: boolean): string | undefined {
+  if (!left && !right) return undefined
+  const stops = [
+    left ? `transparent 0, black ${FADE}px` : 'black 0',
+    right ? `black calc(100% - ${FADE}px), transparent 100%` : 'black 100%',
+  ]
+  return `linear-gradient(to right, ${stops.join(', ')})`
+}
+
+/** Ряд быстрых фильтров — одна строка со стрелками-листалками.
  *
- *  На десктопе переносится на две строки, а не скроллится: десять вкладок
- *  требуют ~1296px при доступных 1248px, и последняя («Холистик») вылезала за
- *  край. Достать её мышью было невозможно — полоса прокрутки скрыта
- *  (scrollbar-hide), а колесо мыши по горизонтали не прокручивает.
- *  Ниже lg остаётся скролл: на телефоне свайп естественен, а перенос дал бы
- *  4-5 строк в липкой шапке. Затухание у правого края подсказывает, что ряд
- *  продолжается.
+ *  Десять вкладок требуют ~1296px при доступных 1248px, поэтому последняя
+ *  («Холистик») не помещается. Мышью её было не достать: полоса прокрутки
+ *  скрыта, а колесо по горизонтали не прокручивает. Стрелки решают это, не
+ *  занимая вторую строку в липкой шапке (перенос стоил бы 46px высоты).
  *
- *  py-1/-mx-1 px-1 — место под focus-ring: overflow-x: auto превращает и
- *  overflow-y в auto, и обводка обрезалась бы сверху.
+ *  Стрелки НАКЛАДЫВАЮТСЯ на края, а не стоят рядом: ряду не хватает всего ~48px,
+ *  и кнопки сбоку отняли бы ещё ~90px ширины, то есть сделали бы хуже.
+ *
+ *  Показываются только при мыши: именно мышиные пользователи не могут прокрутить
+ *  ряд. На тач-экране свайп естественен, и стрелки там лишь закрывали бы чипы.
  */
 export default function CatalogTags({ activeTag, onTagClick }: Props) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+  const finePointer = useMediaQuery('(hover: hover) and (pointer: fine)')
+
+  const syncArrows = useCallback(() => {
+    const el = trackRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft < max - 4)
+  }, [])
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    syncArrows()
+
+    // Первый замер идёт на системном шрифте: Nunito подключён с display=swap,
+    // и после подмены ширины чипов меняются. Переполнение здесь ~48px — меньше
+    // разницы метрик двух шрифтов, поэтому без пересчёта стрелка могла не
+    // появиться там, где листать есть что.
+    document.fonts?.ready.then(syncArrows).catch(() => {})
+
+    el.addEventListener('scroll', syncArrows, { passive: true })
+    // ResizeObserver, а не window.resize: ловит и смену ширины контейнера
+    // без изменения размера окна.
+    const ro = new ResizeObserver(syncArrows)
+    ro.observe(el)
+    return () => {
+      el.removeEventListener('scroll', syncArrows)
+      ro.disconnect()
+    }
+  }, [syncArrows])
+
+  /** Листаем на 60% видимой ширины: у чипов разная ширина, шаг «на один чип»
+      был бы то незаметным, то через весь экран. */
+  const scrollByPage = (direction: 1 | -1) => {
+    const el = trackRef.current
+    if (!el) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    el.scrollBy({ left: direction * el.clientWidth * 0.6, behavior: reduce ? 'auto' : 'smooth' })
+  }
+
+  /** inset-y-0 my-auto, а не top-1/2 -translate-y-1/2: глобальное правило
+      prefers-reduced-motion гасит transform у всего через `!important`, и
+      трансформ-центрирование там разъезжается — кнопка вылезала из шапки. */
+  const arrowClass =
+    'btn-press absolute inset-y-0 my-auto z-10 w-9 h-9 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 hover:border-primary-soft shadow-card transition-opacity'
+
+  /** Неактивная стрелка гасится, а не размонтируется: иначе после долистывания
+      узел исчезает вместе с фокусом клавиатуры, и следующий Tab начинает обход
+      страницы заново. */
+  const arrowState = (enabled: boolean) =>
+    enabled ? 'opacity-100' : 'opacity-0 pointer-events-none'
+
   return (
-    <div
-      role="group"
-      aria-label="Быстрые фильтры"
-      className="flex gap-2 -mx-1 px-1 py-1 overflow-x-auto scrollbar-hide [mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)] [-webkit-mask-image:linear-gradient(to_right,#000_calc(100%-28px),transparent)] lg:flex-wrap lg:gap-y-2 lg:overflow-visible lg:[mask-image:none] lg:[-webkit-mask-image:none]"
-    >
-      {CATALOG_TAGS.map(tag => (
+    <div className="relative">
+      {/* Левая стрелка стоит в разметке ДО ряда: порядок Tab должен совпадать
+          с визуальным, а визуально она первая. */}
+      {finePointer && (
         <button
-          key={tag.id}
           type="button"
-          onClick={() => onTagClick(tag.id)}
-          aria-pressed={activeTag === tag.id}
-          // Активная вкладка заливается, а не остаётся белой с цветной рамкой:
-          // у прежнего активного класса не было ширины рамки (только цвет), из-за
-          // чего вкладка при клике теряла 2px и весь ряд дёргался. Плюс белый чип
-          // на белой шапке читался как «рамка отвалилась», а не как «выбрано».
-          className={`btn-press flex-shrink-0 inline-flex items-center min-h-11 lg:min-h-0 px-4 py-2 rounded-full text-sm font-medium ${
-            activeTag === tag.id
-              ? 'bg-primary border border-primary text-white hover:bg-primary-hover hover:border-primary-hover'
-              : 'bg-white border border-line text-navy-700 hover:border-primary-soft hover:bg-blue-50'
-          }`}>
-          {tag.label}
+          onClick={() => scrollByPage(-1)}
+          aria-label="Предыдущие фильтры"
+          tabIndex={canScrollLeft ? 0 : -1}
+          aria-hidden={!canScrollLeft}
+          className={`${arrowClass} left-0 ${arrowState(canScrollLeft)}`}
+        >
+          <ArrowLeftIcon className="w-4 h-4" />
         </button>
-      ))}
+      )}
+
+      <div
+        ref={trackRef}
+        role="group"
+        aria-label="Быстрые фильтры"
+        style={{
+          maskImage: maskFor(canScrollLeft, canScrollRight),
+          WebkitMaskImage: maskFor(canScrollLeft, canScrollRight),
+        }}
+        // py-1/-mx-1 px-1 — место под кольцо фокуса: overflow-x: auto делает и
+        // overflow-y: auto, иначе обводка обрезалась бы сверху.
+        className="flex gap-2 -mx-1 px-1 py-1 overflow-x-auto scrollbar-hide"
+      >
+        {CATALOG_TAGS.map(tag => (
+          <button
+            key={tag.id}
+            type="button"
+            onClick={() => onTagClick(tag.id)}
+            aria-pressed={activeTag === tag.id}
+            // Активная вкладка заливается, а не остаётся белой с цветной рамкой:
+            // у прежнего активного класса не было ширины рамки (только цвет), из-за
+            // чего вкладка при клике теряла 2px и весь ряд дёргался. Плюс белый чип
+            // на белой шапке читался как «рамка отвалилась», а не как «выбрано».
+            className={`btn-press flex-shrink-0 inline-flex items-center min-h-11 lg:min-h-0 px-4 py-2 rounded-full text-sm font-medium ${
+              activeTag === tag.id
+                ? 'bg-primary border border-primary text-white hover:bg-primary-hover hover:border-primary-hover'
+                : 'bg-white border border-line text-navy-700 hover:border-primary-soft hover:bg-blue-50'
+            }`}>
+            {tag.label}
+          </button>
+        ))}
+      </div>
+
+      {finePointer && (
+        <button
+          type="button"
+          onClick={() => scrollByPage(1)}
+          aria-label="Следующие фильтры"
+          tabIndex={canScrollRight ? 0 : -1}
+          aria-hidden={!canScrollRight}
+          className={`${arrowClass} right-0 ${arrowState(canScrollRight)}`}
+        >
+          <ArrowRightIcon className="w-4 h-4" />
+        </button>
+      )}
     </div>
   )
 }
