@@ -270,7 +270,6 @@ model ProductLine {
   slug           String
   description    String?
   image          String?
-  isProfessional Boolean   @default(false) // ISSEIMI MD — для кабинета
   seoTitle       String?
   seoDescription String?
   sortOrder      Int       @default(0)
@@ -318,7 +317,6 @@ model Product {
   concerns           Concern[]
   usage              String?
   inciText           String? // полный состав как на этикетке
-  isProfessionalOnly Boolean    @default(false)
   seoTitle           String?
   seoDescription     String?
   isActive           Boolean    @default(true)
@@ -341,7 +339,6 @@ model Product {
   @@index([brandId])
   @@index([lineId])
   @@index([isActive, deletedAt])
-  @@index([isProfessionalOnly])
   @@index([createdAt])
   @@map("products")
 }
