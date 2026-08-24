@@ -10,3 +10,9 @@ package-lock.json
 
 # Perfect Skin: производные изображения — пересобираются скриптом tools/process-images.mjs
 perfect-skin/server/assets/processed/
+
+# сборочные артефакты @ps/shared — dist собирается из src
+perfect-skin/shared/src/*.js
+perfect-skin/shared/src/*.js.map
+perfect-skin/shared/src/*.d.ts
+perfect-skin/shared/src/*.d.ts.map
