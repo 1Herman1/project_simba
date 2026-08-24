@@ -83,31 +83,38 @@ export default function BannerCarousel() {
 
       {/* Стрелки */}
       <button
+        type="button"
         onClick={prev}
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow] hover:scale-110"
+        aria-label="Предыдущий баннер"
+        className="absolute left-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow]"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-nudge ico-nudge--back">
           <polyline points="15,18 9,12 15,6"/>
         </svg>
       </button>
       <button
+        type="button"
         onClick={next}
-        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow] hover:scale-110"
+        aria-label="Следующий баннер"
+        className="absolute right-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow]"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-nudge">
           <polyline points="9,18 15,12 9,6"/>
         </svg>
       </button>
 
       {/* Точки */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-3 inset-x-0 flex justify-center gap-2">
         {banners.map((_, i) => (
           <button
+            type="button"
             key={i}
             onClick={() => setCurrent(i)}
             className={`rounded-full transition-[width,background-color] ${
               i === current ? 'w-6 h-2 bg-white' : 'w-2 h-2 bg-white/50 hover:bg-white/80'
             }`}
+            aria-label={`Перейти к баннеру ${i + 1}`}
+            aria-current={i === current}
           />
         ))}
       </div>

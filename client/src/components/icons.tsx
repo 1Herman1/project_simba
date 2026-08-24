@@ -92,11 +92,73 @@ export function PawIcon({ className = '' }: IconProps) {
     <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false" className={className}>
       <g fill="currentColor">
         <ellipse cx="32" cy="42" rx="15" ry="12" />
-        <ellipse cx="15" cy="27" rx="6.5" ry="8.5" transform="rotate(-18 15 27)" />
-        <ellipse cx="49" cy="27" rx="6.5" ry="8.5" transform="rotate(18 49 27)" />
-        <ellipse cx="24" cy="15" rx="6" ry="8" transform="rotate(-8 24 15)" />
-        <ellipse cx="40" cy="15" rx="6" ry="8" transform="rotate(8 40 15)" />
+        <ellipse cx="15" cy="27" rx="6.5" ry="8.5" transform="rotate(-18 15 27)" className="paw-toe--fl" />
+        <ellipse cx="49" cy="27" rx="6.5" ry="8.5" transform="rotate(18 49 27)" className="paw-toe--fr" />
+        <ellipse cx="24" cy="15" rx="6" ry="8" transform="rotate(-8 24 15)" className="paw-toe--tl" />
+        <ellipse cx="40" cy="15" rx="6" ry="8" transform="rotate(8 40 15)" className="paw-toe--tr" />
       </g>
+    </svg>
+  )
+}
+
+export function CloseIcon({ className = '' }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={`${base} ${className}`}
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}
+
+type ChevronDownIconProps = IconProps & {
+  open?: boolean
+}
+
+export function ChevronDownIcon({ className = '', open = false }: ChevronDownIconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={`ico-chevron ${open ? 'is-open' : ''} ${base} ${className}`}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
+export function TrashIcon({ className = '' }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={`${base} ${className}`}
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+      <path d="M10 11v6M14 11v6" />
+      <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
     </svg>
   )
 }

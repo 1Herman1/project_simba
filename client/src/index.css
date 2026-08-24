@@ -199,6 +199,12 @@
   .header-icon-link:focus-visible .icon-outline { opacity: 0; }
   .header-icon-link:focus-visible .icon-filled  { opacity: 1; }
 
+  .icon-state .icon-outline,
+  .icon-state .icon-filled { transition: opacity 140ms var(--ease-out); }
+  .icon-state .icon-filled { opacity: 0; }
+  .icon-state.is-on .icon-outline { opacity: 0; }
+  .icon-state.is-on .icon-filled  { opacity: 1; }
+
   .btn-outline {
     --press-scale: 0.97;
     display: inline-flex;
@@ -329,6 +335,44 @@
   @media (hover: hover) and (pointer: fine) {
     .link-arrow svg { transition: transform 160ms var(--ease-out); }
     .link-arrow:hover svg { transform: translateX(3px); }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .ico-nudge { transition: transform 140ms var(--ease-out); }
+    :is(a, button):hover > .ico-nudge,
+    .group:hover .ico-nudge { transform: translateX(var(--nudge, 3px)); }
+    :is(a, button):hover > .ico-nudge--diag { transform: translate(1.5px, -1.5px); }
+  }
+  .ico-nudge--back { --nudge: -3px; }
+
+  .ico-pop { animation: icoPop 260ms var(--ease-out); transform-origin: 50% 50%; }
+  @keyframes icoPop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.86); }
+    70%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  .ico-draw {
+    stroke-dasharray: var(--draw-len, 24);
+    stroke-dashoffset: var(--draw-len, 24);
+    animation: icoDraw 300ms var(--ease-out) forwards;
+    animation-delay: var(--draw-delay, 0ms);
+  }
+  @keyframes icoDraw { to { stroke-dashoffset: 0; } }
+
+  .ico-chevron { transition: transform 200ms var(--ease-out); transform-origin: 50% 50%; }
+  .ico-chevron.is-open { transform: rotate(180deg); }
+
+  .ico-burger > g { transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out); }
+  .ico-burger .ico-burger__close { opacity: 0; transform: rotate(-90deg); transform-origin: 12px 12px; }
+  .ico-burger.is-open .ico-burger__lines { opacity: 0; transform: rotate(90deg); transform-origin: 12px 12px; }
+  .ico-burger.is-open .ico-burger__close { opacity: 1; transform: rotate(0deg); }
+
+  .ico-ring-in { animation: icoRingIn 220ms var(--ease-out) both; transform-origin: 50% 50%; }
+  @keyframes icoRingIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
   }
 
   /* Экран подбора корма: следы проступают один за другим, цикл 1560мс.
@@ -780,4 +824,11 @@
   .delivery-trail path {
     opacity: 0 !important;
   }
+
+  .ico-draw, .icon-check-path { animation: none !important; stroke-dashoffset: 0 !important; }
+  .paw-toe--fl, .paw-toe--fr, .paw-toe--tl, .paw-toe--tr { transform-box: view-box; }
+  .paw-toe--fl { transform: rotate(-18deg) !important; transform-origin: 15px 27px; }
+  .paw-toe--fr { transform: rotate(18deg)  !important; transform-origin: 49px 27px; }
+  .paw-toe--tl { transform: rotate(-8deg)  !important; transform-origin: 24px 15px; }
+  .paw-toe--tr { transform: rotate(8deg)   !important; transform-origin: 40px 15px; }
 }

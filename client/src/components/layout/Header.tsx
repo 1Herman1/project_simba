@@ -5,6 +5,7 @@ import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { useScrolled } from '../../hooks/useScrolled'
 import { CONTACTS } from '../../lib/contacts'
+import TelegramIcon from '../icons/TelegramIcon'
 import HeaderSearch from './HeaderSearch'
 import SearchModal from './SearchModal'
 
@@ -79,6 +80,19 @@ export default function Header() {
 
             {/* Три кнопки */}
             <div className="flex items-center gap-4">
+              {/* Telegram */}
+              <a
+                href={CONTACTS.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Написать в Telegram"
+                className="btn-press header-icon-link w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
+              >
+                <span className="icon-swap block w-[22px] h-[22px]">
+                  <TelegramIcon variant="outline" className="w-[22px] h-[22px]" />
+                </span>
+              </a>
+
               {/* Избранное */}
               <button
                 type="button"
@@ -226,19 +240,14 @@ export default function Header() {
             aria-expanded={mobileMenuOpen}
             type="button"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {mobileMenuOpen ? (
-                <>
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <line x1="3" y1="12" x2="21" y2="12"/>
-                  <line x1="3" y1="18" x2="21" y2="18"/>
-                </>
-              )}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                 className={`ico-burger ${mobileMenuOpen ? 'is-open' : ''}`} aria-hidden="true">
+              <g className="ico-burger__lines">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+              </g>
+              <g className="ico-burger__close">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </g>
             </svg>
           </button>
 
@@ -284,6 +293,13 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="border-t border-line bg-white animate-slide-down">
             <nav className="px-4 py-3 flex flex-col gap-1">
+              <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer"
+                 onClick={() => setMobileMenuOpen(false)}
+                 className="flex items-center gap-2 py-2.5 px-3 min-h-11 rounded-lg text-navy-900 font-semibold hover:bg-blue-50">
+                <TelegramIcon />
+                Написать в Telegram
+              </a>
+              <div className="h-px bg-line my-2" />
               {categories.map((cat) => (
                 <Link
                   key={cat.label}
