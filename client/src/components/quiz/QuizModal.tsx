@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { lockBodyScroll, unlockBodyScroll } from '../../lib/scroll-lock'
+import { CloseIcon } from '../icons'
 import QuizFlow from './QuizFlow'
 
 const EXIT_MS = 150
@@ -115,18 +116,7 @@ export default function QuizModal({ open, onClose }: Props) {
           aria-label="Закрыть подбор корма"
           className="btn-press absolute top-3 right-3 sm:top-4 sm:right-4 w-11 h-11 z-50 flex items-center justify-center rounded-full bg-white/90 text-navy-500 hover:bg-primary-tint"
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden
-          >
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+          <CloseIcon className="w-5 h-5" />
         </button>
 
         {/* Контент (scrollable) */}

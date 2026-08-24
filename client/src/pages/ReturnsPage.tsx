@@ -4,7 +4,7 @@ import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
 import { useOnScreen } from '../hooks/useOnScreen'
 
-import TelegramIcon from '../components/icons/TelegramIcon'
+import { TelegramIcon } from '../components/icons'
 
 /** 2 иконки: шаг = 5600/2 = 2800мс, иначе вторая синхронизируется с первой. */
 const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 2800}ms` }) as CSSProperties

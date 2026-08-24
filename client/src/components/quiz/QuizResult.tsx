@@ -5,6 +5,7 @@ import type { QuizMatchResponse } from '../../lib/api'
 import QuizProductCard from './QuizProductCard'
 import GiftIcon from './GiftIcon'
 import { pluralize } from '../../lib/format'
+import { CheckIcon } from '../icons'
 
 interface QuizResultProps {
   result: QuizMatchResponse
@@ -105,10 +106,8 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
           <h2 className="text-lg font-semibold text-navy-900 mb-4">Почему именно этот корм:</h2>
           <ul className="space-y-3">
             {result.reasons.map((reason, idx) => (
-              <li key={idx} className="flex gap-3 text-navy-700">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <li key={idx} className="flex gap-3 text-navy-700" style={{ '--draw-delay': `${Math.min(idx, 4) * 60}ms` } as React.CSSProperties}>
+                <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5 ico-draw" />
                 <span>{reason}</span>
               </li>
             ))}
@@ -136,9 +135,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
             >
               {addedBoth ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <CheckIcon className="ico-draw w-4 h-4" />
                   Оба добавлены в корзину
                 </span>
               ) : (

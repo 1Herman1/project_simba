@@ -16,5 +16,8 @@
     "dev:admin": "npm run dev --workspace=admin",
     "test": "npm run test --workspace=server",
     "test:perfect-skin": "npm run test --workspace=@ps/shared"
+  },
+  "devDependencies": {
+    "@iconify-json/iconoir": "^1.2.11"
   }
 }

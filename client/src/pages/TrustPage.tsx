@@ -4,7 +4,7 @@ import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
-import TelegramIcon from '../components/icons/TelegramIcon'
+import { TelegramIcon } from '../components/icons'
 import { useOnScreen } from '../hooks/useOnScreen'
 
 /** Те же 4 иконки, что в TrustSection.tsx на главной — это одни и те же

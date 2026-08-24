@@ -4,7 +4,7 @@ import { calcOrderTotals } from '@simba/shared'
 import { useCart } from '../../context/CartContext'
 import { cartApi, type CartItem } from '../../lib/api'
 import { formatPrice, formatBonuses, pluralize } from '../../lib/format'
-import { PawIcon } from '../icons'
+import { PawIcon, TrashIcon, ArrowLeftIcon } from '../icons'
 import SideDrawer from './SideDrawer'
 
 const FREE_DELIVERY_THRESHOLD = 200000
@@ -286,12 +286,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                   onClick={() => removeItem(item.id)}
                   className="btn-press flex-shrink-0 w-11 h-11 flex items-center justify-center text-navy-300 hover:text-destructive"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-                  </svg>
+                  <TrashIcon className="w-4 h-4" />
                 </button>
               </li>
             )
@@ -305,10 +300,7 @@ export default function CartDrawer({ open, onClose }: Props) {
             onClick={onClose}
             className="flex items-center gap-2 text-navy-700 hover:text-primary-hover transition-colors text-sm font-medium w-fit"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12" />
-              <polyline points="12 19 5 12 12 5" />
-            </svg>
+            <ArrowLeftIcon className="ico-nudge ico-nudge--back w-4 h-4" />
             Продолжить покупки
           </Link>
         </div>

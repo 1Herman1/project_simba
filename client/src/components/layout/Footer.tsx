@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MarketplaceCard from '../MarketplaceCard'
 import { CONTACTS, MARKETPLACES, LEGAL } from '../../lib/contacts'
-import TelegramIcon from '../icons/TelegramIcon'
+import { TelegramIcon } from '../icons'
+import { ChevronDownIcon } from '../icons'
 
 // Иконка трубки — Feather, тот же path что в шапке
 function PhoneIcon() {
@@ -16,19 +17,6 @@ function PhoneIcon() {
 // Иконка звезды для рейтинга
 
 // Иконка внешней ссылки
-
-// Иконка шеврона (для аккордеона)
-function ChevronIcon({ open }: { open?: boolean }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={`transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
-      width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    >
-      <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  )
-}
 
 export default function Footer() {
   const [buyers2Open, setBuyers2Open] = useState(false)
@@ -124,7 +112,7 @@ export default function Footer() {
             aria-controls="buyers-accordion"
           >
             Покупателям
-            <ChevronIcon open={buyers2Open} />
+            <ChevronDownIcon open={buyers2Open} className="w-5 h-5" />
           </button>
 
           <h3 className="hidden md:block font-bold text-navy-900 uppercase tracking-wide text-sm mb-4">Покупателям</h3>
@@ -159,7 +147,7 @@ export default function Footer() {
             aria-controls="about-accordion"
           >
             О магазине
-            <ChevronIcon open={about2Open} />
+            <ChevronDownIcon open={about2Open} className="w-5 h-5" />
           </button>
 
           <h3 className="hidden md:block font-bold text-navy-900 uppercase tracking-wide text-sm mb-4">О магазине</h3>

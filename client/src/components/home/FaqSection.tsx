@@ -1,6 +1,6 @@
 import { useState, useId } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRightIcon } from '../icons'
+import { ArrowRightIcon, ChevronDownIcon } from '../icons'
 import { FAQ, renderFaqAnswer, type FaqEntry } from '../../lib/faq'
 
 /** На главной — четыре вопроса, остальные на /faq. Источник текста один. */
@@ -19,18 +19,7 @@ function FaqItem({ faq }: { faq: FaqEntry }) {
         className={`w-full flex items-center justify-between p-5 text-left transition-colors duration-150 ease ${open ? 'bg-primary-tint' : ''}`}
       >
         <span className="font-semibold pr-4 text-navy-900">{faq.q}</span>
-        <svg
-          aria-hidden="true"
-          className={`w-5 h-5 flex-shrink-0 text-primary-hover transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <ChevronDownIcon open={open} className="flex-shrink-0 text-primary-hover w-5 h-5" />
       </button>
       <div
         id={id}

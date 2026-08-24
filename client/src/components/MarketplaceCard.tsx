@@ -60,7 +60,9 @@ export default function MarketplaceCard({
           className="mt-1 inline-flex items-center gap-1 min-h-11 text-sm font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease"
         >
           {linkLabel}
-          <ExternalLinkIcon />
+          <span className="ico-nudge ico-nudge--diag">
+            <ExternalLinkIcon />
+          </span>
         </a>
       )}
     </div>

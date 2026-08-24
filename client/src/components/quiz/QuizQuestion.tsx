@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import type { QuizQuestion, QuizAnswers } from '../../lib/quiz-config'
 import { DogSilhouette, CatSilhouette } from './PetIcons'
+import { CheckIcon, ArrowLeftIcon, ArrowRightIcon } from '../icons'
 
 interface QuizQuestionProps {
   question: QuizQuestion
@@ -131,9 +132,7 @@ export default function QuizQuestionComponent({
                     aria-hidden="true"
                   >
                     {isSelected && (
-                      <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
+                      <CheckIcon className="w-3 h-3 text-white ico-draw" />
                     )}
                   </div>
                 )}
@@ -149,10 +148,7 @@ export default function QuizQuestionComponent({
               onClick={onPrev}
               className="px-6 py-3 rounded-xl border border-line text-navy-700 font-medium hover:bg-white flex items-center gap-2"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
+              <ArrowLeftIcon className="ico-nudge ico-nudge--back w-4 h-4" />
               Назад
             </button>
           )}
@@ -168,17 +164,12 @@ export default function QuizQuestionComponent({
               {isLastQuestion ? (
                 <>
                   Готово
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <CheckIcon className="ico-draw w-4 h-4" />
                 </>
               ) : (
                 <>
                   Далее
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
+                  <ArrowRightIcon className="ico-nudge w-4 h-4" />
                 </>
               )}
             </button>

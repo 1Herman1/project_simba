@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { lockBodyScroll, unlockBodyScroll } from '../../lib/scroll-lock'
+import { CloseIcon } from '../icons'
 
 const EXIT_MS = 200
 
@@ -124,18 +125,7 @@ export default function SideDrawer({ open, onClose, title, titleSuffix, children
             aria-label={`Закрыть ${title === 'Корзина' ? 'корзину' : 'избранное'}`}
             className="btn-press w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-full text-navy-500 hover:bg-primary-tint ml-auto"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-5 h-5" />
           </button>
         </div>
 

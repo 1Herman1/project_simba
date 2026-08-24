@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../lib/api'
+import { ArrowLeftIcon } from '../components/icons'
 import WelcomeBonusPopup from '../components/WelcomeBonusPopup'
 
 type Step = 'input' | 'code'
@@ -219,10 +220,7 @@ export default function AuthPage() {
               onClick={handleChangeEmail}
               aria-label="Изменить email"
               className="flex items-center gap-1.5 text-navy-400 hover:text-navy-700 transition-colors text-sm mb-4 py-2 -my-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12" />
-                <polyline points="12 19 5 12 12 5" />
-              </svg>
+              <ArrowLeftIcon className="ico-nudge ico-nudge--back w-4 h-4" />
               Изменить
             </button>
 

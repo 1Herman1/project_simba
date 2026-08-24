@@ -4,7 +4,7 @@ import { calcOrderTotals } from '@simba/shared'
 import { useCart } from '../context/CartContext'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
-import { CheckIcon } from '../components/icons'
+import { CheckIcon, ArrowLeftIcon } from '../components/icons'
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'card' | 'cash_on_delivery'
@@ -203,8 +203,8 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 ico-ring-in">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-draw" style={{ '--draw-delay': '160ms' } as React.CSSProperties}>
               <polyline points="20,6 9,17 4,12"/>
             </svg>
           </div>
@@ -274,10 +274,7 @@ export default function CheckoutPage() {
         {/* Шапка */}
         <div className="flex items-center gap-3 mb-6">
           <Link to="/cart" className="text-navy-400 hover:text-navy-700 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"/>
-              <polyline points="12 19 5 12 12 5"/>
-            </svg>
+            <ArrowLeftIcon className="ico-nudge ico-nudge--back w-5 h-5" />
           </Link>
           <h1 className="text-xl font-bold text-navy-900">Оформление заказа</h1>
         </div>

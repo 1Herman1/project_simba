@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { getPostBySlug, getPublished } from '../content/blog'
+import { ArrowLeftIcon } from '../components/icons'
 import NotFoundPage from './NotFoundPage'
 
 function ImagePlaceholderIcon() {
@@ -71,9 +72,7 @@ export default function BlogPostPage() {
 
       {/* Хлебная крошка */}
       <Link to="/blog" className="inline-flex items-center gap-2 text-navy-700 hover:text-primary-hover transition-colors duration-100 ease mb-6 text-sm">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
+        <ArrowLeftIcon className="ico-nudge ico-nudge--back w-4 h-4" />
         Блог
       </Link>
 

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate, Link } from 'react-router-dom'
 import { useProductSearch } from '../../hooks/useProductSearch'
 import { lockBodyScroll, unlockBodyScroll } from '../../lib/scroll-lock'
-import { PawIcon } from '../icons'
+import { PawIcon, CloseIcon } from '../icons'
 import { formatPrice } from '../../lib/format'
 
 const EXIT_MS = 150
@@ -248,18 +248,7 @@ export default function SearchModal({ open, onClose }: Props) {
                 className="btn-press absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11
                            flex items-center justify-center text-navy-400 hover:text-navy-700 rounded-full"
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  aria-hidden
-                >
-                  <path d="M18 6L6 18M6 6l12 12" />
-                </svg>
+                <CloseIcon className="w-5 h-5" />
               </button>
             )}
           </form>
@@ -272,18 +261,7 @@ export default function SearchModal({ open, onClose }: Props) {
             className="btn-press w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-full
                        text-navy-500 hover:bg-primary-tint"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-5 h-5" />
           </button>
         </div>
 

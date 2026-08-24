@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import MarketplaceCard from '../components/MarketplaceCard'
 import { CONTACTS, MARKETPLACES } from '../lib/contacts'
-import TelegramIcon from '../components/icons/TelegramIcon'
+import { TelegramIcon } from '../components/icons'
 
 export default function ReviewsPage() {
   useMetaTags({

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { CloseIcon } from './icons'
 
 const EXIT_MS = 200
 
@@ -105,9 +106,7 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
           aria-label="Закрыть"
           className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-full text-navy-500 hover:bg-primary-tint transition-colors duration-100 ease"
         >
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
+          <CloseIcon className="w-5 h-5" />
         </button>
 
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
