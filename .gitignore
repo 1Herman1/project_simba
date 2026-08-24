@@ -7,3 +7,6 @@ coverage
 .DS_Store
 package-lock.json
 .claude/settings.local.json
+
+# Perfect Skin: производные изображения — пересобираются скриптом tools/process-images.mjs
+perfect-skin/server/assets/processed/
