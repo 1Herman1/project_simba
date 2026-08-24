@@ -401,7 +401,7 @@ export async function getFacets(
   })
   for (const p of categoryProducts) {
     for (const pc of p.categories) {
-      categoriesWithCount.set(pc.categoryId, { label: '', count: 0 })
+      categoriesWithCount.set(pc.categoryId, { label: '', count: 0 }) // временный ключ-id, заменяется slug'ом ниже
     }
   }
 
@@ -414,8 +414,10 @@ export async function getFacets(
       const count = categoryProducts.filter((p) =>
         p.categories.some((c) => c.categoryId === cat.id)
       ).length
-      categoriesWithCount.set(cat.id, { label: cat.name, count })
+      // По контракту value — slug: id в фильтр не подставишь.
+      categoriesWithCount.set(cat.slug, { label: cat.name, count })
     }
+    for (const id of categoryIds) categoriesWithCount.delete(id)
   }
 
   // Get brands

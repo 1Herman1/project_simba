@@ -225,19 +225,26 @@ async function seed() {
     const volumeUnit = p.volume ? 'ml' : 'pcs'
     const volumeLabel = p.volume ? `${volumeValue} мл` : 'набор'
 
-    await prisma.productVariant.create({
-      data: {
-        productId: product.id,
-        volumeValue: volumeValue.toString(),
-        volumeUnit,
-        volumeLabel,
-        retailPrice: p.priceKopecks,
-        oldRetailPrice: p.oldPriceKopecks || null,
-        stock: 10,
-        externalId: String(p.externalId),
-        isActive: true,
-      },
+    // Идемпотентность: повторный прогон сида не плодит вторые фасовки.
+    const variantData = {
+      productId: product.id,
+      volumeValue: volumeValue.toString(),
+      volumeUnit,
+      volumeLabel,
+      retailPrice: p.priceKopecks,
+      oldRetailPrice: p.oldPriceKopecks || null,
+      stock: 10,
+      externalId: String(p.externalId),
+      isActive: true,
+    }
+    const existingVariant = await prisma.productVariant.findFirst({
+      where: { externalId: String(p.externalId) },
     })
+    if (existingVariant) {
+      await prisma.productVariant.update({ where: { id: existingVariant.id }, data: variantData })
+    } else {
+      await prisma.productVariant.create({ data: variantData })
+    }
 
     // Create ingredients
     if (p.ingredients && p.ingredients.length > 0) {
