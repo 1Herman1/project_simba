@@ -97,7 +97,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
 
   return (
     <>
-      <p className="text-sm text-navy-300 mb-4">{pluralize(total, 'товар', 'товара', 'товаров')}</p>
+      <p className="text-sm text-navy-500 mb-4">{pluralize(total, 'товар', 'товара', 'товаров')}</p>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />
@@ -114,7 +114,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
           >
             {loadingMore ? 'Загружаем…' : 'Показать ещё'}
           </button>
-          <p className="text-sm text-navy-300">
+          <p className="text-sm text-navy-500">
             Показано {products.length} из {total}
           </p>
         </div>

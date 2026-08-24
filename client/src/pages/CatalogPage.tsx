@@ -49,9 +49,7 @@ export default function CatalogPage() {
   return (
     <div className="min-h-[100dvh] bg-blue-50">
       <div className="bg-white border-b border-blue-100 sticky top-[73px] z-30">
-        {/* lg:py-3 — компенсация высоты: на десктопе ряд фильтров переносится
-            на две строки, и без этого липкая шапка съедала бы больше экрана. */}
-        <div className="max-w-7xl mx-auto px-4 py-4 lg:py-3">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
           <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} />
         </div>
