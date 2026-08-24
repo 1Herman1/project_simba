@@ -3,17 +3,48 @@ import { Link } from 'react-router-dom'
 import { useReveal } from '../../hooks/useReveal'
 import { brandsApi, type Brand } from '../../lib/api'
 
-/** Слаги, для которых логотип реально лежит в public/brands/.
-    Без этого списка компонент запрашивал /brands/<slug>.png для всех брендов
-    подряд: 8 из 12 гарантированно отдавали 404, и плитка сначала висела пустой,
-    а потом «падала» в название — ровно то мигание, из-за которого секция
-    выглядела недоделанной. Теперь текстовая плитка рендерится сразу.
-    Источник истины — brand.logo из API; этот список нужен, пока поле пустое. */
-const LOGO_FILES = new Set(['farmina', 'monge', 'hill-s', 'royal-canin'])
+/** Группа логотипа по пропорции (ширина/высота) нормализованного файла.
+    Логотипы расходятся по форме вчетверо — от квадратного знака Zillii (0.94)
+    до широкой надписи AlphaPet (3.57). При общем ограничении по высоте
+    квадратные знаки читались бы вдвое мельче надписей, поэтому у каждой группы
+    свой бокс: его пропорция — геометрическое среднее внутри группы, тогда
+    площадь у всех совпадает, а не габарит.
+
+    Пороги: ≥ 2.6 — wide, 1.6…2.6 — mid, < 1.6 — mark (геометрические середины
+    между группами). Новый бренд классифицируется по числу, а не на глаз. */
+type LogoGroup = 'wide' | 'mid' | 'mark'
+
+const LOGO_GROUPS: Record<string, LogoGroup> = {
+  alphapet: 'wide', // 3.57
+  alleva: 'wide', // 3.41
+  monge: 'wide', // 3.35
+  grandorf: 'wide', // 2.99
+  muzzle: 'wide', // 2.91
+  'royal-canin': 'wide', // 2.79
+  'happy-cat': 'mid', // 1.94
+  'happy-dog': 'mid', // 1.92
+  craftia: 'mark', // 1.23
+  'hill-s': 'mark', // 1.08
+  farmina: 'mark', // 1.00
+  zillii: 'mark', // 0.94
+}
+
+/** Литеральные строки, а не сборка через шаблон: JIT-сканер Tailwind видит
+    только целые классы в исходнике — собранные динамически молча не попадут
+    в сборку, и логотипы уедут в дефолтный размер.
+    Фиксированный бокс (w+h), а не max-h: размер известен до загрузки файла,
+    поэтому внутри плитки нет сдвига при lazy-загрузке.
+    Группа mark на 5-10% крупнее прочих намеренно: квадратный знак при равной
+    площади читается легче горизонтальной надписи. */
+const LOGO_SIZE: Record<LogoGroup, string> = {
+  wide: 'h-5 w-16 max-w-full object-contain sm:h-8 sm:w-24 lg:h-9 lg:w-28',
+  mid: 'h-6 w-14 max-w-full object-contain sm:h-10 sm:w-20 lg:h-11 lg:w-24',
+  mark: 'h-9 w-11 max-w-full object-contain sm:h-14 sm:w-16 lg:h-16 lg:w-20',
+}
 
 function logoSrc(brand: Brand): string | null {
   if (brand.logo) return brand.logo
-  return LOGO_FILES.has(brand.slug) ? `/brands/${brand.slug}.png` : null
+  return brand.slug in LOGO_GROUPS ? `/brands/${brand.slug}.png` : null
 }
 
 /** Плитка бренда — ссылка в каталог этого бренда.
@@ -38,7 +69,7 @@ function BrandTileLink({ brand }: { brand: Brand }) {
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
-          className="max-h-10 w-auto max-w-full object-contain lg:max-h-12"
+          className={LOGO_SIZE[LOGO_GROUPS[brand.slug] ?? 'mid']}
         />
       ) : (
         <span className="text-balance break-words text-center text-base font-extrabold leading-tight tracking-tight text-navy-800 lg:text-lg">
