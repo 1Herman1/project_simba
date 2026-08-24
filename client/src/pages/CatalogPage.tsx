@@ -17,6 +17,10 @@ export default function CatalogPage() {
   const brand = searchParams.get('brand') || ''
   const format = searchParams.get('format') || ''
   const purpose = searchParams.get('purpose') || ''
+  // Сортировка живёт в URL, как остальные фильтры: раньше она сидела в локальном
+  // useState внутри SortSelect и никуда оттуда не попадала — контрол переключался,
+  // а выдача не менялась.
+  const sort = searchParams.get('sort') || 'popular'
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -26,8 +30,16 @@ export default function CatalogPage() {
     if (brand) params.brand = brand
     if (format) params.format = format
     if (purpose) params.purpose = purpose
+    if (sort && sort !== 'popular') params.sort = sort
     setSearchParams(params, { replace: true })
-  }, [search, activeTag, category, brand, format, purpose])
+  }, [search, activeTag, category, brand, format, purpose, sort])
+
+  const handleSortChange = (next: string) => {
+    const params = new URLSearchParams(searchParams)
+    if (next === 'popular') params.delete('sort')
+    else params.set('sort', next)
+    setSearchParams(params, { replace: true })
+  }
 
   const handleTagClick = (tag: string) => {
     setActiveTag(prev => prev === tag ? '' : tag)
@@ -44,8 +56,15 @@ export default function CatalogPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <CatalogHeader search={search} activeTag={activeTag} category={category} brand={brand} />
-        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} purpose={purpose} />
+        <CatalogHeader
+          search={search}
+          activeTag={activeTag}
+          category={category}
+          brand={brand}
+          sort={sort}
+          onSortChange={handleSortChange}
+        />
+        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} purpose={purpose} sort={sort} />
       </div>
 
       <QuestionnaireTeaser />
@@ -53,7 +72,16 @@ export default function CatalogPage() {
   )
 }
 
-function CatalogHeader({ search, activeTag, category, brand }: { search: string; activeTag: string; category: string; brand: string }) {
+function CatalogHeader({
+  search, activeTag, category, brand, sort, onSortChange,
+}: {
+  search: string
+  activeTag: string
+  category: string
+  brand: string
+  sort: string
+  onSortChange: (value: string) => void
+}) {
   const [brandName, setBrandName] = useState('')
   const [categoryName, setCategoryName] = useState('')
 
@@ -95,17 +123,17 @@ function CatalogHeader({ search, activeTag, category, brand }: { search: string;
   return (
     <div className="flex items-center justify-between mb-6">
       <h1 className="text-xl font-bold text-navy-900">{title}</h1>
-      <SortSelect />
+      <SortSelect value={sort} onChange={onSortChange} />
     </div>
   )
 }
 
-function SortSelect() {
-  const [sort, setSort] = useState('popular')
+function SortSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   return (
     <select
-      value={sort}
-      onChange={e => setSort(e.target.value)}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      aria-label="Сортировка товаров"
       className="text-sm border border-line rounded-xl px-3 py-2 bg-white text-navy-700 focus:outline-none focus:border-line cursor-pointer">
       <option value="popular">По популярности</option>
       <option value="price_asc">Сначала дешевле</option>

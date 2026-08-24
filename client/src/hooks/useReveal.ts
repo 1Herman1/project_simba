@@ -1,23 +1,34 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 /**
  * Однократный scroll-reveal через IntersectionObserver.
  * Добавляет класс `is-visible`, когда элемент входит во вьюпорт, и отписывается.
  * При reduced-motion или отсутствии IO — показывает сразу, без анимации.
+ *
+ * Callback-ref, а не useRef: если компонент на первом рендере возвращает
+ * null (например, ждёт данные с сервера — как BrandsSection до ответа API),
+ * элемент с ref физически не существует в DOM в момент монтирования. Эффект
+ * с обычным useRef + [] запускается один раз и видит ref.current === null
+ * навсегда — обсервер не подключается, даже когда элемент появляется позже.
+ * Callback-ref обновляет state при каждом реальном mount/unmount узла, эффект
+ * зависит от этого state и переустанавливает наблюдатель на актуальный узел.
  */
 export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: { rootMargin?: string }) {
-  const ref = useRef<T>(null)
+  const [node, setNode] = useState<T | null>(null)
   const rootMargin = options?.rootMargin ?? '0px 0px -12% 0px'
 
+  const ref = useCallback((el: T | null) => {
+    setNode(el)
+  }, [])
+
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    if (!node) return
 
     if (
       typeof IntersectionObserver === 'undefined' ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      el.classList.add('is-visible')
+      node.classList.add('is-visible')
       return
     }
 
@@ -37,10 +48,10 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: { ro
       { threshold: 0, rootMargin }
     )
 
-    observer.observe(el)
+    observer.observe(node)
     return () => observer.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [node])
 
   return ref
 }
