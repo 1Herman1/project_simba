@@ -38,8 +38,8 @@ export function StickyProductPanel({
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-divider p-4 shadow-lg z-40 animate-in slide-in-from-bottom-2">
-      <div className="container-app flex items-center gap-4">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border p-4 shadow-lg z-40 animate-in slide-in-from-bottom-2">
+      <div className="container-app flex items-center gap-1">
         {/* Image */}
         {product.image && (
           <img
@@ -51,7 +51,7 @@ export function StickyProductPanel({
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-sans font-bold text-text truncate">
+          <h3 className="font-sans font-bold text-foreground truncate">
             {product.name}
           </h3>
           {product.variants?.[0] && (
@@ -59,7 +59,7 @@ export function StickyProductPanel({
               {product.variants[0].volumeLabel}
             </p>
           )}
-          <p className="font-semibold text-text mt-1">
+          <p className="font-semibold text-foreground mt-1">
             {formatPrice(product.minPrice)}
           </p>
         </div>
@@ -68,7 +68,7 @@ export function StickyProductPanel({
         <button
           onClick={onAddToCart}
           disabled={!product.inStock}
-          className="px-6 py-2 bg-accent-ink text-accent-text font-semibold rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap min-h-10"
+          className="px-6 py-0.5 bg-primary text-primary-foreground font-semibold rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap min-h-10"
         >
           В корзину
         </button>

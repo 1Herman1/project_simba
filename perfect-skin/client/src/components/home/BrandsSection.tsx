@@ -2,7 +2,7 @@ export function BrandsSection() {
   return (
     <section className="bg-background py-20 md:py-32">
       <div className="container-app">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 mb-20 md:mb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-20 mb-20 md:mb-32">
           {/* Aside: Title + Subtitle */}
           <div>
             <h2 className="text-h2 font-heading font-bold mb-4">
@@ -14,7 +14,7 @@ export function BrandsSection() {
           </div>
 
           {/* Brands Grid */}
-          <div className="grid grid-cols-1 gap-8 md:gap-6">
+          <div className="grid grid-cols-1 gap-2 md:gap-6">
             {/* ISSEIMI Card */}
             <div className="border border-border rounded-block p-8 md:p-10 bg-card relative overflow-hidden">
               {/* Background image */}
@@ -24,7 +24,7 @@ export function BrandsSection() {
                 width={400}
                 height={400}
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover opacity-15"
+                className="absolute inset-0 w-full h-full object-cover opacity-10"
               />
 
               {/* Badge */}
@@ -61,7 +61,7 @@ export function BrandsSection() {
                 width={400}
                 height={400}
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover opacity-15"
+                className="absolute inset-0 w-full h-full object-cover opacity-10"
               />
 
               {/* Badge */}

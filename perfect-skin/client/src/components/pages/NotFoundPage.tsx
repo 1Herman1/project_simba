@@ -4,13 +4,13 @@ export function NotFoundPage() {
   return (
     <div className="container-app py-12 md:py-24">
       <div className="max-w-prose">
-        <h1 className="text-display font-heading font-bold mb-8 text-destructive">
+        <h1 className="text-display font-heading font-bold mb-2 text-destructive">
           404
         </h1>
         <p className="text-h2 font-heading font-bold mb-6">
           Страница не найдена
         </p>
-        <p className="text-body font-sans leading-body mb-8 text-muted-foreground">
+        <p className="text-body font-sans leading-body mb-2 text-muted-foreground">
           Возможно, она была удалена или адрес неправильный.
         </p>
         <Link

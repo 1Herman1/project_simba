@@ -10,5 +10,5 @@ export function formatPrice(kopecks: number): string {
     result.unshift(parts[i])
   }
 
-  return result.join('') + ' ₽'
+  return result.join('') + '\u00A0₽'
 }

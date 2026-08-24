@@ -5,6 +5,7 @@ const products = [
   {
     step: 1,
     video: '/video/2-3.mp4',
+    poster: '/video/poster-2-3.jpg',
     name: 'DERMOSUN SPF 50',
     subtitle: 'Солнцезащитный крем',
     price: '3 781 ₽',
@@ -13,6 +14,7 @@ const products = [
   {
     step: 2,
     video: '/video/3-5.mp4',
+    poster: '/video/poster-3-5.jpg',
     name: 'O3 DEPUR',
     subtitle: 'Очищающий флюид',
     price: '5 499 ₽',
@@ -21,6 +23,7 @@ const products = [
   {
     step: 3,
     video: '/video/5-7.mp4',
+    poster: '/video/poster-5-7.jpg',
     name: 'TONICO FACIAL EQUILIBRANTE',
     subtitle: 'Балансирующий тоник',
     price: '3 969 ₽',
@@ -29,6 +32,7 @@ const products = [
   {
     step: 4,
     video: '/video/7-9.mp4',
+    poster: '/video/poster-7-9.jpg',
     name: 'FLUIDO VISCOSO FORTE',
     subtitle: 'Активный флюид',
     price: '5 999 ₽',
@@ -99,7 +103,7 @@ export function BestsellerSection() {
     return (
       <section className="bg-background py-12 md:py-20">
         <div className="container-app">
-          <h2 className="text-h2 font-heading font-bold mb-12 md:mb-16">
+          <h2 className="text-h2 font-heading font-bold mb-3 md:mb-16">
             Бестселлеры
           </h2>
 
@@ -124,15 +128,15 @@ export function BestsellerSection() {
     <section
       ref={containerRef}
       className="bg-background relative"
-      style={{ height: '500vh' }}
+      style={{ height: prefersReducedMotion ? 'auto' : '500vh' }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
         <div className="container-app">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-6 items-center">
             {/* LEFT: Title + Steps */}
             <div>
-              <h2 className="text-h2 font-heading font-bold mb-12 md:mb-16">
+              <h2 className="text-h2 font-heading font-bold mb-3 md:mb-16">
                 Бестселлеры
               </h2>
 
@@ -168,12 +172,12 @@ export function BestsellerSection() {
                   <p className="text-body text-muted-foreground mb-6">
                     {product.subtitle}
                   </p>
-                  <div className="text-price font-heading font-bold text-foreground mb-8">
+                  <div className="text-price font-heading font-bold text-foreground mb-2">
                     {product.price}
                   </div>
                   <a
                     href={`/product/${product.slug}`}
-                    className="inline-block bg-foreground text-card font-heading font-bold px-8 py-3 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11"
+                    className="inline-block bg-primary text-primary-foreground font-heading font-bold px-6 py-3 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11"
                   >
                     Подробнее
                   </a>
@@ -182,7 +186,7 @@ export function BestsellerSection() {
             </div>
 
             {/* RIGHT: Video */}
-            <div className="relative h-96 md:h-screen md:-my-24 flex items-center">
+            <div className="relative aspect-[3/4] md:aspect-auto md:h-screen md:-my-24 flex items-center">
               {products.map((product) => (
                 <video
                   key={product.step}
@@ -190,6 +194,7 @@ export function BestsellerSection() {
                     videoRefs.current[product.step] = el
                   }}
                   src={product.video}
+                  poster={product.poster}
                   muted
                   playsInline
                   className={`
@@ -197,7 +202,7 @@ export function BestsellerSection() {
                     transition-opacity duration-500
                     ${activeStep === product.step ? 'opacity-100' : 'opacity-0'}
                   `}
-                  preload="auto"
+                  preload="metadata"
                 />
               ))}
             </div>

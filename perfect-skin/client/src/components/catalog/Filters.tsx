@@ -32,8 +32,8 @@ function FacetCheckboxGroup({
   disabled?: boolean
 }) {
   return (
-    <div className="border-b border-divider py-4 last:border-b-0">
-      <h3 className="font-sans font-bold text-text text-sm mb-3">{label}</h3>
+    <div className="border-b border-border py-1 last:border-b-0">
+      <h3 className="font-sans font-bold text-foreground text-sm mb-3">{label}</h3>
       <div className="space-y-2">
         {facets.map(facet => (
           <label
@@ -52,7 +52,7 @@ function FacetCheckboxGroup({
               disabled={facet.count === 0 || disabled}
               className="w-4 h-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
             />
-            <span className={`text-sm ${facet.count === 0 ? 'text-muted-foreground' : 'text-text'}`}>
+            <span className={`text-sm ${facet.count === 0 ? 'text-muted-foreground' : 'text-foreground'}`}>
               {facet.label}
             </span>
             <span className="ml-auto text-xs text-muted-foreground">({facet.count})</span>
@@ -170,25 +170,25 @@ export function Filters({
       )}
 
       {facets?.price && (
-        <div className="border-b border-divider py-4 last:border-b-0">
-          <h3 className="font-sans font-bold text-text text-sm mb-3">Цена, ₽</h3>
+        <div className="border-b border-border py-1 last:border-b-0">
+          <h3 className="font-sans font-bold text-foreground text-sm mb-3">Цена, ₽</h3>
           <div className="space-y-2">
             <div className="flex gap-2">
               <input
                 type="number"
-                placeholder="От"
+                placeholder="От" id="price-min" aria-label="Цена от, рублей"
                 value={minPrice}
                 onChange={e => setMinPrice(e.target.value)}
                 onBlur={handlePriceChange}
-                className="flex-1 px-3 py-2 border border-divider rounded text-sm min-h-10"
+                className="flex-1 px-3 py-0.5 border border-border rounded text-sm min-h-10"
               />
               <input
                 type="number"
-                placeholder="До"
+                placeholder="До" id="price-max" aria-label="Цена до, рублей"
                 value={maxPrice}
                 onChange={e => setMaxPrice(e.target.value)}
                 onBlur={handlePriceChange}
-                className="flex-1 px-3 py-2 border border-divider rounded text-sm min-h-10"
+                className="flex-1 px-3 py-0.5 border border-border rounded text-sm min-h-10"
               />
             </div>
             <div className="text-xs text-muted-foreground">
@@ -218,7 +218,7 @@ export function Filters({
               offset: 0,
             })
           }}
-          className="w-full py-2 text-sm text-accent-ink hover:text-accent-ink/80 transition-colors font-semibold"
+          className="w-full py-0.5 text-sm text-accent-ink hover:text-accent-ink/80 transition-colors font-semibold"
         >
           Очистить фильтры ({activeFilterCount})
         </button>
@@ -231,11 +231,11 @@ export function Filters({
       <>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-4 py-3 bg-white border border-divider rounded-lg font-semibold text-text min-h-11 mb-4"
+          className="flex items-center gap-2 px-1 py-3 bg-white border border-border rounded-lg font-semibold text-foreground min-h-11 mb-4"
         >
           <span>Фильтры</span>
           {activeFilterCount > 0 && (
-            <span className="ml-auto bg-accent-ink text-accent-text text-xs rounded-full w-6 h-6 flex items-center justify-center">
+            <span className="ml-auto bg-primary text-primary-foreground text-xs rounded-full w-6 h-6 flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}
@@ -250,12 +250,12 @@ export function Filters({
               aria-modal="true"
               aria-label="Фильтры каталога"
             >
-              <div className="sticky top-0 flex items-center justify-between px-4 py-4 border-b border-divider bg-white">
-                <h2 className="font-heading font-bold text-text">Фильтры</h2>
+              <div className="sticky top-0 flex items-center justify-between px-1 py-1 border-b border-border bg-white">
+                <h2 className="font-heading font-bold text-foreground">Фильтры</h2>
                 <button
                   onClick={() => setIsOpen(false)}
                   aria-label="Закрыть фильтры"
-                  className="min-w-11 min-h-11 flex items-center justify-center text-2xl text-text"
+                  className="min-w-11 min-h-11 flex items-center justify-center text-2xl text-foreground"
                 >
                   ×
                 </button>

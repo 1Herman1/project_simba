@@ -3,6 +3,7 @@ import type { ProductCard as ProductCardType } from '@/types/api'
 
 interface ProductGridProps {
   products: ProductCardType[]
+  onReset?: () => void
   loading?: boolean
   onAddToCart?: (productId: string) => void
 }
@@ -21,7 +22,7 @@ function ProductCardSkeleton() {
   )
 }
 
-export function ProductGrid({ products, loading, onAddToCart }: ProductGridProps) {
+export function ProductGrid({ products, onReset, loading, onAddToCart }: ProductGridProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -35,10 +36,27 @@ export function ProductGrid({ products, loading, onAddToCart }: ProductGridProps
   if (products.length === 0) {
     return (
       <div className="col-span-full py-16 text-center">
-        <h3 className="text-xl font-heading font-bold text-text mb-3">Ничего не найдено</h3>
+        <h3 className="text-xl font-heading font-bold text-foreground mb-3">Подберём под вашу кожу</h3>
         <p className="text-muted-foreground mb-6">
-          По вашему запросу не найдено товаров. Попробуйте изменить фильтры.
+          Под эти фильтры ничего не нашлось — ответьте на пять вопросов, и мы
+          соберём программу ухода под ваш тип кожи.
         </p>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <a
+            href="/#quiz-teaser"
+            className="inline-flex items-center justify-center min-h-11 px-6 py-3 rounded-pill bg-primary text-primary-foreground font-semibold"
+          >
+            Подобрать уход
+          </a>
+          {onReset && (
+            <button
+              onClick={onReset}
+              className="inline-flex items-center justify-center min-h-11 px-6 py-3 rounded-pill border border-border text-foreground font-semibold"
+            >
+              Сбросить фильтры
+            </button>
+          )}
+        </div>
       </div>
     )
   }

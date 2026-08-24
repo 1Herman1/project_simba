@@ -10,38 +10,37 @@ export function HeroSection() {
     <section className="bg-background pt-12 md:pt-24 pb-20 md:pb-32">
       <div className="container-app">
         {/* Grid: left (text) + right (card with accent bg) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-20 items-start">
           {/* LEFT: Text, buttons, tags */}
           <div>
             {/* Badge */}
-            <div className="inline-block bg-accent text-foreground px-4 py-2 rounded-pill text-label font-bold uppercase tracking-wide mb-8 md:mb-12">
+            <div className="inline-block bg-accent text-foreground px-1 py-0.5 rounded-pill text-label font-bold uppercase tracking-wide mb-2 md:mb-3">
               ИСПАНИЯ · HEBER FARMA · С 2017 ГОДА
             </div>
 
             {/* Main heading */}
-            <h1 className="text-display font-heading font-bold mb-8 md:mb-10 leading-tight">
+            <h1 className="text-display font-heading font-bold mb-2 md:mb-10 leading-tight">
               ПРО-КОСМЕТИКА
-              <br className="hidden sm:block" />
-              ИЗ ИСПАНИИ
+              <span className="block">ИЗ ИСПАНИИ</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-body leading-body text-muted-foreground mb-10 md:mb-12 max-w-prose">
+            <p className="text-body leading-body text-muted-foreground mb-10 md:mb-3 max-w-prose">
               Два бренда фармацевтического производства — для домашнего ухода и
               для работы в кабинете косметолога.
             </p>
 
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-12 md:mb-16">
+            <div className="flex flex-col sm:flex-row gap-1 mb-3 md:mb-4">
               <Link
                 to="/catalog"
-                className="inline-flex items-center justify-center bg-foreground text-card font-heading font-bold px-8 py-4 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-12"
+                className="inline-flex items-center justify-center bg-primary text-primary-foreground font-heading font-bold px-6 py-3 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11"
               >
                 Смотреть каталог
               </Link>
               <button
                 onClick={handleQuizScroll}
-                className="inline-flex items-center justify-center bg-accent text-foreground font-heading font-bold px-8 py-4 rounded-pill border-2 border-accent transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-12"
+                className="inline-flex items-center justify-center bg-accent text-foreground font-heading font-bold px-6 py-3 rounded-pill border-2 border-accent transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11"
               >
                 Подобрать уход
               </button>
@@ -62,34 +61,34 @@ export function HeroSection() {
           </div>
 
           {/* RIGHT: Accent background with product card */}
-          <div className="relative min-h-96 md:min-h-full">
+          <div className="relative min-h-[500px] flex items-start justify-end">
             {/* Accent bg block (golden) */}
-            <div className="absolute inset-0 bg-accent rounded-block md:rounded-2xl -z-10 hidden md:block" />
+            <div className="absolute inset-0 bg-accent rounded-block hidden md:block" aria-hidden="true" />
 
-            {/* Product card (white) */}
-            <div className="bg-card rounded-block p-8 md:p-10 relative">
+            {/* Product card (beige) */}
+            <div className="relative z-10 bg-background rounded-block p-2 md:p-10 max-w-[320px] ml-auto mt-[180px] md:-ml-10">
               {/* Badge */}
-              <div className="text-label font-bold text-accent mb-2">
+              <div className="text-label font-bold text-gold-text mb-2">
                 ХИТ ПРОДАЖ · ISSEIMI BASE
               </div>
 
               {/* Product title */}
-              <h2 className="text-h3 md:text-h2 font-heading font-bold mb-4">
+              <h2 className="text-h3 md:text-h2 font-heading font-bold mb-1">
                 Beevenom Cream
               </h2>
 
               {/* Product description */}
-              <p className="text-body leading-body text-muted-foreground mb-8">
+              <p className="text-body leading-body text-muted-foreground mb-2">
                 Антивозрастной крем с пчелиным ядом
               </p>
 
               {/* Price */}
-              <div className="text-display font-heading font-bold text-foreground mb-8">
+              <div className="text-price font-sans font-semibold tabular-nums text-2xl text-foreground mb-2">
                 8&nbsp;077&nbsp;₽
               </div>
 
               {/* CTA Button */}
-              <button className="w-full bg-foreground text-card font-heading font-bold py-4 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-12">
+              <button className="w-full bg-primary text-primary-foreground font-heading font-bold py-3 px-6 rounded-pill transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11">
                 В корзину
               </button>
             </div>

@@ -41,10 +41,10 @@ export function About() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-8 md:gap-16">
+        <div className="grid grid-cols-3 gap-3 md:gap-6">
           {/* Counter: 9 лет */}
           <div ref={counterRef} className="flex flex-col">
-            <div className="text-display font-heading font-bold text-accent mb-2">
+            <div className="text-display font-heading font-bold text-foreground mb-2">
               {counter}+
             </div>
             <p className="text-body-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export function About() {
 
           {/* Static: 40+ */}
           <div className="flex flex-col">
-            <div className="text-display font-heading font-bold text-accent mb-2">
+            <div className="text-display font-heading font-bold text-foreground mb-2">
               40+
             </div>
             <p className="text-body-sm text-muted-foreground">
@@ -64,7 +64,7 @@ export function About() {
 
           {/* Badge: Официальный */}
           <div className="flex flex-col items-start">
-            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-pill mb-4 text-body-sm font-bold">
+            <div className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-1 py-0.5 rounded-pill mb-4 text-body-sm font-bold">
               ✓ Официальный
             </div>
             <p className="text-body-sm text-muted-foreground">

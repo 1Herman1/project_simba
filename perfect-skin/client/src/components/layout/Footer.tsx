@@ -18,7 +18,7 @@ export function Footer() {
   return (
     <footer className="bg-dark text-dark-foreground">
       <div className="container-app py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
           {/* Column 1: About */}
           <div>
             <h3 className="text-h3 font-heading font-bold mb-6">О компании</h3>

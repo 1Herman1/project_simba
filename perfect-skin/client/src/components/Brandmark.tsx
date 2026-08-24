@@ -1,6 +1,6 @@
 export function Brandmark() {
   return (
-    <div className="flex flex-col items-start gap-4 md:gap-8">
+    <div className="flex flex-col items-start gap-1 md:gap-2">
       <img
         src="/logo/logo-wordmark.png"
         alt="Perfect Skin"

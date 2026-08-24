@@ -16,24 +16,24 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="bg-card rounded-block overflow-hidden transition-transform duration-200 hover:-translate-y-1">
       {/* Image */}
-      <Link to={`/product/${product.slug}`} className="block overflow-hidden bg-gray-100">
+      <Link to={`/product/${product.slug}`} className="block overflow-hidden bg-card">
         {product.image ? (
           <img
             src={product.image}
-            alt={`${product.name} от ${product.brand?.name || 'производителя'}`}
-            className="w-full h-64 object-cover hover:scale-105 transition-transform duration-300"
+            alt={product.name}
+            className="w-full aspect-[3/4] object-contain rounded-media"
           />
         ) : (
-          <div className="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-400">
+          <div className="w-full aspect-[3/4] flex items-center justify-center bg-muted text-muted-foreground rounded-media">
             Нет изображения
           </div>
         )}
       </Link>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-2">
         {/* Brand and Line */}
         {(product.brand || product.line) && (
           <div className="text-xs text-muted-foreground mb-2">
@@ -46,14 +46,14 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         {/* Name */}
         <Link
           to={`/product/${product.slug}`}
-          className="block text-body font-sans font-bold text-text mb-3 hover:text-accent-ink transition-colors"
+          className="block text-body font-sans font-bold text-foreground mb-3 hover:text-primary transition-colors"
         >
           {product.name}
         </Link>
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-lg font-semibold text-text">{formatPrice(product.minPrice)}</span>
+          <span className="text-lg font-semibold text-foreground">{formatPrice(product.minPrice)}</span>
           {product.oldPrice && (
             <span className="text-sm text-muted-foreground line-through">
               {formatPrice(product.oldPrice)}
@@ -65,7 +65,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <button
           onClick={handleAddToCart}
           disabled={!product.inStock}
-          className="w-full py-3 px-4 bg-accent-ink text-accent-text font-sans font-semibold rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-200 min-h-11"
+          className="w-full py-3 px-6 bg-primary text-primary-foreground font-sans font-semibold rounded-pill hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-200 min-h-11"
         >
           {product.inStock ? 'В корзину' : 'Нет в наличии'}
         </button>

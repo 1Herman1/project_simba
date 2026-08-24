@@ -60,7 +60,7 @@ export function CatalogPage() {
             <p className="text-red-800 mb-4">{error.message}</p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-900 text-white rounded-full hover:bg-red-800 transition-colors"
+              className="px-1 py-0.5 bg-red-900 text-white rounded-full hover:bg-red-800 transition-colors"
             >
               Повторить
             </button>
@@ -71,7 +71,7 @@ export function CatalogPage() {
 
     return (
       <div className="container-app py-12 md:py-24">
-        <h1 className="text-display font-heading font-bold mb-8 md:mb-12">Каталог</h1>
+        <h1 className="text-display font-heading font-bold mb-2 md:mb-3">Каталог</h1>
         {categories && <CatalogGrid categories={categories} />}
       </div>
     )
@@ -138,25 +138,25 @@ export function CatalogPage() {
   return (
     <div className="container-app py-12 md:py-24">
       {/* Header */}
-      <h1 className="text-display font-heading font-bold mb-8 md:mb-12">
+      <h1 className="text-display font-heading font-bold mb-2 md:mb-3">
         {slug === 'all' ? 'Все средства' : 'Каталог'}
       </h1>
 
       {/* Error */}
       {productsError && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-8 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-2 text-center">
           <h2 className="font-heading font-bold text-red-900 mb-2">Ошибка загрузки</h2>
           <p className="text-red-800 mb-4">{productsError.message}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-red-900 text-white rounded-full hover:bg-red-800 transition-colors"
+            className="px-1 py-0.5 bg-red-900 text-white rounded-full hover:bg-red-800 transition-colors"
           >
             Повторить
           </button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-2">
         {/* Filters */}
         <div className="lg:col-span-1">
           <Filters
@@ -177,7 +177,7 @@ export function CatalogPage() {
             <select
               value={filters.sort || 'newest'}
               onChange={e => handleSortChange(e.target.value)}
-              className="px-4 py-2 border border-divider rounded text-sm text-text bg-white min-h-10"
+              className="px-1 py-0.5 border border-border rounded text-sm text-foreground bg-card min-h-10"
             >
               <option value="newest">Новинки</option>
               <option value="price_asc">Цена: возрастание</option>
@@ -191,6 +191,7 @@ export function CatalogPage() {
             products={products?.items || []}
             loading={productsLoading}
             onAddToCart={id => console.log('Add to cart:', id)}
+            onReset={() => handleFilterChange({})}
           />
 
           {/* Load More */}
@@ -198,7 +199,7 @@ export function CatalogPage() {
             <div className="mt-8 text-center">
               <button
                 onClick={handleLoadMore}
-                className="px-8 py-3 bg-accent-ink text-accent-text font-semibold rounded-full hover:opacity-90 transition-opacity min-h-12"
+                className="px-2 py-3 bg-primary text-primary-foreground font-semibold rounded-full hover:opacity-90 transition-opacity min-h-11"
               >
                 Показать ещё
               </button>

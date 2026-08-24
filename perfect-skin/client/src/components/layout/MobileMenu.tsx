@@ -47,9 +47,14 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         />
       )}
 
-      {/* Drawer */}
+      {/* Drawer. Обёртка overflow-hidden: сдвинутая за экран шторка
+          иначе растягивает страницу и даёт горизонтальный скролл. */}
       <div
-        className={`fixed right-0 top-0 bottom-0 w-full max-w-sm bg-card shadow-lg z-50 transform transition-transform duration-300 ${
+        className="fixed inset-0 z-50 overflow-hidden pointer-events-none"
+        aria-hidden={!isOpen}
+      >
+      <div
+        className={`absolute right-0 top-0 bottom-0 w-full max-w-sm bg-card shadow-lg transform transition-transform duration-300 ${isOpen ? 'pointer-events-auto' : ''} ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -62,12 +67,12 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             <IconClose />
           </button>
 
-          <nav className="flex flex-col gap-4 mt-8">
+          <nav className="flex flex-col gap-1 mt-8">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
-                className="text-body font-sans text-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-ring py-2"
+                className="text-body font-sans text-foreground hover:text-primary transition-colors duration-200 focus-visible:outline-ring py-0.5"
                 onClick={onClose}
               >
                 {item.label}
@@ -93,6 +98,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </a>
           </div>
         </div>
+      </div>
       </div>
     </>
   )

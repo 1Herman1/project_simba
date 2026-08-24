@@ -28,8 +28,8 @@ export function RelatedProducts({
   if (relatedProducts.length === 0 && !loading) return null
 
   return (
-    <div className="mt-12 pt-12 border-t border-divider">
-      <h2 className="text-2xl font-heading font-bold text-text mb-6">
+    <div className="mt-12 pt-12 border-t border-border">
+      <h2 className="text-2xl font-heading font-bold text-foreground mb-6">
         Другие товары раздела
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

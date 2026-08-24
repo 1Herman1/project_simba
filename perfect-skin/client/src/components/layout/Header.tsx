@@ -23,23 +23,28 @@ export function Header({
   const isDesktop = useMediaQuery('(min-width: 768px)')
 
   return (
-    <header className="border-b border-border bg-card">
+    <header className="border-b border-border bg-background">
       <div className="container-app py-6 md:py-8">
-        <div className="flex items-center justify-between gap-8">
-          {/* Logo */}
-          <Link to="/" className="shrink-0 focus-visible:outline-ring">
-            <img
-              src="/logo/logo-wordmark.webp"
-              alt="Perfect Skin"
-              width={120}
-              height={20}
-              className="h-5 md:h-6 w-auto"
-            />
-          </Link>
+        <div className="flex items-center justify-between gap-2">
+          {/* Logo + Tagline */}
+          <div className="shrink-0">
+            <Link to="/" className="focus-visible:outline-ring block">
+              <img
+                src="/logo/logo-wordmark.webp"
+                alt="Perfect Skin"
+                width={120}
+                height={20}
+                className="h-5 md:h-6 w-auto"
+              />
+            </Link>
+            <p className="hidden md:block text-xs font-sans text-muted-foreground text-center whitespace-nowrap">
+              Назначают врачи. Любит ваша кожа
+            </p>
+          </div>
 
           {/* Desktop Navigation */}
           {isDesktop && (
-            <nav className="flex items-center gap-8 text-body font-sans">
+            <nav className="flex items-center gap-2 text-body font-sans">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -53,7 +58,7 @@ export function Header({
           )}
 
           {/* Right Actions */}
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-1 ml-auto">
             {/* Phone */}
             {isDesktop && (
               <a
@@ -65,7 +70,7 @@ export function Header({
             )}
 
             {/* Icons */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
               {cartIcon && (
                 <button
                   className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
