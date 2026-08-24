@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '../lib/api'
-import { ArrowLeftIcon } from '../components/icons'
+import { ArrowLeftIcon, CoinsIcon, BagIcon } from '../components/icons'
 import WelcomeBonusPopup from '../components/WelcomeBonusPopup'
 
 type Step = 'input' | 'code'
@@ -202,10 +202,7 @@ export default function AuthPage() {
 
             {/* Плашка приветственного бонуса */}
             <div className="mt-4 flex items-start gap-2 rounded-card bg-amber-50 px-3 py-2.5">
-              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="mt-0.5 shrink-0 text-amber-600" fill="currentColor">
-                <circle cx="12" cy="12" r="10" />
-                <text x="12" y="15" textAnchor="middle" fill="white" className="text-xs font-bold">$</text>
-              </svg>
+              <CoinsIcon className="mt-0.5 shrink-0 w-4.5 h-4.5 text-amber-600" />
               <p className="text-xs leading-relaxed text-navy-700">
                 <span className="font-bold text-amber-600">+{WELCOME_BONUS} бонусов</span> за регистрацию — это {WELCOME_BONUS} ₽ скидки на первый заказ
               </p>
@@ -305,9 +302,7 @@ export default function AuthPage() {
         <Link
           to="/checkout"
           className="btn-outline w-full rounded-xl py-3 text-sm font-bold gap-2 flex items-center justify-center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M7 4V3c0-.6.4-1 1-1h8c.6 0 1 .4 1 1v1h5c.6 0 1 .4 1 1v2H2V5c0-.6.4-1 1-1h4zm13 6H4v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10z" />
-          </svg>
+          <BagIcon className="w-4.5 h-4.5" />
           Оформить заказ без регистрации
         </Link>
         <p className="mt-2 text-center text-xs text-navy-500">

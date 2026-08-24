@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CheckIcon, PawIcon } from '../icons'
+import { CheckIcon, PawIcon, HeartIcon, HeartSolidIcon } from '../icons'
 import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import type { Product } from '../../lib/api'
@@ -77,11 +77,11 @@ export default function ProductCard({ product }: { product: Product }) {
           onClick={handleToggleFavorite}
           aria-label={liked ? 'Убрать из избранного' : 'Добавить в избранное'}
           className="btn-press absolute bottom-2 right-2 w-11 h-11 bg-white rounded-full shadow-sm flex items-center justify-center">
-          <svg className={`w-4 h-4 transition-colors ${liked ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'} ${liked ? 'ico-pop' : ''}`}
-            key={liked ? 'on' : 'off'}
-            viewBox="0 0 24 24" strokeWidth="2">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-          </svg>
+          {liked ? (
+            <HeartSolidIcon className={`w-4 h-4 transition-colors fill-red-500 stroke-red-500 ico-pop`} key="on" />
+          ) : (
+            <HeartIcon className={`w-4 h-4 transition-colors fill-none stroke-navy-300`} key="off" />
+          )}
         </button>
       </div>
 

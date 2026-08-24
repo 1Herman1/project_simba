@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
 
 const banners = [
   {
@@ -88,9 +89,7 @@ export default function BannerCarousel() {
         aria-label="Предыдущий баннер"
         className="absolute left-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow]"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-nudge ico-nudge--back">
-          <polyline points="15,18 9,12 15,6"/>
-        </svg>
+        <ArrowLeftIcon className="w-4.5 h-4.5 ico-nudge ico-nudge--back" />
       </button>
       <button
         type="button"
@@ -98,9 +97,7 @@ export default function BannerCarousel() {
         aria-label="Следующий баннер"
         className="absolute right-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-[background-color,box-shadow]"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-nudge">
-          <polyline points="9,18 15,12 9,6"/>
-        </svg>
+        <ArrowRightIcon className="w-4.5 h-4.5 ico-nudge" />
       </button>
 
       {/* Точки */}

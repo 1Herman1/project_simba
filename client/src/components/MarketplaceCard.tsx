@@ -1,20 +1,4 @@
-export function StarIcon() {
-  return (
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-    </svg>
-  )
-}
-
-function ExternalLinkIcon() {
-  return (
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  )
-}
+import { StarSolidIcon, ExternalLinkIcon } from './icons'
 
 type Props = {
   name: string
@@ -45,7 +29,7 @@ export default function MarketplaceCard({
         <span className="font-semibold text-navy-900">{name}</span>
         <span className="flex items-baseline gap-1 text-amber-600 font-bold">
           {rating}
-          <StarIcon />
+          <StarSolidIcon className="w-4 h-4" />
         </span>
       </div>
 
@@ -61,7 +45,7 @@ export default function MarketplaceCard({
         >
           {linkLabel}
           <span className="ico-nudge ico-nudge--diag">
-            <ExternalLinkIcon />
+            <ExternalLinkIcon className="w-4 h-4" />
           </span>
         </a>
       )}

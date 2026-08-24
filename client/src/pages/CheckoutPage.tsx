@@ -204,9 +204,9 @@ export default function CheckoutPage() {
       <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 ico-ring-in">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ico-draw" style={{ '--draw-delay': '160ms' } as React.CSSProperties}>
-              <polyline points="20,6 9,17 4,12"/>
-            </svg>
+            <div style={{ '--draw-delay': '160ms' } as React.CSSProperties}>
+              <CheckIcon className="w-9 h-9 text-[#1E7B4D] ico-draw" />
+            </div>
           </div>
           <h1 className="text-2xl font-black text-navy-900 mb-2">Заказ оформлен!</h1>
           <p className="text-navy-500 text-sm mb-1">Номер заказа:</p>

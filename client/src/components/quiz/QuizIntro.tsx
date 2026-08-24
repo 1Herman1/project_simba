@@ -1,4 +1,4 @@
-import GiftIcon from './GiftIcon'
+import { GiftIcon } from '../icons'
 
 interface QuizIntroProps {
   onStart: () => void
@@ -28,9 +28,7 @@ export default function QuizIntro({ onStart, inModal }: QuizIntroProps) {
         </button>
 
         <div className="bg-white rounded-card border border-line p-6 flex items-center justify-center gap-3 mb-8">
-          <span className="text-amber-500">
-            <GiftIcon />
-          </span>
+          <GiftIcon className="w-6 h-6 text-amber-500" />
           <span className="text-navy-700 font-medium">После подбора — 300 бонусов на первую покупку. Заберёте их после входа в аккаунт</span>
         </div>
 

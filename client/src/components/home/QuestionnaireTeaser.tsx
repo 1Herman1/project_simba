@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { useReveal } from '../../hooks/useReveal'
 import { useDrawer } from '../../context/DrawerContext'
-import GiftIcon from '../quiz/GiftIcon'
+import { GiftIcon } from '../icons'
 
 /** Декор по бокам карточки — новые ассеты с поворотом запечённым.
     Файлы в client/public/decor/. */
@@ -94,7 +94,7 @@ export default function QuestionnaireTeaser() {
               Подобрать корм
             </button>
             <p className="mt-3 flex items-center justify-center gap-2 text-sm text-navy-500">
-              <span className="shrink-0 text-amber-600" aria-hidden="true"><GiftIcon size={16} /></span>
+              <GiftIcon className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />
               <span><strong className="font-semibold">+300 бонусов</strong> на первую покупку</span>
             </p>
           </div>

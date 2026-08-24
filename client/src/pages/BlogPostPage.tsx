@@ -1,18 +1,8 @@
 import { useParams, Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { getPostBySlug, getPublished } from '../content/blog'
-import { ArrowLeftIcon } from '../components/icons'
+import { ArrowLeftIcon, ImagePlaceholderIcon } from '../components/icons'
 import NotFoundPage from './NotFoundPage'
-
-function ImagePlaceholderIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  )
-}
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -96,7 +86,7 @@ export default function BlogPostPage() {
         <img src={post.cover} alt={post.title} className="w-full aspect-[16/9] object-cover rounded-card mb-10" />
       ) : (
         <div className="w-full aspect-[16/9] bg-primary-tint flex items-center justify-center text-primary-soft rounded-card mb-10">
-          <ImagePlaceholderIcon />
+          <ImagePlaceholderIcon className="w-12 h-12" />
         </div>
       )}
 
@@ -129,7 +119,7 @@ export default function BlogPostPage() {
                   <img src={relatedPost.cover} alt={relatedPost.title} className="w-full aspect-[16/10] object-cover" />
                 ) : (
                   <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
-                    <ImagePlaceholderIcon />
+                    <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
 

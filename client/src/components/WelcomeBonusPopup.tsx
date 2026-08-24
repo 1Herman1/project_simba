@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CloseIcon } from './icons'
+import { CloseIcon, GiftIcon } from './icons'
 
 const EXIT_MS = 200
 
@@ -110,10 +110,7 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
         </button>
 
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
-          <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600">
-            <rect x="3" y="8" width="18" height="13" rx="2" />
-            <path d="M12 8v13M3 12h18M12 8c-1.5-3-6-3-6 0M12 8c1.5-3 6-3 6 0" />
-          </svg>
+          <GiftIcon className="w-7 h-7 text-amber-600" />
         </div>
 
         <p

@@ -2,17 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { BLOG_POSTS, getPublished, type BlogCategory } from '../content/blog'
-import { ArrowLeftIcon, ArrowRightIcon } from '../components/icons'
-
-function ImagePlaceholderIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  )
-}
+import { ArrowLeftIcon, ArrowRightIcon, ImagePlaceholderIcon } from '../components/icons'
 
 const CATEGORIES: BlogCategory[] = ['Сравнения кормов', 'Питание', 'Здоровье', 'Кошки', 'Собаки', 'Ветдиеты']
 
@@ -96,7 +86,7 @@ export default function BlogPage() {
                   <img src={post.cover} alt={post.title} className="w-full aspect-[16/10] object-cover" />
                 ) : (
                   <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
-                    <ImagePlaceholderIcon />
+                    <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
 
