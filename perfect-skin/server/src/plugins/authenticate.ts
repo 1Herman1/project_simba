@@ -37,7 +37,10 @@ async function authenticatePlugin(fastify: FastifyInstance) {
 
       request.user = {
         id: user.id,
-        role: user.role,
+        name: user.name || '',
+        phone: user.phone || '',
+        email: user.email || null,
+        role: user.role || 'customer',
         tokenVersion: user.tokenVersion,
       }
     } catch (error) {
@@ -76,6 +79,9 @@ declare module 'fastify' {
   interface FastifyRequest {
     user?: {
       id: string
+      name: string
+      phone: string
+      email: string | null
       role: string
       tokenVersion: number
     }

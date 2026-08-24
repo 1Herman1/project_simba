@@ -5,10 +5,23 @@ import rateLimit from '@fastify/rate-limit'
 import prismaPlugin from './plugins/prisma.js'
 import authenticatePlugin from './plugins/authenticate.js'
 import { ApiError, errorResponse } from './lib/errors.js'
+import { registerCommonSchemas } from './schemas/common.js'
+import productsRoutes from './routes/products/index.js'
+import categoriesRoutes from './routes/categories/index.js'
+import brandsRoutes from './routes/brands/index.js'
+import linesRoutes from './routes/lines/index.js'
+import cartRoutes from './routes/cart/index.js'
+import promoRoutes from './routes/promo/index.js'
+import deliveryRoutes from './routes/delivery/index.js'
+import ordersRoutes from './routes/orders/index.js'
+import authRoutes from './routes/auth/index.js'
 
 const app = Fastify({
   logger: true,
 })
+
+// Register common schemas
+registerCommonSchemas(app)
 
 // Register plugins
 await app.register(prismaPlugin)
@@ -45,15 +58,18 @@ app.get('/api/v1/health', async (request, reply) => {
   return { ok: true, timestamp: new Date().toISOString() }
 })
 
-// TODO: Register routes
-// - GET /api/v1/products, /facets, /:slug
-// - GET /api/v1/categories/tree, /:slug
-// - GET /api/v1/brands, /:slug, /lines
-// - GET|POST|PATCH|DELETE /api/v1/cart/**
-// - GET /api/v1/delivery/methods
-// - POST /api/v1/promo/validate
-// - POST|GET /api/v1/orders
-// - POST /api/v1/auth/**
+// Register catalog routes
+await app.register(productsRoutes, { prefix: '/api/v1/products' })
+await app.register(categoriesRoutes, { prefix: '/api/v1/categories' })
+await app.register(brandsRoutes, { prefix: '/api/v1/brands' })
+await app.register(linesRoutes, { prefix: '/api/v1/lines' })
+
+// Register checkout routes
+await app.register(cartRoutes)
+await app.register(deliveryRoutes)
+await app.register(promoRoutes)
+await app.register(ordersRoutes)
+await app.register(authRoutes)
 
 const start = async () => {
   try {
