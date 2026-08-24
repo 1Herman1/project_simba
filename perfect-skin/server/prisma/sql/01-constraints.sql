@@ -33,10 +33,6 @@ ALTER TABLE product_variants
   ADD CONSTRAINT variant_stock_nonneg CHECK (stock >= 0),
   ADD CONSTRAINT variant_volume_positive CHECK (volume_value > 0);
 
-ALTER TABLE variant_pro_prices
-  ADD CONSTRAINT pro_price_nonneg CHECK (price >= 0),
-  ADD CONSTRAINT pro_min_qty_positive CHECK (min_qty >= 1);
-
 ALTER TABLE cart_items
   ADD CONSTRAINT cart_item_qty_positive CHECK (quantity > 0);
 
@@ -49,13 +45,7 @@ ALTER TABLE orders
     subtotal >= 0 AND total >= 0 AND promo_discount >= 0 AND delivery_cost >= 0
   ),
   -- Скидка не может превышать стоимость товаров.
-  ADD CONSTRAINT order_discount_within_subtotal CHECK (promo_discount <= subtotal),
-  -- Промокод не совмещается с профессиональным прайсом: оптовая цена уже
-  -- снижена, скидка сверху означала бы работу в минус либо покупку
-  -- косметологом по собственному коду.
-  ADD CONSTRAINT order_no_promo_on_pro_price CHECK (
-    price_tier <> 'pro' OR promo_code_id IS NULL
-  );
+  ADD CONSTRAINT order_discount_within_subtotal CHECK (promo_discount <= subtotal);
 
 -- ────────────────────────────── Промокоды ──────────────────────────────
 
@@ -76,16 +66,4 @@ ALTER TABLE promo_codes
 ALTER TABLE promo_code_redemptions
   ADD CONSTRAINT redemption_amounts_nonneg CHECK (
     discount_amount >= 0 AND order_subtotal >= 0
-  );
-
--- ─────────────────────────────── Заявки профи ───────────────────────────────
-
-ALTER TABLE pro_profiles
-  -- Отклонение без причины бесполезно: косметолог не узнает, что исправить.
-  ADD CONSTRAINT pro_rejection_has_reason CHECK (
-    status <> 'rejected' OR rejection_reason IS NOT NULL
-  ),
-  -- Отзыв доступа обязан быть объяснён и датирован.
-  ADD CONSTRAINT pro_revoke_documented CHECK (
-    status <> 'revoked' OR (revoked_at IS NOT NULL AND revoke_reason IS NOT NULL)
   );
