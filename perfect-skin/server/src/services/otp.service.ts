@@ -9,15 +9,16 @@ const OTP_FAILED_ATTEMPTS_LIMIT = 5
 const OTP_BLOCK_DURATION_MINUTES = 15
 
 export class OtpService {
-  async generateAndStoreCode(phone: string): Promise<string> {
+  async generateAndStoreCode(userId: string): Promise<string> {
     // Generate 6-digit code
     const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0')
     const codeHash = await hash(code, 10)
 
     await db.otpCode.create({
       data: {
-        phone,
+        userId,
         codeHash,
+        channel: 'sms',
         expiresAt: new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000),
       },
     })

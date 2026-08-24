@@ -144,7 +144,7 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
           skip: offset,
         }),
         db.order.count({
-          where: { userId: request.user.id },
+          where: { userId: request.user!.id },
         }),
       ])
 
@@ -196,7 +196,10 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
 
       const order = await db.order.findUnique({
         where: { number: (request.params as any)?.number },
-        include: { items: { include: { product: { select: { slug: true, images: true } } } } },
+        include: {
+          items: { include: { product: { select: { slug: true, images: true } } } },
+          redemption: { include: { promoCode: { select: { code: true, percent: true } } } },
+        },
       })
 
       if (!order || order.userId !== request.user!.id) {

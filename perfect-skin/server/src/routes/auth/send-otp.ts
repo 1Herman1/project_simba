@@ -50,11 +50,15 @@ export async function sendOtpRoute(app: FastifyInstance) {
 
       const phone = result.data.phone
 
+      // Пользователь нужен до проверки лимита: код в БД привязан к userId,
+      // поля phone у OtpCode нет.
+      const user = await otpService.findOrCreateUser(phone)
+
       // Check rate limit per phone (60 sec)
       const { db } = await import('../../lib/db.js')
       const recentCode = await db.otpCode.findFirst({
         where: {
-          phone,
+          userId: user.id,
           createdAt: { gte: new Date(Date.now() - 60 * 1000) },
         },
       })
@@ -68,11 +72,8 @@ export async function sendOtpRoute(app: FastifyInstance) {
         )
       }
 
-      // Find or create user
-      await otpService.findOrCreateUser(phone)
-
       // Generate and send OTP
-      const code = await otpService.generateAndStoreCode(phone)
+      const code = await otpService.generateAndStoreCode(user.id)
       await sms.send(phone, code)
 
       reply.status(200).send({

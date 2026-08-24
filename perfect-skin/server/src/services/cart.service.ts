@@ -1,8 +1,20 @@
-import { db } from '../lib/db.js'
+import { db, type Prisma } from '../lib/db.js'
 import { ApiError } from '../lib/errors.js'
 import type { FastifyRequest } from 'fastify'
 
 type CartOwner = { userId: string } | { sessionId: string }
+
+type CartWithItems = Prisma.CartGetPayload<{
+  include: {
+    items: {
+      include: {
+        productVariant: {
+          include: { product: { include: { brand: true } } }
+        }
+      }
+    }
+  }
+}>
 
 export class CartService {
   /**
@@ -33,7 +45,7 @@ export class CartService {
    * Get or create cart for owner.
    * Guests by sessionId get cart without DB insert on read-only.
    */
-  async getOrCreateCart(owner: CartOwner) {
+  async getOrCreateCart(owner: CartOwner): Promise<CartWithItems | null> {
     let cart
 
     if ('userId' in owner) {
@@ -70,7 +82,33 @@ export class CartService {
   /**
    * Format cart response with warnings.
    */
-  formatCartResponse(cart: any) {
+  formatCartResponse(
+    cart: CartWithItems | null
+  ): {
+    id: string | null
+    items: Array<{
+      id: string
+      productId: string
+      variantId: string
+      quantity: number
+      product: { name: string; slug: string; image: string | null; brandName: string }
+      variant: {
+        volumeLabel: string | null
+        retailPrice: number
+        oldRetailPrice: number | null
+        stock: number
+      }
+      lineTotal: number
+    }>
+    itemsCount: number
+    subtotal: number
+    warnings: Array<{
+      code: string
+      itemId: string
+      available: number
+      message: string
+    }>
+  } {
     if (!cart) {
       return {
         id: null,
@@ -81,8 +119,8 @@ export class CartService {
       }
     }
 
-    const items = (cart.items || []).map((item: any) => {
-      const lineTotal = item.productVariant.retailPrice * item.quantity
+    const items = (cart.items || []).map((item) => {
+      const lineTotal = Number(item.productVariant.retailPrice) * item.quantity
       return {
         id: item.id,
         productId: item.productId,
@@ -96,9 +134,9 @@ export class CartService {
         },
         variant: {
           volumeLabel: item.productVariant.volumeLabel,
-          retailPrice: item.productVariant.retailPrice,
-          oldRetailPrice: item.productVariant.oldRetailPrice,
-          stock: item.productVariant.stock,
+          retailPrice: Number(item.productVariant.retailPrice),
+          oldRetailPrice: item.productVariant.oldRetailPrice ? Number(item.productVariant.oldRetailPrice) : null,
+          stock: item.productVariant.stock || 0,
         },
         lineTotal,
       }
@@ -106,7 +144,7 @@ export class CartService {
 
     // Calculate warnings
     const warnings = items
-      .map((item: any) => {
+      .map((item) => {
         // Check if item's variant is still active
         if (!item.variant || item.variant.stock < 0) {
           return {
@@ -129,16 +167,21 @@ export class CartService {
 
         return null
       })
-      .filter(Boolean)
+      .filter((w) => w !== null) as Array<{
+        code: string
+        itemId: string
+        available: number
+        message: string
+      }>
 
     // Calculate subtotal excluding items with ITEM_UNAVAILABLE warning
     const unavailableItemIds = new Set(
       warnings
-        .filter((w: any) => w.code === 'ITEM_UNAVAILABLE')
-        .map((w: any) => w.itemId)
+        .filter((w) => w.code === 'ITEM_UNAVAILABLE')
+        .map((w) => w.itemId)
     )
 
-    const subtotal = items.reduce((sum: number, item: any) => {
+    const subtotal = items.reduce((sum: number, item) => {
       if (unavailableItemIds.has(item.id)) return sum
       return sum + item.lineTotal
     }, 0)
@@ -146,7 +189,7 @@ export class CartService {
     return {
       id: cart.id,
       items,
-      itemsCount: items.reduce((sum: number, item: any) => sum + item.quantity, 0),
+      itemsCount: items.reduce((sum: number, item) => sum + item.quantity, 0),
       subtotal,
       warnings,
     }
@@ -280,7 +323,7 @@ export class CartService {
       // Check stock
       if (quantity > item.productVariant.stock) {
         throw new ApiError(409, 'OUT_OF_STOCK', 'Недостаточно товара на складе', {
-          itemId: item.variantId,
+          itemId: item.productVariantId,
           productName: item.productVariant.product.name,
           available: item.productVariant.stock,
         })
@@ -334,7 +377,7 @@ export class CartService {
 
     // Return empty cart
     const emptyCart = await this.getOrCreateCart(owner)
-    return this.formatCartResponse(emptyCart || { id: null, items: [] })
+    return this.formatCartResponse(emptyCart)
   }
 
   /**

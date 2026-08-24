@@ -1,14 +1,22 @@
-import { db } from '../lib/db.js'
+import { db, type Prisma, $Enums } from '../lib/db.js'
 import { ApiError } from '../lib/errors.js'
 import * as psSharedNs from '@ps/shared'
-import { type DeliveryMethod } from '@ps/shared'
 const { calcOrderTotals } = ((psSharedNs as any).default ?? psSharedNs) as any
 import { toCalcMethod } from '../lib/delivery.js'
 import crypto from 'crypto'
 
+type PrismaDeliveryMethod = $Enums.DeliveryMethod
+
 // Заказ оформляет только вошедший пользователь (Order.userId обязателен) —
 // гость проходит вход до этого шага, сигнатура это закрепляет.
 type OrderOwner = { userId: string }
+
+type OrderWithRelations = Prisma.OrderGetPayload<{
+  include: {
+    items: { include: { product: { select: { slug: true; images: true } } } }
+    redemption: { include: { promoCode: { select: { code: true; percent: true } } } }
+  }
+}>
 
 export class OrderService {
   /**
@@ -27,7 +35,7 @@ export class OrderService {
   async createOrder(
     owner: OrderOwner,
     payload: {
-      deliveryMethod: DeliveryMethod
+      deliveryMethod: PrismaDeliveryMethod
       cdekPvzCode?: string | null
       address?: any | null
       recipient: { name: string; phone: string; email?: string | null }
@@ -203,7 +211,7 @@ export class OrderService {
           number: orderNumber,
           userId: owner.userId,
           status: 'new',
-          deliveryMethod: payload.deliveryMethod,
+          deliveryMethod: payload.deliveryMethod as PrismaDeliveryMethod,
           cdekPvzCode: payload.cdekPvzCode || null,
           deliveryAddress: payload.address || null,
           recipientName: payload.recipient.name,
@@ -282,14 +290,44 @@ export class OrderService {
   /**
    * Format order for API response.
    */
-  formatOrderResponse(order: any) {
-    const items = order.items.map((item: any) => ({
+  formatOrderResponse(order: OrderWithRelations): {
+    id: string
+    number: string
+    status: string
+    createdAt: Date
+    deliveryMethod: PrismaDeliveryMethod
+    cdekPvzCode: string | null
+    deliveryAddress: unknown
+    recipient: { name: string; phone: string; email: string | null }
+    items: Array<{
+      productName: string
+      brandName: string | null
+      volumeLabel: string | null
+      price: number
+      quantity: number
+      lineTotal: number
+      productSlug: string | null
+      image: string | null
+    }>
+    subtotal: number
+    promo: { code: string; percent: number; discount: number } | null
+    deliveryCost: number
+    total: number
+    comment: string | null
+    payment: {
+      status: string
+      provider: string
+      confirmationUrl: null
+      paymentStatus: string
+    }
+  } {
+    const items = order.items.map((item) => ({
       productName: item.productName,
       brandName: item.brandName,
       volumeLabel: item.volumeLabel,
-      price: item.price,
+      price: Number(item.price),
       quantity: item.quantity,
-      lineTotal: item.price * item.quantity,
+      lineTotal: Number(item.price) * item.quantity,
       productSlug: item.product?.slug ?? null,
       image: item.product?.images?.[0] ?? null,
     }))
@@ -308,16 +346,16 @@ export class OrderService {
         email: order.recipientEmail,
       },
       items,
-      subtotal: order.subtotal,
+      subtotal: Number(order.subtotal),
       promo: order.promoDiscount > 0
         ? {
             code: order.redemption?.promoCode?.code ?? '',
             percent: order.redemption?.promoCode?.percent ?? 0,
-            discount: order.promoDiscount,
+            discount: Number(order.promoDiscount),
           }
         : null,
-      deliveryCost: order.deliveryCost,
-      total: order.total,
+      deliveryCost: Number(order.deliveryCost),
+      total: Number(order.total),
       comment: order.comment,
       payment: {
         status: 'not_implemented',

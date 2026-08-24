@@ -1,6 +1,8 @@
-import type { PrismaClient } from '../lib/db.js'
+import type { PrismaClient, Prisma } from '../lib/db.js'
 import { ACTIVE } from '../lib/prisma-filters.js'
 import { CONCERNS, SKIN_TYPES } from '../lib/dictionaries.js'
+import type { Concern, SkinType } from '../lib/db.js'
+import { getPopularProductsMap } from './popular.service.js'
 
 export interface CatalogFilters {
   category?: string
@@ -49,15 +51,28 @@ function buildVolumeLabel(volumeValue: number, volumeUnit: string, label: string
 }
 
 // Convert Prisma Decimal to number and strip trailing zeros
-function decimalToNumber(val: any): number {
+function decimalToNumber(val: Prisma.Decimal | number | null): number {
   if (val === null) return 0
   const str = String(val)
   const num = parseFloat(str)
   return Number.isInteger(num) ? num : num
 }
 
+type ProductWithBrandLineVariants = Prisma.ProductGetPayload<{
+  include: {
+    brand: true
+    line: true
+    variants: {
+      where: { isActive: boolean; deletedAt: null }
+      orderBy: { volumeValue: 'asc' }
+    }
+  }
+}>
+
+type ProductWithRelations = ProductWithBrandLineVariants | (ProductWithBrandLineVariants & { categories: Prisma.ProductCategoryGetPayload<object>[] })
+
 // Build product card DTO from product record
-export function buildProductCard(product: any): ProductCardDTO {
+export function buildProductCard(product: ProductWithRelations): ProductCardDTO {
   const images = product.images || []
   const brand = product.brand
     ? { id: product.brand.id, name: product.brand.name, slug: product.brand.slug }
@@ -66,10 +81,8 @@ export function buildProductCard(product: any): ProductCardDTO {
     ? { id: product.line.id, name: product.line.name, slug: product.line.slug }
     : null
 
-  // Filter active variants
-  const activeVariants = (product.variants || []).filter(
-    (v: any) => v.isActive && v.deletedAt === null
-  )
+  // Filter active variants (already pre-filtered by ProductGetPayload)
+  const activeVariants = (product.variants || [])
 
   // Find cheapest variant
   const cheapest = activeVariants.length > 0 ? activeVariants[0] : null
@@ -77,10 +90,10 @@ export function buildProductCard(product: any): ProductCardDTO {
   const oldPrice = cheapest && cheapest.oldRetailPrice ? decimalToNumber(cheapest.oldRetailPrice) : null
 
   // Check if in stock
-  const inStock = activeVariants.some((v: any) => (v.stock || 0) > 0)
+  const inStock = activeVariants.some((v) => (v.stock || 0) > 0)
 
   // Convert variants to DTO
-  const variants: VariantDTO[] = activeVariants.map((v: any) => ({
+  const variants: VariantDTO[] = activeVariants.map((v) => ({
     id: v.id,
     volumeValue: decimalToNumber(v.volumeValue),
     volumeUnit: v.volumeUnit,
@@ -225,32 +238,19 @@ export async function getProducts(
         select: { id: true },
       })
 
-      // Calculate units sold in last 90 days
-      const cutoffDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
-      const salesData = await prisma.orderItem.groupBy({
-        by: ['productId'],
-        _sum: { quantity: true },
-        where: {
-          productId: { in: productIds.map((p) => p.id) },
-          createdAt: { gte: cutoffDate },
-          order: { status: { not: 'cancelled' } },
-        },
-      })
-
-      const salesMap = new Map(
-        salesData.map((s) => [s.productId, s._sum?.quantity || 0])
-      )
+      // Get cached popular products map (10-minute TTL)
+      const popularMap = await getPopularProductsMap(prisma)
 
       // Get full products for sorting
       const products = await prisma.product.findMany({
         where: { id: { in: productIds.map((p) => p.id) } },
-        include: { brand: true, line: true, variants: true, categories: true },
+        include: { brand: true, line: true, variants: true },
       })
 
       // Sort in memory: units desc → isFeatured desc → createdAt desc → id asc
       const sorted = products.sort((a, b) => {
-        const unitsA = salesMap.get(a.id) || 0
-        const unitsB = salesMap.get(b.id) || 0
+        const unitsA = popularMap.get(a.id) || 0
+        const unitsB = popularMap.get(b.id) || 0
         if (unitsA !== unitsB) return unitsB - unitsA
         if (a.isFeatured !== b.isFeatured) return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0)
         if (a.createdAt !== b.createdAt) return b.createdAt.getTime() - a.createdAt.getTime()
@@ -305,50 +305,69 @@ export async function getFacets(
   prisma: PrismaClient,
   filters: Omit<CatalogFilters, 'sort' | 'limit' | 'offset'>
 ): Promise<any> {
+  // Resolve slugs → IDs once before all groups
+  let categoryIds: string[] | null = null
+  if (filters.category) {
+    const category = await prisma.category.findFirst({
+      where: { slug: filters.category, ...ACTIVE },
+      select: { id: true },
+    })
+    if (category) {
+      categoryIds = [category.id]
+      const queue = [category.id]
+      while (queue.length > 0) {
+        const current = queue.shift()!
+        const children = await prisma.category.findMany({
+          where: { parentId: current, ...ACTIVE },
+          select: { id: true },
+        })
+        children.forEach((c) => {
+          categoryIds!.push(c.id)
+          queue.push(c.id)
+        })
+      }
+    }
+  }
+
+  let brandIds: string[] | null = null
+  if (filters.brand && filters.brand.length > 0) {
+    const brands = await prisma.brand.findMany({
+      where: { slug: { in: filters.brand }, ...ACTIVE },
+      select: { id: true },
+    })
+    if (brands.length > 0) {
+      brandIds = brands.map((b) => b.id)
+    }
+  }
+
+  let lineIds: string[] | null = null
+  if (filters.line && filters.line.length > 0) {
+    const lines = await prisma.productLine.findMany({
+      where: { slug: { in: filters.line }, ...ACTIVE },
+      select: { id: true },
+    })
+    if (lines.length > 0) {
+      lineIds = lines.map((l) => l.id)
+    }
+  }
+
   // Build base where clause (without the filter group being queried)
-  const buildBaseWhere = async (excludeGroup?: string) => {
+  const buildBaseWhere = (excludeGroup?: string): any => {
     const where: any = {
       ...ACTIVE,
       variants: { some: ACTIVE },
     }
 
-    if (excludeGroup !== 'category' && filters.category) {
-      const category = await prisma.category.findFirst({
-        where: { slug: filters.category, ...ACTIVE },
-        select: { id: true },
-      })
-      if (category) {
-        const categoryIds = [category.id]
-        const queue = [category.id]
-        while (queue.length > 0) {
-          const current = queue.shift()!
-          const children = await prisma.category.findMany({
-            where: { parentId: current, ...ACTIVE },
-            select: { id: true },
-          })
-          children.forEach((c) => {
-            categoryIds.push(c.id)
-            queue.push(c.id)
-          })
-        }
-        where.categories = { some: { categoryId: { in: categoryIds } } }
-      }
+    if (excludeGroup !== 'category' && categoryIds) {
+      where.categories = { some: { categoryId: { in: categoryIds } } }
     }
 
-    if (excludeGroup !== 'brand' && filters.brand && filters.brand.length > 0) {
-      const brands = await prisma.brand.findMany({
-        where: { slug: { in: filters.brand }, ...ACTIVE },
-        select: { id: true },
-      })
-      if (brands.length > 0) where.brandId = { in: brands.map((b) => b.id) }
+    if (excludeGroup !== 'brand' && brandIds) {
+      where.brandId = { in: brandIds }
     }
 
-    if (excludeGroup !== 'line' && filters.line && filters.line.length > 0) {
-      const lines = await prisma.productLine.findMany({
-        where: { slug: { in: filters.line }, ...ACTIVE },
-        select: { id: true },
-      })
-      if (lines.length > 0) where.lineId = { in: lines.map((l) => l.id) }
+    if (excludeGroup !== 'line' && lineIds) {
+      where.lineId = { in: lineIds }
     }
 
     if (excludeGroup !== 'need' && filters.need && filters.need.length > 0) {
@@ -378,7 +397,7 @@ export async function getFacets(
   }
 
   // Query for all facet groups
-  const baseWhere = await buildBaseWhere()
+  const baseWhere = buildBaseWhere()
   const products = await prisma.product.findMany({
     where: baseWhere,
     select: {
@@ -393,7 +412,7 @@ export async function getFacets(
   })
 
   // Get categories (excluding category filter)
-  const categoryWhere = await buildBaseWhere('category')
+  const categoryWhere = buildBaseWhere('category')
   const categoriesWithCount = new Map<string, { label: string; count: number }>()
   const categoryProducts = await prisma.product.findMany({
     where: categoryWhere,
@@ -405,10 +424,10 @@ export async function getFacets(
     }
   }
 
-  const categoryIds = Array.from(categoriesWithCount.keys())
-  if (categoryIds.length > 0) {
+  const categoryIdsFromCount = Array.from(categoriesWithCount.keys())
+  if (categoryIdsFromCount.length > 0) {
     const cats = await prisma.category.findMany({
-      where: { id: { in: categoryIds }, ...ACTIVE },
+      where: { id: { in: categoryIdsFromCount }, ...ACTIVE },
     })
     for (const cat of cats) {
       const count = categoryProducts.filter((p) =>
@@ -417,20 +436,20 @@ export async function getFacets(
       // По контракту value — slug: id в фильтр не подставишь.
       categoriesWithCount.set(cat.slug, { label: cat.name, count })
     }
-    for (const id of categoryIds) categoriesWithCount.delete(id)
+    for (const id of categoryIdsFromCount) categoriesWithCount.delete(id)
   }
 
   // Get brands
-  const brandWhere = await buildBaseWhere('brand')
+  const brandWhere = buildBaseWhere('brand')
   const brandsData = await prisma.product.findMany({
     where: brandWhere,
     select: { brandId: true },
   })
-  const brandIds = Array.from(new Set(brandsData.filter((p) => p.brandId).map((p) => p.brandId)))
+  const brandIdsFromCount = Array.from(new Set(brandsData.filter((p) => p.brandId).map((p) => p.brandId)))
   const brandsWithCount = new Map<string, { label: string; count: number }>()
-  if (brandIds.length > 0) {
+  if (brandIdsFromCount.length > 0) {
     const brands = await prisma.brand.findMany({
-      where: { id: { in: brandIds as string[] }, ...ACTIVE },
+      where: { id: { in: brandIdsFromCount as string[] }, ...ACTIVE },
     })
     for (const brand of brands) {
       const count = brandsData.filter((p) => p.brandId === brand.id).length
@@ -439,16 +458,16 @@ export async function getFacets(
   }
 
   // Get lines
-  const lineWhere = await buildBaseWhere('line')
+  const lineWhere = buildBaseWhere('line')
   const linesData = await prisma.product.findMany({
     where: lineWhere,
     select: { lineId: true },
   })
-  const lineIds = Array.from(new Set(linesData.filter((p) => p.lineId).map((p) => p.lineId)))
+  const lineIdsFromCount = Array.from(new Set(linesData.filter((p) => p.lineId).map((p) => p.lineId)))
   const linesWithCount = new Map<string, { label: string; count: number }>()
-  if (lineIds.length > 0) {
+  if (lineIdsFromCount.length > 0) {
     const lines = await prisma.productLine.findMany({
-      where: { id: { in: lineIds as string[] }, ...ACTIVE },
+      where: { id: { in: lineIdsFromCount as string[] }, ...ACTIVE },
     })
     for (const line of lines) {
       const count = linesData.filter((p) => p.lineId === line.id).length
@@ -457,8 +476,8 @@ export async function getFacets(
   }
 
   // Count concerns
-  const concernsCount = new Map<string, number>()
-  const needWhere = await buildBaseWhere('need')
+  const concernsCount = new Map<Concern, number>()
+  const needWhere = buildBaseWhere('need')
   const needProducts = await prisma.product.findMany({
     where: needWhere,
     select: { concerns: true },
@@ -470,8 +489,8 @@ export async function getFacets(
   }
 
   // Count skin types
-  const skinCount = new Map<string, number>()
-  const skinWhere = await buildBaseWhere('skin')
+  const skinCount = new Map<SkinType, number>()
+  const skinWhere = buildBaseWhere('skin')
   const skinProducts = await prisma.product.findMany({
     where: skinWhere,
     select: { skinTypes: true },
@@ -485,7 +504,7 @@ export async function getFacets(
   }
 
   // Get price range
-  const priceWhere = await buildBaseWhere('price')
+  const priceWhere = buildBaseWhere('price')
   const priceData = await prisma.product.findMany({
     where: priceWhere,
     select: { variants: { where: ACTIVE, select: { retailPrice: true } } },
@@ -512,10 +531,10 @@ export async function getFacets(
       .map(([slug, { label, count }]) => ({ value: slug, label, count }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
     needs: Array.from(concernsCount.entries())
-      .map(([value, count]) => ({ value, label: CONCERNS[value as any] || value, count }))
+      .map(([value, count]) => ({ value, label: CONCERNS[value] || value, count }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
     skinTypes: Array.from(skinCount.entries())
-      .map(([value, count]) => ({ value, label: SKIN_TYPES[value as any] || value, count }))
+      .map(([value, count]) => ({ value, label: SKIN_TYPES[value] || value, count }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
     price: { min: minPrice, max: maxPrice },
   }
