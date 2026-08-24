@@ -1,17 +1,46 @@
+import { HeroSection } from '@/components/home/HeroSection'
+import { CtaTiles } from '@/components/home/CtaTiles'
+import { BrandsSection } from '@/components/home/BrandsSection'
+import { CategoryAccordion } from '@/components/home/CategoryAccordion'
+import { BestsellerSection } from '@/components/home/BestsellerSection'
+import { WhyHeberFarma } from '@/components/home/WhyHeberFarma'
+import { About } from '@/components/home/About'
+
 export function HomePage() {
   return (
-    <div className="container-app py-12 md:py-24">
-      <div className="max-w-prose">
-        <h1 className="text-display font-heading font-bold mb-8">
-          Главная
-        </h1>
-        <p className="text-body font-sans leading-body mb-6">
-          Это заглушка главной страницы. Здесь будут героический блок, подбор косметики, консультация косметолога и другой контент.
-        </p>
-        <p className="text-body font-sans leading-body text-muted-foreground">
-          Параллельно разрабатывается каталог и карточки товаров.
-        </p>
+    <>
+      {/* Hero */}
+      <HeroSection />
+
+      {/* CTA Tiles: Подбор и Консультация */}
+      <CtaTiles />
+
+      {/* Quiz Teaser Anchor */}
+      <div id="quiz-teaser" className="bg-background py-20 md:py-32">
+        <div className="container-app">
+          <h2 className="text-h2 font-heading font-bold mb-6">
+            Подбор косметики
+          </h2>
+          <p className="text-body leading-body text-muted-foreground max-w-prose">
+            Скоро здесь появится интерактивный тест для подбора идеальной программы ухода под ваш тип кожи и задачу.
+          </p>
+        </div>
       </div>
-    </div>
+
+      {/* Brands */}
+      <BrandsSection />
+
+      {/* Categories */}
+      <CategoryAccordion />
+
+      {/* Bestsellers */}
+      <BestsellerSection />
+
+      {/* Why Heber Farma */}
+      <WhyHeberFarma />
+
+      {/* About */}
+      <About />
+    </>
   )
 }
