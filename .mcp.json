@@ -1,5 +1,12 @@
 {
   "mcpServers": {
+    "21st": {
+      "type": "http",
+      "url": "https://21st.dev/api/mcp",
+      "headers": {
+        "x-api-key": "${TWENTYFIRST_API_KEY}"
+      }
+    },
     "icon-library": {
       "command": "npx",
       "args": ["tsx", "tools/icon-mcp-server/src/index.ts"],
