@@ -5,7 +5,7 @@ const products = [
   {
     step: 1,
     video: '/video/2-3.mp4',
-    poster: '/video/poster-2-3.jpg',
+    poster: '/video/posters/poster-2-3.jpg',
     name: 'DERMOSUN SPF 50',
     subtitle: 'Солнцезащитный крем',
     price: '3 781 ₽',
@@ -14,7 +14,7 @@ const products = [
   {
     step: 2,
     video: '/video/3-5.mp4',
-    poster: '/video/poster-3-5.jpg',
+    poster: '/video/posters/poster-3-5.jpg',
     name: 'O3 DEPUR',
     subtitle: 'Очищающий флюид',
     price: '5 499 ₽',
@@ -23,7 +23,7 @@ const products = [
   {
     step: 3,
     video: '/video/5-7.mp4',
-    poster: '/video/poster-5-7.jpg',
+    poster: '/video/posters/poster-5-7.jpg',
     name: 'TONICO FACIAL EQUILIBRANTE',
     subtitle: 'Балансирующий тоник',
     price: '3 969 ₽',
@@ -32,7 +32,7 @@ const products = [
   {
     step: 4,
     video: '/video/7-9.mp4',
-    poster: '/video/poster-7-9.jpg',
+    poster: '/video/posters/poster-7-9.jpg',
     name: 'FLUIDO VISCOSO FORTE',
     subtitle: 'Активный флюид',
     price: '5 999 ₽',
@@ -202,7 +202,7 @@ export function BestsellerSection() {
                     transition-opacity duration-500
                     ${activeStep === product.step ? 'opacity-100' : 'opacity-0'}
                   `}
-                  preload="metadata"
+                  preload={activeStep === product.step ? 'metadata' : 'none'}
                 />
               ))}
             </div>
@@ -272,10 +272,11 @@ function MobileStep({
       <video
         ref={videoRef}
         src={product.video}
+        poster={product.poster}
         muted
         playsInline
         className="w-full h-auto rounded-block"
-        preload="auto"
+        preload="none"
       />
       <div>
         <h3 className="text-h3 font-heading font-bold mb-2">

@@ -24,8 +24,10 @@ export class ProductionSmsSender implements SmsSender {
   }
 
   async send(phone: string, code: string): Promise<void> {
-    // TODO: Implement actual SMS provider (e.g., Twillio, AWS SNS)
-    console.log(`[SMS-PROD] Would send to ${phone} via ${this.sender}`)
+    // TODO: Implement actual SMS provider (e.g., Twillio, AWS SNS).
+    // Until a provider is wired, failing loudly beats a 200 that lies:
+    // the client would tell the user the code was sent when nothing was.
+    throw new Error('SMS provider is not configured: cannot deliver OTP in production')
   }
 }
 

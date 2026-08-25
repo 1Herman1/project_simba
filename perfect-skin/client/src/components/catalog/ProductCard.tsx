@@ -5,9 +5,11 @@ import type { ProductCard as ProductCardType } from '@/types/api'
 interface ProductCardProps {
   product: ProductCardType
   onAddToCart?: (productId: string) => void
+  // Первые карточки над фолдом — часть LCP, им eager + high priority.
+  eager?: boolean
 }
 
-export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, eager }: ProductCardProps) {
   const handleAddToCart = () => {
     console.log('Add to cart:', product.id)
     if (onAddToCart) {
@@ -20,11 +22,20 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       {/* Image */}
       <Link to={`/product/${product.slug}`} className="block overflow-hidden bg-card">
         {product.image ? (
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full aspect-[3/4] object-contain rounded-media"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet={`/products-optimized/${product.slug}/card.webp 1x, /products-optimized/${product.slug}/card@2x.webp 2x`}
+            />
+            <img
+              src={product.image}
+              alt={product.name}
+              loading={eager ? 'eager' : 'lazy'}
+              fetchPriority={eager ? 'high' : undefined}
+              decoding="async"
+              className="w-full aspect-[3/4] object-contain rounded-media"
+            />
+          </picture>
         ) : (
           <div className="w-full aspect-[3/4] flex items-center justify-center bg-muted text-muted-foreground rounded-media">
             Нет изображения

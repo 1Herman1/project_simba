@@ -1,15 +1,18 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from '@/components/layout/Layout'
-import { HomePage } from '@/components/pages/HomePage'
-import { CatalogPage } from '@/components/pages/CatalogPage'
-import { ProductPage } from '@/components/pages/ProductPage'
-import { NotFoundPage } from '@/components/pages/NotFoundPage'
 import { IconCart, IconHeart } from '@/components/icons'
+
+const HomePage = lazy(() => import('@/components/pages/HomePage').then((m) => ({ default: m.HomePage })))
+const CatalogPage = lazy(() => import('@/components/pages/CatalogPage').then((m) => ({ default: m.CatalogPage })))
+const ProductPage = lazy(() => import('@/components/pages/ProductPage').then((m) => ({ default: m.ProductPage })))
+const NotFoundPage = lazy(() => import('@/components/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 
 function App() {
   return (
     <BrowserRouter>
       <Layout cartIcon={<IconCart />} favoriteIcon={<IconHeart />}>
+        <Suspense fallback={<div className="container-app py-24 text-muted-foreground">Загрузка…</div>}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/catalog" element={<CatalogPage />} />
@@ -17,6 +20,7 @@ function App() {
           <Route path="/product/:slug" element={<ProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </Layout>
     </BrowserRouter>
   )

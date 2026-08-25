@@ -6,8 +6,14 @@ import { PrismaClient } from '../../../node_modules/.prisma/ps-client/index.js'
 const prisma = new PrismaClient()
 const cutoff = new Date(Date.now() - 60 * 24 * 3600 * 1000)
 
-const { count } = await prisma.cart.deleteMany({
-  where: { userId: null, updatedAt: { lt: cutoff } },
-})
-console.log(`удалено гостевых корзин старше 60 дней: ${count}`)
-await prisma.$disconnect()
+try {
+  const { count } = await prisma.cart.deleteMany({
+    where: { userId: null, updatedAt: { lt: cutoff } },
+  })
+  console.log(`удалено гостевых корзин старше 60 дней: ${count}`)
+} catch (e) {
+  console.error('cleanup-guest-carts failed:', e)
+  process.exitCode = 1
+} finally {
+  await prisma.$disconnect()
+}

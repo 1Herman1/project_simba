@@ -384,56 +384,60 @@ export class CartService {
    * Merge guest cart into user cart (only in verify-otp).
    */
   async mergeGuestCart(userId: string, sessionId: string) {
-    const guestCart = await db.cart.findUnique({
-      where: { sessionId },
-      include: { items: { include: { productVariant: true } } },
-    })
-
-    if (!guestCart) {
-      return false
-    }
-
-    // Find or create user cart
-    let userCart = await db.cart.findUnique({
-      where: { userId },
-    })
-
-    if (!userCart) {
-      userCart = await db.cart.create({
-        data: { userId },
+    // Atomic: a crash between item upserts and guest-cart delete would
+    // leave the guest cart behind and double-merge on the next login.
+    return db.$transaction(async (tx) => {
+      const guestCart = await tx.cart.findUnique({
+        where: { sessionId },
+        include: { items: { include: { productVariant: true } } },
       })
-    }
 
-    // Merge items: upsert by [cartId, productVariantId]
-    for (const guestItem of guestCart.items) {
-      const availableStock = guestItem.productVariant.stock
-      const mergeQuantity = Math.min(guestItem.quantity, availableStock)
+      if (!guestCart) {
+        return false
+      }
 
-      if (mergeQuantity > 0) {
-        await db.cartItem.upsert({
-          where: {
-            cartId_productVariantId: {
-              cartId: userCart.id,
-              productVariantId: guestItem.productVariantId,
-            },
-          },
-          create: {
-            cartId: userCart.id,
-            productVariantId: guestItem.productVariantId,
-            productId: guestItem.productId,
-            quantity: mergeQuantity,
-          },
-          update: {
-            quantity: { increment: mergeQuantity },
-          },
+      // Find or create user cart
+      let userCart = await tx.cart.findUnique({
+        where: { userId },
+      })
+
+      if (!userCart) {
+        userCart = await tx.cart.create({
+          data: { userId },
         })
       }
-    }
 
-    // Delete guest cart (cascade deletes items)
-    await db.cart.delete({ where: { id: guestCart.id } })
+      // Merge items: upsert by [cartId, productVariantId]
+      for (const guestItem of guestCart.items) {
+        const availableStock = guestItem.productVariant.stock
+        const mergeQuantity = Math.min(guestItem.quantity, availableStock)
 
-    return true
+        if (mergeQuantity > 0) {
+          await tx.cartItem.upsert({
+            where: {
+              cartId_productVariantId: {
+                cartId: userCart.id,
+                productVariantId: guestItem.productVariantId,
+              },
+            },
+            create: {
+              cartId: userCart.id,
+              productVariantId: guestItem.productVariantId,
+              productId: guestItem.productId,
+              quantity: mergeQuantity,
+            },
+            update: {
+              quantity: { increment: mergeQuantity },
+            },
+          })
+        }
+      }
+
+      // Delete guest cart (cascade deletes items)
+      await tx.cart.delete({ where: { id: guestCart.id } })
+
+      return true
+    })
   }
 }
 
