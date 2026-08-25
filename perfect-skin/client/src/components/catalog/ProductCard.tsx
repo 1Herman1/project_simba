@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatPrice } from '@/lib/format'
+import { useCart } from '@/context/CartContext'
+import { useDrawer } from '@/context/DrawerContext'
 import type { ProductCard as ProductCardType } from '@/types/api'
 
 interface ProductCardProps {
@@ -10,8 +13,28 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart, eager }: ProductCardProps) {
-  const handleAddToCart = () => {
-    console.log('Add to cart:', product.id)
+  const { addItem } = useCart()
+  const { openCart } = useDrawer()
+  const [addingState, setAddingState] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  const handleAddToCart = async () => {
+    if (!product.inStock || product.variants.length === 0) return
+
+    try {
+      setAddingState('loading')
+      await addItem(product.variants[0].id, 1)
+      setAddingState('success')
+      openCart()
+
+      // Показываем "Добавлено ✓" на 1.5 секунды
+      setTimeout(() => {
+        setAddingState('idle')
+      }, 1500)
+    } catch {
+      setAddingState('idle')
+      // Ошибка будет показана в CartDrawer
+    }
+
     if (onAddToCart) {
       onAddToCart(product.id)
     }
@@ -75,10 +98,16 @@ export function ProductCard({ product, onAddToCart, eager }: ProductCardProps) {
         {/* Button */}
         <button
           onClick={handleAddToCart}
-          disabled={!product.inStock}
+          disabled={!product.inStock || addingState === 'loading'}
           className="w-full py-3 px-6 bg-primary text-primary-foreground font-sans font-semibold rounded-pill hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity duration-200 min-h-11"
         >
-          {product.inStock ? 'В корзину' : 'Нет в наличии'}
+          {addingState === 'success'
+            ? 'Добавлено ✓'
+            : addingState === 'loading'
+              ? 'Добавляю...'
+              : product.inStock
+                ? 'В корзину'
+                : 'Нет в наличии'}
         </button>
       </div>
     </div>

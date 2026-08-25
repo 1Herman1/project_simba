@@ -1,6 +1,8 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatPrice } from '@/lib/format'
+import { useCart } from '@/context/CartContext'
+import { useDrawer } from '@/context/DrawerContext'
 import { StickyProductPanel } from './StickyProductPanel'
 import { RelatedProducts } from './RelatedProducts'
 import type { ProductCardExtended } from '@/types/api'
@@ -13,6 +15,26 @@ interface ProductDetailProps {
 
 export function ProductDetail({ product, loading, error }: ProductDetailProps) {
   const addToCartButtonRef = useRef<HTMLDivElement>(null)
+  const { addItem } = useCart()
+  const { openCart } = useDrawer()
+  const [addingState, setAddingState] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  const handleAddToCart = async () => {
+    if (!product.inStock || product.variants.length === 0) return
+
+    try {
+      setAddingState('loading')
+      await addItem(product.variants[0].id, 1)
+      setAddingState('success')
+      openCart()
+
+      setTimeout(() => {
+        setAddingState('idle')
+      }, 1500)
+    } catch {
+      setAddingState('idle')
+    }
+  }
 
   if (error) {
     return (
@@ -137,11 +159,17 @@ export function ProductDetail({ product, loading, error }: ProductDetailProps) {
           {/* Add to Cart Button */}
           <div ref={addToCartButtonRef}>
             <button
-              onClick={() => console.log('Add to cart:', product.id)}
-              disabled={!product.inStock}
+              onClick={handleAddToCart}
+              disabled={!product.inStock || addingState === 'loading'}
               className="w-full py-3 px-6 bg-primary text-primary-foreground font-semibold font-sans rounded-pill hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity mb-2 min-h-11 text-lg"
             >
-              {product.inStock ? 'В корзину' : 'Нет в наличии'}
+              {addingState === 'success'
+                ? 'Добавлено ✓'
+                : addingState === 'loading'
+                  ? 'Добавляю...'
+                  : product.inStock
+                    ? 'В корзину'
+                    : 'Нет в наличии'}
             </button>
           </div>
 

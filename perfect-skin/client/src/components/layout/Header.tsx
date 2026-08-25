@@ -1,6 +1,8 @@
 import { IconMenu } from '@/components/icons'
 import { Link } from 'react-router-dom'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useDrawer } from '@/context/DrawerContext'
+import { useCart } from '@/context/CartContext'
 
 interface HeaderProps {
   cartIcon?: React.ReactNode
@@ -21,6 +23,8 @@ export function Header({
   onMobileMenuOpen,
 }: HeaderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
+  const { openCart } = useDrawer()
+  const { count } = useCart()
 
   return (
     <header className="border-b border-border bg-background">
@@ -72,12 +76,20 @@ export function Header({
             {/* Icons */}
             <div className="flex items-center gap-1">
               {cartIcon && (
-                <button
-                  className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
-                  aria-label="Корзина"
-                >
-                  {cartIcon}
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={openCart}
+                    className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                    aria-label={count > 0 ? `Корзина, ${count} товаров` : 'Корзина'}
+                  >
+                    {cartIcon}
+                  </button>
+                  {count > 0 && (
+                    <span className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
+                      {count > 99 ? '99+' : count}
+                    </span>
+                  )}
+                </div>
               )}
               {favoriteIcon && (
                 <button

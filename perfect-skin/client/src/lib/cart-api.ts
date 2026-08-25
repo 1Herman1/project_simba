@@ -1,5 +1,6 @@
-import { fetchApi, ApiError } from './api'
-import type { Cart, CartWarning } from '@/types/api'
+import { DemoCartApi } from './cart-demo'
+import { fetchApi } from './api'
+import type { Cart } from '@/types/api'
 
 export interface DeliveryMethod {
   code: string
@@ -69,29 +70,20 @@ class LiveCartApi implements CartApi {
   }
 }
 
-export function getCartApi(): CartApi {
-  if (import.meta.env.VITE_API_MODE === 'snapshot') {
-    return (async () => {
-      const { DemoCartApi } = await import('./cart-demo')
-      return new DemoCartApi()
-    })() as any
-  }
-  return new LiveCartApi()
-}
-
 // Singleton для повторного использования
-let instance: CartApi | null = null
+let instance: CartApi | undefined
 
 export function cartApi(): CartApi {
   if (!instance) {
     const apiMode = import.meta.env.VITE_API_MODE
     if (apiMode === 'snapshot') {
-      // В демо-режиме импортируем синхронно на момент первого обращения
-      const { DemoCartApi } = require('./cart-demo')
+      // В демо-режиме используем DemoCartApi (статический импорт: require
+      // в браузерной сборке не существует, а Vite вырежет неиспользуемую
+      // ветку из live-бандла по константе VITE_API_MODE).
       instance = new DemoCartApi()
     } else {
       instance = new LiveCartApi()
     }
   }
-  return instance
+  return instance as CartApi
 }

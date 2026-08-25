@@ -1,8 +1,11 @@
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { TopBar } from './TopBar'
 import { Header } from './Header'
 import { MobileMenu } from './MobileMenu'
 import { Footer } from './Footer'
+import CartDrawer from '@/components/cart/CartDrawer'
+import { useDrawer } from '@/context/DrawerContext'
 
 interface LayoutProps {
   children: ReactNode
@@ -16,6 +19,13 @@ export function Layout({
   favoriteIcon,
 }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { drawer, close } = useDrawer()
+  const location = useLocation()
+
+  // Закрываем шторку при смене маршрута
+  useEffect(() => {
+    close()
+  }, [location.pathname, close])
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -33,6 +43,8 @@ export function Layout({
       <main className="flex-1">
         {children}
       </main>
+
+      <CartDrawer open={drawer === 'cart'} onClose={close} />
 
       <Footer />
     </div>
