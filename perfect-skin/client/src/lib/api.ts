@@ -35,14 +35,19 @@ export async function fetchApi<T>(
   const baseUrl = getApiUrl()
   const url = new URL(path, baseUrl)
 
-  const response = await fetch(url.toString(), {
-    ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
-  })
+  let response: Response
+  try {
+    response = await fetch(url.toString(), {
+      ...options,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    })
+  } catch {
+    throw new ApiError(0, 'NETWORK_ERROR', 'Нет соединения с сервером')
+  }
 
   let data: unknown
 

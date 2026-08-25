@@ -25,7 +25,7 @@ interface CatalogSnapshot {
 
 let cache: Promise<CatalogSnapshot> | null = null
 
-function loadSnapshot(): Promise<CatalogSnapshot> {
+export function loadSnapshot(): Promise<CatalogSnapshot> {
   if (!cache) {
     cache = fetch(`${import.meta.env.BASE_URL}snapshot/catalog.json`).then((res) => {
       if (!res.ok) throw new ApiError(500, 'SNAPSHOT_ERROR', 'Каталог недоступен')
