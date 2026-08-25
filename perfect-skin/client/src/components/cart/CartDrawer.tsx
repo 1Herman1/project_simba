@@ -18,6 +18,7 @@ type Props = {
 export default function CartDrawer({ open, onClose }: Props) {
   const { cart, isLoading, updateItem, removeItem } = useCart()
   const [mutationError, setMutationError] = useState<{ itemId?: string; code: string; message: string } | null>(null)
+  const [mutatingId, setMutatingId] = useState<string | null>(null)
 
   const items = cart?.items ?? []
   const warnings = cart?.warnings ?? []
@@ -71,6 +72,10 @@ export default function CartDrawer({ open, onClose }: Props) {
   const deliveryProgress = Math.min(100, (subtotal / FREE_DELIVERY_THRESHOLD) * 100)
 
   const handleUpdateQuantity = async (item: CartItem, newQuantity: number) => {
+    // Лочим позицию на время запроса: параллельные PATCH при быстрых
+    // кликах приходят вразнобой и рассинхронизируют количество.
+    if (mutatingId) return
+    setMutatingId(item.id)
     try {
       setMutationError(null)
       if (newQuantity === 0) {
@@ -93,6 +98,8 @@ export default function CartDrawer({ open, onClose }: Props) {
       } else {
         setMutationError({ code: 'UNKNOWN_ERROR', message: 'Ошибка при обновлении корзины' })
       }
+    } finally {
+      setMutatingId(null)
     }
   }
 
@@ -205,7 +212,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                 quantity={item.quantity}
                 maxStock={item.variant.stock}
                 onQuantityChange={(newQuantity) => handleUpdateQuantity(item, newQuantity)}
-                disabled={isUnavailable}
+                disabled={isUnavailable || mutatingId === item.id}
               />
             </li>
           )

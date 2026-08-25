@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { ApiError } from '@/lib/api'
@@ -42,12 +42,23 @@ export function AuthPage() {
 
   const isPhoneValid = phone.replace(/\D/g, '').length === 11
 
+  // Интервал в ref: при уходе со страницы до конца отсчёта его надо
+  // остановить, иначе setState стреляет по размонтированному компоненту.
+  const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (resendIntervalRef.current) clearInterval(resendIntervalRef.current)
+    }
+  }, [])
+
   const startResendTimer = (seconds: number) => {
+    if (resendIntervalRef.current) clearInterval(resendIntervalRef.current)
     setResendTimer(seconds)
-    const interval = setInterval(() => {
+    resendIntervalRef.current = setInterval(() => {
       setResendTimer((t) => {
         if (t <= 1) {
-          clearInterval(interval)
+          if (resendIntervalRef.current) clearInterval(resendIntervalRef.current)
           return 0
         }
         return t - 1

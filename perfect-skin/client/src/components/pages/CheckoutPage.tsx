@@ -61,9 +61,11 @@ export function CheckoutPage() {
 
   // Загружаем методы доставки
   useEffect(() => {
+    let cancelled = false
     const loadMethods = async () => {
       try {
         const result = await api.getDeliveryMethods(appliedPromo?.code)
+        if (cancelled) return
         setQuote(result)
         setMethods(result.methods as DeliveryMethodResponse[])
         if (result.methods.length > 0) {
@@ -80,7 +82,10 @@ export function CheckoutPage() {
     }
 
     loadMethods()
-  }, [appliedPromo])
+    return () => {
+      cancelled = true
+    }
+  }, [appliedPromo?.code])
 
   const currentMethod = methods.find((m) => m.code === selectedMethod)
   const isDemoMode = import.meta.env.VITE_API_MODE === 'snapshot'
