@@ -1,0 +1,331 @@
+import { useEffect, useState } from 'react'
+import { formatPrice } from '@/lib/format'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useAuth } from '@/context/AuthContext'
+import { fetchApi, ApiError } from '@/lib/api'
+import type { CartItem } from '@/types/api'
+
+interface OrderItem extends CartItem {
+  productSlug?: string
+}
+
+interface OrderDetail {
+  number: string
+  createdAt: string
+  status: string
+  items: OrderItem[]
+  recipient: {
+    name: string
+    phone: string
+    email?: string
+  }
+  deliveryMethod: string
+  address?: {
+    city: string
+    street: string
+    house: string
+    apartment?: string | null
+    index: string
+  }
+  pvzCode?: string
+  subtotal: number
+  discount?: number
+  deliveryCost: number
+  total: number
+  comment?: string
+}
+
+export function OrderPage() {
+  const { number } = useParams<{ number: string }>()
+  const navigate = useNavigate()
+  const { isAuthed, isLoading: authLoading } = useAuth()
+  const [order, setOrder] = useState<OrderDetail | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    if (authLoading) return
+
+    if (!isAuthed) {
+      navigate('/auth?next=/orders')
+      return
+    }
+
+    const loadOrder = async () => {
+      if (!number) return
+
+      try {
+        const result = await fetchApi<OrderDetail>(`/api/v1/orders/${number}`)
+        setOrder(result)
+      } catch (err) {
+        if (err instanceof ApiError && err.code === 'ORDER_NOT_FOUND') {
+          setNotFound(true)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadOrder()
+  }, [number, isAuthed, authLoading, navigate])
+
+  if (loading) {
+    return (
+      <div className="container-app py-12 text-center text-muted-foreground">
+        Загрузка…
+      </div>
+    )
+  }
+
+  if (notFound) {
+    return (
+      <div className="container-app py-12 md:py-20">
+        <div className="max-w-sm mx-auto text-center">
+          <div className="text-6xl mb-4">❓</div>
+          <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
+            Заказ не найден
+          </h1>
+          <p className="text-body text-muted-foreground mb-8">
+            Проверьте номер заказа
+          </p>
+          <a
+            href="/orders"
+            className="inline-block px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill hover:bg-primary/90 transition-colors min-h-11"
+          >
+            Мои заказы
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (!order) {
+    return null
+  }
+
+  const formatDate = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr)
+      const day = String(date.getDate()).padStart(2, '0')
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = date.getFullYear()
+      return `${day}.${month}.${year}`
+    } catch {
+      return dateStr
+    }
+  }
+
+  const getStatusLabel = (status: string): string => {
+    const labels: Record<string, string> = {
+      new: 'Новый',
+      confirmed: 'Подтверждён',
+      packed: 'Собирается',
+      in_transit: 'Отправлен',
+      delivered: 'Доставлен',
+      cancelled: 'Отменён',
+    }
+    return labels[status] || status
+  }
+
+  return (
+    <div className="container-app py-12 md:py-16">
+      {/* Шапка */}
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
+            Заказ {order.number}
+          </h1>
+          <p className="text-body-sm text-muted-foreground">
+            {formatDate(order.createdAt)}
+          </p>
+        </div>
+        <span className="inline-block px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-pill">
+          {getStatusLabel(order.status)}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Основной контент */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Товары */}
+          <div className="bg-card border border-border rounded-block p-6">
+            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+              Товары
+            </h2>
+            <div className="space-y-4">
+              {order.items.map((item) => (
+                <a
+                  key={item.id}
+                  href={`/product/${item.product.slug}`}
+                  className="block p-4 border border-border rounded-pill hover:bg-muted/50 transition-colors"
+                >
+                  {item.product.image && (
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                      className="w-16 h-16 rounded-pill object-cover float-left mr-4 mb-2"
+                    />
+                  )}
+                  <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-2">
+                    {item.product.name}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {item.variant.volumeLabel} × {item.quantity} шт.
+                  </p>
+                  <p className="font-heading font-bold text-primary text-sm">
+                    {formatPrice(item.lineTotal)}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Доставка */}
+          <div className="bg-card border border-border rounded-block p-6">
+            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+              Доставка
+            </h2>
+            <div className="space-y-3 text-sm">
+              <p>
+                <span className="text-muted-foreground">Способ: </span>
+                <span className="font-semibold text-foreground">
+                  {order.deliveryMethod}
+                </span>
+              </p>
+
+              {order.address && (
+                <>
+                  <p>
+                    <span className="text-muted-foreground">Город: </span>
+                    <span className="font-semibold text-foreground">
+                      {order.address.city}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Адрес: </span>
+                    <span className="font-semibold text-foreground">
+                      {order.address.street}, {order.address.house}
+                      {order.address.apartment && `, кв. ${order.address.apartment}`}
+                    </span>
+                  </p>
+                  <p>
+                    <span className="text-muted-foreground">Индекс: </span>
+                    <span className="font-semibold text-foreground">
+                      {order.address.index}
+                    </span>
+                  </p>
+                </>
+              )}
+
+              {order.pvzCode && (
+                <p>
+                  <span className="text-muted-foreground">ПВЗ код: </span>
+                  <span className="font-semibold text-foreground">
+                    {order.pvzCode}
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Получатель */}
+          <div className="bg-card border border-border rounded-block p-6">
+            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+              Получатель
+            </h2>
+            <div className="space-y-2 text-sm">
+              <p>
+                <span className="text-muted-foreground">Имя: </span>
+                <span className="font-semibold text-foreground">
+                  {order.recipient.name}
+                </span>
+              </p>
+              <p>
+                <span className="text-muted-foreground">Телефон: </span>
+                <a
+                  href={`tel:${order.recipient.phone}`}
+                  className="font-semibold text-primary hover:underline"
+                >
+                  {order.recipient.phone}
+                </a>
+              </p>
+              {order.recipient.email && (
+                <p>
+                  <span className="text-muted-foreground">Email: </span>
+                  <a
+                    href={`mailto:${order.recipient.email}`}
+                    className="font-semibold text-primary hover:underline"
+                  >
+                    {order.recipient.email}
+                  </a>
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Комментарий */}
+          {order.comment && (
+            <div className="bg-card border border-border rounded-block p-6">
+              <h2 className="text-lg font-heading font-semibold text-foreground mb-2">
+                Комментарий
+              </h2>
+              <p className="text-body-sm text-muted-foreground whitespace-pre-wrap">
+                {order.comment}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Боковая сводка */}
+        <div className="lg:col-span-1">
+          <div className="bg-card border border-border rounded-block p-6 sticky top-6">
+            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+              Сумма заказа
+            </h2>
+
+            <div className="space-y-2 pb-4 border-b border-border">
+              <div className="flex justify-between text-body-sm">
+                <span className="text-muted-foreground">Товары</span>
+                <span className="font-semibold text-foreground">
+                  {formatPrice(order.subtotal)}
+                </span>
+              </div>
+
+              {order.discount && order.discount > 0 && (
+                <div className="flex justify-between text-body-sm">
+                  <span className="text-muted-foreground">Скидка</span>
+                  <span className="font-semibold text-primary">
+                    −{formatPrice(order.discount)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between text-body-sm">
+                <span className="text-muted-foreground">Доставка</span>
+                <span className="font-semibold text-foreground">
+                  {formatPrice(order.deliveryCost)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between text-lg mt-4 pt-4">
+              <span className="font-heading font-bold text-foreground">
+                Итого
+              </span>
+              <span className="font-heading font-bold text-primary">
+                {formatPrice(order.total)}
+              </span>
+            </div>
+
+            <a
+              href="/orders"
+              className="block mt-6 px-4 py-3 bg-muted text-foreground text-center font-bold rounded-pill hover:bg-muted/80 transition-colors min-h-11"
+            >
+              Назад к заказам
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -15,8 +15,8 @@ const DELIVERY_TITLES = {
 
 const DELIVERY_HINTS = {
   pickup: 'Москва, Звенигородское шоссе, 3Ас1',
-  cdek_pvz: `Бесплатно от ${FREE_PVZ_THRESHOLD / 100_000} ₽`,
-  cdek_courier: `Бесплатно от ${FREE_COURIER_THRESHOLD / 100_000} ₽`,
+  cdek_pvz: `Бесплатно от ${(FREE_PVZ_THRESHOLD / 100).toLocaleString('ru-RU')} ₽`,
+  cdek_courier: `Бесплатно от ${(FREE_COURIER_THRESHOLD / 100).toLocaleString('ru-RU')} ₽`,
 }
 
 export default fastifyPlugin(async (app: FastifyInstance) => {

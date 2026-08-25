@@ -14,14 +14,28 @@ export interface DeliveryMethod {
   requiresPvzCode?: boolean
 }
 
+export interface DeliveryQuote {
+  subtotal: number
+  promo: { code: string; percent: number; discount: number; subtotal: number } | null
+  goodsAfterDiscount: number
+  methods: DeliveryMethod[]
+}
+
+export interface PromoResult {
+  code: string
+  percent: number
+  discount: number
+  subtotal: number
+}
+
 export interface CartApi {
   getCart(): Promise<Cart>
   addItem(variantId: string, quantity: number): Promise<Cart>
   updateItem(itemId: string, quantity: number): Promise<Cart>
   removeItem(itemId: string): Promise<Cart>
   clear(): Promise<void>
-  getDeliveryMethods(promoCode?: string): Promise<DeliveryMethod[]>
-  validatePromo(code: string): Promise<{ discount: number; description: string }>
+  getDeliveryMethods(promoCode?: string): Promise<DeliveryQuote>
+  validatePromo(code: string): Promise<PromoResult>
 }
 
 // Live-реализация поверх API сервера
@@ -56,14 +70,14 @@ class LiveCartApi implements CartApi {
     })
   }
 
-  async getDeliveryMethods(promoCode?: string): Promise<DeliveryMethod[]> {
+  async getDeliveryMethods(promoCode?: string): Promise<DeliveryQuote> {
     const params = new URLSearchParams()
     if (promoCode) params.append('promo', promoCode)
-    return fetchApi<DeliveryMethod[]>(`/api/v1/delivery/methods?${params}`)
+    return fetchApi<DeliveryQuote>(`/api/v1/delivery/methods?${params}`)
   }
 
-  async validatePromo(code: string): Promise<{ discount: number; description: string }> {
-    return fetchApi<{ discount: number; description: string }>('/api/v1/promo/validate', {
+  async validatePromo(code: string): Promise<PromoResult> {
+    return fetchApi<PromoResult>('/api/v1/promo/validate', {
       method: 'POST',
       body: JSON.stringify({ code }),
     })

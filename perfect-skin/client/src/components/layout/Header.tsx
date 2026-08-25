@@ -1,8 +1,9 @@
-import { IconMenu } from '@/components/icons'
+import { IconMenu, IconUser } from '@/components/icons'
 import { Link } from 'react-router-dom'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useDrawer } from '@/context/DrawerContext'
 import { useCart } from '@/context/CartContext'
+import { useAuth } from '@/context/AuthContext'
 
 interface HeaderProps {
   cartIcon?: React.ReactNode
@@ -25,6 +26,7 @@ export function Header({
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const { openCart } = useDrawer()
   const { count } = useCart()
+  const { isAuthed } = useAuth()
 
   return (
     <header className="border-b border-border bg-background">
@@ -99,6 +101,13 @@ export function Header({
                   {favoriteIcon}
                 </button>
               )}
+              <Link
+                to={isAuthed ? '/orders' : '/auth'}
+                className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                aria-label={isAuthed ? 'Мои заказы' : 'Вход'}
+              >
+                <IconUser className="w-5 h-5" />
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}

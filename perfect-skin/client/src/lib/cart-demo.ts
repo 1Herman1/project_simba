@@ -1,11 +1,13 @@
 import { ApiError } from './api'
-import { resolveFromSnapshot } from './snapshot'
+import { loadSnapshot } from './snapshot'
 import type { Cart, CartItem, CartWarning, ProductCardExtended } from '@/types/api'
-import type { CartApi, DeliveryMethod } from './cart-api'
+import type { CartApi, DeliveryQuote, PromoResult } from './cart-api'
 
 const DEMO_CART_KEY = 'ps_demo_cart'
 const ITEM_LIMIT = 50
-const FREE_DELIVERY_THRESHOLD = 600000 // 6000 руб в копейках
+const FREE_PVZ_THRESHOLD = 600000 // 6 000 ₽
+const FREE_COURIER_THRESHOLD = 1000000 // 10 000 ₽
+const DELIVERY_COST = 20000 // 200 ₽
 
 interface DemoCartItemData {
   variantId: string
@@ -35,14 +37,17 @@ export class DemoCartApi implements CartApi {
     const warnings: CartWarning[] = []
     let subtotal = 0
 
+    const snap = await loadSnapshot()
+
     for (const demoItem of items) {
       try {
-        const product = await resolveFromSnapshot<ProductCardExtended>(
-          `/api/v1/products/${demoItem.variantId}` // На самом деле это будет product slug, но в демо используем как ID
+        // Товар ищем по id варианта — в localStorage хранится только variantId.
+        const entry = snap.products.find((sp) =>
+          sp.detail.variants.some((v) => v.id === demoItem.variantId)
         )
-
-        // Находим вариант с этим ID
-        const variant = product.variants.find(v => v.id === demoItem.variantId)
+        if (!entry) continue
+        const product: ProductCardExtended = entry.detail
+        const variant = product.variants.find((v) => v.id === demoItem.variantId)
         if (!variant) continue
 
         // Клампим количество к stock, добавляем warning если изменилось
@@ -158,38 +163,51 @@ export class DemoCartApi implements CartApi {
     this.saveCart([])
   }
 
-  async getDeliveryMethods(): Promise<DeliveryMethod[]> {
-    return [
-      {
-        code: 'pickup',
-        title: 'Самовывоз',
-        hint: 'Москва, Звенигородское шоссе, 3Ас1',
-        cost: 0,
-        isFree: true,
-        requiresAddress: false,
-      },
-      {
-        code: 'cdek_pvz',
-        title: 'ПВЗ СДЭК',
-        cost: 0,
-        isFree: true,
-        freeFrom: FREE_DELIVERY_THRESHOLD,
-        requiresAddress: false,
-        requiresPvzCode: true,
-      },
-      {
-        code: 'cdek_courier',
-        title: 'Курьер СДЭК',
-        cost: 0,
-        isFree: true,
-        freeFrom: FREE_DELIVERY_THRESHOLD,
-        requiresAddress: true,
-        requiresPvzCode: false,
-      },
-    ]
+  async getDeliveryMethods(): Promise<DeliveryQuote> {
+    const cart = await this.buildCart(this.loadCart())
+    const subtotal = cart.subtotal
+    if (cart.items.length === 0) {
+      throw new ApiError(409, 'CART_EMPTY', 'Корзина пуста')
+    }
+    const cdek = (freeFrom: number) => ({
+      cost: subtotal >= freeFrom ? 0 : DELIVERY_COST,
+      isFree: subtotal >= freeFrom,
+      freeFrom,
+      amountToFree: Math.max(0, freeFrom - subtotal),
+    })
+    return {
+      subtotal,
+      promo: null,
+      goodsAfterDiscount: subtotal,
+      methods: [
+        {
+          code: 'pickup',
+          title: 'Самовывоз',
+          hint: 'Москва, Звенигородское шоссе, 3Ас1',
+          cost: 0,
+          isFree: true,
+          requiresAddress: false,
+          requiresPvzCode: false,
+        },
+        {
+          code: 'cdek_pvz',
+          title: 'ПВЗ СДЭК',
+          ...cdek(FREE_PVZ_THRESHOLD),
+          requiresAddress: false,
+          requiresPvzCode: true,
+        },
+        {
+          code: 'cdek_courier',
+          title: 'Курьер СДЭК',
+          ...cdek(FREE_COURIER_THRESHOLD),
+          requiresAddress: true,
+          requiresPvzCode: false,
+        },
+      ],
+    }
   }
 
-  async validatePromo(): Promise<{ discount: number; description: string }> {
+  async validatePromo(): Promise<PromoResult> {
     throw new ApiError(404, 'PROMO_NOT_FOUND', 'Промокоды заработают после запуска магазина')
   }
 }

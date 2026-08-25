@@ -35,15 +35,28 @@ export async function fetchApi<T>(
   const baseUrl = getApiUrl()
   const url = new URL(path, baseUrl)
 
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+
+  // Добавляем Authorization header если есть токен
+  const token = localStorage.getItem('ps_token')
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  // Мержим с пользовательскими headers
+  if (options?.headers) {
+    const customHeaders = options.headers as Record<string, string>
+    Object.assign(headers, customHeaders)
+  }
+
   let response: Response
   try {
     response = await fetch(url.toString(), {
       ...options,
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers,
     })
   } catch {
     throw new ApiError(0, 'NETWORK_ERROR', 'Нет соединения с сервером')
