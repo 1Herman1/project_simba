@@ -18,6 +18,8 @@ import authRoutes from './routes/auth/index.js'
 
 const app = Fastify({
   logger: true,
+  // Дефолт 100 символов режет длинные слаги товаров (до 120 по схеме).
+  maxParamLength: 200,
 })
 
 // Прод без настоящих секретов не поднимается: дефолтные значения означают,
