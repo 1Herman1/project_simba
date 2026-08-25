@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useDrawer } from '@/context/DrawerContext'
 
 export function HeroSection() {
-  const handleQuizScroll = () => {
-    const el = document.getElementById('quiz-teaser')
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
-  }
+  const { openQuiz } = useDrawer()
 
   return (
     <section className="bg-background pt-12 md:pt-24 pb-20 md:pb-32">
@@ -39,7 +37,7 @@ export function HeroSection() {
                 Смотреть каталог
               </Link>
               <button
-                onClick={handleQuizScroll}
+                onClick={openQuiz}
                 className="inline-flex items-center justify-center bg-accent text-foreground font-heading font-bold px-6 py-3 rounded-pill border-2 border-accent transition-opacity duration-200 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary min-h-11"
               >
                 Подобрать уход

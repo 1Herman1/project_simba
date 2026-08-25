@@ -5,6 +5,7 @@ import { Header } from './Header'
 import { MobileMenu } from './MobileMenu'
 import { Footer } from './Footer'
 import CartDrawer from '@/components/cart/CartDrawer'
+import { QuizModal } from '@/components/quiz/QuizModal'
 import { useDrawer } from '@/context/DrawerContext'
 
 interface LayoutProps {
@@ -45,6 +46,7 @@ export function Layout({
       </main>
 
       <CartDrawer open={drawer === 'cart'} onClose={close} />
+      <QuizModal open={drawer === 'quiz'} onClose={close} />
 
       <Footer />
     </div>

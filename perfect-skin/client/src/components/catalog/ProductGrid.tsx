@@ -1,4 +1,5 @@
 import { ProductCard } from './ProductCard'
+import { useDrawer } from '@/context/DrawerContext'
 import type { ProductCard as ProductCardType } from '@/types/api'
 
 interface ProductGridProps {
@@ -23,6 +24,8 @@ function ProductCardSkeleton() {
 }
 
 export function ProductGrid({ products, onReset, loading, onAddToCart }: ProductGridProps) {
+  const { openQuiz } = useDrawer()
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -42,12 +45,12 @@ export function ProductGrid({ products, onReset, loading, onAddToCart }: Product
           соберём программу ухода под ваш тип кожи.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="/#quiz-teaser"
-            className="inline-flex items-center justify-center min-h-11 px-6 py-3 rounded-pill bg-primary text-primary-foreground font-semibold"
+          <button
+            onClick={openQuiz}
+            className="inline-flex items-center justify-center min-h-11 px-6 py-3 rounded-pill bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity duration-200"
           >
             Подобрать уход
-          </a>
+          </button>
           {onReset && (
             <button
               onClick={onReset}

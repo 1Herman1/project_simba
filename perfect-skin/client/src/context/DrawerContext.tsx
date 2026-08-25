@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useMemo, useState, ReactNode } from 'react'
 
-type DrawerName = 'cart' | 'favorites' | null
+type DrawerName = 'cart' | 'favorites' | 'quiz' | null
 
 interface DrawerContextType {
   drawer: DrawerName
   openCart: () => void
   openFavorites: () => void
+  openQuiz: () => void
   close: () => void
 }
 
@@ -21,11 +22,12 @@ export function DrawerProvider({ children }: { children: ReactNode }) {
   // ни избранное.
   const openCart = useCallback(() => setDrawer('cart'), [])
   const openFavorites = useCallback(() => setDrawer('favorites'), [])
+  const openQuiz = useCallback(() => setDrawer('quiz'), [])
   const close = useCallback(() => setDrawer(null), [])
 
   const value = useMemo(
-    () => ({ drawer, openCart, openFavorites, close }),
-    [drawer, openCart, openFavorites, close]
+    () => ({ drawer, openCart, openFavorites, openQuiz, close }),
+    [drawer, openCart, openFavorites, openQuiz, close]
   )
 
   return <DrawerContext.Provider value={value}>{children}</DrawerContext.Provider>
