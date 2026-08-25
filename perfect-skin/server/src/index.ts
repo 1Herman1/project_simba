@@ -1,6 +1,7 @@
 import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
 import rateLimit from '@fastify/rate-limit'
 import prismaPlugin from './plugins/prisma.js'
 import authenticatePlugin from './plugins/authenticate.js'
@@ -25,7 +26,7 @@ const app = Fastify({
 // Прод без настоящих секретов не поднимается: дефолтные значения означают,
 // что cookie корзины и JWT можно подделать офлайн.
 if (process.env.NODE_ENV === 'production') {
-  const required = ['PS_COOKIE_SECRET', 'JWT_SECRET', 'PS_PROMO_HMAC_SECRET', 'PS_DATABASE_URL'] as const
+  const required = ['PS_COOKIE_SECRET', 'JWT_SECRET', 'PS_PROMO_HMAC_SECRET', 'PS_DATABASE_URL', 'PS_CORS_ORIGIN'] as const
   const missing = required.filter((k) => {
     const v = process.env[k]
     return !v || v.includes('dev-secret') || v === 'change-me'
@@ -45,6 +46,8 @@ await app.register(cookie, {
   secret: process.env.PS_COOKIE_SECRET || 'dev-secret-change-in-production',
   hook: 'preHandler',
 })
+// Security headers; CSP off — это JSON-API, не HTML.
+await app.register(helmet, { contentSecurityPolicy: false })
 await app.register(cors, {
   origin: (process.env.PS_CORS_ORIGIN || 'http://localhost:3000').split(','),
   credentials: true,

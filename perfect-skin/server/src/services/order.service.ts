@@ -171,6 +171,21 @@ export class OrderService {
           throw new ApiError(409, 'PROMO_EXHAUSTED', 'Лимит применений промокода исчерпан')
         }
 
+        // Per-user limit ("once per customer"): without this check one
+        // customer redeems the discount an unlimited number of times.
+        if (promoCheck.perUserLimit && 'userId' in owner) {
+          const perUserKey = crypto
+            .createHmac('sha256', process.env.PS_PROMO_HMAC_SECRET || 'dev-secret')
+            .update(owner.userId)
+            .digest('hex')
+          const used = await tx.promoCodeRedemption.count({
+            where: { promoCodeId: promoData.id, perUserKey },
+          })
+          if (used > 0) {
+            throw new ApiError(409, 'PROMO_EXHAUSTED', 'Вы уже использовали этот промокод')
+          }
+        }
+
         await tx.promoCode.update({
           where: { id: promoData.id },
           data: { usedCount: { increment: 1 } },

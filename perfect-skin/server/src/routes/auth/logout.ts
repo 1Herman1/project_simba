@@ -29,6 +29,7 @@ export async function logoutRoute(app: FastifyInstance) {
         },
       })
 
+      reply.clearCookie('ps_auth', { path: '/' })
       reply.status(200).send({ ok: true })
     }
   )

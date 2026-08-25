@@ -20,6 +20,15 @@ export async function verifyOtpRoute(app: FastifyInstance) {
   app.post<{ Body: { phone: string; code: string } }>(
     '/api/v1/auth/verify-otp',
     {
+      // Лимит по номеру, не по IP: перебор кода с многих адресов параллелен.
+      config: {
+        rateLimit: {
+          max: 5,
+          timeWindow: '15 minutes',
+          keyGenerator: (req: FastifyRequest) =>
+            (req.body as { phone?: string } | null)?.phone ?? req.ip,
+        },
+      },
       schema: {
         response: {
           200: {

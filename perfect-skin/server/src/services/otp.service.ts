@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import bcryptjs from 'bcryptjs'
 const { hash, compare } = bcryptjs
 import { db } from '../lib/db.js'
@@ -10,8 +11,9 @@ const OTP_BLOCK_DURATION_MINUTES = 15
 
 export class OtpService {
   async generateAndStoreCode(userId: string): Promise<string> {
-    // Generate 6-digit code
-    const code = String(Math.floor(Math.random() * 1000000)).padStart(6, '0')
+    // Generate 6-digit code. CSPRNG only: Math.random() is predictable —
+    // an attacker sampling their own codes can forecast someone else's.
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0')
     const codeHash = await hash(code, 10)
 
     await db.otpCode.create({
@@ -43,6 +45,17 @@ export class OtpService {
         'Слишком много неудачных попыток. Попробуйте позже',
         { blockedUntil: user.otpBlockedUntil.toISOString() }
       )
+    }
+
+    // Expired block: reset the counter, otherwise one wrong attempt per
+    // window re-blocks forever (griefing lockout of someone else's phone).
+    if (user.otpBlockedUntil && user.otpBlockedUntil <= new Date()) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { otpFailedCount: 0, otpBlockedUntil: null },
+      })
+      user.otpFailedCount = 0
+      user.otpBlockedUntil = null
     }
 
     // Find latest OTP code for this phone

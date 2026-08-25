@@ -19,7 +19,8 @@ async function authenticatePlugin(fastify: FastifyInstance) {
     try {
       const payload = jwt.verify(
         token,
-        process.env.JWT_SECRET || 'dev-secret'
+        process.env.JWT_SECRET || 'dev-secret',
+        { algorithms: ['HS256'] }
       ) as JwtPayload
 
       // Verify user still exists and hasn't been modified
@@ -61,6 +62,9 @@ async function authenticatePlugin(fastify: FastifyInstance) {
 }
 
 function extractBearerToken(request: FastifyRequest): string | null {
+  // httpOnly-cookie первична: токен в localStorage доступен любому XSS.
+  const cookieToken = request.cookies?.ps_auth
+  if (cookieToken) return cookieToken
   const authHeader = request.headers.authorization
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return null
