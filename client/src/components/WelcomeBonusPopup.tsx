@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CloseIcon, GiftIcon } from './icons'
+import CountUp from './CountUp'
 
 const EXIT_MS = 200
 
@@ -17,11 +18,20 @@ type Props = {
 export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
   const [mounted, setMounted] = useState(open)
   const [shown, setShown] = useState(false)
+  /** Уход не должен унести на экране полдороги отсчёта: закрытие проигрывается
+      200мс, и всё это время «+188» читалось бы как настоящая сумма. */
+  const [instant, setInstant] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const returnFocusRef = useRef<HTMLElement | null>(null)
 
+  const close = () => {
+    setInstant(true)
+    onClose()
+  }
+
   useEffect(() => {
     if (open) {
+      setInstant(false)
       returnFocusRef.current = document.activeElement as HTMLElement
       setMounted(true)
       // Кадр между монтированием и включением классов: без него браузер
@@ -47,6 +57,7 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        setInstant(true)
         onClose()
         return
       }
@@ -80,9 +91,9 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
   if (!mounted) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <div
-        onClick={onClose}
+        onClick={close}
         className={`absolute inset-0 bg-navy-900/40 transition-opacity ease-out ${
           shown ? 'opacity-100 duration-200' : 'opacity-0 duration-150'
         }`}
@@ -102,9 +113,9 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
         style={{ transitionTimingFunction: 'cubic-bezier(0.23, 1, 0.32, 1)' }}
       >
         <button
-          onClick={onClose}
+          onClick={close}
           aria-label="Закрыть"
-          className="absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-full text-navy-500 hover:bg-primary-tint transition-colors duration-100 ease"
+          className="btn-press absolute top-2 right-2 w-11 h-11 flex items-center justify-center rounded-full text-navy-500 hover:bg-primary-tint transition-colors duration-100 ease"
         >
           <CloseIcon className="w-5 h-5" />
         </button>
@@ -113,14 +124,14 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
           <GiftIcon className="w-7 h-7 text-amber-600" />
         </div>
 
-        <p
-          className={`text-[40px] leading-none font-black text-amber-600 tabular-nums transition-[opacity,transform] duration-300 ease-out ${
-            shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
-          }`}
-          style={{ transitionDelay: shown ? '80ms' : '0ms' }}
-        >
-          +{amount}
+        {/* aria-hidden обязателен: диалог озвучивается в момент открытия, когда
+            счётчик показывает «+0» — скринридер зачитал бы неверную сумму. */}
+        <p className={instant ? '' : 'count-hero'} aria-hidden="true">
+          <span className="text-[40px] leading-none font-black text-amber-600 tracking-tight">
+            +{instant ? amount : <CountUp value={amount} duration={700} startDelay={80} />}
+          </span>
         </p>
+        <span className="sr-only">Начислено {amount} бонусов на счёт</span>
 
         <h2 id="welcome-bonus-title" className="mt-2 text-2xl font-bold text-navy-900">
           Бонусы уже на счёте
@@ -134,14 +145,14 @@ export default function WelcomeBonusPopup({ open, amount, onClose }: Props) {
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
           <Link
             to="/catalog"
-            onClick={onClose}
-            className="btn-primary flex-1 px-6 rounded-xl font-bold"
+            onClick={close}
+            className="btn-primary flex-1 sm:flex-[1.6] px-6 rounded-xl font-bold"
           >
             Выбрать корм
           </Link>
           <button
-            onClick={onClose}
-            className="flex-1 inline-flex items-center justify-center min-h-11 px-6 rounded-xl border border-line text-navy-900 font-semibold hover:bg-primary-tint transition-colors duration-100 ease"
+            onClick={close}
+            className="btn-outline flex-1 px-6 rounded-xl font-semibold"
           >
             Позже
           </button>

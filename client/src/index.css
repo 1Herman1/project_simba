@@ -386,6 +386,36 @@
   .ico-burger.is-open .ico-burger__close { opacity: 1; transform: rotate(0deg); }
 
   .ico-ring-in { animation: icoRingIn 220ms var(--ease-out) both; transform-origin: 50% 50%; }
+
+  /* Приветственный попап: число — герой сцены. Масштаб идёт по тем же точкам
+     кривой, что и значение в CountUp (easeOutCubic), поэтому «крупнее» и
+     «больше цифр» читаются как одно движение, а не два.
+
+     Пик 1.045 приходится на момент, когда счётчик добежал: хвост ease-out
+     (297→300) визуально мёртв, и последние 154мс его занимает посадка масштаба
+     — иначе оба движения кончаются на 78% и сцена стоит пустой.
+
+     linear обязателен: форма уже зашита в проценты кадров. var(--ease-out)
+     применился бы к КАЖДОМУ сегменту отдельно и превратил рост в череду
+     «прыгнул и завис». Тот же приём, что в .adv-* и .bonus-*.
+
+     Проявление уложено в первые 80мс и заканчивается РОВНО к старту отсчёта.
+     Замерено: при прежней раскладке (задержка 80мс, затем фейд) число было
+     невидимо до 90мс и проявлялось уже на «104» — обещанного «от нуля» никто
+     бы не увидел. Поэтому общая длительность 780мс = 80мс фейда + 700мс счёта,
+     а точки кривой масштаба сдвинуты на те же 10%. */
+  .count-hero {
+    animation: countHero 780ms linear both;
+    transform-origin: 50% 50%;
+  }
+  @keyframes countHero {
+    0%    { opacity: 0; transform: scale(0.94); }
+    10%   { opacity: 1; transform: scale(0.94); }
+    37%   { transform: scale(1.009); }
+    64%   { transform: scale(1.038); }
+    80%   { transform: scale(1.045); }
+    100%  { opacity: 1; transform: scale(1); }
+  }
   @keyframes icoRingIn {
     from { opacity: 0; transform: scale(0.92); }
     to   { opacity: 1; transform: scale(1); }
@@ -806,7 +836,8 @@
   .reveal,
   .reveal-group .reveal-item,
   .animate-card-in,
-  .animate-badge-pop {
+  .animate-badge-pop,
+  .count-hero {
     transition-delay: 0ms !important;
     animation-delay: 0ms !important;
     animation-fill-mode: none !important;

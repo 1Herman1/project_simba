@@ -7,6 +7,9 @@ type Props = {
   suffix?: string
   /** Длительность отсчёта, мс. */
   duration?: number
+  /** Пауза перед стартом, мс. Нужна там, где счётчик стартует не по скроллу,
+      а внутри уже открывшейся сцены и должен дождаться её въезда. */
+  startDelay?: number
   className?: string
 }
 
@@ -20,7 +23,7 @@ function easeOut(t: number) {
  * Отсчёт идёт один раз. При prefers-reduced-motion и без IntersectionObserver
  * сразу показывает конечное значение — цифра всегда читаема.
  */
-export default function CountUp({ value, suffix = '', duration = 1200, className = '' }: Props) {
+export default function CountUp({ value, suffix = '', duration = 1200, startDelay = 0, className = '' }: Props) {
   const ref = useRef<HTMLSpanElement>(null)
   const [shown, setShown] = useState(value)
   const startedRef = useRef(false)
@@ -42,9 +45,11 @@ export default function CountUp({ value, suffix = '', duration = 1200, className
     let frame = 0
 
     const run = () => {
-      const start = performance.now()
+      const start = performance.now() + startDelay
       const tick = (now: number) => {
-        const progress = Math.min((now - start) / duration, 1)
+        // Math.max держит ноль на экране во время паузы: без него первый кадр
+        // даёт отрицательный прогресс.
+        const progress = Math.min(Math.max(now - start, 0) / duration, 1)
         setShown(Math.round(easeOut(progress) * value))
         if (progress < 1) frame = requestAnimationFrame(tick)
       }
@@ -69,7 +74,7 @@ export default function CountUp({ value, suffix = '', duration = 1200, className
       observer.disconnect()
       if (frame) cancelAnimationFrame(frame)
     }
-  }, [value, duration])
+  }, [value, duration, startDelay])
 
   return (
     <span ref={ref} className={`tabular-nums ${className}`}>
