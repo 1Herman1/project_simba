@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { ApiError } from '@/lib/api'
-import { IconUser } from '@/components/icons'
+import { IconUser, IconArrowRight } from '@/components/icons'
 
 type Step = 'input' | 'code'
 
@@ -193,7 +193,7 @@ export function AuthPage() {
               {/* Шаг: ввод телефона */}
               <div className="relative">
                 <div
-                  className={`transition-[opacity,transform] duration-220 ${
+                  className={`transition-[opacity,transform] duration-200 ${
                     stepIn && step === 'input'
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-2 absolute inset-0'
@@ -291,7 +291,7 @@ export function AuthPage() {
               {/* Шаг: ввод кода */}
               <div className="relative">
                 <div
-                  className={`transition-[opacity,transform] duration-220 ${
+                  className={`transition-[opacity,transform] duration-200 ${
                     stepIn && step === 'code'
                       ? 'opacity-100 translate-y-0'
                       : 'opacity-0 translate-y-2 absolute inset-0'
@@ -300,9 +300,10 @@ export function AuthPage() {
                   <button
                     onClick={handleChangePhone}
                     aria-label="Изменить номер"
-                    className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors text-sm mb-4 py-2 -my-2 font-semibold"
+                    className="flex items-center gap-2 text-foreground hover:text-primary transition-colors text-sm mb-4 py-2 -my-2 font-semibold min-h-11"
                   >
-                    ← Изменить
+                    <IconArrowRight className="w-4 h-4 transform rotate-180" />
+                    Изменить
                   </button>
 
                   <h1 className="text-lg font-heading font-semibold text-foreground mb-1">
@@ -336,7 +337,6 @@ export function AuthPage() {
                         )
                         if (error) setError('')
                       }}
-                      placeholder="______"
                       className="w-full px-4 py-4 rounded-pill border text-center text-2xl font-bold tracking-[0.4em] text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 aria-[invalid=true]:border-destructive aria-[invalid=true]:focus:ring-destructive/20 min-h-11"
                     />
                     <p

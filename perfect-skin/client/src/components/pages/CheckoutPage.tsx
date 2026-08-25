@@ -119,7 +119,7 @@ export function CheckoutPage() {
         } else if (err.code === 'PROMO_MIN_AMOUNT') {
           const minAmount = err.details?.minOrderAmount as number | undefined
           setPromoError(
-            `Минимальная сумма заказа: ${minAmount ? minAmount / 100 : '?'} ₽`
+            `Минимальная сумма заказа: ${minAmount ? formatPrice(minAmount) : '?'}`
           )
         } else {
           setPromoError(err.message || 'Ошибка при проверке промокода')
@@ -256,7 +256,7 @@ export function CheckoutPage() {
     return (
       <div className="container-app py-12 md:py-20">
         <div className="max-w-sm mx-auto text-center">
-          <div className="text-6xl mb-4">🛍️</div>
+          <IconPackage className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
             Корзина пуста
           </h1>
@@ -284,45 +284,46 @@ export function CheckoutPage() {
 
   return (
     <div className="container-app py-12 md:py-16">
-      <h1 className="text-2xl font-heading font-bold text-foreground mb-8">
+      <h1 className="text-2xl font-heading font-bold text-foreground mb-8 uppercase tracking-tight">
         Оформление заказа
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Основная форма */}
-        <div className="lg:col-span-2 space-y-8">
-          {isDemoMode ? (
-            <div className="bg-accent border border-accent rounded-block p-6">
-              <div className="flex items-start gap-4">
-                <IconPackage className="w-6 h-6 text-foreground flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <h3 className="font-heading font-semibold text-foreground mb-1">
-                    Приём заказов ещё не открыт
-                  </h3>
-                  <p className="text-sm text-foreground">
-                    Магазин откроется после запуска
-                  </p>
-                </div>
+      {isDemoMode ? (
+        <div className="max-w-md mx-auto">
+          <div className="bg-accent border border-accent rounded-block p-6">
+            <div className="flex items-start gap-4">
+              <IconPackage className="w-6 h-6 text-foreground flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-heading font-semibold text-foreground mb-1">
+                  Приём заказов ещё не открыт
+                </h3>
+                <p className="text-sm text-foreground">
+                  Магазин откроется после запуска
+                </p>
               </div>
-              <Link
-                to="/catalog"
-                className="inline-block mt-4 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill hover:bg-primary/90 transition-colors min-h-11"
-              >
-                В каталог
-              </Link>
             </div>
-          ) : (
-            <>
-              {/* Способ доставки */}
+            <Link
+              to="/catalog"
+              className="inline-block mt-4 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill hover:bg-primary/90 transition-colors min-h-11"
+            >
+              В каталог
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Основная форма */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Способ доставки */}
               <div className="bg-card border border-border rounded-block p-6">
-                <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+                <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
                   Способ доставки
                 </h2>
                 <div className="grid gap-3">
                   {methods.map((method) => (
                     <label
                       key={method.code}
-                      className="flex items-start gap-3 p-4 border border-border rounded-pill cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      className="flex items-start gap-3 p-4 border border-border rounded-block cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                     >
                       <input
                         type="radio"
@@ -330,7 +331,7 @@ export function CheckoutPage() {
                         value={method.code}
                         checked={selectedMethod === method.code}
                         onChange={(e) => setSelectedMethod(e.target.value)}
-                        className="mt-1 w-5 h-5"
+                        className="mt-1 w-5 h-5 accent-primary"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -389,7 +390,7 @@ export function CheckoutPage() {
                       value={pvzCode}
                       onChange={(e) => setPvzCode(e.target.value)}
                       placeholder="Например: 62901"
-                      className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                      className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                     />
                   </div>
                 )}
@@ -413,7 +414,7 @@ export function CheckoutPage() {
                             setAddress({ ...address, city: e.target.value })
                           }
                           placeholder="Москва"
-                          className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                          className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                         />
                       </div>
                       <div>
@@ -432,7 +433,7 @@ export function CheckoutPage() {
                             setAddress({ ...address, index: e.target.value })
                           }
                           placeholder="123456"
-                          className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                          className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                         />
                       </div>
                     </div>
@@ -451,7 +452,7 @@ export function CheckoutPage() {
                           setAddress({ ...address, street: e.target.value })
                         }
                         placeholder="Тверская"
-                        className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                        className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -470,7 +471,7 @@ export function CheckoutPage() {
                             setAddress({ ...address, house: e.target.value })
                           }
                           placeholder="1"
-                          className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                          className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                         />
                       </div>
                       <div>
@@ -488,7 +489,7 @@ export function CheckoutPage() {
                             setAddress({ ...address, apartment: e.target.value })
                           }
                           placeholder="101"
-                          className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                          className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                         />
                       </div>
                     </div>
@@ -498,7 +499,7 @@ export function CheckoutPage() {
 
               {/* Получатель */}
               <div className="bg-card border border-border rounded-block p-6">
-                <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+                <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
                   Получатель
                 </h2>
                 <div className="space-y-3">
@@ -517,7 +518,7 @@ export function CheckoutPage() {
                         setRecipient({ ...recipient, name: e.target.value })
                       }
                       placeholder="Иван Сидоров"
-                      className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                      className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                     />
                   </div>
                   <div>
@@ -536,7 +537,7 @@ export function CheckoutPage() {
                         setRecipient({ ...recipient, phone: e.target.value })
                       }
                       placeholder="+7 (901) 123-45-67"
-                      className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                      className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                     />
                   </div>
                   <div>
@@ -555,7 +556,7 @@ export function CheckoutPage() {
                         setRecipient({ ...recipient, email: e.target.value })
                       }
                       placeholder="ivan@example.com"
-                      className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
+                      className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                     />
                   </div>
                 </div>
@@ -563,7 +564,7 @@ export function CheckoutPage() {
 
               {/* Промокод */}
               <div className="bg-card border border-border rounded-block p-6">
-                <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+                <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
                   Промокод
                 </h2>
                 {appliedPromo ? (
@@ -607,7 +608,7 @@ export function CheckoutPage() {
 
               {/* Комментарий */}
               <div className="bg-card border border-border rounded-block p-6">
-                <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+                <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
                   Комментарий к заказу
                 </h2>
                 <textarea
@@ -625,27 +626,17 @@ export function CheckoutPage() {
                 </p>
               </div>
 
-              {submitError && (
-                <div className="bg-destructive/10 border border-destructive rounded-block p-4">
-                  <p className="text-sm text-destructive font-semibold">
-                    {submitError}
-                  </p>
-                </div>
-              )}
-
-              <button
-                onClick={handleSubmit}
-                disabled={submitting || !recipient.name || !recipient.phone}
-                className="w-full px-6 py-4 bg-primary text-primary-foreground font-bold rounded-pill disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors text-lg min-h-11"
-              >
-                {submitting ? 'Оформляем заказ…' : 'Оформить заказ'}
-              </button>
-            </>
+            {submitError && (
+            <div className="bg-destructive/10 border border-destructive rounded-block p-4">
+              <p className="text-sm text-destructive font-semibold">
+                {submitError}
+              </p>
+            </div>
           )}
-        </div>
+          </div>
 
-        {/* Боковая сводка */}
-        <div className="lg:col-span-1">
+          {/* Боковая сводка */}
+          <div className="lg:col-span-1">
           <div className="bg-card border border-border rounded-block p-6 sticky top-6">
             <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
               Сумма заказа
@@ -654,7 +645,7 @@ export function CheckoutPage() {
             <div className="space-y-2 mb-4 pb-4 border-b border-border">
               <div className="flex justify-between text-body-sm">
                 <span className="text-muted-foreground">Товары</span>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground tabular-nums">
                   {formatPrice(subtotal)}
                 </span>
               </div>
@@ -662,7 +653,7 @@ export function CheckoutPage() {
               {discount > 0 && (
                 <div className="flex justify-between text-body-sm">
                   <span className="text-muted-foreground">Скидка</span>
-                  <span className="font-semibold text-primary">
+                  <span className="font-semibold text-primary tabular-nums">
                     −{formatPrice(discount)}
                   </span>
                 </div>
@@ -671,43 +662,65 @@ export function CheckoutPage() {
               {currentMethod && deliveryCost > 0 && (
                 <div className="flex justify-between text-body-sm">
                   <span className="text-muted-foreground">Доставка</span>
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-foreground tabular-nums">
                     {formatPrice(deliveryCost)}
                   </span>
                 </div>
               )}
             </div>
 
-            <div className="flex justify-between text-lg mb-6">
+            <div className="flex justify-between items-baseline mb-6">
               <span className="font-heading font-bold text-foreground">
                 Итого
               </span>
-              <span className="font-heading font-bold text-primary">
+              <span className="font-heading font-bold text-2xl text-primary tabular-nums">
                 {formatPrice(total)}
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="mb-4 text-xs text-muted-foreground space-y-2">
+              <p>Оплата: СБП или карта. Косметика надлежащего качества возврату не подлежит (ПП РФ №55).</p>
+              <p>Нажимая кнопку, вы соглашаетесь с условиями оферты</p>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={submitting || !recipient.name || !recipient.phone}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-11 mb-4"
+            >
+              {submitting ? 'Оформляем заказ…' : 'Оформить заказ'}
+            </button>
+
+            {!recipient.name || !recipient.phone ? (
+              <p aria-live="polite" className="text-xs text-muted-foreground text-center">
+                Заполните имя и телефон
+              </p>
+            ) : null}
+
+            <div className="border-t border-border pt-4 mt-4">
               <h3 className="font-heading font-semibold text-foreground text-sm mb-3">
                 Товары в заказе
               </h3>
-              {cart?.items.map((item) => (
-                <div key={item.id} className="text-xs text-muted-foreground">
-                  <p className="font-semibold text-foreground line-clamp-2">
-                    {item.product.name}
-                  </p>
-                  <p>
-                    {item.variant.volumeLabel} × {item.quantity} шт.
-                  </p>
-                  <p className="font-semibold text-foreground">
-                    {formatPrice(item.lineTotal)}
-                  </p>
-                </div>
-              ))}
+              <div className="divide-y divide-border">
+                {cart?.items.map((item) => (
+                  <div key={item.id} className="py-3 first:pt-0 last:pb-0">
+                    <p className="text-xs leading-snug font-semibold text-foreground line-clamp-2">
+                      {item.product.name}
+                    </p>
+                    <p className="text-xs leading-snug text-muted-foreground mt-1">
+                      {item.variant.volumeLabel} × {item.quantity} шт.
+                    </p>
+                    <p className="text-xs leading-snug font-semibold text-foreground mt-1">
+                      {formatPrice(item.lineTotal)}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }

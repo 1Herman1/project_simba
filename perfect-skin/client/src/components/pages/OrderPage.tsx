@@ -3,6 +3,7 @@ import { formatPrice } from '@/lib/format'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { fetchApi, ApiError } from '@/lib/api'
+import { IconSearch } from '@/components/icons'
 import type { CartItem } from '@/types/api'
 
 interface OrderItem extends CartItem {
@@ -81,7 +82,9 @@ export function OrderPage() {
     return (
       <div className="container-app py-12 md:py-20">
         <div className="max-w-sm mx-auto text-center">
-          <div className="text-6xl mb-4">❓</div>
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+            <IconSearch className="w-6 h-6 text-muted-foreground" />
+          </div>
           <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
             Заказ не найден
           </h1>
@@ -127,19 +130,45 @@ export function OrderPage() {
     return labels[status] || status
   }
 
+  const getStatusClasses = (status: string): string => {
+    switch (status) {
+      case 'new':
+      case 'confirmed':
+        return 'bg-accent text-foreground'
+      case 'packed':
+      case 'in_transit':
+        return 'bg-primary/10 text-primary'
+      case 'delivered':
+        return 'bg-success/10 text-success'
+      case 'cancelled':
+        return 'bg-muted text-muted-foreground'
+      default:
+        return 'bg-primary/10 text-primary'
+    }
+  }
+
+  const getDeliveryMethodLabel = (method: string): string => {
+    const labels: Record<string, string> = {
+      pickup: 'Самовывоз',
+      cdek_pvz: 'СДЭК — пункт выдачи',
+      cdek_courier: 'СДЭК — курьер',
+    }
+    return labels[method] || method
+  }
+
   return (
     <div className="container-app py-12 md:py-16">
       {/* Шапка */}
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
+          <h1 className="text-2xl font-heading font-bold text-foreground mb-2 uppercase tracking-tight">
             Заказ {order.number}
           </h1>
           <p className="text-body-sm text-muted-foreground">
             {formatDate(order.createdAt)}
           </p>
         </div>
-        <span className="inline-block px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-pill">
+        <span className={`inline-block px-4 py-2 text-sm font-semibold uppercase tracking-wide rounded-pill ${getStatusClasses(order.status)}`}>
           {getStatusLabel(order.status)}
         </span>
       </div>
@@ -149,32 +178,34 @@ export function OrderPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* Товары */}
           <div className="bg-card border border-border rounded-block p-6">
-            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+            <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
               Товары
             </h2>
-            <div className="space-y-4">
+            <div className="divide-y divide-border">
               {order.items.map((item) => (
                 <a
                   key={item.id}
                   href={`/product/${item.product.slug}`}
-                  className="block p-4 border border-border rounded-pill hover:bg-muted/50 transition-colors"
+                  className="flex gap-3 py-4 first:pt-0 last:pb-0 hover:opacity-80 transition-opacity"
                 >
                   {item.product.image && (
                     <img
                       src={item.product.image}
                       alt={item.product.name}
-                      className="w-16 h-16 rounded-pill object-cover float-left mr-4 mb-2"
+                      className="w-16 h-16 rounded-media object-contain flex-shrink-0"
                     />
                   )}
-                  <h3 className="font-heading font-semibold text-foreground text-sm line-clamp-2">
-                    {item.product.name}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    {item.variant.volumeLabel} × {item.quantity} шт.
-                  </p>
-                  <p className="font-heading font-bold text-primary text-sm">
-                    {formatPrice(item.lineTotal)}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground line-clamp-2">
+                      {item.product.name}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {item.variant.volumeLabel} × {item.quantity} шт.
+                    </p>
+                    <p className="text-sm font-semibold text-foreground mt-1">
+                      {formatPrice(item.lineTotal)}
+                    </p>
+                  </div>
                 </a>
               ))}
             </div>
@@ -182,14 +213,14 @@ export function OrderPage() {
 
           {/* Доставка */}
           <div className="bg-card border border-border rounded-block p-6">
-            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+            <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
               Доставка
             </h2>
             <div className="space-y-3 text-sm">
               <p>
                 <span className="text-muted-foreground">Способ: </span>
                 <span className="font-semibold text-foreground">
-                  {order.deliveryMethod}
+                  {getDeliveryMethodLabel(order.deliveryMethod)}
                 </span>
               </p>
 
@@ -230,7 +261,7 @@ export function OrderPage() {
 
           {/* Получатель */}
           <div className="bg-card border border-border rounded-block p-6">
-            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+            <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
               Получатель
             </h2>
             <div className="space-y-2 text-sm">
@@ -279,14 +310,14 @@ export function OrderPage() {
         {/* Боковая сводка */}
         <div className="lg:col-span-1">
           <div className="bg-card border border-border rounded-block p-6 sticky top-6">
-            <h2 className="text-lg font-heading font-semibold text-foreground mb-4">
+            <h2 className="text-base font-sans font-semibold text-foreground mb-4 uppercase tracking-wide">
               Сумма заказа
             </h2>
 
             <div className="space-y-2 pb-4 border-b border-border">
               <div className="flex justify-between text-body-sm">
                 <span className="text-muted-foreground">Товары</span>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground tabular-nums">
                   {formatPrice(order.subtotal)}
                 </span>
               </div>
@@ -294,7 +325,7 @@ export function OrderPage() {
               {order.discount && order.discount > 0 && (
                 <div className="flex justify-between text-body-sm">
                   <span className="text-muted-foreground">Скидка</span>
-                  <span className="font-semibold text-primary">
+                  <span className="font-semibold text-primary tabular-nums">
                     −{formatPrice(order.discount)}
                   </span>
                 </div>
@@ -302,7 +333,7 @@ export function OrderPage() {
 
               <div className="flex justify-between text-body-sm">
                 <span className="text-muted-foreground">Доставка</span>
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground tabular-nums">
                   {formatPrice(order.deliveryCost)}
                 </span>
               </div>
@@ -312,7 +343,7 @@ export function OrderPage() {
               <span className="font-heading font-bold text-foreground">
                 Итого
               </span>
-              <span className="font-heading font-bold text-primary">
+              <span className="font-heading font-bold text-primary tabular-nums">
                 {formatPrice(order.total)}
               </span>
             </div>

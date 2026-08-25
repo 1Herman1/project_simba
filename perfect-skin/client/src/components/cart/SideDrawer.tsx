@@ -89,7 +89,7 @@ export default function SideDrawer({ open, onClose, title, titleSuffix, children
       <div
         onClick={onClose}
         aria-hidden="true"
-        className={`absolute inset-0 bg-foreground/10 transition-opacity
+        className={`absolute inset-0 bg-foreground/35 transition-opacity
                     ${shown ? 'opacity-100 duration-300' : 'opacity-0 duration-200'}`}
       />
 
@@ -102,7 +102,7 @@ export default function SideDrawer({ open, onClose, title, titleSuffix, children
         className={`absolute inset-y-0 right-0 flex flex-col
                     w-full sm:w-[420px] max-w-full
                     bg-background shadow-lg sm:border-l sm:border-border
-                    transition-transform ease-out
+                    transition-[transform,opacity] ease-out
                     ${shown ? 'translate-x-0 opacity-100 duration-300' : 'translate-x-full opacity-0 duration-200'}`}
       >
         {/* Header */}

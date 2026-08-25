@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { fetchApi } from '@/lib/api'
-import { formatPrice } from '@/lib/format'
+import { formatPrice, pluralize } from '@/lib/format'
+import { IconPackage } from '@/components/icons'
 
 interface OrderPreview {
   number: string
@@ -53,7 +54,7 @@ export function OrdersPage() {
     return (
       <div className="container-app py-12 md:py-20">
         <div className="max-w-sm mx-auto text-center">
-          <div className="text-6xl mb-4">📦</div>
+          <IconPackage className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-2xl font-heading font-bold text-foreground mb-2">
             Заказов пока нет
           </h1>
@@ -95,9 +96,26 @@ export function OrdersPage() {
     return labels[status] || status
   }
 
+  const getStatusClasses = (status: string): string => {
+    switch (status) {
+      case 'new':
+      case 'confirmed':
+        return 'bg-accent text-foreground'
+      case 'packed':
+      case 'in_transit':
+        return 'bg-primary/10 text-primary'
+      case 'delivered':
+        return 'bg-success/10 text-success'
+      case 'cancelled':
+        return 'bg-muted text-muted-foreground'
+      default:
+        return 'bg-primary/10 text-primary'
+    }
+  }
+
   return (
     <div className="container-app py-12 md:py-16">
-      <h1 className="text-2xl font-heading font-bold text-foreground mb-8">
+      <h1 className="text-2xl font-heading font-bold text-foreground mb-8 uppercase tracking-tight">
         Мои заказы
       </h1>
 
@@ -120,18 +138,18 @@ export function OrdersPage() {
                       {formatDate(order.createdAt)}
                     </p>
                   </div>
-                  <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-pill">
+                  <span className={`inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-pill ${getStatusClasses(order.status)}`}>
                     {getStatusLabel(order.status)}
                   </span>
                 </div>
                 <p className="text-body-sm text-muted-foreground">
-                  {order.itemsCount} товар{order.itemsCount === 1 ? '' : 'ов'}
+                  {order.itemsCount} {pluralize(order.itemsCount, ['товар', 'товара', 'товаров'])}
                 </p>
               </div>
 
               {/* Сумма */}
               <div className="md:text-right md:flex md:flex-col md:justify-center">
-                <p className="text-lg font-heading font-bold text-primary">
+                <p className="text-lg font-heading font-bold text-primary tabular-nums">
                   {formatPrice(order.total)}
                 </p>
               </div>
@@ -145,7 +163,7 @@ export function OrdersPage() {
                     key={idx}
                     src={img}
                     alt={`Товар ${idx + 1}`}
-                    className="w-12 h-12 rounded-pill object-cover bg-muted"
+                    className="w-12 h-12 rounded-media object-contain bg-card"
                   />
                 ))}
               </div>

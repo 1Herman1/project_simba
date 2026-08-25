@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/lib/format'
-import { IconCart } from '../icons'
+import { IconCartEmpty, IconCart } from '../icons'
 import SideDrawer from './SideDrawer'
 import { QuantityStepper } from './QuantityStepper'
 import { ApiError } from '@/lib/api'
@@ -35,8 +35,8 @@ export default function CartDrawer({ open, onClose }: Props) {
             <div key={i} className="flex gap-3 py-4 animate-pulse">
               <div className="w-16 h-16 bg-muted rounded-media flex-shrink-0" />
               <div className="flex-1 flex flex-col gap-2">
-                <div className="h-4 bg-muted rounded w-3/4" />
-                <div className="h-3 bg-muted rounded w-1/2" />
+                <div className="h-4 bg-muted rounded-block w-3/4" />
+                <div className="h-3 bg-muted rounded-block w-1/2" />
               </div>
             </div>
           ))}
@@ -50,7 +50,7 @@ export default function CartDrawer({ open, onClose }: Props) {
     return (
       <SideDrawer open={open} onClose={onClose} title="Корзина">
         <div className="flex flex-col items-center justify-center gap-4 py-12 px-4">
-          <IconCart className="w-12 h-12 text-muted-foreground" />
+          <IconCartEmpty className="w-12 h-12 text-muted-foreground" />
           <div className="text-center">
             <p className="font-heading font-bold text-foreground mb-1">Корзина пуста</p>
             <p className="text-sm text-muted-foreground">Добавьте товары из каталога</p>
@@ -114,7 +114,7 @@ export default function CartDrawer({ open, onClose }: Props) {
         {toFreeDelivery > 0 ? (
           <>
             <div className="flex justify-between text-sm mb-2">
-              <span className="text-foreground font-medium">
+              <span className="text-foreground font-semibold">
                 До бесплатной доставки:{' '}
                 <span className="text-primary font-semibold">{formatPrice(toFreeDelivery)}</span>
               </span>
@@ -122,7 +122,7 @@ export default function CartDrawer({ open, onClose }: Props) {
                 от {formatPrice(FREE_DELIVERY_THRESHOLD)}
               </span>
             </div>
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div className="h-2 bg-border rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full origin-left transition-transform duration-300"
                 style={{ transform: `scaleX(${deliveryProgress / 100})` }}
@@ -134,7 +134,7 @@ export default function CartDrawer({ open, onClose }: Props) {
             <div className="h-2 bg-success/30 rounded-full flex-1 overflow-hidden">
               <div className="h-full bg-success rounded-full w-full" />
             </div>
-            <span className="text-success text-sm font-semibold whitespace-nowrap">Доставка бесплатна!</span>
+            <span className="text-success text-sm font-semibold whitespace-nowrap">Доставка бесплатно</span>
           </div>
         )}
       </div>
@@ -155,7 +155,7 @@ export default function CartDrawer({ open, onClose }: Props) {
           return (
             <li
               key={item.id}
-              className={`flex gap-3 py-4 transition-opacity duration-200 ${
+              className={`flex flex-wrap gap-3 py-4 transition-opacity duration-200 ${
                 isUnavailable ? 'opacity-60' : ''
               }`}
             >
@@ -208,12 +208,14 @@ export default function CartDrawer({ open, onClose }: Props) {
               </div>
 
               {/* Quantity Stepper */}
+              <div className="w-full flex justify-end sm:w-auto sm:block">
               <QuantityStepper
                 quantity={item.quantity}
                 maxStock={item.variant.stock}
                 onQuantityChange={(newQuantity) => handleUpdateQuantity(item, newQuantity)}
                 disabled={isUnavailable || mutatingId === item.id}
               />
+              </div>
             </li>
           )
         })}
@@ -231,7 +233,7 @@ export default function CartDrawer({ open, onClose }: Props) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Доставка</span>
-          <span className="text-success font-semibold">Бесплатно</span>
+          <span className="text-success font-semibold">{toFreeDelivery > 0 ? 'от 200 ₽' : 'Бесплатно'}</span>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useDrawer } from '@/context/DrawerContext'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
+import { pluralize } from '@/lib/format'
 
 interface HeaderProps {
   cartIcon?: React.ReactNode
@@ -82,12 +83,12 @@ export function Header({
                   <button
                     onClick={openCart}
                     className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
-                    aria-label={count > 0 ? `Корзина, ${count} товаров` : 'Корзина'}
+                    aria-label={count > 0 ? `Корзина, ${count} ${pluralize(count, ['товар', 'товара', 'товаров'])}` : 'Корзина'}
                   >
                     {cartIcon}
                   </button>
                   {count > 0 && (
-                    <span className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums">
+                    <span className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums ring-2 ring-background">
                       {count > 99 ? '99+' : count}
                     </span>
                   )}
