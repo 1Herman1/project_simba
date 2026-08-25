@@ -18,7 +18,7 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   new: 'bg-blue-100 text-blue-400',
   confirmed: 'bg-amber-100 text-amber-600',
   in_transit: 'bg-purple-100 text-purple-600',
-  delivered: 'bg-green-100 text-green-600',
+  delivered: 'bg-green-100 text-success',
   cancelled: 'bg-red-100 text-red-500',
 }
 
@@ -520,7 +520,7 @@ export default function ProfilePage() {
                           <p className="text-xs text-navy-400">{sub.deliveryMethod}</p>
                         </div>
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
-                          sub.isPaused ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+                          sub.isPaused ? 'bg-red-100 text-red-600' : 'bg-green-100 text-success'
                         }`}>
                           {sub.isPaused ? 'Пауза' : 'Активна'}
                         </span>
@@ -650,7 +650,7 @@ export default function ProfilePage() {
                   </div>
                 ))}
                 {saveError && <p className="text-xs text-red-400">{saveError}</p>}
-                {saveSuccess && <p className="text-xs text-green-600">Данные сохранены</p>}
+                {saveSuccess && <p className="text-xs text-success">Данные сохранены</p>}
                 <button
                   disabled={savingProfile}
                   onClick={async () => {

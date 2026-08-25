@@ -21,3 +21,14 @@ export function pluralize(count: number, one: string, few: string, many: string)
 export function formatBonuses(count: number): string {
   return pluralize(count, 'бонус', 'бонуса', 'бонусов')
 }
+
+/** Дата и время заказа: «14 мая, 18:42». Берётся из ответа сервера, а не из
+    new Date() — иначе на экране будет время покупателя, а в базе другое. */
+export function formatDateTime(iso: string): string {
+  return new Intl.DateTimeFormat('ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso))
+}

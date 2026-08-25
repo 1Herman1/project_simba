@@ -128,7 +128,7 @@ export default function ProductCard({ product }: { product: Product }) {
           }`}>
           {added ? (
             <span className="inline-flex items-center justify-center gap-1.5">
-              <CheckIcon className="w-4 h-4 text-[#1E7B4D]" />
+              <CheckIcon className="w-4 h-4 text-success" />
               Добавлено
             </span>
           ) : (

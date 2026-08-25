@@ -162,7 +162,7 @@ export default function CartDrawer({ open, onClose }: Props) {
               <div className="h-2 bg-green-100 rounded-full flex-1 overflow-hidden">
                 <div className="h-full bg-green-400 rounded-full w-full" />
               </div>
-              <span className="text-green-600 text-sm font-semibold whitespace-nowrap">Доставка бесплатна!</span>
+              <span className="text-success text-sm font-semibold whitespace-nowrap">Доставка бесплатна!</span>
             </div>
           )}
         </div>
@@ -327,7 +327,7 @@ export default function CartDrawer({ open, onClose }: Props) {
             </div>
           ) : (
             <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
-              <span className="text-green-600 text-sm font-medium">Промокод применён</span>
+              <span className="text-success text-sm font-medium">Промокод применён</span>
               <button
                 onClick={() => {
                   setPromoApplied(false)
@@ -371,18 +371,18 @@ export default function CartDrawer({ open, onClose }: Props) {
           {discount > 0 && (
             <div className="flex justify-between">
               <span className="text-navy-500">Скидка</span>
-              <span className="text-green-600">−{formatPrice(discount)}</span>
+              <span className="text-success">−{formatPrice(discount)}</span>
             </div>
           )}
           {promoApplied && (
             <div className="flex justify-between">
               <span className="text-navy-500">Промокод SIMBA10</span>
-              <span className="text-green-600">−{formatPrice(promoDiscount)}</span>
+              <span className="text-success">−{formatPrice(promoDiscount)}</span>
             </div>
           )}
           <div className="flex justify-between">
             <span className="text-navy-500">Доставка</span>
-            <span className="text-green-600">Бесплатно</span>
+            <span className="text-success">Бесплатно</span>
           </div>
         </div>
 

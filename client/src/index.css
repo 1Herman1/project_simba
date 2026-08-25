@@ -340,6 +340,46 @@
     stroke-dasharray: 24;
     stroke-dashoffset: 24;
     animation: iconCheckDraw 300ms var(--ease-out) forwards;
+    /* Задержка обязана быть здесь, а не только на .ico-draw у <svg>: путь
+       объявляет собственную animation, и она бьёт всё, что приходит от
+       родителя. Без этой строки --draw-delay на обёртке молча не работал —
+       галочка рисовалась одновременно с кружком, ступени не было. */
+    animation-delay: var(--draw-delay, 0ms);
+  }
+
+  /* Конфетти на экране успеха. Живёт ВНУТРИ карточки, в её верхней части, а не
+     fixed поверх экрана: полноэкранный слой перекрывал бы кнопки всё время
+     полёта. Разлетается от галочки, играет один раз, узлы потом снимаются.
+     При выключенных анимациях не рендерится вовсе — гасить нечего. */
+  .confetti-piece {
+    position: absolute;
+    left: 50%;
+    top: 46px;
+    width: 6px;
+    height: 9px;
+    border-radius: 1px;
+    opacity: 0;
+    animation: confettiFly 1300ms var(--ease-out) forwards;
+    animation-delay: var(--c-delay, 0ms);
+  }
+  @keyframes confettiFly {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
+    18%  { opacity: 1; }
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+                 scale(1) rotate(var(--rot));
+    }
+  }
+
+  /* Линия разреза. repeating-linear-gradient, а не border-dashed: шаг штриха
+     у бордера выбирает движок, и он разный в Safari и Chrome. */
+  .receipt-dash {
+    background-image: repeating-linear-gradient(
+      to right,
+      theme('colors.line') 0 6px,
+      transparent 6px 12px
+    );
   }
 
   @keyframes iconCheckDraw {
@@ -495,7 +535,8 @@
 
   /* Пустое состояние каталога: единичный вход при монтировании, без циклов.
      Окно старта 50мс — группа входит почти синхронно и не рассыпается. */
-  .empty-in > * {
+  .empty-in > *,
+  .stagger-in > * {
     opacity: 0;
     transform: translateY(8px);
     transition:
@@ -504,7 +545,8 @@
     transition-delay: var(--in-delay, 0ms);
   }
   .empty-in > svg { transform: translateY(12px); }
-  .empty-in.is-in > * { opacity: 1; transform: translateY(0); }
+  .empty-in.is-in > *,
+  .stagger-in.is-in > * { opacity: 1; transform: translateY(0); }
 
   /* Точки сна проступают после силуэта — единственный акцент сцены. */
   .empty-in .dog-zzz circle {
@@ -837,7 +879,12 @@
   .reveal-group .reveal-item,
   .animate-card-in,
   .animate-badge-pop,
-  .count-hero {
+  .count-hero,
+  /* Стаггер держится на transition-delay, а глобальное правило гасит только
+     длительность анимаций — без этой строки содержимое проступало бы
+     ступенями до 380мс даже с выключенным движением. */
+  .empty-in > *,
+  .stagger-in > * {
     transition-delay: 0ms !important;
     animation-delay: 0ms !important;
     animation-fill-mode: none !important;
