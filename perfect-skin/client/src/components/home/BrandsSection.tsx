@@ -19,7 +19,7 @@ export function BrandsSection() {
             <div className="border border-border rounded-block p-8 md:p-10 bg-card relative overflow-hidden">
               {/* Background image */}
               <img
-                src="/photos/m1.png"
+                src="/photos/m3.png"
                 alt="ISSEIMI косметика"
                 width={400}
                 height={400}

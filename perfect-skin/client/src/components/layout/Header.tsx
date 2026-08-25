@@ -96,7 +96,7 @@ export function Header({
               )}
               {favoriteIcon && (
                 <button
-                  className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                  className="hidden sm:flex w-12 h-12 items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
                   aria-label="Избранное"
                 >
                   {favoriteIcon}

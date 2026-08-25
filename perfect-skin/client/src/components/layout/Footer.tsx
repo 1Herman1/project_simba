@@ -22,6 +22,24 @@ export function Footer() {
           {/* Column 1: About */}
           <div>
             <h3 className="text-h3 font-heading font-bold mb-6">О компании</h3>
+            <ul className="space-y-2 mb-6">
+              <li>
+                <Link
+                  to="/brands"
+                  className="text-body-sm font-sans hover:text-accent-on-dark transition-colors duration-200 focus-visible:outline-ring"
+                >
+                  Бренды
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="text-body-sm font-sans hover:text-accent-on-dark transition-colors duration-200 focus-visible:outline-ring"
+                >
+                  О компании
+                </Link>
+              </li>
+            </ul>
             <p className="text-body-sm font-sans leading-body mb-4">
               Perfect Skin — магазин профессиональной испанской косметики брендов ISSEIMI и GLACÉE Skincare.
             </p>

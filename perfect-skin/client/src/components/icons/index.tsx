@@ -216,3 +216,13 @@ export function IconPackage({ className, size = 24, 'aria-hidden': ariaHidden = 
     </svg>
   )
 }
+
+/** source: iconify/lucide "mail", license: MIT — https://icon-sets.iconify.design/lucide/mail/ */
+export function IconMail({ className, size = 24, 'aria-hidden': ariaHidden = true, ...rest }: IconProps) {
+  return (
+    <svg {...defaults} width={size} height={size} className={className} aria-hidden={ariaHidden} {...rest}>
+      <rect width="20" height="16" x="2" y="4" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  )
+}

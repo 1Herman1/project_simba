@@ -13,6 +13,9 @@ const AuthPage = lazy(() => import('@/components/pages/AuthPage').then((m) => ({
 const CheckoutPage = lazy(() => import('@/components/pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })))
 const OrdersPage = lazy(() => import('@/components/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })))
 const OrderPage = lazy(() => import('@/components/pages/OrderPage').then((m) => ({ default: m.OrderPage })))
+const BrandsPage = lazy(() => import('@/components/pages/BrandsPage').then((m) => ({ default: m.BrandsPage })))
+const AboutPage = lazy(() => import('@/components/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
+const ContactsPage = lazy(() => import('@/components/pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
 const NotFoundPage = lazy(() => import('@/components/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 
 function App() {
@@ -32,6 +35,9 @@ function App() {
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/orders/:number" element={<OrderPage />} />
+                  <Route path="/brands" element={<BrandsPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/contacts" element={<ContactsPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>
