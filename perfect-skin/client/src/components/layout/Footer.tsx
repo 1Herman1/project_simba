@@ -39,6 +39,14 @@ export function Footer() {
                   О компании
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/offer"
+                  className="text-body-sm font-sans hover:text-accent-on-dark transition-colors duration-200 focus-visible:outline-ring"
+                >
+                  Публичная оферта
+                </Link>
+              </li>
             </ul>
             <p className="text-body-sm font-sans leading-body mb-4">
               Perfect Skin — магазин профессиональной испанской косметики брендов ISSEIMI и GLACÉE Skincare.

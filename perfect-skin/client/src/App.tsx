@@ -16,6 +16,7 @@ const OrderPage = lazy(() => import('@/components/pages/OrderPage').then((m) => 
 const BrandsPage = lazy(() => import('@/components/pages/BrandsPage').then((m) => ({ default: m.BrandsPage })))
 const AboutPage = lazy(() => import('@/components/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 const ContactsPage = lazy(() => import('@/components/pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
+const OfferPage = lazy(() => import('@/components/pages/OfferPage').then((m) => ({ default: m.OfferPage })))
 const NotFoundPage = lazy(() => import('@/components/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/brands" element={<BrandsPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/contacts" element={<ContactsPage />} />
+                  <Route path="/offer" element={<OfferPage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>

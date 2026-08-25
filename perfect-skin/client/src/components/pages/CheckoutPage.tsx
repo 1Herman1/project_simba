@@ -680,7 +680,7 @@ export function CheckoutPage() {
 
             <div className="mb-4 text-xs text-muted-foreground space-y-2">
               <p>Оплата: СБП или карта. Косметика надлежащего качества возврату не подлежит (ПП РФ №55).</p>
-              <p>Нажимая кнопку, вы соглашаетесь с условиями оферты</p>
+              <p>Нажимая кнопку, вы соглашаетесь с <a href="/offer" target="_blank" rel="noopener" className="underline underline-offset-2">условиями оферты</a></p>
             </div>
 
             <button
