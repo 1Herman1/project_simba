@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
 import { formatPrice } from '@/lib/format'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import { fetchApi, ApiError } from '@/lib/api'
 import { cartApi } from '@/lib/cart-api'
 import type { DeliveryMethod, DeliveryQuote } from '@/lib/cart-api'
-import { IconTruck, IconStore, IconPackage, IconCheck } from '@/components/icons'
+import { IconTruck, IconStore, IconPackage, IconCheck, IconClose } from '@/components/icons'
 
 interface DeliveryMethodResponse extends DeliveryMethod {
   code: string
@@ -292,10 +292,24 @@ export function CheckoutPage() {
         {/* Основная форма */}
         <div className="lg:col-span-2 space-y-8">
           {isDemoMode ? (
-            <div className="bg-accent/10 border border-accent rounded-block p-6 text-center">
-              <p className="text-body text-accent font-semibold">
-                Приём заказов откроем после запуска магазина
-              </p>
+            <div className="bg-accent border border-accent rounded-block p-6">
+              <div className="flex items-start gap-4">
+                <IconPackage className="w-6 h-6 text-foreground flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h3 className="font-heading font-semibold text-foreground mb-1">
+                    Приём заказов ещё не открыт
+                  </h3>
+                  <p className="text-sm text-foreground">
+                    Магазин откроется после запуска
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/catalog"
+                className="inline-block mt-4 px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill hover:bg-primary/90 transition-colors min-h-11"
+              >
+                В каталог
+              </Link>
             </div>
           ) : (
             <>
@@ -554,16 +568,16 @@ export function CheckoutPage() {
                 </h2>
                 {appliedPromo ? (
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="px-3 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-pill inline-flex items-center gap-2">
+                    <span className="px-3 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-pill">
                       {appliedPromo.code}
-                      <button
-                        onClick={() => setAppliedPromo(null)}
-                        className="text-primary/70 hover:text-primary ml-1"
-                        aria-label="Убрать промокод"
-                      >
-                        ✕
-                      </button>
                     </span>
+                    <button
+                      onClick={() => setAppliedPromo(null)}
+                      className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-muted rounded-pill transition-colors duration-200 -mr-2"
+                      aria-label="Убрать промокод"
+                    >
+                      <IconClose className="w-5 h-5" />
+                    </button>
                   </div>
                 ) : (
                   <div className="flex gap-2">

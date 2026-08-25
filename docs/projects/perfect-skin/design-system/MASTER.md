@@ -164,7 +164,7 @@ Golos Text — из «Compact UI»). Утверждена на концепте 
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Golos+Text:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Golos+Text:wght@400;600&display=swap" rel="stylesheet">
 ```
 
 ```ts
@@ -174,15 +174,18 @@ fontFamily: {
 }
 ```
 
-Только 4 веса суммарно, `@import` запрещён — подключать через `<link>`.
+Только 5 весов суммарно, `@import` запрещён — подключать через `<link>`.
+
+**Веса 800 и 900 запрещены** (замечание Татьяны: «много черноты»). Иерархию
+держат размер, цвет и воздух, не толщина.
 
 ### Шкала
 
 | Роль | Размер | Шрифт / вес | Параметры |
 |---|---|---|---|
-| `display` (h1) | `clamp(1.6rem, 4.5vw, 4.5rem)` | Montserrat 900 | uppercase, `tracking -0.03em`, `leading 0.92`, `hyphens: auto` |
-| `h2` | `clamp(1.75rem, 5vw, 3rem)` | Montserrat 900 | uppercase, `tracking -0.03em` |
-| `h3` | `clamp(1.25rem, 3vw, 2rem)` | Montserrat 800 | `tracking -0.03em` |
+| `display` (h1) | `clamp(1.6rem, 4.5vw, 4.5rem)` | Montserrat 700 | uppercase, `tracking -0.015em`, `leading 1.02`, `hyphens: auto` |
+| `h2` | `clamp(1.75rem, 5vw, 3rem)` | Montserrat 700 | uppercase, `tracking -0.015em` |
+| `h3` | `clamp(1.25rem, 3vw, 2rem)` | Montserrat 600 | `tracking -0.015em` |
 | `body` | `16px / 1.6` | Golos Text 400 | `max-width: 65ch` в текстовых блоках |
 | `body-sm` | `14px / 1.6` | Golos Text 400 | Описания в карточках |
 | `label` | `11px` | Golos Text 600 | uppercase, `tracking 0.08em`, цвет `muted-foreground` |
