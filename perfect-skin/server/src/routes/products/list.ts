@@ -23,6 +23,7 @@ const querySchema = z.object({
     .transform((v) => (Array.isArray(v) ? v : v ? [v] : undefined)),
   minPrice: z.coerce.number().int().min(0).max(100_000_000).optional(),
   maxPrice: z.coerce.number().int().min(0).max(100_000_000).optional(),
+  q: z.string().trim().min(2).max(64).optional(),
   sort: z.enum(['price_asc', 'price_desc', 'newest', 'popular']).optional().default('newest'),
   limit: z.coerce.number().int().min(1).max(60).optional().default(24),
   offset: z.coerce.number().int().min(0).max(5000).optional().default(0),
@@ -114,6 +115,7 @@ export default async function listRoute(app: FastifyInstance) {
       reply.header('Cache-Control', 'public, max-age=60, stale-while-revalidate=300')
 
       const result = await getProducts(app.prisma, {
+        q: q.q,
         category: q.category,
         brand: q.brand,
         line: q.line,

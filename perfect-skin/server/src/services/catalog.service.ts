@@ -5,6 +5,7 @@ import type { Concern, SkinType } from '../lib/db.js'
 import { getPopularProductsMap } from './popular.service.js'
 
 export interface CatalogFilters {
+  q?: string
   category?: string
   brand?: string[]
   line?: string[]
@@ -132,6 +133,17 @@ export async function getProducts(
         ...ACTIVE,
       },
     },
+  }
+
+  // Text search: ILIKE over name/descriptions/brand. On 57 products a
+  // pg_trgm index is unnecessary; add one when the catalog grows.
+  if (filters.q) {
+    where.OR = [
+      { name: { contains: filters.q, mode: 'insensitive' } },
+      { shortDescription: { contains: filters.q, mode: 'insensitive' } },
+      { description: { contains: filters.q, mode: 'insensitive' } },
+      { brand: { name: { contains: filters.q, mode: 'insensitive' } } },
+    ]
   }
 
   // Category filter (recursive to get children)
