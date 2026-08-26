@@ -16,14 +16,14 @@
 -- почтой (клиент удалил аккаунт и не может завести новый) и с промокодом
 -- (отозвали и переиздали код — старый блокирует новый).
 
-CREATE UNIQUE INDEX users_email_active_key ON users (email) WHERE deleted_at IS NULL AND email IS NOT NULL;
-CREATE UNIQUE INDEX users_phone_active_key ON users (phone) WHERE deleted_at IS NULL AND phone IS NOT NULL;
-CREATE UNIQUE INDEX categories_slug_active_key ON categories (slug) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX brands_slug_active_key ON brands (slug) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX product_lines_slug_active_key ON product_lines (slug) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX products_slug_active_key ON products (slug) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX posts_slug_active_key ON posts (slug) WHERE deleted_at IS NULL;
-CREATE UNIQUE INDEX promo_codes_code_active_key ON promo_codes (code) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX users_email_active_key ON users (email) WHERE "deletedAt" IS NULL AND email IS NOT NULL;
+CREATE UNIQUE INDEX users_phone_active_key ON users (phone) WHERE "deletedAt" IS NULL AND phone IS NOT NULL;
+CREATE UNIQUE INDEX categories_slug_active_key ON categories (slug) WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX brands_slug_active_key ON brands (slug) WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX product_lines_slug_active_key ON product_lines (slug) WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX products_slug_active_key ON products (slug) WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX posts_slug_active_key ON posts (slug) WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX promo_codes_code_active_key ON promo_codes (code) WHERE "deletedAt" IS NULL;
 
 -- ─────────────────────────── Деньги и количества ───────────────────────────
 

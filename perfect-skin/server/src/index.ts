@@ -64,6 +64,13 @@ app.setErrorHandler((error, request, reply) => {
     return reply.status(error.status).send(errorResponse(error))
   }
 
+  // Fastify schema validation (querystring/params/body) — это 400, не 500.
+  if ((error as { validation?: unknown }).validation) {
+    return reply
+      .status(400)
+      .send(errorResponse(new ApiError(400, 'VALIDATION_ERROR', 'Ошибка валидации')))
+  }
+
   app.log.error({ error, requestId: request.id })
   reply.status(500).send(
     errorResponse(
