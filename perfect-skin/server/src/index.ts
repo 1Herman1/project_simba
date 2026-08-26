@@ -71,6 +71,15 @@ app.setErrorHandler((error, request, reply) => {
       .send(errorResponse(new ApiError(400, 'VALIDATION_ERROR', 'Ошибка валидации')))
   }
 
+  // @fastify/rate-limit кидает FastifyError со statusCode 429 — без этой
+  // ветки лимиты по всему API отдавались как 500.
+  const statusCode = (error as { statusCode?: number }).statusCode
+  if (statusCode === 429) {
+    return reply
+      .status(429)
+      .send(errorResponse(new ApiError(429, 'RATE_LIMITED', 'Слишком много запросов. Попробуйте позже')))
+  }
+
   app.log.error({ error, requestId: request.id })
   reply.status(500).send(
     errorResponse(
