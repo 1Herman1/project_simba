@@ -14,6 +14,7 @@ const AuthPage = lazy(() => import('@/components/pages/AuthPage').then((m) => ({
 const CheckoutPage = lazy(() => import('@/components/pages/CheckoutPage').then((m) => ({ default: m.CheckoutPage })))
 const OrdersPage = lazy(() => import('@/components/pages/OrdersPage').then((m) => ({ default: m.OrdersPage })))
 const OrderPage = lazy(() => import('@/components/pages/OrderPage').then((m) => ({ default: m.OrderPage })))
+const TrackOrderPage = lazy(() => import('@/components/pages/TrackOrderPage').then((m) => ({ default: m.TrackOrderPage })))
 const BrandsPage = lazy(() => import('@/components/pages/BrandsPage').then((m) => ({ default: m.BrandsPage })))
 const AboutPage = lazy(() => import('@/components/pages/AboutPage').then((m) => ({ default: m.AboutPage })))
 const ContactsPage = lazy(() => import('@/components/pages/ContactsPage').then((m) => ({ default: m.ContactsPage })))
@@ -38,6 +39,7 @@ function App() {
                   <Route path="/checkout" element={<CheckoutPage />} />
                   <Route path="/orders" element={<OrdersPage />} />
                   <Route path="/orders/:number" element={<OrderPage />} />
+                  <Route path="/track" element={<TrackOrderPage />} />
                   <Route path="/brands" element={<BrandsPage />} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/contacts" element={<ContactsPage />} />

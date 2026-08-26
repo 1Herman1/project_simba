@@ -76,6 +76,16 @@ export function Footer() {
           {/* Column 3: Contacts */}
           <div>
             <h3 className="text-h3 font-heading font-bold mb-6">Контакты</h3>
+            <ul className="space-y-2 mb-6">
+              <li>
+                <Link
+                  to="/track"
+                  className="text-body-sm font-sans hover:text-accent-on-dark transition-colors duration-200 focus-visible:outline-ring"
+                >
+                  Проверить заказ
+                </Link>
+              </li>
+            </ul>
             <div className="space-y-4">
               <div>
                 <p className="text-label font-sans font-semibold uppercase tracking-wide text-muted-foreground mb-2">
