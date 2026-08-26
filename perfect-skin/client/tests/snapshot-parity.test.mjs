@@ -245,6 +245,10 @@ describe('snapshot: краевые случаи (offline)', () => {
 
 const PARITY_CASES = [
   '/api/v1/products?limit=60',
+  '/api/v1/products?q=%D0%BA%D1%80%D0%B5%D0%BC&limit=60',
+  '/api/v1/products?q=ISSEIMI&limit=60',
+  '/api/v1/products?q=%D1%80%D0%B5%D1%82%D0%B8&limit=60',
+  '/api/v1/products?q=zzz-net&limit=60',
   '/api/v1/products?sort=popular&limit=60',
   '/api/v1/products?sort=price_asc&limit=60',
   '/api/v1/products?sort=price_desc&limit=60',

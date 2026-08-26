@@ -4,6 +4,7 @@ import { TopBar } from './TopBar'
 import { Header } from './Header'
 import { MobileMenu } from './MobileMenu'
 import { Footer } from './Footer'
+import { SearchModal } from './SearchModal'
 import CartDrawer from '@/components/cart/CartDrawer'
 import { QuizModal } from '@/components/quiz/QuizModal'
 import { useDrawer } from '@/context/DrawerContext'
@@ -20,6 +21,7 @@ export function Layout({
   favoriteIcon,
 }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const { drawer, close } = useDrawer()
   const location = useLocation()
 
@@ -35,6 +37,7 @@ export function Layout({
         cartIcon={cartIcon}
         favoriteIcon={favoriteIcon}
         onMobileMenuOpen={() => setMobileMenuOpen(true)}
+        onSearchOpen={() => setSearchOpen(true)}
       />
       <MobileMenu
         isOpen={mobileMenuOpen}
@@ -45,6 +48,7 @@ export function Layout({
         {children}
       </main>
 
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <CartDrawer open={drawer === 'cart'} onClose={close} />
       <QuizModal open={drawer === 'quiz'} onClose={close} />
 

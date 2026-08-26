@@ -1,4 +1,4 @@
-import { IconMenu, IconUser } from '@/components/icons'
+import { IconMenu, IconUser, IconSearch } from '@/components/icons'
 import { Link } from 'react-router-dom'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useDrawer } from '@/context/DrawerContext'
@@ -10,6 +10,7 @@ interface HeaderProps {
   cartIcon?: React.ReactNode
   favoriteIcon?: React.ReactNode
   onMobileMenuOpen?: () => void
+  onSearchOpen?: () => void
 }
 
 const navItems = [
@@ -23,6 +24,7 @@ export function Header({
   cartIcon,
   favoriteIcon,
   onMobileMenuOpen,
+  onSearchOpen,
 }: HeaderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
   const { openCart } = useDrawer()
@@ -78,11 +80,21 @@ export function Header({
 
             {/* Icons */}
             <div className="flex items-center gap-1">
+              {/* Search */}
+              <button
+                onClick={onSearchOpen}
+                className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                aria-label="Поиск"
+                aria-haspopup="dialog"
+              >
+                <IconSearch className="w-5 h-5" />
+              </button>
+
               {cartIcon && (
                 <div className="relative">
                   <button
                     onClick={openCart}
-                    className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                    className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
                     aria-label={count > 0 ? `Корзина, ${count} ${pluralize(count, ['товар', 'товара', 'товаров'])}` : 'Корзина'}
                   >
                     {cartIcon}
@@ -104,7 +116,7 @@ export function Header({
               )}
               <Link
                 to={isAuthed ? '/orders' : '/auth'}
-                className="w-12 h-12 flex items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                className="hidden sm:flex w-12 h-12 items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
                 aria-label={isAuthed ? 'Мои заказы' : 'Вход'}
               >
                 <IconUser className="w-5 h-5" />
@@ -115,7 +127,7 @@ export function Header({
             {!isDesktop && (
               <button
                 onClick={onMobileMenuOpen}
-                className="w-12 h-12 flex items-center justify-center focus-visible:outline-ring"
+                className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center focus-visible:outline-ring"
                 aria-label="Меню"
                 >
                   <IconMenu />

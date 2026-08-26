@@ -46,6 +46,7 @@ interface Filters {
   skin: string[]
   minPrice?: number
   maxPrice?: number
+  q?: string
 }
 
 function parseFilters(sp: URLSearchParams): Filters {
@@ -58,6 +59,7 @@ function parseFilters(sp: URLSearchParams): Filters {
     skin: sp.getAll('skin'),
     minPrice: num(sp.get('minPrice')),
     maxPrice: num(sp.get('maxPrice')),
+    q: sp.get('q')?.trim() || undefined,
   }
 }
 
@@ -93,6 +95,18 @@ type Group = 'category' | 'brand' | 'line' | 'need' | 'skin' | 'price' | undefin
 
 function matches(p: SnapshotProduct, f: Filters, snap: CatalogSnapshot, exclude: Group): boolean {
   const d = p.detail
+  // Search query: first check
+  if (f.q) {
+    const q = f.q.toLowerCase()
+    const searchableFields = [
+      d.name,
+      d.shortDescription || '',
+      d.description || '',
+      d.brand?.name || '',
+    ]
+    const matches = searchableFields.some(field => field.toLowerCase().includes(q))
+    if (!matches) return false
+  }
   if (exclude !== 'category' && f.category) {
     const subtree = categorySubtree(snap.categoriesTree, f.category)
     if (subtree && !d.categories.some((c) => subtree.has(c.slug))) return false

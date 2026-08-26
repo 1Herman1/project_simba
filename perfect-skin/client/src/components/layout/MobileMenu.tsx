@@ -9,6 +9,7 @@ interface MobileMenuProps {
 
 const navItems = [
   { label: 'Каталог', href: '/catalog' },
+  { label: 'Мои заказы', href: '/orders' },
   { label: 'Бренды', href: '/brands' },
   { label: 'О компании', href: '/about' },
   { label: 'Контакты', href: '/contacts' },

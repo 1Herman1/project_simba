@@ -22,6 +22,7 @@ export function CatalogPage() {
       skin: searchParams.getAll('skin'),
       minPrice: searchParams.get('minPrice') ? parseInt(searchParams.get('minPrice')!) : undefined,
       maxPrice: searchParams.get('maxPrice') ? parseInt(searchParams.get('maxPrice')!) : undefined,
+      q: searchParams.get('q') || undefined,
       sort: (searchParams.get('sort') as 'newest' | 'price_asc' | 'price_desc' | 'popular') || 'newest',
       limit: 24,
       offset: searchParams.get('offset') ? parseInt(searchParams.get('offset')!) : 0,
@@ -106,6 +107,9 @@ export function CatalogPage() {
     if (newFilters.maxPrice !== undefined) {
       params.set('maxPrice', String(newFilters.maxPrice))
     }
+    if (filters.q) {
+      params.set('q', filters.q)
+    }
     if (newFilters.sort && newFilters.sort !== 'newest') {
       params.set('sort', newFilters.sort)
     }
@@ -135,12 +139,30 @@ export function CatalogPage() {
     })
   }
 
+  const handleClearSearch = () => {
+    const params = new URLSearchParams(searchParams)
+    params.delete('q')
+    params.delete('offset')
+    setSearchParams(params)
+  }
+
   return (
     <div className="container-app py-12 md:py-24">
       {/* Header */}
-      <h1 className="text-display font-heading font-bold mb-2 md:mb-3">
-        {slug === 'all' ? 'Все средства' : 'Каталог'}
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-display font-heading font-bold mb-2 md:mb-3">
+          {filters.q ? `Результаты поиска: „${filters.q}"` : slug === 'all' ? 'Все средства' : 'Каталог'}
+        </h1>
+        {filters.q && (
+          <button
+            onClick={handleClearSearch}
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-pill bg-muted text-sm font-semibold text-foreground hover:bg-muted/80 transition-colors"
+          >
+            Сбросить поиск
+            <span className="text-lg leading-none">×</span>
+          </button>
+        )}
+      </div>
 
       {/* Error */}
       {productsError && (

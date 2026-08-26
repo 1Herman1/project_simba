@@ -10,6 +10,7 @@ export interface CatalogFilters {
   skin?: string[]
   minPrice?: number
   maxPrice?: number
+  q?: string
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'
   limit?: number
   offset?: number
@@ -49,6 +50,7 @@ export function useCatalogList(filters: CatalogFilters): UseCatalogListReturn {
         }
         if (filters.minPrice !== undefined) params.append('minPrice', String(filters.minPrice))
         if (filters.maxPrice !== undefined) params.append('maxPrice', String(filters.maxPrice))
+        if (filters.q) params.append('q', filters.q)
         if (filters.sort) params.append('sort', filters.sort)
         if (filters.limit) params.append('limit', String(filters.limit))
         if (filters.offset !== undefined) params.append('offset', String(filters.offset))
