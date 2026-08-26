@@ -6,6 +6,7 @@ import { MobileMenu } from './MobileMenu'
 import { Footer } from './Footer'
 import { SearchModal } from './SearchModal'
 import CartDrawer from '@/components/cart/CartDrawer'
+import FavoritesDrawer from '@/components/favorites/FavoritesDrawer'
 import { QuizModal } from '@/components/quiz/QuizModal'
 import { useDrawer } from '@/context/DrawerContext'
 
@@ -50,6 +51,7 @@ export function Layout({
 
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <CartDrawer open={drawer === 'cart'} onClose={close} />
+      <FavoritesDrawer open={drawer === 'favorites'} onClose={close} />
       <QuizModal open={drawer === 'quiz'} onClose={close} />
 
       <Footer />

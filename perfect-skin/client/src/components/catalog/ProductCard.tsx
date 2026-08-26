@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { formatPrice } from '@/lib/format'
 import { useCart } from '@/context/CartContext'
 import { useDrawer } from '@/context/DrawerContext'
+import { useFavorites } from '@/context/FavoritesContext'
+import { IconHeart, IconHeartSolid } from '../icons'
 import type { ProductCard as ProductCardType } from '@/types/api'
 
 interface ProductCardProps {
@@ -15,7 +17,16 @@ interface ProductCardProps {
 export function ProductCard({ product, onAddToCart, eager }: ProductCardProps) {
   const { addItem } = useCart()
   const { openCart } = useDrawer()
+  const { isFavorite, toggle } = useFavorites()
   const [addingState, setAddingState] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  const isFav = isFavorite(product.slug)
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggle(product.slug)
+  }
 
   const handleAddToCart = async () => {
     if (!product.inStock || product.variants.length === 0) return
@@ -43,28 +54,44 @@ export function ProductCard({ product, onAddToCart, eager }: ProductCardProps) {
   return (
     <div className="bg-card rounded-block overflow-hidden transition-transform duration-200 hover:-translate-y-1">
       {/* Image */}
-      <Link to={`/product/${product.slug}`} className="block overflow-hidden bg-card">
-        {product.image ? (
-          <picture>
-            <source
-              type="image/webp"
-              srcSet={`/products-optimized/${product.slug}/card.webp 1x, /products-optimized/${product.slug}/card@2x.webp 2x`}
-            />
-            <img
-              src={product.image}
-              alt={product.name}
-              loading={eager ? 'eager' : 'lazy'}
-              fetchPriority={eager ? 'high' : undefined}
-              decoding="async"
-              className="w-full aspect-[3/4] object-contain rounded-media"
-            />
-          </picture>
-        ) : (
-          <div className="w-full aspect-[3/4] flex items-center justify-center bg-muted text-muted-foreground rounded-media">
-            Нет изображения
-          </div>
-        )}
-      </Link>
+      <div className="relative">
+        <Link to={`/product/${product.slug}`} className="block overflow-hidden bg-card">
+          {product.image ? (
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={`/products-optimized/${product.slug}/card.webp 1x, /products-optimized/${product.slug}/card@2x.webp 2x`}
+              />
+              <img
+                src={product.image}
+                alt={product.name}
+                loading={eager ? 'eager' : 'lazy'}
+                fetchPriority={eager ? 'high' : undefined}
+                decoding="async"
+                className="w-full aspect-[3/4] object-contain rounded-media"
+              />
+            </picture>
+          ) : (
+            <div className="w-full aspect-[3/4] flex items-center justify-center bg-muted text-muted-foreground rounded-media">
+              Нет изображения
+            </div>
+          )}
+        </Link>
+
+        {/* Favorite Button */}
+        <button
+          onClick={handleToggleFavorite}
+          aria-pressed={isFav}
+          aria-label={isFav ? 'Убрать из избранного' : 'Добавить в избранное'}
+          className="absolute top-2 right-2 w-11 h-11 bg-card/90 rounded-pill flex items-center justify-center hover:bg-card transition-colors duration-200"
+        >
+          {isFav ? (
+            <IconHeartSolid className="w-5 h-5 text-primary" />
+          ) : (
+            <IconHeart className="w-5 h-5 text-foreground" />
+          )}
+        </button>
+      </div>
 
       {/* Content */}
       <div className="p-2">

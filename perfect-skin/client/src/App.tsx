@@ -5,6 +5,7 @@ import { IconCart, IconHeart } from '@/components/icons'
 import { DrawerProvider } from '@/context/DrawerContext'
 import { CartProvider } from '@/context/CartContext'
 import { AuthProvider } from '@/context/AuthContext'
+import { FavoritesProvider } from '@/context/FavoritesContext'
 
 const HomePage = lazy(() => import('@/components/pages/HomePage').then((m) => ({ default: m.HomePage })))
 const CatalogPage = lazy(() => import('@/components/pages/CatalogPage').then((m) => ({ default: m.CatalogPage })))
@@ -25,7 +26,8 @@ function App() {
       <AuthProvider>
         <DrawerProvider>
           <CartProvider>
-            <Layout cartIcon={<IconCart />} favoriteIcon={<IconHeart />}>
+            <FavoritesProvider>
+              <Layout cartIcon={<IconCart />} favoriteIcon={<IconHeart />}>
               <Suspense fallback={<div className="container-app py-24 text-muted-foreground">Загрузка…</div>}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
@@ -44,6 +46,7 @@ function App() {
                 </Routes>
               </Suspense>
             </Layout>
+            </FavoritesProvider>
           </CartProvider>
         </DrawerProvider>
       </AuthProvider>

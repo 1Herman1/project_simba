@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { formatPrice } from '@/lib/format'
 import { useCart } from '@/context/CartContext'
 import { useDrawer } from '@/context/DrawerContext'
+import { useFavorites } from '@/context/FavoritesContext'
+import { IconHeart, IconHeartSolid } from '../icons'
 import type { ProductCardExtended } from '@/types/api'
 
 interface StickyProductPanelProps {
@@ -18,7 +20,10 @@ export function StickyProductPanel({
   const [isVisible, setIsVisible] = useState(false)
   const { addItem } = useCart()
   const { openCart } = useDrawer()
+  const { isFavorite, toggle } = useFavorites()
   const [addingState, setAddingState] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  const isFav = isFavorite(product.slug)
 
   const handleAddToCart = async () => {
     if (!product.inStock || product.variants.length === 0) return
@@ -90,20 +95,35 @@ export function StickyProductPanel({
           </p>
         </div>
 
-        {/* Button */}
-        <button
-          onClick={handleAddToCart}
-          disabled={!product.inStock || addingState === 'loading'}
-          className="px-6 py-0.5 bg-primary text-primary-foreground font-semibold rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap min-h-10"
-        >
-          {addingState === 'success'
-            ? 'Добавлено ✓'
-            : addingState === 'loading'
-              ? 'Добавляю...'
-              : product.inStock
-                ? 'В корзину'
-                : 'Недоступно'}
-        </button>
+        {/* Button + Favorite */}
+        <div className="flex gap-2 flex-shrink-0">
+          <button
+            onClick={handleAddToCart}
+            disabled={!product.inStock || addingState === 'loading'}
+            className="px-6 py-0.5 bg-primary text-primary-foreground font-semibold rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity whitespace-nowrap min-h-10"
+          >
+            {addingState === 'success'
+              ? 'Добавлено ✓'
+              : addingState === 'loading'
+                ? 'Добавляю...'
+                : product.inStock
+                  ? 'В корзину'
+                  : 'Недоступно'}
+          </button>
+
+          <button
+            onClick={() => toggle(product.slug)}
+            aria-pressed={isFav}
+            aria-label={isFav ? 'Убрать из избранного' : 'Добавить в избранное'}
+            className="w-10 h-10 flex items-center justify-center hover:bg-muted rounded-full transition-colors duration-200 flex-shrink-0"
+          >
+            {isFav ? (
+              <IconHeartSolid className="w-5 h-5 text-primary" />
+            ) : (
+              <IconHeart className="w-5 h-5 text-foreground" />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )

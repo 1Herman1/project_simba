@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { formatPrice } from '@/lib/format'
 import { useCart } from '@/context/CartContext'
 import { useDrawer } from '@/context/DrawerContext'
+import { useFavorites } from '@/context/FavoritesContext'
+import { IconHeart, IconHeartSolid } from '../icons'
 import { StickyProductPanel } from './StickyProductPanel'
 import { RelatedProducts } from './RelatedProducts'
 import type { ProductCardExtended } from '@/types/api'
@@ -17,7 +19,10 @@ export function ProductDetail({ product, loading, error }: ProductDetailProps) {
   const addToCartButtonRef = useRef<HTMLDivElement>(null)
   const { addItem } = useCart()
   const { openCart } = useDrawer()
+  const { isFavorite, toggle } = useFavorites()
   const [addingState, setAddingState] = useState<'idle' | 'loading' | 'success'>('idle')
+
+  const isFav = isFavorite(product?.slug || '')
 
   const handleAddToCart = async () => {
     if (!product.inStock || product.variants.length === 0) return
@@ -156,12 +161,12 @@ export function ProductDetail({ product, loading, error }: ProductDetailProps) {
             </div>
           </div>
 
-          {/* Add to Cart Button */}
-          <div ref={addToCartButtonRef}>
+          {/* Add to Cart Button + Favorite */}
+          <div ref={addToCartButtonRef} className="flex gap-3">
             <button
               onClick={handleAddToCart}
               disabled={!product.inStock || addingState === 'loading'}
-              className="w-full py-3 px-6 bg-primary text-primary-foreground font-semibold font-sans rounded-pill hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity mb-2 min-h-11 text-lg"
+              className="flex-1 py-3 px-6 bg-primary text-primary-foreground font-semibold font-sans rounded-pill hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity min-h-11 text-lg"
             >
               {addingState === 'success'
                 ? 'Добавлено ✓'
@@ -170,6 +175,19 @@ export function ProductDetail({ product, loading, error }: ProductDetailProps) {
                   : product.inStock
                     ? 'В корзину'
                     : 'Нет в наличии'}
+            </button>
+
+            <button
+              onClick={() => toggle(product.slug)}
+              aria-pressed={isFav}
+              aria-label={isFav ? 'Убрать из избранного' : 'Добавить в избранное'}
+              className="w-12 h-12 border border-border rounded-pill flex items-center justify-center hover:bg-muted transition-colors duration-200 flex-shrink-0"
+            >
+              {isFav ? (
+                <IconHeartSolid className="w-5 h-5 text-primary" />
+              ) : (
+                <IconHeart className="w-5 h-5 text-foreground" />
+              )}
             </button>
           </div>
 

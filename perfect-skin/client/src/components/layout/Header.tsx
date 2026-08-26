@@ -4,6 +4,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useDrawer } from '@/context/DrawerContext'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
+import { useFavorites } from '@/context/FavoritesContext'
 import { pluralize } from '@/lib/format'
 
 interface HeaderProps {
@@ -27,8 +28,9 @@ export function Header({
   onSearchOpen,
 }: HeaderProps) {
   const isDesktop = useMediaQuery('(min-width: 768px)')
-  const { openCart } = useDrawer()
+  const { openCart, openFavorites } = useDrawer()
   const { count } = useCart()
+  const { count: favCount } = useFavorites()
   const { isAuthed } = useAuth()
 
   return (
@@ -107,12 +109,20 @@ export function Header({
                 </div>
               )}
               {favoriteIcon && (
-                <button
-                  className="hidden sm:flex w-12 h-12 items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
-                  aria-label="Избранное"
-                >
-                  {favoriteIcon}
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={openFavorites}
+                    className="hidden sm:flex w-12 h-12 items-center justify-center hover:bg-muted rounded-pill transition-colors duration-200 focus-visible:outline-ring"
+                    aria-label={favCount > 0 ? `Избранное, ${favCount} ${pluralize(favCount, ['товар', 'товара', 'товаров'])}` : 'Избранное'}
+                  >
+                    {favoriteIcon}
+                  </button>
+                  {favCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold tabular-nums ring-2 ring-background">
+                      {favCount > 99 ? '99+' : favCount}
+                    </span>
+                  )}
+                </div>
               )}
               <Link
                 to={isAuthed ? '/orders' : '/auth'}
