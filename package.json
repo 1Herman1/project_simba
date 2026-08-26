@@ -18,6 +18,7 @@
     "test:perfect-skin": "npm run test --workspace=@ps/shared"
   },
   "devDependencies": {
-    "@iconify-json/iconoir": "^1.2.11"
+    "@iconify-json/iconoir": "^1.2.11",
+    "playwright-core": "^1.62.1"
   }
 }

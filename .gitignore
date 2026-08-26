@@ -16,3 +16,6 @@ perfect-skin/shared/src/*.js
 perfect-skin/shared/src/*.js.map
 perfect-skin/shared/src/*.d.ts
 perfect-skin/shared/src/*.d.ts.map
+
+# Скриншоты агента-дизайнера — рабочие артефакты, не код
+.claude/screenshots/
