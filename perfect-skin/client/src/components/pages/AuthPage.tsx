@@ -7,20 +7,7 @@ import { IconUser, IconArrowRight } from '@/components/icons'
 type Step = 'input' | 'code'
 
 const CODE_LENGTH = 6
-
-function formatPhone(value: string): string {
-  const digits = value.replace(/\D/g, '')
-  if (digits.length === 0) return ''
-  if (digits.length <= 1) return digits
-  if (digits.length <= 3) return `+7 ${digits}`
-  if (digits.length <= 6) return `+7 ${digits.slice(0, 3)} ${digits.slice(3)}`
-  return `+7 ${digits.slice(0, 3)} ${digits.slice(3, 6)}-${digits.slice(6, 8)}-${digits.slice(8, 10)}`
-}
-
-function getPhoneForApi(formatted: string): string {
-  const digits = formatted.replace(/\D/g, '')
-  return '+7' + digits.slice(1)
-}
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/
 
 export function AuthPage() {
   const navigate = useNavigate()
@@ -28,7 +15,7 @@ export function AuthPage() {
   const { sendOtp, verifyOtp } = useAuth()
 
   const [step, setStep] = useState<Step>('input')
-  const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -40,7 +27,7 @@ export function AuthPage() {
     setStepIn(true)
   }, [step])
 
-  const isPhoneValid = phone.replace(/\D/g, '').length === 11
+  const isEmailValid = EMAIL_REGEX.test(email)
 
   // Интервал в ref: при уходе со страницы до конца отсчёта его надо
   // остановить, иначе setState стреляет по размонтированному компоненту.
@@ -67,13 +54,13 @@ export function AuthPage() {
   }
 
   const handleSendCode = async () => {
-    if (!phone.trim()) {
-      setError('Введите телефон')
+    if (!email.trim()) {
+      setError('Введите email')
       return
     }
 
-    if (!isPhoneValid) {
-      setError('Телефон должен быть +7 и 10 цифр')
+    if (!isEmailValid) {
+      setError('Проверьте адрес — похоже, есть опечатка')
       return
     }
 
@@ -81,8 +68,7 @@ export function AuthPage() {
     setError('')
 
     try {
-      const apiPhone = getPhoneForApi(phone)
-      const response = await sendOtp(apiPhone)
+      const response = await sendOtp(email.trim().toLowerCase())
       setStep('code')
       setStepIn(false)
       setTimeout(() => setStepIn(true), 10)
@@ -109,8 +95,7 @@ export function AuthPage() {
     setError('')
 
     try {
-      const apiPhone = getPhoneForApi(phone)
-      await verifyOtp(apiPhone, code)
+      await verifyOtp(email.trim().toLowerCase(), code)
 
       // Если корзина была объединена, обновить её на странице-назначении
       const nextUrl = searchParams.get('next') || '/orders'
@@ -131,8 +116,7 @@ export function AuthPage() {
     setError('')
     setLoading(true)
     try {
-      const apiPhone = getPhoneForApi(phone)
-      const response = await sendOtp(apiPhone)
+      const response = await sendOtp(email.trim().toLowerCase())
       startResendTimer(response.resendAfter)
     } catch (err) {
       if (err instanceof ApiError) {
@@ -146,7 +130,7 @@ export function AuthPage() {
     }
   }
 
-  const handleChangePhone = () => {
+  const handleChangeEmail = () => {
     setStep('input')
     setStepIn(false)
     setCode('')
@@ -179,7 +163,7 @@ export function AuthPage() {
                 Вход в аккаунт
               </h1>
               <p className="text-body-sm text-muted-foreground mb-6">
-                Вход по SMS заработает после запуска магазина
+                Вход по email заработает после запуска магазина
               </p>
               <a
                 href="/catalog"
@@ -190,7 +174,7 @@ export function AuthPage() {
             </div>
           ) : (
             <>
-              {/* Шаг: ввод телефона */}
+              {/* Шаг: ввод email */}
               <div className="relative">
                 <div
                   className={`transition-[opacity,transform] duration-200 ${
@@ -200,45 +184,45 @@ export function AuthPage() {
                   }`}
                 >
                   <h1 className="text-lg font-heading font-semibold text-foreground mb-1">
-                    Вход по SMS
+                    Введите email
                   </h1>
                   <p className="text-body-sm text-muted-foreground mb-6">
-                    Введите номер телефона — отправим код
+                    Пришлём код для входа
                   </p>
 
                   <div className="mb-4">
                     <label
-                      htmlFor="auth-phone"
+                      htmlFor="auth-email"
                       className="block text-sm font-semibold text-foreground mb-2"
                     >
-                      Телефон
+                      Email
                     </label>
                     <input
-                      id="auth-phone"
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
+                      id="auth-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
                       autoFocus
                       spellCheck={false}
                       aria-invalid={!!error && step === 'input'}
                       aria-describedby={
                         error && step === 'input'
-                          ? 'auth-phone-error'
-                          : 'auth-phone-hint'
+                          ? 'auth-email-error'
+                          : 'auth-email-hint'
                       }
-                      value={phone}
+                      value={email}
                       onChange={(e) => {
-                        setPhone(formatPhone(e.target.value))
+                        setEmail(e.target.value)
                         if (error) setError('')
                       }}
-                      placeholder="+7 "
+                      placeholder="name@example.ru"
                       className="w-full px-4 py-3 text-base rounded-pill border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 aria-[invalid=true]:border-destructive aria-[invalid=true]:focus:ring-destructive/20 min-h-11"
                     />
                     <p
                       id={
                         error && step === 'input'
-                          ? 'auth-phone-error'
-                          : 'auth-phone-hint'
+                          ? 'auth-email-error'
+                          : 'auth-email-hint'
                       }
                       role={error && step === 'input' ? 'alert' : undefined}
                       className={`text-xs mt-2 min-h-[1.25rem] transition-colors duration-150 ${
@@ -249,13 +233,13 @@ export function AuthPage() {
                     >
                       {error && step === 'input'
                         ? error
-                        : 'Введите номер с кодом страны'}
+                        : 'Пришлём код для входа — пароль не нужен'}
                     </p>
                   </div>
 
                   <button
                     onClick={handleSendCode}
-                    disabled={loading || !phone.trim() || !isPhoneValid}
+                    disabled={loading || !email.trim() || !isEmailValid}
                     className="w-full px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-11 flex items-center justify-center"
                   >
                     {loading ? (
@@ -298,8 +282,8 @@ export function AuthPage() {
                   }`}
                 >
                   <button
-                    onClick={handleChangePhone}
-                    aria-label="Изменить номер"
+                    onClick={handleChangeEmail}
+                    aria-label="Изменить email"
                     className="flex items-center gap-2 text-foreground hover:text-primary transition-colors text-sm mb-4 py-2 -my-2 font-semibold min-h-11"
                   >
                     <IconArrowRight className="w-4 h-4 transform rotate-180" />
@@ -311,12 +295,12 @@ export function AuthPage() {
                   </h1>
                   <p className="text-body-sm text-muted-foreground mb-6">
                     Код отправлен на{' '}
-                    <span className="font-semibold text-foreground">{phone}</span>
+                    <span className="font-semibold text-foreground">{email}</span>
                   </p>
 
                   <div className="mb-4">
-                    <label htmlFor="auth-code" className="sr-only">
-                      Код из SMS
+                    <label htmlFor="auth-code" className="block text-sm font-semibold text-foreground mb-2">
+                      Код из письма
                     </label>
                     <input
                       id="auth-code"

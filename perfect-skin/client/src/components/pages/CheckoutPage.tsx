@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { formatPrice } from '@/lib/format'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import { fetchApi, ApiError } from '@/lib/api'
@@ -18,7 +18,6 @@ interface Order {
 }
 
 export function CheckoutPage() {
-  const navigate = useNavigate()
   const { user, isAuthed } = useAuth()
   const { cart, isLoading: cartLoading, refresh: refreshCart } = useCart()
   const api = cartApi()
@@ -134,8 +133,9 @@ export function CheckoutPage() {
 
   // Отправка заказа
   const handleSubmit = async () => {
-    if (!isAuthed) {
-      navigate(`/auth?next=/checkout`)
+    // Для гостя требуем email
+    if (!isAuthed && !recipient.email.trim()) {
+      setSubmitError('Укажите email для получения подтверждения')
       return
     }
 
@@ -186,7 +186,9 @@ export function CheckoutPage() {
       await refreshCart()
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.code === 'TOTAL_MISMATCH') {
+        if (err.code === 'EMAIL_REQUIRED') {
+          setSubmitError('Укажите email для получения подтверждения')
+        } else if (err.code === 'TOTAL_MISMATCH') {
           setSubmitError(
             'Суммы изменились. Пожалуйста, проверьте и попробуйте ещё раз'
           )
@@ -228,8 +230,22 @@ export function CheckoutPage() {
             Номер заказа: <span className="font-semibold">{orderPlaced.number}</span>
           </p>
           <p className="text-body-sm text-muted-foreground mb-8">
-            Мы отправим вам SMS с информацией о доставке
+            Мы напишем вам на почту о статусе заказа
           </p>
+
+          {!isAuthed && (
+            <div className="bg-primary/5 border border-primary/20 rounded-block p-4 mb-8">
+              <p className="text-sm text-foreground mb-3">
+                Заказ привязан к <span className="font-semibold">{recipient.email}</span>. Войдите по этому адресу, чтобы отслеживать статус
+              </p>
+              <Link
+                to={`/auth?next=/orders`}
+                className="inline-block px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill hover:bg-primary/90 transition-colors min-h-11"
+              >
+                Войти
+              </Link>
+            </div>
+          )}
 
           <div className="flex flex-col gap-3">
             <a
@@ -545,7 +561,7 @@ export function CheckoutPage() {
                       htmlFor="email"
                       className="block text-sm font-semibold text-foreground mb-2"
                     >
-                      Email (опц.)
+                      Email{isAuthed ? ' (опц.)' : ''}
                     </label>
                     <input
                       id="email"
@@ -558,6 +574,11 @@ export function CheckoutPage() {
                       placeholder="ivan@example.com"
                       className="w-full px-4 py-3 text-base rounded-block border bg-background text-foreground placeholder-muted-foreground focus:outline-none transition-[border-color,box-shadow] duration-150 border-border focus:border-primary focus:ring-2 focus:ring-primary/25 min-h-11"
                     />
+                    {!isAuthed && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        На него придёт подтверждение и доступ к заказу
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -685,15 +706,22 @@ export function CheckoutPage() {
 
             <button
               onClick={handleSubmit}
-              disabled={submitting || !recipient.name || !recipient.phone}
+              disabled={
+                submitting ||
+                !recipient.name ||
+                !recipient.phone ||
+                (!isAuthed && !recipient.email.trim())
+              }
               className="w-full px-6 py-3 bg-primary text-primary-foreground font-bold rounded-pill disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-11 mb-4"
             >
               {submitting ? 'Оформляем заказ…' : 'Оформить заказ'}
             </button>
 
-            {!recipient.name || !recipient.phone ? (
+            {!recipient.name || !recipient.phone || (!isAuthed && !recipient.email.trim()) ? (
               <p aria-live="polite" className="text-xs text-muted-foreground text-center">
-                Заполните имя и телефон
+                {!isAuthed
+                  ? 'Заполните имя, телефон и email'
+                  : 'Заполните имя и телефон'}
               </p>
             ) : null}
 

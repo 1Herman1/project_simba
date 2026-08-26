@@ -25,8 +25,8 @@ interface AuthContextType {
   user: User | null
   isLoading: boolean
   isAuthed: boolean
-  sendOtp: (phone: string) => Promise<SendOtpResponse>
-  verifyOtp: (phone: string, code: string) => Promise<VerifyOtpResponse>
+  sendOtp: (email: string) => Promise<SendOtpResponse>
+  verifyOtp: (email: string, code: string) => Promise<VerifyOtpResponse>
   logout: () => Promise<void>
 }
 
@@ -62,18 +62,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [])
 
-  const sendOtp = async (phone: string): Promise<SendOtpResponse> => {
+  const sendOtp = async (email: string): Promise<SendOtpResponse> => {
     const response = await fetchApi<SendOtpResponse>('/api/v1/auth/send-otp', {
       method: 'POST',
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ email }),
     })
     return response
   }
 
-  const verifyOtp = async (phone: string, code: string): Promise<VerifyOtpResponse> => {
+  const verifyOtp = async (email: string, code: string): Promise<VerifyOtpResponse> => {
     const response = await fetchApi<VerifyOtpResponse>('/api/v1/auth/verify-otp', {
       method: 'POST',
-      body: JSON.stringify({ phone, code }),
+      body: JSON.stringify({ email, code }),
     })
 
     // Сохраняем токен и пользователя
