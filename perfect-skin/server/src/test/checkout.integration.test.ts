@@ -66,9 +66,9 @@ async function build() {
 describe('Checkout Integration Tests', () => {
   beforeAll(async () => {
     app = await build()
-    // Остатки прошлых прогонов: тестовые пользователи (+7999…) с их заказами
-    // и корзинами ломают повторный запуск уникальностью телефона.
-    const stale = await db.user.findMany({ where: { phone: { startsWith: '+7999' } }, select: { id: true } })
+    // Остатки прошлых прогонов: тестовые пользователи (test-*@ps-test.local) с их заказами
+    // и корзинами ломают повторный запуск уникальностью email.
+    const stale = await db.user.findMany({ where: { email: { endsWith: '@ps-test.local' } }, select: { id: true } })
     const ids = stale.map((u) => u.id)
     if (ids.length) {
       await db.orderItem.deleteMany({ where: { order: { userId: { in: ids } } } })
@@ -162,7 +162,7 @@ describe('Checkout Integration Tests', () => {
 
   // (b) verify-otp merges guest cart
   it('(b) verify-otp merges guest cart into user cart', async () => {
-    const phone = '+7999' + String(Math.floor(Math.random() * 1e7)).padStart(7, '0')
+    const email = `test-${Date.now()}-${Math.random().toString(36).slice(2)}@ps-test.local`
     const code = '123456'
 
     // Create guest cart with item
@@ -199,15 +199,15 @@ describe('Checkout Integration Tests', () => {
     const setCookie = ([] as string[]).concat(addResponse.headers['set-cookie'] as any || [])
     const sessionCookie = setCookie?.find((c) => c.includes('ps_sid'))?.split(';')[0]
 
-    // Пользователь сначала: OtpCode ссылается на userId, поля phone у него нет
-    const otpUser = (await db.user.findFirst({ where: { phone } })) ??
-      (await db.user.create({ data: { phone, name: 'Test User', role: 'customer' } }))
+    // Пользователь сначала: OtpCode ссылается на userId
+    const otpUser = (await db.user.findFirst({ where: { email } })) ??
+      (await db.user.create({ data: { email, name: 'Test User', role: 'customer' } }))
     const codeHash = require('bcryptjs').hashSync(code, 10)
     await db.otpCode.create({
       data: {
         userId: otpUser.id,
         codeHash,
-        channel: 'sms',
+        channel: 'email',
         expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       },
     })
@@ -219,7 +219,7 @@ describe('Checkout Integration Tests', () => {
       headers: {
         cookie: sessionCookie || '',
       },
-      payload: { phone, code },
+      payload: { email, code },
     })
 
     expect(verifyResponse.statusCode).toBe(200)
@@ -245,10 +245,10 @@ describe('Checkout Integration Tests', () => {
 
   // (c) Order: stock deduction, clear cart, retry = CART_EMPTY
   it('(c) Create order deducts stock, clears cart, retry returns CART_EMPTY', async () => {
-    const phone = '+7999' + String(Math.floor(Math.random() * 1e7)).padStart(7, '0')
+    const email = `test-${Date.now()}-${Math.random().toString(36).slice(2)}@ps-test.local`
     const user =
-      (await db.user.findFirst({ where: { phone } })) ??
-      (await db.user.create({ data: { phone, name: 'Order Test User', role: 'customer' } }))
+      (await db.user.findFirst({ where: { email } })) ??
+      (await db.user.create({ data: { email, name: 'Order Test User', role: 'customer' } }))
 
     const token = sign(
       { userId: user.id, role: user.role, tv: user.tokenVersion },
@@ -378,10 +378,10 @@ describe('Checkout Integration Tests', () => {
 
     // Create two users
     const user1 = await db.user.create({
-      data: { phone: '+79998888888', name: 'User 1', role: 'customer' },
+      data: { email: `test-${Date.now()}-1@ps-test.local`, name: 'User 1', role: 'customer' },
     })
     const user2 = await db.user.create({
-      data: { phone: '+79997777777', name: 'User 2', role: 'customer' },
+      data: { email: `test-${Date.now()}-2@ps-test.local`, name: 'User 2', role: 'customer' },
     })
 
     const token1 = sign(
@@ -450,9 +450,9 @@ describe('Checkout Integration Tests', () => {
 
   // (e) TOTAL_MISMATCH if expectedTotal ≠ calculated
   it('(e) TOTAL_MISMATCH when expectedTotal differs from calculated', async () => {
-    const phone = '+7999' + String(Math.floor(Math.random() * 1e7)).padStart(7, '0')
+    const email = `test-${Date.now()}-${Math.random().toString(36).slice(2)}@ps-test.local`
     const user = await db.user.create({
-      data: { phone, name: 'Mismatch Test', role: 'customer' },
+      data: { email, name: 'Mismatch Test', role: 'customer' },
     })
 
     const token = sign(
@@ -491,7 +491,7 @@ describe('Checkout Integration Tests', () => {
       url: '/api/v1/orders',
       payload: {
         deliveryMethod: 'pickup',
-        recipient: { name: 'Test', phone: user.phone },
+        recipient: { name: 'Test', phone: '+79999999999' },
         expectedTotal: correctTotal + 10000, // Wrong amount
       },
       headers: { authorization: `Bearer ${token}` },
@@ -505,9 +505,9 @@ describe('Checkout Integration Tests', () => {
 
   // (f) Promo: PROMO_NOT_FOUND for nonexistent + expired codes
   it('(f) Promo validation: PROMO_NOT_FOUND for nonexistent and expired codes', async () => {
-    const phone = '+7999' + String(Math.floor(Math.random() * 1e7)).padStart(7, '0')
+    const email = `test-${Date.now()}-${Math.random().toString(36).slice(2)}@ps-test.local`
     const user = await db.user.create({
-      data: { phone, name: 'Promo Test', role: 'customer' },
+      data: { email, name: 'Promo Test', role: 'customer' },
     })
 
     const token = sign(
@@ -567,5 +567,165 @@ describe('Checkout Integration Tests', () => {
 
     expect(expiredResponse.statusCode).toBe(404)
     expect(JSON.parse(expiredResponse.body).error.code).toBe('PROMO_NOT_FOUND')
+  })
+
+  // (g) Guest checkout: add item without auth, create order with email
+  it('(g) Guest checkout: add item, create order with email, verify OTP', async () => {
+    const guestEmail = `test-${Date.now()}-${Math.random().toString(36).slice(2)}@ps-test.local`
+    const code = '123456'
+
+    // Get a product
+    const product = await db.product.findFirst({
+      where: {
+        isActive: true,
+        deletedAt: null,
+        variants: {
+          some: {
+            isActive: true,
+            stock: { gte: 1 },
+            retailPrice: { gt: 0 },
+          },
+        },
+      },
+      include: {
+        variants: {
+          where: { isActive: true, stock: { gte: 1 } },
+          take: 1,
+        },
+      },
+    })
+
+    expect(product).toBeDefined()
+    const variant = product!.variants[0]
+
+    // Guest adds item (no auth)
+    const addResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/cart/items',
+      payload: { variantId: variant.id, quantity: 1 },
+    })
+
+    expect(addResponse.statusCode).toBe(201)
+    const setCookie = ([] as string[]).concat(addResponse.headers['set-cookie'] as any || [])
+    const sessionCookie = setCookie?.find((c) => c.includes('ps_sid'))?.split(';')[0]
+    expect(sessionCookie).toBeDefined()
+
+    // Get cart for totals
+    const cartResponse = await app.inject({
+      method: 'GET',
+      url: '/api/v1/cart',
+      headers: { cookie: sessionCookie! },
+    })
+
+    const cartData = JSON.parse(cartResponse.body)
+    expect(cartData.subtotal).toBeGreaterThan(0)
+
+    // Guest creates order with email
+    const orderResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/orders',
+      headers: { cookie: sessionCookie! },
+      payload: {
+        deliveryMethod: 'pickup',
+        recipient: { name: 'Guest User', phone: '+79999999999', email: guestEmail },
+        expectedTotal: cartData.subtotal,
+      },
+    })
+
+    expect(orderResponse.statusCode).toBe(201)
+    const orderData = JSON.parse(orderResponse.body)
+    expect(orderData.number).toMatch(/^PS-\d{6}$/)
+    expect(orderData.total).toBe(cartData.subtotal)
+    const orderId = orderData.id
+
+    // Verify OTP on guest email
+    const guestUser = await db.user.findFirst({ where: { email: guestEmail } })
+    expect(guestUser).toBeDefined()
+
+    // Create OTP code for guest
+    const codeHash = require('bcryptjs').hashSync(code, 10)
+    await db.otpCode.create({
+      data: {
+        userId: guestUser!.id,
+        codeHash,
+        channel: 'email',
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      },
+    })
+
+    // Verify OTP
+    const verifyResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/verify-otp',
+      payload: { email: guestEmail, code },
+    })
+
+    expect(verifyResponse.statusCode).toBe(200)
+    const verifyData = JSON.parse(verifyResponse.body)
+    const token = verifyData.token
+
+    // GET /orders with token should show the order
+    const listResponse = await app.inject({
+      method: 'GET',
+      url: '/api/v1/orders',
+      headers: { authorization: `Bearer ${token}` },
+    })
+
+    expect(listResponse.statusCode).toBe(200)
+    const listData = JSON.parse(listResponse.body)
+    expect(listData.items.some((o: any) => o.id === orderId)).toBe(true)
+  })
+
+  // (h) Guest order without email → EMAIL_REQUIRED
+  it('(h) Guest order without email returns EMAIL_REQUIRED', async () => {
+    // Get a product
+    const product = await db.product.findFirst({
+      where: {
+        isActive: true,
+        deletedAt: null,
+        variants: {
+          some: { isActive: true, stock: { gte: 1 } },
+        },
+      },
+      include: {
+        variants: { where: { isActive: true }, take: 1 },
+      },
+    })
+
+    const variant = product!.variants[0]
+
+    // Add item to guest cart
+    const addResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/cart/items',
+      payload: { variantId: variant.id, quantity: 1 },
+    })
+
+    const setCookie = ([] as string[]).concat(addResponse.headers['set-cookie'] as any || [])
+    const sessionCookie = setCookie?.find((c) => c.includes('ps_sid'))?.split(';')[0]
+
+    const cartResponse = await app.inject({
+      method: 'GET',
+      url: '/api/v1/cart',
+      headers: { cookie: sessionCookie! },
+    })
+
+    const cartData = JSON.parse(cartResponse.body)
+
+    // Try to order without email (guest, no auth)
+    const orderResponse = await app.inject({
+      method: 'POST',
+      url: '/api/v1/orders',
+      headers: { cookie: sessionCookie! },
+      payload: {
+        deliveryMethod: 'pickup',
+        recipient: { name: 'Guest', phone: '+79999999999' },
+        expectedTotal: cartData.subtotal,
+      },
+    })
+
+    expect(orderResponse.statusCode).toBe(400)
+    const orderData = JSON.parse(orderResponse.body)
+    expect(orderData.error.code).toBe('EMAIL_REQUIRED')
   })
 })

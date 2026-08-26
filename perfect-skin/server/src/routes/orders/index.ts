@@ -3,6 +3,7 @@ import fastifyPlugin from 'fastify-plugin'
 import { z } from 'zod'
 import { orderService } from '../../services/order.service.js'
 import { cartService } from '../../services/cart.service.js'
+import { otpService } from '../../services/otp.service.js'
 import { db } from '../../lib/db.js'
 import { ApiError } from '../../lib/errors.js'
 
@@ -39,12 +40,12 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
   app.post<{ Body: any; Reply: any }>(
     '/api/v1/orders',
     {
-      // Контракт 3.16: 10/час на пользователя.
+      // Контракт 3.16: 10/час на пользователя (вошедшего) или на IP (гостя).
       config: {
         rateLimit: {
           max: 10,
           timeWindow: '1 hour',
-          keyGenerator: (req: any) => req.user?.id ?? req.ip,
+          keyGenerator: (req: any) => req.user?.id ?? req.cookies?.ps_sid ?? req.ip,
         },
       },
       schema: {
@@ -80,11 +81,10 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
         response: {
           201: { $ref: 'ps.order#' },
           400: { $ref: 'ps.error#' },
-          401: { $ref: 'ps.error#' },
           409: { $ref: 'ps.error#' },
         },
       },
-      preHandler: app.authenticate,
+      preHandler: app.authenticateOptional,
     },
     async (request: FastifyRequest<{ Body: any }>, reply: FastifyReply) => {
       // Validate input
@@ -103,7 +103,38 @@ export default fastifyPlugin(async (app: FastifyInstance) => {
         })
       }
 
-      const owner = { userId: request.user!.id }
+      // Determine order owner: authenticated user or guest
+      let customerId: string
+      let cartOwner: { userId: string } | { sessionId: string }
+
+      if (request.user?.id) {
+        // Вошедший пользователь
+        customerId = request.user.id
+        cartOwner = { userId: request.user.id }
+      } else {
+        // Гость — требуется email в recipient
+        const recipientEmail = result.data.recipient.email
+        if (!recipientEmail) {
+          throw new ApiError(
+            400,
+            'EMAIL_REQUIRED',
+            'Укажите email — на него придёт подтверждение заказа'
+          )
+        }
+
+        // Find or create customer by email
+        const normalizedEmail = recipientEmail.trim().toLowerCase()
+        customerId = (await otpService.findOrCreateUser(normalizedEmail)).id
+
+        // Resolve cart owner from session
+        const cartOwnerResolved = cartService.resolveCartOwner(request)
+        if (!cartOwnerResolved) {
+          throw new ApiError(409, 'CART_EMPTY', 'Корзина пуста')
+        }
+        cartOwner = cartOwnerResolved
+      }
+
+      const owner = { customerId, cart: cartOwner }
       const order = await orderService.createOrder(owner, result.data)
 
       reply.status(201).send(order)

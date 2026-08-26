@@ -471,7 +471,7 @@ app.addSchema({
 
 ### 3.16 `POST /api/v1/orders`
 
-Оформление заказа. Авторизация обязательна: `Order.userId` в схеме не nullable. Гость проходит вход по СМС до этого шага, его корзина сливается в `verify-otp`.
+Оформление заказа. Авторизация **опциональна**: вошедший пользователь создаёт заказ из своей корзины, гость — из session-корзины. Заказ всегда привязывается к аккаунту пользователя (`Order.userId` не nullable): для вошедшего — это `request.user.id`, для гостя — аккаунт найден/создан по `recipient.email` (на его email придёт подтверждение заказа). Гостевая корзина очищается независимо от дальнейшей авторизации.
 
 **Тело:**
 
@@ -569,18 +569,18 @@ app.addSchema({
 Механика переносится из Симбы без переизобретения. Здесь фиксируется только контракт и три обязательных отличия.
 
 **`POST /api/v1/auth/send-otp`**
-Тело: `{ "phone": "+79996512551" }`, `^\+7\d{10}$`. Нормализация до `+7XXXXXXXXXX` (принимаем ввод с пробелами и скобками — чистим на сервере).
-Ответ 200: `{ "channel": "sms", "expiresIn": 600, "resendAfter": 60 }`.
-Ответ одинаков и для нового, и для существующего номера: пользователь создаётся при отсутствии (`findOrCreateCustomerByPhone`), чтобы по ответу нельзя было перебрать базу клиентов.
+Тело: `{ "email": "anna@example.com" }`, email валидируется zod, максимум 254 символа. Нормализация: `trim().toLowerCase()`.
+Ответ 200: `{ "channel": "email", "expiresIn": 600, "resendAfter": 60 }`.
+Ответ одинаков и для нового, и для существующего email: пользователь создаётся при отсутствии (`findOrCreateCustomerByEmail`), чтобы по ответу нельзя было перебрать базу клиентов.
 Ошибки: `400 VALIDATION_ERROR`, `429 OTP_RATE_LIMITED` (`details: { retryAfter }`).
-Лимиты: 5 запросов/15 мин по IP **и** не чаще 1 раза в 60 секунд на номер (проверка по `OtpCode.createdAt`).
+Лимиты: 5 запросов/15 мин по IP **и** не чаще 1 раза в 60 секунд на email (проверка по `OtpCode.createdAt`).
 
 **`POST /api/v1/auth/verify-otp`**
-Тело: `{ "phone": "+79996512551", "code": "123456" }`, код — `^\d{6}$`.
+Тело: `{ "email": "anna@example.com", "code": "123456" }`, код — `^\d{6}$`.
 Ответ 200:
 
 ```json
-{ "token": "jwt", "user": { "id": "uuid", "name": "string", "phone": "+79996512551", "email": "string|null", "role": "customer" }, "cartMerged": true }
+{ "token": "jwt", "user": { "id": "uuid", "name": "string", "phone": "string|null", "email": "anna@example.com", "role": "customer" }, "cartMerged": true }
 ```
 
 Ошибки: `400 OTP_INVALID` (единый ответ и на неверный код, и на отсутствующего пользователя), `429 OTP_BLOCKED` (`details: { blockedUntil }`).
@@ -597,7 +597,7 @@ app.addSchema({
 **`POST /api/v1/auth/logout`** → `{ "ok": true }`; инкремент `User.tokenVersion` (выход на всех устройствах).
 
 **Три обязательных отличия от Симбы**
-1. Канал — СМС, не e-mail. Провайдер за интерфейсом `SmsSender` (`server/src/services/sms/index.ts`), конфигурация: `SMS_PROVIDER`, `SMS_API_KEY`, `SMS_SENDER`. В `NODE_ENV=development` — заглушка, печатающая код в лог.
+1. Канал — email, не СМС. Провайдер за интерфейсом `MailSender` (`server/src/services/mail/index.ts`), конфигурация: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`. В `NODE_ENV=development` — заглушка, печатающая код в лог.
 2. `OtpCode.codeHash` — **bcrypt (cost 10) или argon2id**, никакого sha256. У шестизначного кода миллион вариантов: быстрый хеш перебирается за секунды и не защищает ничего.
 3. Счётчик неудач и блокировка — в БД (`User.otpFailedCount`, `User.otpBlockedUntil`), а не в `Map` в памяти. 5 неудач подряд → блокировка на 15 минут, успешный вход обнуляет счётчик.
 

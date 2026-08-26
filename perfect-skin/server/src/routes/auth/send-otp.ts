@@ -1,23 +1,25 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { otpService } from '../../services/otp.service.js'
-import { createSmsSender } from '../../services/sms/index.js'
+import { createMailSender } from '../../services/mail/index.js'
 import { ApiError } from '../../lib/errors.js'
 
-const phoneSchema = z.object({
-  phone: z
+const emailSchema = z.object({
+  email: z
     .string()
-    .regex(/^\+7\d{10}$/, 'Неверный формат телефона')
-    .transform((v) => v.replace(/[\s()-]/g, '').replace(/^8/, '+7')), // Normalize
+    .trim()
+    .toLowerCase()
+    .email()
+    .max(254),
 })
 
 export async function sendOtpRoute(app: FastifyInstance) {
-  const sms = createSmsSender()
+  const mail = createMailSender()
 
-  app.post<{ Body: { phone: string } }>(
+  app.post<{ Body: { email: string } }>(
     '/api/v1/auth/send-otp',
     {
-      // Контракт 3.18: 5 запросов / 15 минут по IP (плюс лимит на номер внутри).
+      // Контракт 3.18: 5 запросов / 15 минут по IP (плюс лимит на email внутри).
       config: { rateLimit: { max: 5, timeWindow: '15 minutes' } },
       schema: {
         response: {
@@ -26,7 +28,7 @@ export async function sendOtpRoute(app: FastifyInstance) {
             additionalProperties: false,
             required: ['channel', 'expiresIn', 'resendAfter'],
             properties: {
-              channel: { type: 'string', const: 'sms' },
+              channel: { type: 'string', const: 'email' },
               expiresIn: { type: 'integer' },
               resendAfter: { type: 'integer' },
             },
@@ -36,25 +38,25 @@ export async function sendOtpRoute(app: FastifyInstance) {
         },
       },
     },
-    async (request: FastifyRequest<{ Body: { phone: string } }>, reply: FastifyReply) => {
+    async (request: FastifyRequest<{ Body: { email: string } }>, reply: FastifyReply) => {
       // Validate input
-      const result = phoneSchema.safeParse(request.body as any)
+      const result = emailSchema.safeParse(request.body as any)
       if (!result.success) {
         throw new ApiError(
           400,
           'VALIDATION_ERROR',
-          'Неверный формат телефона',
-          { field: 'phone' }
+          'Неверный формат email',
+          { field: 'email' }
         )
       }
 
-      const phone = result.data.phone
+      const email = result.data.email
 
       // Пользователь нужен до проверки лимита: код в БД привязан к userId,
-      // поля phone у OtpCode нет.
-      const user = await otpService.findOrCreateUser(phone)
+      // поля email у OtpCode нет.
+      const user = await otpService.findOrCreateUser(email)
 
-      // Check rate limit per phone (60 sec)
+      // Check rate limit per email (60 sec)
       const { db } = await import('../../lib/db.js')
       const recentCode = await db.otpCode.findFirst({
         where: {
@@ -73,11 +75,11 @@ export async function sendOtpRoute(app: FastifyInstance) {
       }
 
       // Generate and send OTP
-      const code = await otpService.generateAndStoreCode(user.id)
-      await sms.send(phone, code)
+      const code = await otpService.generateAndStoreCode(user.id, 'email')
+      await mail.send(email, code)
 
       reply.status(200).send({
-        channel: 'sms',
+        channel: 'email',
         expiresIn: 10 * 60,
         resendAfter: 60,
       })

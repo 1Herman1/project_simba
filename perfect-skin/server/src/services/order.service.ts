@@ -7,9 +7,13 @@ import crypto from 'crypto'
 
 type PrismaDeliveryMethod = $Enums.DeliveryMethod
 
-// Заказ оформляет только вошедший пользователь (Order.userId обязателен) —
-// гость проходит вход до этого шага, сигнатура это закрепляет.
-type OrderOwner = { userId: string }
+// Заказ привязывается к пользователю (Order.userId обязателен).
+// Для вошедшего пользователя: customerId = user.id, cart найти по user.id
+// Для гостя: customerId = найденный/созданный по email пользователь, cart найти по sessionId
+type OrderOwner = {
+  customerId: string
+  cart: { userId: string } | { sessionId: string }
+}
 
 type OrderWithRelations = Prisma.OrderGetPayload<{
   include: {
@@ -44,8 +48,11 @@ export class OrderService {
       expectedTotal: number
     }
   ) {
+    // Find cart by owner (either user or session)
     const cart = await db.cart.findUnique({
-      where: { userId: owner.userId },
+      where: 'userId' in owner.cart
+        ? { userId: owner.cart.userId }
+        : { sessionId: owner.cart.sessionId },
       include: {
         items: {
           include: {
@@ -173,10 +180,10 @@ export class OrderService {
 
         // Per-user limit ("once per customer"): without this check one
         // customer redeems the discount an unlimited number of times.
-        if (promoCheck.perUserLimit && 'userId' in owner) {
+        if (promoCheck.perUserLimit) {
           const perUserKey = crypto
             .createHmac('sha256', process.env.PS_PROMO_HMAC_SECRET || 'dev-secret')
-            .update(owner.userId)
+            .update(owner.customerId)
             .digest('hex')
           const used = await tx.promoCodeRedemption.count({
             where: { promoCodeId: promoData.id, perUserKey },
@@ -224,7 +231,7 @@ export class OrderService {
       const newOrder = await tx.order.create({
         data: {
           number: orderNumber,
-          userId: owner.userId,
+          userId: owner.customerId,
           status: 'new',
           deliveryMethod: payload.deliveryMethod as PrismaDeliveryMethod,
           cdekPvzCode: payload.cdekPvzCode || null,
@@ -266,7 +273,7 @@ export class OrderService {
         const perUserKey = promoData.perUserLimit
           ? crypto
               .createHmac('sha256', process.env.PS_PROMO_HMAC_SECRET || 'dev-secret')
-              .update('userId' in owner ? owner.userId : '')
+              .update(owner.customerId)
               .digest('hex')
           : null
 
@@ -274,7 +281,7 @@ export class OrderService {
           data: {
             orderId: newOrder.id,
             promoCodeId: promoData.id,
-            userId: 'userId' in owner ? owner.userId : (null as any),
+            userId: owner.customerId,
             discountAmount: totals.promoDiscount,
             orderSubtotal: totals.subtotal,
             perUserKey,

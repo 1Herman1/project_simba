@@ -7,26 +7,28 @@ import { cartService } from '../../services/cart.service.js'
 import { ApiError } from '../../lib/errors.js'
 
 const verifySchema = z.object({
-  phone: z
+  email: z
     .string()
-    .regex(/^\+7\d{10}$/, 'Неверный формат телефона')
-    .transform((v) => v.replace(/[\s()-]/g, '').replace(/^8/, '+7')),
+    .trim()
+    .toLowerCase()
+    .email()
+    .max(254),
   code: z
     .string()
     .regex(/^\d{6}$/, 'Код должен быть 6 цифр'),
 })
 
 export async function verifyOtpRoute(app: FastifyInstance) {
-  app.post<{ Body: { phone: string; code: string } }>(
+  app.post<{ Body: { email: string; code: string } }>(
     '/api/v1/auth/verify-otp',
     {
-      // Лимит по номеру, не по IP: перебор кода с многих адресов параллелен.
+      // Лимит по email, не по IP: перебор кода с многих адресов параллелен.
       config: {
         rateLimit: {
           max: 5,
           timeWindow: '15 minutes',
           keyGenerator: (req: FastifyRequest) =>
-            (req.body as { phone?: string } | null)?.phone ?? req.ip,
+            (req.body as { email?: string } | null)?.email ?? req.ip,
         },
       },
       schema: {
@@ -53,18 +55,18 @@ export async function verifyOtpRoute(app: FastifyInstance) {
         throw new ApiError(
           400,
           'VALIDATION_ERROR',
-          'Неверный код или телефон',
+          'Неверный код или email',
           { field: result.error.issues[0]?.path[0] }
         )
       }
 
-      const { phone, code } = result.data
+      const { email, code } = result.data
 
       // Verify OTP code
-      await otpService.verifyCode(phone, code)
+      await otpService.verifyCode(email, code)
 
       // Get or create user
-      const user = await otpService.findOrCreateUser(phone)
+      const user = await otpService.findOrCreateUser(email)
 
       // Merge guest cart into user cart (inside transaction for atomicity)
       const psidCookie = (request.cookies as any)?.ps_sid
