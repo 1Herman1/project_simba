@@ -9,7 +9,7 @@ import Tag from '../ui/Tag.astro';
       <span class="text-muted-foreground text-sm font-medium">H&B team</span>
     </div>
 
-    <h1 class="text-5xl md:text-7xl font-bold font-heading text-foreground mb-4 max-w-3xl leading-tight">
+    <h1 class="text-[clamp(2.75rem,7vw,5.5rem)] font-bold font-heading text-foreground mb-4 max-w-3xl leading-tight">
       Герман Брызгалов
     </h1>
 
@@ -35,7 +35,7 @@ import Tag from '../ui/Tag.astro';
 
     <div class="flex flex-col sm:flex-row gap-4">
       <Button size="lg" variant="primary">Обсудить задачу</Button>
-      <Button size="lg" variant="ghost" href="#works">Смотреть работы</Button>
+      <Button size="lg" variant="ghost" href="#works" class="bg-surface">Смотреть работы</Button>
     </div>
   </div>
 </section>

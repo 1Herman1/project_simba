@@ -9,7 +9,7 @@ import { cases } from '../../content/cases';
   <div class="max-w-6xl mx-auto px-5 md:px-8">
     <SectionTitle number="02 / Избранные работы" title="Портфолио" />
 
-    <div class="space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       {cases.map((caseItem) => (
         <article class="border border-line rounded-2xl overflow-hidden bg-surface">
           <div class="aspect-[16/10] overflow-hidden">
@@ -35,7 +35,7 @@ import { cases } from '../../content/cases';
             </div>
 
             <details class="group">
-              <summary class="cursor-pointer text-accent hover:text-accent-hover transition-colors font-medium">
+              <summary class="inline-flex items-center min-h-[44px] cursor-pointer text-accent hover:text-accent-hover transition-colors font-medium">
                 Подробнее →
               </summary>
               <div class="mt-6 space-y-4 text-foreground">
@@ -59,3 +59,30 @@ import { cases } from '../../content/cases';
     </div>
   </div>
 </section>
+
+<style>
+  details {
+    list-style: none;
+  }
+
+  details::-webkit-details-marker {
+    display: none;
+  }
+
+  summary {
+    display: inline-flex;
+  }
+
+  summary::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-left: 0.5em;
+    transition: transform 200ms ease-out;
+  }
+
+  details[open] summary::after {
+    transform: rotate(90deg);
+  }
+</style>
