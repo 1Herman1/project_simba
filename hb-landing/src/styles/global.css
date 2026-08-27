@@ -1,0 +1,46 @@
+@import "@fontsource-variable/montserrat";
+@import "@fontsource-variable/open-sans";
+@import "tailwindcss";
+
+@theme {
+  --color-background: #FAFAF8;
+  --color-foreground: #191B1F;
+  --color-surface: #FFFFFF;
+  --color-muted: #F1EFEA;
+  --color-muted-foreground: #545962;
+  --color-accent: #C2410C;
+  --color-accent-hover: #9A3412;
+  --color-dark: #14161A;
+  --color-on-dark: #F4F4F1;
+  --color-line: #E8E6E1;
+
+  --font-heading: "Montserrat Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Open Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  font-family: var(--font-sans);
+  color: var(--color-foreground);
+  background: var(--color-background);
+  line-height: 1.7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

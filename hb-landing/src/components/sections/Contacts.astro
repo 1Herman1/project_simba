@@ -1,0 +1,31 @@
+---
+import Button from '../ui/Button.astro';
+---
+
+<section id="contacts" class="py-24 md:py-32">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <div class="mb-12">
+      <div class="text-muted-foreground text-sm font-medium mb-2">05 / Контакты</div>
+      <h2 class="text-4xl md:text-5xl font-bold font-heading text-foreground mb-8 max-w-2xl">
+        Расскажите о вашей задаче — посчитаю сроки и бюджет за один разговор.
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <a href="https://t.me/h_and_b_team" class="p-6 border border-line rounded-lg hover:bg-muted transition-colors">
+        <div class="font-bold text-foreground mb-1">Telegram</div>
+        <div class="text-sm text-muted-foreground">@h_and_b_team</div>
+      </a>
+      <a href="tel:+79169655611" class="p-6 border border-line rounded-lg hover:bg-muted transition-colors">
+        <div class="font-bold text-foreground mb-1">Телефон</div>
+        <div class="text-sm text-muted-foreground">+7 916 965 56 11</div>
+      </a>
+      <a href="mailto:gera103546@gmail.com" class="p-6 border border-line rounded-lg hover:bg-muted transition-colors">
+        <div class="font-bold text-foreground mb-1">Email</div>
+        <div class="text-sm text-muted-foreground">gera103546@gmail.com</div>
+      </a>
+    </div>
+
+    <Button size="lg" variant="primary" href="https://t.me/h_and_b_team">Написать в Telegram</Button>
+  </div>
+</section>

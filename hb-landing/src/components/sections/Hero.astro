@@ -1,0 +1,48 @@
+---
+import Button from '../ui/Button.astro';
+import Tag from '../ui/Tag.astro';
+---
+
+<section class="pt-32 pb-24 md:pb-32">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <div class="mb-8">
+      <span class="text-muted-foreground text-sm font-medium">H&B team</span>
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-bold font-heading text-foreground mb-4 max-w-3xl leading-tight">
+      Герман Брызгалов
+    </h1>
+
+    <div class="text-xl text-muted-foreground mb-8 max-w-xl">
+      разработка IT-продуктов и внедрение ИИ
+    </div>
+
+    <p class="text-lg leading-relaxed text-foreground max-w-2xl mb-12">
+      Делаю сайты, сервисы и внутренние системы, которые зарабатывают для бизнеса, — и подключаю искусственный интеллект там, где он реально экономит время и деньги. Объясняю без технического жаргона.
+    </p>
+
+    <div class="flex flex-wrap gap-2 mb-16">
+      <Tag>Веб-сервисы</Tag>
+      <Tag>Порталы</Tag>
+      <Tag>Интернет-магазины</Tag>
+      <Tag>SaaS</Tag>
+      <Tag>ИИ-решения</Tag>
+    </div>
+
+    <div class="text-sm text-muted-foreground mb-12">
+      8+ лет · 40+ проектов · Москва, работаю по всему миру
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4">
+      <Button size="lg" variant="primary">Обсудить задачу</Button>
+      <Button size="lg" variant="ghost" href="#works">Смотреть работы</Button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const button = document.querySelector('section button');
+  button?.addEventListener('click', () => {
+    window.dispatchEvent(new Event('open-contact-dialog'));
+  });
+</script>

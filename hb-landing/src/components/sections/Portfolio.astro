@@ -1,0 +1,51 @@
+---
+import SectionTitle from '../ui/SectionTitle.astro';
+import Tag from '../ui/Tag.astro';
+import { cases } from '../../content/cases';
+---
+
+<section id="works" class="py-24 md:py-32">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <SectionTitle number="02 / Избранные работы" title="Портфолио" />
+
+    <div class="space-y-8">
+      {cases.map((caseItem) => (
+        <article class="border border-line rounded-2xl overflow-hidden bg-surface">
+          <div class="aspect-video bg-muted flex items-center justify-center text-muted-foreground text-sm">
+            [{caseItem.name}]
+          </div>
+
+          <div class="p-8">
+            <h3 class="text-2xl font-bold font-heading text-foreground mb-4">{caseItem.name}</h3>
+
+            <div class="flex flex-wrap gap-2 mb-6">
+              {caseItem.tags.map((tag) => (
+                <Tag>{tag}</Tag>
+              ))}
+            </div>
+
+            <details class="group">
+              <summary class="cursor-pointer text-accent hover:text-accent-hover transition-colors font-medium">
+                Подробнее →
+              </summary>
+              <div class="mt-6 space-y-4 text-foreground">
+                <div>
+                  <h4 class="font-bold text-sm text-muted-foreground mb-2">Задача</h4>
+                  <p class="leading-relaxed">{caseItem.task}</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-muted-foreground mb-2">Решение</h4>
+                  <p class="leading-relaxed">{caseItem.solution}</p>
+                </div>
+                <div>
+                  <h4 class="font-bold text-sm text-muted-foreground mb-2">Результат</h4>
+                  <p class="leading-relaxed">{caseItem.result}</p>
+                </div>
+              </div>
+            </details>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
