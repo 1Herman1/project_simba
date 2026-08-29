@@ -527,7 +527,11 @@
       transform 360ms var(--ease-out);
     transition-delay: var(--in-delay, 0ms);
   }
-  .empty-in > svg { transform: translateY(12px); }
+  /* Иллюстрация въезжает чуть выше остальных — она главный объект сцены.
+     Селектор по классу, а не только по тегу: Lottie рендерится в div, и по
+     тегу svg правило перестало бы совпадать. */
+  .empty-in > svg,
+  .empty-in > .empty-scene { transform: translateY(12px); }
   .empty-in.is-in > *,
   .stagger-in.is-in > * { opacity: 1; transform: translateY(0); }
 

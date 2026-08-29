@@ -18,13 +18,50 @@ const JOBS = [
     file: 'empty-catalog',
     art: { x: 488, y: 76, w: 985, h: 842 },
     pad: 40,
-    colors: {},
+    /* Градиенты схлопываем в плоский тон — по слою, а не по hex. Один и тот же
+       #F9C471 живёт и в корпусе, и в лапах, и в морде: плоская замена по цвету
+       слепила бы их в одно пятно и убила силуэт. Сам отказ от градиентов
+       осознан: кот полностью плоский, и объёмная собака рядом читалась бы как
+       из другого набора; вдобавок исходный перепад корпуса — всего 1.96:1,
+       на 128px он не виден, а разделение «лапы на тон темнее» работает всегда. */
+    flatten: {
+      /* Ближние лапы В ТОН корпусу, как было в оригинале: там они несли ту же
+         золотую растяжку, и разделял их не цвет, а контур. Развести их по тону
+         я попробовал — на рендере по корпусу пошли угловатые грани: градиент
+         раньше маскировал стыки перекрывающихся фигур, плоская заливка их
+         обнажает. Глубину даёт только дальняя лапа. */
+      'Body': '#8FA8C0',   // navy-300
+      'Head': '#8FA8C0',   // navy-300
+      'Leg 1': '#8FA8C0',
+      'Leg 2': '#8FA8C0',
+      'Leg 4': '#8FA8C0',
+      'Leg 3': '#4A5C7A',  // navy-500 — дальняя лапа в тени; navy-600 читался
+                           //   как чёрная култышка, оторванная от собаки
+    },
+    colors: {
+      '#FFECCE': '#C4D3E0', // navy-200 — светлые отметины
+      '#F9C471': '#8FA8C0', // navy-300 — тон корпуса
+      '#443826': '#2A3A56', // navy-700 — глаза, контур
+      '#000000': '#16233C', // navy-900 — самое тёмное; чистый чёрный запрещён
+      '#DF6C6C': '#E8921A', // amber-500 — язык, единственная тёплая нота
+    },
   },
   {
     file: 'quiz-loading',
     art: { x: 102, y: 52, w: 138, h: 141 },
     pad: 8,
-    colors: {},
+    flatten: {},
+    colors: {
+      '#D9DEED': '#E4EBF7', // navy-100 — ошейник
+      '#BAC1D8': '#C4D3E0', // navy-200 — брюхо
+      '#9999C2': '#C4D3E0', // navy-200 — наземная тень: по рангу просилась темнее,
+                            //   но обе наши сцены кладут тень светлой, и тёмная
+                            //   читалась бы как отдельная лужа, а не как контакт
+      '#333A4E': '#3A4B66', // navy-600 — основная масса
+      '#282E3D': '#2A3A56', // navy-700 — круп
+      '#212432': '#1F2E48', // navy-800 — уши
+      '#020100': '#16233C', // navy-900 — морда
+    },
   },
 ]
 
@@ -36,8 +73,8 @@ const toRgba = (h) => {
   return [0, 2, 4].map((i) => parseInt(n.slice(i, i + 2), 16) / 255).concat(1)
 }
 
-function recolor(node, map, stats) {
-  if (Array.isArray(node)) return node.forEach((n) => recolor(n, map, stats))
+function recolor(node, map, stats, flat) {
+  if (Array.isArray(node)) return node.forEach((n) => recolor(n, map, stats, flat))
   if (!node || typeof node !== 'object') return
 
   /* Градиентные заливки. У собаки их семь по три стопа, и именно они дают
@@ -51,7 +88,7 @@ function recolor(node, map, stats) {
     for (let i = 0; i < stops; i++) {
       const o = i * 4
       const from = hex([arr[o + 1], arr[o + 2], arr[o + 3]])
-      const to = map[from]
+      const to = flat || map[from]
       if (to) {
         const [r, g, b] = toRgba(to)
         arr[o + 1] = r; arr[o + 2] = g; arr[o + 3] = b
@@ -72,7 +109,7 @@ function recolor(node, map, stats) {
       stats.set(from + ' (НЕ ЗАМЕНЁН)', (stats.get(from + ' (НЕ ЗАМЕНЁН)') || 0) + 1)
     }
   }
-  Object.values(node).forEach((v) => recolor(v, map, stats))
+  Object.values(node).forEach((v) => recolor(v, map, stats, flat))
 }
 
 /** Сдвигаем только корневые слои: у детей трансформ складывается с родительским,
@@ -111,7 +148,9 @@ for (const job of JOBS) {
 
   crop(data, job.art, job.pad)
   const stats = new Map()
-  recolor(data, job.colors, stats)
+  for (const layer of data.layers) {
+    recolor(layer, job.colors, stats, job.flatten?.[layer.nm])
+  }
 
   writeFileSync(new URL(`${job.file}.json`, SRC), JSON.stringify(data))
   console.log(`${job.file}: холст ${before} -> ${data.w}x${data.h}`)

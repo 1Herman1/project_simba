@@ -20,10 +20,20 @@ export default function EmptyCatalog({ sectionEmpty }: Props) {
 
   return (
     <div className={`empty-in text-center py-16 ${mounted ? 'is-in' : ''}`}>
-      <LottieScene
+      {/* Тень под лапами: в файле её нет, а обе прежние сцены анкерились
+          наземным эллипсом — без него пёс висит в воздухе и выпадает из ряда.
+          Статическая: в плоской иллюстрации тень не ездит. */}
+      <div className="empty-scene relative w-32 mx-auto mb-6">
+        <LottieScene
           load={() => import('../../lottie/empty-catalog.json')}
-          className="w-36 aspect-[1065/922] mx-auto mb-6"
+          className="w-full aspect-[1065/922]"
+          loop={1}
         />
+        <svg viewBox="0 0 100 8" aria-hidden="true" focusable="false"
+          className="absolute inset-x-0 bottom-[3%] w-[76%] mx-auto">
+          <ellipse cx="50" cy="4" rx="50" ry="4" className="fill-navy-100" />
+        </svg>
+      </div>
       <h2 className="text-navy-900 text-2xl font-bold mb-2" style={delay(25)}>
         {sectionEmpty ? 'Этот раздел мы сейчас наполняем' : 'Ничего не нашлось'}
       </h2>

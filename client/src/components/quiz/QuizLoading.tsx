@@ -27,7 +27,7 @@ export default function QuizLoading({ inModal }: QuizLoadingProps) {
       <div className="text-center" role="status" aria-live="polite">
         <LottieScene
           load={() => import('../../lottie/quiz-loading.json')}
-          className="w-44 aspect-[154/157] mx-auto mb-8"
+          className="w-28 aspect-[154/157] mx-auto mb-8"
         />
         <h1 className="text-2xl font-bold text-navy-900 mb-2">Подбираем корм</h1>
         <p key={stage} className="quiz-stage text-navy-500 text-base">
