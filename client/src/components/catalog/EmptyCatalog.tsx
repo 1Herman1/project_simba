@@ -42,6 +42,7 @@ function SittingDog() {
         <ellipse cx="48" cy="53" rx="8" ry="6" />
       </g>
 
+      {/* точки сна — акцент сцены, показаны сразу */}
       <g className="dog-zzz fill-navy-200">
         <circle cx="156" cy="42" r="3" />
         <circle cx="171" cy="26" r="4" />
