@@ -1,0 +1,60 @@
+---
+import { Image } from 'astro:assets';
+import SectionTitle from '../ui/SectionTitle.astro';
+import Button from '../ui/Button.astro';
+import processImage from '../../assets/process.jpg';
+---
+
+<section id="process" class="py-24 md:py-32">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <SectionTitle number="02 / Как мы работаем" title="Процесс работы" />
+
+    <div class="grid grid-cols-1 md:grid-cols-[1fr_0.8fr] gap-12 items-start mb-12">
+      <div class="space-y-8">
+        {[
+          { step: '01', title: 'Знакомимся', desc: 'Встречаемся и разговариваем о вашем бизнесе: чем живёте, что болит, куда хотите прийти.' },
+          { step: '02', title: 'Проводим аудит', desc: 'Разбираем проект и бизнес-процессы: цифры, конкурентов, как к вам приходят клиенты.' },
+          { step: '03', title: 'Находим ваше УТП', desc: 'Выявляем сильные стороны и то, чем вы отличаетесь от других — на этом строится весь продукт.' },
+          { step: '04', title: 'Делаем прототип — бесплатно', desc: 'Собираем рабочий прототип на основе аудита. Вы ничего не платите на этом этапе.', highlight: true },
+          { step: '05', title: 'Показываем — решаете вы', desc: 'Понравился прототип — покупаете, и мы доводим его до полноценного продукта. Не понравился — вы ничего не потеряли.' },
+        ].map(({ step, title, desc, highlight }) => (
+          <div class={`relative pl-16 pb-8 last:pb-0 ${highlight ? 'rounded-lg p-6 pl-16 -mx-6 bg-gradient-to-r from-[#C2410C]/5 to-transparent' : ''}`}>
+            <div class={`absolute left-0 top-0 text-3xl font-bold font-heading ${highlight ? 'text-accent' : 'text-muted-foreground'}`}>
+              {step}
+            </div>
+            <h3 class="text-lg font-bold font-heading text-foreground mb-2">{title}</h3>
+            <p class="text-foreground leading-relaxed max-w-[65ch] text-base">{desc}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="w-full">
+        <Image
+          src={processImage}
+          alt="Путь от встречи к бесплатному прототипу"
+          width={1600}
+          format="webp"
+          loading="lazy"
+          decoding="async"
+          class="w-full h-auto"
+        />
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <p class="text-lg leading-relaxed text-foreground max-w-[65ch]">
+        <span class="font-bold">Бесплатный прототип</span> — наше уникальное предложение: вы принимаете решение, глядя на готовый продукт, а не на обещания.
+      </p>
+      <Button size="lg" variant="primary" class="open-contact-dialog cursor-pointer">
+        Начать со встречи
+      </Button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const button = document.querySelector('.open-contact-dialog');
+  button?.addEventListener('click', () => {
+    window.dispatchEvent(new Event('open-contact-dialog'));
+  });
+</script>
