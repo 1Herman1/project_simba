@@ -5,7 +5,7 @@ description: Чеклист деплоя Симбы на Timeweb VPS (PM2 + Ngin
 Проведи деплой по воркфлоу `.claude/workflows/deploy.md`.
 
 Перед деплоем убедись:
-- Всё закоммичено и запушено на `claude/greeting-nnz368`
+- Всё закоммичено и запушено на рабочую ветку проекта (см. `docs/projects/<проект>/project.md`)
 - `npm run build` проходит в `client/`, `admin/`, `server/`
 - Нет секретов в коде (`security-secrets-scanner`)
 - Миграции протестированы локально

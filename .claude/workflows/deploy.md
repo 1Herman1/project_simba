@@ -32,7 +32,7 @@ ssh user@your-vps-ip
 
 # Обновить код
 cd /var/www/simba
-git pull origin claude/greeting-nnz368
+git pull origin рабочую ветку проекта
 
 # Установить зависимости
 npm install
