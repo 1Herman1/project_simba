@@ -6,7 +6,12 @@
 # обновляется только перемоткой, и переписанная история сломала бы его молча.
 # Скрипт лишь вырезает две папки в отдельные репозитории с их историей.
 #
-# Требует git-filter-repo:  pip3 install git-filter-repo
+# Состояние на 30.08.2026: perfect_skin залит этим скриптом и живёт отдельно.
+# hb_landing к тому моменту уже был выселен другой сессией и ушёл вперёд —
+# заливать туда результат этого прогона НЕЛЬЗЯ, он затрёт более свежую работу.
+# Извлечение hb-landing оставлено только чтобы достать docs/, которых там нет.
+#
+# Требует git-filter-repo:  pip install git-filter-repo
 #
 # Запуск:
 #   bash scripts/split-repos.sh            # подготовить в /tmp/split
@@ -20,7 +25,19 @@ OUT="${SPLIT_OUT:-/tmp/split}"
 PUSH="${1:-}"
 
 command -v git-filter-repo >/dev/null || {
-  echo "нужен git-filter-repo: pip3 install git-filter-repo" >&2; exit 1; }
+  echo "нужен git-filter-repo: pip install git-filter-repo" >&2; exit 1; }
+
+# Интерпретатор ищется, а не назначается: на Windows `python3` — заглушка
+# Microsoft Store, которая печатает «Python» и молча выходит с кодом 0, поэтому
+# проверяем не наличие команды, а то, что она реально исполняет код.
+PY=""
+for candidate in python3 py python; do
+  command -v "$candidate" >/dev/null 2>&1 || continue
+  [ "$("$candidate" -c 'print("ok")' 2>/dev/null)" = "ok" ] || continue
+  PY="$candidate"; break
+done
+[ -n "$PY" ] || {
+  echo "нужен Python 3 (проверены python3, py, python)" >&2; exit 1; }
 
 rm -rf "$OUT"; mkdir -p "$OUT"
 
@@ -60,7 +77,9 @@ cat > "$P/package.json" <<'JSON'
 }
 JSON
 
-python3 - "$P" <<'PY'
+# -X utf8: файлы проекта в UTF-8, а на русской Windows Python по умолчанию
+# читает их как cp1251 и падает на первом же нерусском байте.
+"$PY" -X utf8 - "$P" <<'PY'
 import sys, json, pathlib
 P = pathlib.Path(sys.argv[1])
 
