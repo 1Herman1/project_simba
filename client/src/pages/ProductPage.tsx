@@ -4,6 +4,7 @@ import { productsApi, type Product, type ProductVariant } from '../lib/api'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
 import { formatPrice } from '../lib/format'
+import { HeartIcon, HeartSolidIcon } from '../components/icons'
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -252,10 +253,11 @@ export default function ProductPage() {
                 onClick={() => toggle(product.id)}
                 aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
                 className="btn-press w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200">
-                <svg className={`w-5 h-5 transition-colors ${isFavorite(product.id) ? 'fill-red-500 stroke-red-500' : 'fill-none stroke-navy-300'}`}
-                  viewBox="0 0 24 24" strokeWidth="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                </svg>
+                {isFavorite(product.id) ? (
+                  <HeartSolidIcon className={`w-5 h-5 transition-colors fill-red-500 stroke-red-500 ico-pop`} key="on" />
+                ) : (
+                  <HeartIcon className={`w-5 h-5 transition-colors fill-none stroke-navy-300`} key="off" />
+                )}
               </button>
             </div>
 

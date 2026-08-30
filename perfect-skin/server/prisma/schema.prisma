@@ -17,8 +17,7 @@ datasource db {
 
 // ─────────────────────────────── Перечисления ───────────────────────────────
 
-/// Роли сотрудников и покупателей. Роли «профессионал» здесь НЕТ:
-/// профи-доступ определяется ProProfile.status, см. комментарий у модели.
+/// Роли сотрудников и покупателей.
 enum UserRole {
   super_admin
   orders_manager
@@ -32,15 +31,6 @@ enum OtpChannel {
   sms
 }
 
-/// Жизненный цикл заявки косметолога.
-enum ProStatus {
-  draft // заявка создана, документы догружаются
-  pending // отправлена, ждёт проверки
-  approved // одобрена — профи-цены открыты
-  rejected // отклонена с причиной, можно подать заново
-  revoked // доступ отозван после одобрения
-}
-
 enum SkinType {
   normal
   dry
@@ -48,6 +38,7 @@ enum SkinType {
   combination
   sensitive
   mature
+  all_types
 }
 
 /// Задача, которую решает средство.
@@ -63,6 +54,15 @@ enum Concern {
   firming
   eye_area
   post_procedure
+  regeneration
+  radiance
+  sebum_control
+  hygiene
+  barrier
+  daily_care
+  express_care
+  intensive_care
+  nourishing
 }
 
 /// Единица фасовки: мл для флаконов, г для банок, шт для наборов.
@@ -70,12 +70,6 @@ enum VolumeUnit {
   ml
   g
   pcs
-}
-
-/// Какой прайс применён. Хранится в заказе снапшотом.
-enum PriceTier {
-  retail
-  pro
 }
 
 enum FilterType {
@@ -108,11 +102,10 @@ enum PaymentStatus {
   refunded
 }
 
-/// Кому виден материал Бьюти-клуба или Pro-кабинета.
+/// Кому виден материал Бьюти-клуба.
 enum Audience {
   public
   retail
-  pro
 }
 
 enum BannerPage {
@@ -167,16 +160,11 @@ model User {
   cart             Cart?
   otpCodes         OtpCode[]
   favorites        Favorite[]
-  proProfile       ProProfile?
   ownedPromoCodes  PromoCode[]            @relation("PromoOwner")
   promoRedemptions PromoCodeRedemption[]
   offerAssignments OfferAssignment[]
   skinSurveys      SkinSurvey[]
-  reviewedProfiles ProProfile[]           @relation("ProReviewer")
-  editedProPrices  VariantProPrice[]      @relation("ProPriceEditor")
   consultations    ConsultationRequest[]
-  proStatusActions ProProfileStatusLog[]  @relation("ProStatusActor")
-  docAccessActions ProDocumentAccessLog[] @relation("DocAccessActor")
 
   @@index([email])
   @@index([phone])
@@ -228,114 +216,6 @@ model Address {
 
   @@index([userId])
   @@map("addresses")
-}
-
-/// Заявка косметолога. ЕДИНСТВЕННЫЙ источник истины о праве видеть профи-цены —
-/// поле status, проверяемое по БД в момент запроса.
-///
-/// Почему не роль и не claim в токене: JWT живёт 7 дней, поэтому отозванный
-/// доступ работал бы ещё неделю. Плюс у статуса есть срок (approvedUntil),
-/// а у роли срока не бывает.
-model ProProfile {
-  id     String    @id @default(uuid())
-  userId String    @unique
-  status ProStatus @default(draft)
-
-  companyName    String?
-  legalForm      String? // ИП / ООО / самозанятый / физлицо-специалист
-  inn            String?
-  ogrn           String?
-  specialization String?
-  clinicAddress  String?
-  contactPhone   String?
-  website        String?
-
-  submittedAt     DateTime?
-  reviewedAt      DateTime?
-  reviewedById    String?
-  rejectionReason String?
-  approvedUntil   DateTime? // null = бессрочно
-  revokedAt       DateTime?
-  revokedById     String?
-  revokeReason    String?
-  adminNote       String? // наружу не отдаётся никогда
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user       User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  reviewedBy User?                 @relation("ProReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
-  documents  ProDocument[]
-  promoCodes PromoCode[]
-  statusLogs ProProfileStatusLog[]
-
-  @@index([status])
-  @@index([submittedAt])
-  @@index([approvedUntil])
-  @@map("pro_profiles")
-}
-
-/// Документы косметолога. Бакет приватный: публичного URL не существует,
-/// наружу отдаётся только presigned-ссылка с коротким сроком жизни.
-/// Имя объекта генерирует сервер — пользовательское имя файла хранится
-/// отдельно, иначе открывается path traversal.
-model ProDocument {
-  id           String    @id @default(uuid())
-  proProfileId String
-  objectKey    String    @unique
-  originalName String
-  mimeType     String
-  sizeBytes    Int
-  docType      String? // diploma | certificate | company_docs | other
-  uploadedAt   DateTime  @default(now())
-  deletedAt    DateTime?
-
-  proProfile ProProfile             @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
-  accessLogs ProDocumentAccessLog[]
-
-  @@index([proProfileId])
-  @@map("pro_documents")
-}
-
-/// История смены статуса заявки. Без неё цикл «одобрили → отозвали → одобрили»
-/// затирает предыдущие значения, и на вопрос «кто и на каком основании вернул
-/// доступ в марте» ответить нечем.
-model ProProfileStatusLog {
-  id           String     @id @default(uuid())
-  proProfileId String
-  fromStatus   ProStatus?
-  toStatus     ProStatus
-  actorId      String?
-  reason       String?
-  ip           String?
-  createdAt    DateTime   @default(now())
-
-  proProfile ProProfile @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
-  actor      User?      @relation("ProStatusActor", fields: [actorId], references: [id], onDelete: SetNull)
-
-  @@index([proProfileId, createdAt])
-  @@index([actorId])
-  @@map("pro_profile_status_logs")
-}
-
-/// Журнал доступа к документам косметологов. Ссылка на 5 минут защищает от
-/// публичного доступа, но не отвечает, какой сотрудник выгрузил дипломы всех
-/// партнёров. Запись делается в момент ВЫДАЧИ ссылки.
-model ProDocumentAccessLog {
-  id         String   @id @default(uuid())
-  documentId String
-  actorId    String?
-  action     String // view | download
-  ip         String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
-
-  document ProDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  actor    User?       @relation("DocAccessActor", fields: [actorId], references: [id], onDelete: SetNull)
-
-  @@index([documentId, createdAt])
-  @@index([actorId, createdAt])
-  @@map("pro_document_access_logs")
 }
 
 // ─────────────────────────────── Каталог ───────────────────────────────
@@ -400,7 +280,6 @@ model ProductLine {
   slug           String
   description    String?
   image          String?
-  isProfessional Boolean   @default(false) // ISSEIMI MD — для кабинета
   seoTitle       String?
   seoDescription String?
   sortOrder      Int       @default(0)
@@ -448,9 +327,10 @@ model Product {
   concerns           Concern[]
   usage              String?
   inciText           String? // полный состав как на этикетке
-  isProfessionalOnly Boolean    @default(false)
   seoTitle           String?
   seoDescription     String?
+  minPrice           Int        @default(0) // минимальная розничная цена активных фасовок, копейки
+  maxPrice           Int        @default(0) // максимальная розничная цена активных фасовок, копейки
   isActive           Boolean    @default(true)
   isFeatured         Boolean    @default(false)
   createdAt          DateTime   @default(now())
@@ -470,17 +350,13 @@ model Product {
   @@index([slug])
   @@index([brandId])
   @@index([lineId])
-  @@index([isActive, deletedAt])
-  @@index([isProfessionalOnly])
-  @@index([createdAt])
+  @@index([isActive, deletedAt, createdAt])
+  @@index([minPrice])
   @@map("products")
 }
 
 /// Фасовка товара. У Симбы здесь вес корма в килограммах — для косметики это
 /// вводит в заблуждение, поэтому объём с явной единицей измерения.
-///
-/// Розничная цена живёт здесь. Профессиональная — в отдельной таблице, см.
-/// VariantProPrice: это защита от утечки, а не нормализация ради красоты.
 model ProductVariant {
   id             String     @id @default(uuid())
   productId      String
@@ -499,37 +375,13 @@ model ProductVariant {
   deletedAt      DateTime?
 
   product    Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  proPrice   VariantProPrice?
   cartItems  CartItem[]
   orderItems OrderItem[]
 
-  @@index([productId])
+  @@index([productId, isActive])
   @@index([isActive, deletedAt])
   @@index([retailPrice])
   @@map("product_variants")
-}
-
-/// Профессиональный прайс — ОТДЕЛЬНАЯ таблица сознательно.
-///
-/// Если бы поле лежало рядом с retailPrice, любой из десятков вызовов
-/// `include: { variants: true }` отдал бы оптовую цену наружу. Защита «не забыть
-/// исключить поле» требует правильного действия в каждой точке кода; здесь же
-/// чтобы цена попала в ответ, разработчик обязан НАПИСАТЬ `proPrice: true`.
-/// Утечка становится действием, а не забывчивостью.
-model VariantProPrice {
-  variantId   String   @id
-  price       Int
-  minQty      Int      @default(1) // минимальная партия
-  updatedById String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  updatedBy User?          @relation("ProPriceEditor", fields: [updatedById], references: [id], onDelete: SetNull)
-
-  @@index([updatedAt])
-  @@index([updatedById])
-  @@map("variant_pro_prices")
 }
 
 model ProductCategory {
@@ -663,9 +515,6 @@ model Order {
   userId String
   status OrderStatus @default(new)
 
-  /// Снапшот прайса: заказ навсегда помнит, по какому прайсу он оформлен.
-  priceTier PriceTier
-
   deliveryMethod      DeliveryMethod
   deliveryAddress     Json?
   cdekPvzCode         String?
@@ -678,10 +527,6 @@ model Order {
 
   subtotal Int
 
-  /// ИНВАРИАНТ: при priceTier = pro промокода быть не может. Профи-цена уже
-  /// оптовая, скидка сверху — это работа в минус либо схема, где косметолог
-  /// покупает по собственному коду. Продублировано CHECK-ограничением в
-  /// sql/01-constraints.sql, чтобы правило не держалось на одном коде.
   promoCodeId    String?
   promoCodeValue String? // снапшот строки кода
   promoPercent   Int? // снапшот процента на момент заказа
@@ -721,7 +566,6 @@ model OrderItem {
   brandName        String?
   volumeLabel      String // «50 мл», уже отформатировано
   price            Int
-  priceTier        PriceTier
   quantity         Int
   createdAt        DateTime  @default(now())
 
@@ -730,7 +574,7 @@ model OrderItem {
   product        Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
-  @@index([productId])
+  @@index([productId, createdAt])
   @@index([productVariantId])
   @@map("order_items")
 }
@@ -757,7 +601,6 @@ model PromoCode {
   id             String    @id @default(uuid())
   code           String // хранится в верхнем регистре; уникальность частичным индексом
   ownerId        String?
-  proProfileId   String?
   description    String?
   percent        Int       @default(15) // утверждено заказчиком
   maxRedemptions Int? // null = без лимита
@@ -772,14 +615,12 @@ model PromoCode {
   deletedAt      DateTime?
 
   owner       User?                 @relation("PromoOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  proProfile  ProProfile?           @relation(fields: [proProfileId], references: [id], onDelete: SetNull)
   redemptions PromoCodeRedemption[]
   orders      Order[]
   offers      Offer[]
 
   @@index([ownerId])
   @@index([isActive, expiresAt])
-  @@index([proProfileId])
   @@map("promo_codes")
 }
 
@@ -816,7 +657,7 @@ model PromoCodeRedemption {
 
 // ─────────────────────────────── Контент ───────────────────────────────
 
-/// Публикация Бьюти-клуба или Pro-кабинета. Кто её видит, решает audience —
+/// Публикация Бьюти-клуба. Кто её видит, решает audience —
 /// отдельных «клубных» таблиц заводить не нужно.
 model Post {
   id             String    @id @default(uuid())

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi, ordersApi, usersApi, bonusesApi, subscriptionsApi, type User, type Order, type BonusTransaction, type Subscription } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
-import { CheckIcon, StepCurrentIcon, StepPendingIcon } from '../components/icons'
+import { CheckIcon, StepCurrentIcon, StepPendingIcon, ChevronDownIcon } from '../components/icons'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -18,7 +18,7 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   new: 'bg-blue-100 text-blue-400',
   confirmed: 'bg-amber-100 text-amber-600',
   in_transit: 'bg-purple-100 text-purple-600',
-  delivered: 'bg-green-100 text-green-600',
+  delivered: 'bg-green-100 text-success',
   cancelled: 'bg-red-100 text-red-500',
 }
 
@@ -233,12 +233,7 @@ export default function ProfilePage() {
                           <p className="text-xs text-amber-500">+{formatBonuses(order.bonusEarned)}</p>
                         )}
                       </div>
-                      <svg
-                        width="16" height="16" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                        className={`text-navy-300 transition-transform flex-shrink-0 ${isExpanded ? 'rotate-180' : ''}`}>
-                        <polyline points="6 9 12 15 18 9"/>
-                      </svg>
+                      <ChevronDownIcon open={isExpanded} className="flex-shrink-0 text-navy-300 w-4 h-4" />
                     </button>
 
                     {/* Раскрытый блок */}
@@ -525,7 +520,7 @@ export default function ProfilePage() {
                           <p className="text-xs text-navy-400">{sub.deliveryMethod}</p>
                         </div>
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
-                          sub.isPaused ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'
+                          sub.isPaused ? 'bg-red-100 text-red-600' : 'bg-green-100 text-success'
                         }`}>
                           {sub.isPaused ? 'Пауза' : 'Активна'}
                         </span>
@@ -655,7 +650,7 @@ export default function ProfilePage() {
                   </div>
                 ))}
                 {saveError && <p className="text-xs text-red-400">{saveError}</p>}
-                {saveSuccess && <p className="text-xs text-green-600">Данные сохранены</p>}
+                {saveSuccess && <p className="text-xs text-success">Данные сохранены</p>}
                 <button
                   disabled={savingProfile}
                   onClick={async () => {

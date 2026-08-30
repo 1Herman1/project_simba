@@ -1,0 +1,55 @@
+---
+import Button from '../ui/Button.astro';
+---
+
+<section class="w-full py-0 bg-dark relative overflow-hidden h-screen max-h-screen flex items-center justify-center">
+  <video
+    id="banner-video"
+    class="absolute inset-0 w-full h-full object-cover"
+    muted
+    loop
+    playsinline
+    preload="none"
+    poster="/media/banner/build-your-dream.jpg"
+  >
+    <source src="/media/banner/build-your-dream.mp4" type="video/mp4" />
+  </video>
+
+  <div class="absolute inset-0 bg-dark/60"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-5 md:px-8 text-center">
+    <div class="mb-6">
+      <h2 class="text-[3rem] md:text-[7rem] lg:text-[9rem] font-bold font-heading text-on-dark uppercase leading-none">
+        Build your dream <span class="text-accent">/</span>
+      </h2>
+    </div>
+    <div class="flex justify-center">
+      <Button size="lg" variant="primary" href="https://t.me/h_and_b_team">Написать в Telegram</Button>
+    </div>
+  </div>
+</section>
+
+<script>
+  const video = document.getElementById('banner-video') as HTMLVideoElement;
+
+  // Respect prefers-reduced-motion
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReduced) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(video);
+  }
+  // prefers-reduced-motion: video never plays, poster stays visible
+</script>

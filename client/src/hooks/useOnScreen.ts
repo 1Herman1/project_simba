@@ -1,21 +1,27 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 /** Наблюдатель для бесконечных idle-петель: ставит/снимает `is-onscreen`
-    на контейнере, не отписывается (в отличие от useReveal). */
+    на контейнере, не отписывается (в отличие от useReveal).
+
+    Callback-ref, а не useRef: с useRef + useEffect([]) эффект отрабатывал один
+    раз при монтировании родителя, и если сам контейнер появляется позже (условный
+    рендер после загрузки данных), ref был ещё null — наблюдатель не цеплялся
+    никогда, анимация молча не запускалась. Тот же дефект прятал секцию брендов
+    в useReveal. */
 export function useOnScreen<T extends HTMLElement = HTMLDivElement>() {
-  const ref = useRef<T>(null)
+  const [node, setNode] = useState<T | null>(null)
+  const ref = useCallback((el: T | null) => setNode(el), [])
 
   useEffect(() => {
-    const el = ref.current
-    if (!el || typeof IntersectionObserver === 'undefined') return
+    if (!node || typeof IntersectionObserver === 'undefined') return
 
     const observer = new IntersectionObserver(
-      ([entry]) => el.classList.toggle('is-onscreen', entry.isIntersecting),
+      ([entry]) => node.classList.toggle('is-onscreen', entry.isIntersecting),
       { threshold: 0 }
     )
-    observer.observe(el)
+    observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [node])
 
   return ref
 }

@@ -1,17 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
+import { ImagePlaceholderIcon } from '../components/icons'
 import { CONTACTS, LEGAL } from '../lib/contacts'
-
-function ImageIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  )
-}
 
 export default function AboutPage() {
   useMetaTags({
@@ -37,7 +28,7 @@ export default function AboutPage() {
       <div className="mb-10">
         <div className="bg-primary-tint rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
           <div className="text-primary-soft mb-3">
-            <ImageIcon />
+            <ImagePlaceholderIcon className="w-12 h-12" />
           </div>
           <p className="text-sm text-navy-500 text-center">
             Здесь будет фото: витрина, склад или сборка заказа

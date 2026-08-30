@@ -5,6 +5,7 @@ import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { useScrolled } from '../../hooks/useScrolled'
 import { CONTACTS } from '../../lib/contacts'
+import { PhoneIcon, HeartIcon, CartIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
 import HeaderSearch from './HeaderSearch'
 import SearchModal from './SearchModal'
 
@@ -71,14 +72,26 @@ export default function Header() {
           <div className="flex items-center gap-1 flex-shrink-0">
             {/* Телефон */}
             <a href={CONTACTS.phoneHref} className="btn-press flex items-center gap-1.5 text-navy-700 hover:text-primary-hover" aria-label="Позвонить">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
+              <PhoneIcon className="w-[18px] h-[18px]" />
               <span className="text-sm font-medium">{CONTACTS.phone}</span>
             </a>
 
-            {/* Три кнопки */}
-            <div className="flex items-center gap-4">
+            {/* Четыре кнопки. header-dock включает «волну» увеличения: соседи
+                растут слабее наведённой, остальные слегка проседают. */}
+            <div className="header-dock flex items-center gap-4">
+              {/* Telegram */}
+              <a
+                href={CONTACTS.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Написать в Telegram"
+                className="btn-press header-icon-link w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
+              >
+                <span className="icon-swap block w-[22px] h-[22px]">
+                  <TelegramIcon className="w-[22px] h-[22px]" />
+                </span>
+              </a>
+
               {/* Избранное */}
               <button
                 type="button"
@@ -91,13 +104,8 @@ export default function Header() {
                 aria-expanded={drawer === 'favorites'}
                 className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
               >
-                <span className="icon-swap relative block w-[22px] h-[22px]">
-                  <svg className="icon-outline absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                  </svg>
-                  <svg className="icon-filled absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden>
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                  </svg>
+                <span className="icon-swap block w-[22px] h-[22px]">
+                  <HeartIcon className="w-[22px] h-[22px]" />
                 </span>
                 {favCount > 0 && (
                   <span key={`fav-${favCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
@@ -118,21 +126,8 @@ export default function Header() {
                 aria-expanded={drawer === 'cart'}
                 className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
               >
-                <span className="icon-swap relative block w-[22px] h-[22px]">
-                  <svg className="icon-outline absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <circle cx="9" cy="21" r="1"/>
-                    <circle cx="20" cy="21" r="1"/>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-                  </svg>
-                  {/* Заливка — отдельная замкнутая геометрия, не тот же path что в outline:
-                      контур выше не имеет Z (замыкающей команды), и при fill браузер сам
-                      дорисовывает прямую от последней точки к первой прямо через ручку —
-                      получался кривой треугольный обрубок вместо ручки (проверено рендером). */}
-                  <svg className="icon-filled absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden>
-                    <path d="M3 3h2l.4 2H21a1 1 0 0 1 .98 1.2l-1.6 8A2 2 0 0 1 18.42 16H8.58a2 2 0 0 1-1.96-1.6L4.6 5H3a1 1 0 1 1 0-2Z"/>
-                    <circle cx="9" cy="20" r="1.6"/>
-                    <circle cx="18" cy="20" r="1.6"/>
-                  </svg>
+                <span className="icon-swap block w-[22px] h-[22px]">
+                  <CartIcon className="w-[22px] h-[22px]" />
                 </span>
                 {cartCount > 0 && (
                   <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
@@ -143,15 +138,8 @@ export default function Header() {
 
               {/* Профиль */}
               <Link to="/profile" aria-label="Профиль" className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500">
-                <span className="icon-swap relative block w-[22px] h-[22px]">
-                  <svg className="icon-outline absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                  <svg className="icon-filled absolute inset-0" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden>
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
+                <span className="icon-swap block w-[22px] h-[22px]">
+                  <UserIcon className="w-[22px] h-[22px]" />
                 </span>
               </Link>
             </div>
@@ -226,19 +214,14 @@ export default function Header() {
             aria-expanded={mobileMenuOpen}
             type="button"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {mobileMenuOpen ? (
-                <>
-                  <line x1="18" y1="6" x2="6" y2="18"/>
-                  <line x1="6" y1="6" x2="18" y2="18"/>
-                </>
-              ) : (
-                <>
-                  <line x1="3" y1="6" x2="21" y2="6"/>
-                  <line x1="3" y1="12" x2="21" y2="12"/>
-                  <line x1="3" y1="18" x2="21" y2="18"/>
-                </>
-              )}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+                 className={`ico-burger ${mobileMenuOpen ? 'is-open' : ''}`} aria-hidden="true">
+              <g className="ico-burger__lines">
+                <path d="M3 5h18M3 12h18M3 19h18" />
+              </g>
+              <g className="ico-burger__close">
+                <path d="M6.758 17.243L12.001 12m5.243-5.243L12 12m0 0L6.758 6.757M12.001 12l5.243 5.243" />
+              </g>
             </svg>
           </button>
 
@@ -253,10 +236,7 @@ export default function Header() {
           {/* Правые иконки */}
           <div className="flex items-center gap-1">
             <button aria-label="Поиск" className="btn-press text-navy-500 w-11 h-11 flex items-center justify-center" type="button" onClick={() => setSearchOpen(true)}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"/>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
+              <SearchIcon className="w-[22px] h-[22px]" />
             </button>
             <button
               type="button"
@@ -266,11 +246,7 @@ export default function Header() {
               aria-expanded={drawer === 'cart'}
               className="btn-press relative text-navy-500 w-11 h-11 flex items-center justify-center"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"/>
-                <circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
-              </svg>
+              <CartIcon className="w-[22px] h-[22px]" />
               {cartCount > 0 && (
                 <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
@@ -284,6 +260,13 @@ export default function Header() {
         {mobileMenuOpen && (
           <div className="border-t border-line bg-white animate-slide-down">
             <nav className="px-4 py-3 flex flex-col gap-1">
+              <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer"
+                 onClick={() => setMobileMenuOpen(false)}
+                 className="flex items-center gap-2 py-2.5 px-3 min-h-11 rounded-lg text-navy-900 font-semibold hover:bg-blue-50">
+                <TelegramIcon />
+                Написать в Telegram
+              </a>
+              <div className="h-px bg-line my-2" />
               {categories.map((cat) => (
                 <Link
                   key={cat.label}

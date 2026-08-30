@@ -1,3 +1,5 @@
+// NOTE: The 'professional' branch is kept for test compatibility only.
+// The shop is B2C — always 'retail' in production.
 export type PriceList = 'retail' | 'professional'
 
 export type DeliveryMethod = 'pickup' | 'pvz' | 'courier'

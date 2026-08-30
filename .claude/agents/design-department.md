@@ -35,6 +35,7 @@ model: opus
 | `performance-optimizer` | Bundle, code splitting, LCP/CLS, ленивые картинки, шрифты, ре-рендеры |
 | `seo-specialist` | Мета-теги, structured data, sitemap, семантика, crawlability |
 | `icon-curator` | Подбор и встраивание конкретной иконки/анимации — не ревью, а производство нового ассета |
+| `component-curator` | Подбор и адаптация готового UI-блока из каталога 21st.dev (hero, карточка, таблица цен) под дизайн-систему проекта |
 
 Правила разделения (иначе три агента напишут об одной находке):
 - Контраст, типографика, AI-slop, layout-визуал → **только** `design-reviewer`.
@@ -42,6 +43,9 @@ model: opus
 - CLS, bundle, ленивая загрузка, шрифты → **только** `performance-optimizer`.
 - title/description, JSON-LD, sitemap → **только** `seo-specialist`.
 - «Нужна иконка/анимация для X» → сразу `icon-curator`, не `design-reviewer`
+- «Нужен готовый блок/секция/компонент X», «найди современный референс под X» →
+  сразу `component-curator`. Отличие от `icon-curator`: тот про иконку, этот про
+  целый блок интерфейса
   (тот оценивает уже существующий UI, этот производит новый ассет — та же
   логика, что разделяет `media-generator` и `design-reviewer`). Его результат
   не идёт в P1–P10 отчёт — это отдельная сдача файла, не находка.

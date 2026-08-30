@@ -4,7 +4,7 @@ import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
 import { useOnScreen } from '../hooks/useOnScreen'
 
-import TelegramIcon from '../components/icons/TelegramIcon'
+import { TelegramIcon } from '../components/icons'
 
 function ClockIcon({ size = 20, className }: { size?: number; className?: string }) {
   return (

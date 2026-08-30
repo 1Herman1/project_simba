@@ -1,0 +1,100 @@
+---
+---
+
+<dialog id="contact-dialog" class="rounded-2xl border border-line shadow-lg max-w-sm w-full mx-auto backdrop:bg-black/40">
+  <div class="p-8">
+    <div class="flex justify-between items-start mb-8">
+      <h2 class="text-2xl font-bold font-heading text-foreground">Давайте обсудим вашу задачу</h2>
+      <button id="close-dialog" class="text-muted-foreground hover:text-foreground transition-colors p-2 -m-2" aria-label="Закрыть диалог">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <a href="https://t.me/h_and_b_team" class="flex items-center gap-3 p-4 rounded-lg border border-line hover:bg-muted transition-colors min-h-[56px]">
+        <div class="flex-1">
+          <div class="font-medium text-foreground">Telegram</div>
+          <div class="text-sm text-muted-foreground">@h_and_b_team</div>
+        </div>
+        <div class="text-muted-foreground text-xs">отвечаю быстрее всего</div>
+      </a>
+
+      <a href="tel:+79169655611" class="flex items-center gap-3 p-4 rounded-lg border border-line hover:bg-muted transition-colors min-h-[56px]">
+        <div class="flex-1">
+          <div class="font-medium text-foreground">Телефон</div>
+          <div class="text-sm text-muted-foreground">+7 916 965 56 11</div>
+        </div>
+      </a>
+
+      <a href="mailto:gera103546@gmail.com" class="flex items-center gap-3 p-4 rounded-lg border border-line hover:bg-muted transition-colors min-h-[56px]">
+        <div class="flex-1">
+          <div class="font-medium text-foreground">Email</div>
+          <div class="text-sm text-muted-foreground">gera103546@gmail.com</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('contact-dialog') as HTMLDialogElement;
+  const closeButton = document.getElementById('close-dialog') as HTMLButtonElement;
+
+  // Open dialog
+  window.addEventListener('open-contact-dialog', () => {
+    dialog.showModal();
+  });
+
+  // Close dialog
+  closeButton?.addEventListener('click', () => {
+    dialog.close();
+  });
+
+  // Close on backdrop click
+  dialog?.addEventListener('click', (e) => {
+    const rect = dialog.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+      dialog.close();
+    }
+  });
+
+  // Close on Escape
+  dialog?.addEventListener('cancel', (e) => {
+    e.preventDefault();
+    dialog.close();
+  });
+</script>
+
+<style>
+  dialog {
+    backdrop-filter: blur(4px);
+  }
+
+  dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.4);
+  }
+
+  dialog[open] {
+    animation: slideIn 200ms ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[open] {
+      animation: none;
+    }
+  }
+</style>

@@ -2,33 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { BLOG_POSTS, getPublished, type BlogCategory } from '../content/blog'
-
-function ImagePlaceholderIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  )
-}
-
-function ChevronIcon({ direction }: { direction: 'left' | 'right' }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {direction === 'left' ? <polyline points="15 18 9 12 15 6" /> : <polyline points="9 18 15 12 9 6" />}
-    </svg>
-  )
-}
+import { ArrowLeftIcon, ArrowRightIcon, ImagePlaceholderIcon } from '../components/icons'
 
 const CATEGORIES: BlogCategory[] = ['Сравнения кормов', 'Питание', 'Здоровье', 'Кошки', 'Собаки', 'Ветдиеты']
 
@@ -112,7 +86,7 @@ export default function BlogPage() {
                   <img src={post.cover} alt={post.title} className="w-full aspect-[16/10] object-cover" />
                 ) : (
                   <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
-                    <ImagePlaceholderIcon />
+                    <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
 
@@ -151,7 +125,7 @@ export default function BlogPage() {
                   className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-primary-tint transition-colors duration-100 ease flex items-center justify-center"
                   aria-label="Предыдущая страница"
                 >
-                  <ChevronIcon direction="left" />
+                  <ArrowLeftIcon className="ico-nudge ico-nudge--back w-5 h-5" />
                 </button>
               )}
 
@@ -175,7 +149,7 @@ export default function BlogPage() {
                   className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-primary-tint transition-colors duration-100 ease flex items-center justify-center"
                   aria-label="Следующая страница"
                 >
-                  <ChevronIcon direction="right" />
+                  <ArrowRightIcon className="ico-nudge w-5 h-5" />
                 </button>
               )}
             </div>

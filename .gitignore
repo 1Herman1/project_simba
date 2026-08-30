@@ -5,5 +5,20 @@ dist
 *.log
 coverage
 .DS_Store
-package-lock.json
+
 .claude/settings.local.json
+
+# Perfect Skin: производные изображения — пересобираются скриптом tools/process-images.mjs
+perfect-skin/server/assets/processed/
+
+# сборочные артефакты @ps/shared — dist собирается из src
+perfect-skin/shared/src/*.js
+perfect-skin/shared/src/*.js.map
+perfect-skin/shared/src/*.d.ts
+perfect-skin/shared/src/*.d.ts.map
+
+# Скриншоты агента-дизайнера — рабочие артефакты, не код
+.claude/screenshots/
+
+# hb-landing: кэш Astro
+hb-landing/.astro/

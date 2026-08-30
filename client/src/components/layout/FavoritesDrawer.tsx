@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useCart } from '../../context/CartContext'
 import { formatPrice, pluralize } from '../../lib/format'
-import { PawIcon } from '../icons'
+import { PawIcon, HeartSolidIcon } from '../icons'
 import SideDrawer from './SideDrawer'
 
 type Props = {
@@ -166,13 +166,7 @@ export default function FavoritesDrawer({ open, onClose }: Props) {
                   onClick={() => handleRemove(product.id)}
                   className="btn-press flex-shrink-0 w-11 h-11 flex items-center justify-center text-destructive hover:text-red-700"
                 >
-                  <svg
-                    className="w-4 h-4 fill-current"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                  >
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                  </svg>
+                  <HeartSolidIcon className="w-4 h-4 fill-current text-red-500" />
                 </button>
               </li>
             )

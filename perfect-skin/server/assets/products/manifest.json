@@ -365,7 +365,12 @@
         "ISSEIMI",
         "ISSEIMI Base"
       ],
-      "images": []
+      "images": [
+        {
+          "file": "tts-o3-ozono-kislorodnaya-maska-s-ozonom.jpg",
+          "alt": "TTS O3 OZONO Кислородная маска с озоном"
+        }
+      ]
     },
     {
       "externalId": 470,

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import type { QuizMatchResponse } from '../../lib/api'
 import QuizProductCard from './QuizProductCard'
-import GiftIcon from './GiftIcon'
+import { GiftIcon, CheckIcon, InfoIcon } from '../icons'
 import { pluralize } from '../../lib/format'
 
 interface QuizResultProps {
@@ -66,11 +66,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
         {/* Fallback note */}
         {result.fallbackNote && (
           <div className="flex items-start gap-3 bg-white border border-line rounded-card p-4 mb-8">
-            <svg className="w-5 h-5 text-navy-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="12" />
-              <line x1="12" y1="16" x2="12.01" y2="16" />
-            </svg>
+            <InfoIcon className="w-5 h-5 text-navy-500 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-navy-700">{result.fallbackNote}</p>
           </div>
         )}
@@ -105,10 +101,8 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
           <h2 className="text-lg font-semibold text-navy-900 mb-4">Почему именно этот корм:</h2>
           <ul className="space-y-3">
             {result.reasons.map((reason, idx) => (
-              <li key={idx} className="flex gap-3 text-navy-700">
-                <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+              <li key={idx} className="flex gap-3 text-navy-700" style={{ '--draw-delay': `${Math.min(idx, 4) * 60}ms` } as React.CSSProperties}>
+                <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5 ico-draw" />
                 <span>{reason}</span>
               </li>
             ))}
@@ -136,9 +130,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
             >
               {addedBoth ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <CheckIcon className="ico-draw w-4 h-4" />
                   Оба добавлены в корзину
                 </span>
               ) : (
@@ -163,9 +155,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
         {/* Bonus section */}
         <div className="bg-amber-50 rounded-card p-6 md:p-8 mb-8">
           <div className="flex items-start gap-4">
-            <span className="text-amber-500 flex-shrink-0">
-              <GiftIcon />
-            </span>
+            <GiftIcon className="w-6 h-6 text-amber-500 flex-shrink-0" />
             <div className="flex-1">
               {result.bonus.status === 'granted' && (
                 <>

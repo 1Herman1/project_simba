@@ -42,7 +42,8 @@
 | accent (бренд, Scoins) — **только фон/заливка** | `amber-500` | `#E8921A` | on: `white` 2.45:1 ❌ как текст запрещён |
 | accent-text (рейтинг «4,9», звезда, оранжевый текст) | `amber-600` | `#A66200` | on: `white` 4.81:1 ✅ |
 | accent-soft | `amber-300` | `#FFD580` | on: `navy-900` ✅ |
-| success | `#1E7B4D` | — | on: `white` ✅ |
+| success | `success` | `#1E7B4D` | on: `white` 5.29:1 ✅ |
+| success tint (подложка под галочкой подтверждения) | `success-tint` | `#E4F4EB` | под `success` 4.63:1 ✅ |
 | destructive | `#C0392B` | — | on: `white` ✅ |
 
 **Синий текст — только `primary-hover` `#2E5DC8`.** `primary` и `primary-soft`

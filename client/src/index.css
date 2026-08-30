@@ -68,10 +68,6 @@
   .btn-press:active,  .btn-press.is-pressed { transform: none; }
   /* Для бесконечных петель `animation-duration: 0.01ms` означает не «выключено»,
      а «мигает с частотой кадров» — гасим их поимённо. */
-  .quiz-track > g {
-    animation: none !important;
-    opacity: 1;
-  }
   .quiz-stage { animation: none !important; }
   .icon-check-path { animation: none !important; stroke-dashoffset: 0; }
   .animate-spin { animation: none !important; }
@@ -184,20 +180,42 @@
     }
   }
 
-  /* Иконки в шапке — все используют одну стилизацию с icon-swap */
+  /* Иконки в шапке — увеличение в манере дока macOS.
+
+     Эффект дока даёт не сила увеличения, а ВОЛНА: глиф под курсором растёт
+     сильнее, соседние — слабее, остальные чуть проседают. Без соседей это было
+     бы просто «кнопка подросла».
+
+     Масштабируется внутренний глиф (.icon-swap, 22px), а не кнопка 44px: если
+     растить саму зону наведения, она наезжает на соседнюю, курсор попадает уже
+     на другую кнопку, и ряд начинает дрожать. 22 × 1.32 ≈ 29px при зазоре 16px
+     — соседи не пересекаются.
+
+     Длительность 90мс: docs/core/motion.md относит ховер к частым действиям и
+     требует меньше 100мс. В доке Apple увеличение тоже мгновенное.
+
+     Свапа контур↔заливка здесь больше нет: в Iconoir залитые пары есть у сердца
+     и звезды, но НЕ у корзины и профиля, а свап у одной иконки из четырёх
+     рассыпал бы ряд. Сигнал «под курсором» несут увеличение и цвет. */
   .header-icon-link { transition: color 100ms ease; }
-  .icon-swap { transition: transform 100ms var(--ease-out); }
-  .icon-outline, .icon-filled { transition: opacity 100ms ease; }
-  .icon-filled { opacity: 0; }
+  .icon-swap {
+    transition: transform 90ms var(--ease-out);
+    transform-origin: bottom center;
+  }
 
   @media (hover: hover) and (pointer: fine) {
     .header-icon-link:hover { color: theme('colors.primary.hover'); }
-    .header-icon-link:hover .icon-swap { transform: scale(1.08); }
-    .header-icon-link:hover .icon-outline { opacity: 0; }
-    .header-icon-link:hover .icon-filled  { opacity: 1; }
+    .header-dock:has(:hover) .icon-swap { transform: scale(0.98); }
+    .header-dock :hover + * .icon-swap,
+    .header-dock *:has(+ :hover) .icon-swap { transform: scale(1.14); }
+    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.32); }
   }
-  .header-icon-link:focus-visible .icon-outline { opacity: 0; }
-  .header-icon-link:focus-visible .icon-filled  { opacity: 1; }
+
+  .icon-state .icon-outline,
+  .icon-state .icon-filled { transition: opacity 140ms var(--ease-out); }
+  .icon-state .icon-filled { opacity: 0; }
+  .icon-state.is-on .icon-outline { opacity: 0; }
+  .icon-state.is-on .icon-filled  { opacity: 1; }
 
   .btn-outline {
     --press-scale: 0.97;
@@ -318,6 +336,46 @@
     stroke-dasharray: 24;
     stroke-dashoffset: 24;
     animation: iconCheckDraw 300ms var(--ease-out) forwards;
+    /* Задержка обязана быть здесь, а не только на .ico-draw у <svg>: путь
+       объявляет собственную animation, и она бьёт всё, что приходит от
+       родителя. Без этой строки --draw-delay на обёртке молча не работал —
+       галочка рисовалась одновременно с кружком, ступени не было. */
+    animation-delay: var(--draw-delay, 0ms);
+  }
+
+  /* Конфетти на экране успеха. Живёт ВНУТРИ карточки, в её верхней части, а не
+     fixed поверх экрана: полноэкранный слой перекрывал бы кнопки всё время
+     полёта. Разлетается от галочки, играет один раз, узлы потом снимаются.
+     При выключенных анимациях не рендерится вовсе — гасить нечего. */
+  .confetti-piece {
+    position: absolute;
+    left: 50%;
+    top: 46px;
+    width: 6px;
+    height: 9px;
+    border-radius: 1px;
+    opacity: 0;
+    animation: confettiFly 1300ms var(--ease-out) forwards;
+    animation-delay: var(--c-delay, 0ms);
+  }
+  @keyframes confettiFly {
+    0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.5) rotate(0deg); }
+    18%  { opacity: 1; }
+    100% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+                 scale(1) rotate(var(--rot));
+    }
+  }
+
+  /* Линия разреза. repeating-linear-gradient, а не border-dashed: шаг штриха
+     у бордера выбирает движок, и он разный в Safari и Chrome. */
+  .receipt-dash {
+    background-image: repeating-linear-gradient(
+      to right,
+      theme('colors.line') 0 6px,
+      transparent 6px 12px
+    );
   }
 
   @keyframes iconCheckDraw {
@@ -331,22 +389,77 @@
     .link-arrow:hover svg { transform: translateX(3px); }
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .ico-nudge { transition: transform 140ms var(--ease-out); }
+    :is(a, button):hover > .ico-nudge,
+    .group:hover .ico-nudge { transform: translateX(var(--nudge, 3px)); }
+    :is(a, button):hover > .ico-nudge--diag { transform: translate(1.5px, -1.5px); }
+  }
+  .ico-nudge--back { --nudge: -3px; }
+
+  .ico-pop { animation: icoPop 260ms var(--ease-out); transform-origin: 50% 50%; }
+  @keyframes icoPop {
+    0%   { transform: scale(1); }
+    35%  { transform: scale(0.86); }
+    70%  { transform: scale(1.06); }
+    100% { transform: scale(1); }
+  }
+
+  .ico-draw {
+    stroke-dasharray: var(--draw-len, 24);
+    stroke-dashoffset: var(--draw-len, 24);
+    animation: icoDraw 300ms var(--ease-out) forwards;
+    animation-delay: var(--draw-delay, 0ms);
+  }
+  @keyframes icoDraw { to { stroke-dashoffset: 0; } }
+
+  .ico-chevron { transition: transform 200ms var(--ease-out); transform-origin: 50% 50%; }
+  .ico-chevron.is-open { transform: rotate(180deg); }
+
+  .ico-burger > g { transition: opacity 140ms var(--ease-out), transform 140ms var(--ease-out); }
+  .ico-burger .ico-burger__close { opacity: 0; transform: rotate(-90deg); transform-origin: 12px 12px; }
+  .ico-burger.is-open .ico-burger__lines { opacity: 0; transform: rotate(90deg); transform-origin: 12px 12px; }
+  .ico-burger.is-open .ico-burger__close { opacity: 1; transform: rotate(0deg); }
+
+  .ico-ring-in { animation: icoRingIn 220ms var(--ease-out) both; transform-origin: 50% 50%; }
+
+  /* Приветственный попап: число — герой сцены. Масштаб идёт по тем же точкам
+     кривой, что и значение в CountUp (easeOutCubic), поэтому «крупнее» и
+     «больше цифр» читаются как одно движение, а не два.
+
+     Пик 1.045 приходится на момент, когда счётчик добежал: хвост ease-out
+     (297→300) визуально мёртв, и последние 154мс его занимает посадка масштаба
+     — иначе оба движения кончаются на 78% и сцена стоит пустой.
+
+     linear обязателен: форма уже зашита в проценты кадров. var(--ease-out)
+     применился бы к КАЖДОМУ сегменту отдельно и превратил рост в череду
+     «прыгнул и завис». Тот же приём, что в .adv-* и .bonus-*.
+
+     Проявление уложено в первые 80мс и заканчивается РОВНО к старту отсчёта.
+     Замерено: при прежней раскладке (задержка 80мс, затем фейд) число было
+     невидимо до 90мс и проявлялось уже на «104» — обещанного «от нуля» никто
+     бы не увидел. Поэтому общая длительность 780мс = 80мс фейда + 700мс счёта,
+     а точки кривой масштаба сдвинуты на те же 10%. */
+  .count-hero {
+    animation: countHero 780ms linear both;
+    transform-origin: 50% 50%;
+  }
+  @keyframes countHero {
+    0%    { opacity: 0; transform: scale(0.94); }
+    10%   { opacity: 1; transform: scale(0.94); }
+    37%   { transform: scale(1.009); }
+    64%   { transform: scale(1.038); }
+    80%   { transform: scale(1.045); }
+    100%  { opacity: 1; transform: scale(1); }
+  }
+  @keyframes icoRingIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
   /* Экран подбора корма: следы проступают один за другим, цикл 1560мс.
      Анимируется только opacity — сцена статична, движение читается как
      продвижение по следу, а не как дрожание. */
-  .quiz-track > g {
-    opacity: 0;
-    animation: quizTrack 1560ms var(--ease-out) infinite;
-  }
-  .quiz-track > g:nth-of-type(2) { animation-delay: 260ms; }
-  .quiz-track > g:nth-of-type(3) { animation-delay: 520ms; }
-
-  @keyframes quizTrack {
-    0%        { opacity: 0; }
-    18%       { opacity: 1; }
-    62%       { opacity: 1; }
-    88%, 100% { opacity: 0; }
-  }
 
   /* Смена стадии — фейд без сдвига: текст меняет длину, любое движение
      дёргало бы центрированный блок. */
@@ -405,7 +518,8 @@
 
   /* Пустое состояние каталога: единичный вход при монтировании, без циклов.
      Окно старта 50мс — группа входит почти синхронно и не рассыпается. */
-  .empty-in > * {
+  .empty-in > *,
+  .stagger-in > * {
     opacity: 0;
     transform: translateY(8px);
     transition:
@@ -413,18 +527,13 @@
       transform 360ms var(--ease-out);
     transition-delay: var(--in-delay, 0ms);
   }
-  .empty-in > svg { transform: translateY(12px); }
-  .empty-in.is-in > * { opacity: 1; transform: translateY(0); }
-
-  /* Точки сна проступают после силуэта — единственный акцент сцены. */
-  .empty-in .dog-zzz circle {
-    opacity: 0;
-    transition: opacity 240ms var(--ease-out);
-  }
-  .empty-in.is-in .dog-zzz circle { opacity: 1; }
-  .empty-in.is-in .dog-zzz circle:nth-of-type(1) { transition-delay: 420ms; }
-  .empty-in.is-in .dog-zzz circle:nth-of-type(2) { transition-delay: 540ms; }
-  .empty-in.is-in .dog-zzz circle:nth-of-type(3) { transition-delay: 660ms; }
+  /* Иллюстрация въезжает чуть выше остальных — она главный объект сцены.
+     Селектор по классу, а не только по тегу: Lottie рендерится в div, и по
+     тегу svg правило перестало бы совпадать. */
+  .empty-in > svg,
+  .empty-in > .empty-scene { transform: translateY(12px); }
+  .empty-in.is-in > *,
+  .stagger-in.is-in > * { opacity: 1; transform: translateY(0); }
 
   /* Каскад внутри секции: наблюдатель один — на .reveal-group, дети едут
      по --reveal-delay. Переживает ремоунт детей при смене фильтра: группа
@@ -746,7 +855,13 @@
   .reveal,
   .reveal-group .reveal-item,
   .animate-card-in,
-  .animate-badge-pop {
+  .animate-badge-pop,
+  .count-hero,
+  /* Стаггер держится на transition-delay, а глобальное правило гасит только
+     длительность анимаций — без этой строки содержимое проступало бы
+     ступенями до 380мс даже с выключенным движением. */
+  .empty-in > *,
+  .stagger-in > * {
     transition-delay: 0ms !important;
     animation-delay: 0ms !important;
     animation-fill-mode: none !important;
@@ -780,4 +895,11 @@
   .delivery-trail path {
     opacity: 0 !important;
   }
+
+  .ico-draw, .icon-check-path { animation: none !important; stroke-dashoffset: 0 !important; }
+  .paw-toe--fl, .paw-toe--fr, .paw-toe--tl, .paw-toe--tr { transform-box: view-box; }
+  .paw-toe--fl { transform: rotate(-18deg) !important; transform-origin: 15px 27px; }
+  .paw-toe--fr { transform: rotate(18deg)  !important; transform-origin: 49px 27px; }
+  .paw-toe--tl { transform: rotate(-8deg)  !important; transform-origin: 24px 15px; }
+  .paw-toe--tr { transform: rotate(8deg)   !important; transform-origin: 40px 15px; }
 }

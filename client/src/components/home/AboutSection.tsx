@@ -1,5 +1,6 @@
 import { type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
+import { ImagePlaceholderIcon } from '../icons'
 import { LEGAL } from '../../lib/contacts'
 import { useReveal } from '../../hooks/useReveal'
 
@@ -10,16 +11,6 @@ const FOUNDER_PHOTO: { src: string; alt: string } | null = null
 /** Каскад секции: шаг 60мс, кап 4 ступени. Текст и визуал делят одну ступень —
     разнородная группа стартует в общем окне, иначе сцена рассыпается. */
 const step = (i: number) => ({ '--reveal-delay': `${Math.min(i, 3) * 60}ms` }) as CSSProperties
-
-function ImageIcon() {
-  return (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-      <circle cx="8.5" cy="8.5" r="1.5" />
-      <path d="M21 15l-5-5L5 21" />
-    </svg>
-  )
-}
 
 function FounderVisual() {
   if (FOUNDER_PHOTO) {
@@ -37,7 +28,7 @@ function FounderVisual() {
   return (
     <div className="bg-white border border-line rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
       <div className="text-primary-soft mb-3">
-        <ImageIcon />
+        <ImagePlaceholderIcon className="w-12 h-12" />
       </div>
       <p className="text-sm text-navy-500 text-center">Здесь будет фото: витрина, склад или сборка заказа</p>
     </div>

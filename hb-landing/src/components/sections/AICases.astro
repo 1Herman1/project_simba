@@ -1,0 +1,66 @@
+---
+import SectionTitle from '../ui/SectionTitle.astro';
+---
+
+<section id="ai-cases" class="py-24 md:py-32">
+  <div class="max-w-6xl mx-auto px-5 md:px-8">
+    <SectionTitle number="04 / Как работает ИИ в реальных задачах" title="ИИ-кейсы" />
+
+    <div class="space-y-12">
+      {[
+        {
+          title: 'Поток',
+          task: '400 заявок в день письмами',
+          solution: 'ИИ читает письмо и вложения, создаёт сделку в CRM, готовит черновик ответа, менеджер проверяет',
+          result: '6 недель внедрения',
+          metrics: [
+            '2 мин вместо 20',
+            '+30% заявок тем же штатом',
+            'окупилось за 3 месяца',
+          ],
+        },
+        {
+          title: 'Советник',
+          task: 'Каталог 3 000 средств косметики',
+          solution: 'ИИ-консультант: 4 вопроса о коже → персональный набор → ответы 24/7, только каталог компании',
+          result: 'Обучен на данных магазина',
+          metrics: [
+            'конверсия +18%',
+            'поддержка −40%',
+            'чек +12%',
+          ],
+        },
+      ].map(({ title, task, solution, result, metrics }) => (
+        <article class="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-line last:border-b-0">
+          <div class="md:col-span-2">
+            <h3 class="text-3xl font-bold font-heading text-foreground mb-6">{title}</h3>
+            <div class="space-y-4">
+              <div>
+                <h4 class="text-sm font-bold text-muted-foreground mb-2">ЗАДАЧА</h4>
+                <p class="text-foreground">{task}</p>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-muted-foreground mb-2">ЧТО СДЕЛАЛИ</h4>
+                <p class="text-foreground">{solution}</p>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-muted-foreground mb-2">РЕЗУЛЬТАТ</h4>
+                <p class="text-foreground">{result}</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="space-y-3">
+              {metrics.map((metric) => (
+                <div class="inline-flex px-4 py-3 bg-muted rounded-lg">
+                  <span class="text-accent font-bold font-heading text-lg tabular-nums">{metric}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

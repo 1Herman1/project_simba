@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import type { QuizProductCard as QuizProductCardType } from '../../lib/api'
 import { formatPrice } from '../../lib/format'
+import { CheckIcon } from '../icons'
 
 interface QuizProductCardProps {
   product: QuizProductCardType
@@ -128,9 +129,7 @@ export default function QuizProductCard({
           >
             {added ? (
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <CheckIcon className="ico-draw w-4 h-4" />
                 В корзине
               </span>
             ) : (

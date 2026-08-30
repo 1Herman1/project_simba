@@ -2,28 +2,10 @@ import { useState } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
 import { FAQ, renderFaqAnswer, type FaqEntry } from '../lib/faq'
-import TelegramIcon from '../components/icons/TelegramIcon'
+import { TelegramIcon } from '../components/icons'
+import { ChevronDownIcon } from '../components/icons'
 
 const faqs = FAQ
-
-function ChevronIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={className}
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  )
-}
 
 function FaqItemComponent({ item }: { item: FaqEntry }) {
   const [open, setOpen] = useState(false)
@@ -39,7 +21,7 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
         >
           <span className="pr-4 flex-grow">{item.q}</span>
           <div className="flex-shrink-0 text-primary-hover">
-            <ChevronIcon className={`transition-transform duration-200 ease-out ${open ? 'rotate-180' : ''}`} />
+            <ChevronDownIcon open={open} className="w-5 h-5" />
           </div>
         </button>
       </h2>

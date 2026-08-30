@@ -3,8 +3,54 @@ import { Link, useNavigate } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
 import { useCart } from '../context/CartContext'
 import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
-import { formatPrice, formatBonuses } from '../lib/format'
-import { CheckIcon } from '../components/icons'
+import { formatPrice, formatBonuses, formatDateTime } from '../lib/format'
+import { CheckIcon, ArrowLeftIcon, CreditCardIcon, GiftIcon } from '../components/icons'
+
+/** Задержка ступени появления. Значения — из хореографии экрана успеха:
+    шаг 60-80мс, последняя ступень стартует на 380мс. */
+const inDelay = (ms: number) => ({ '--in-delay': `${ms}ms` }) as React.CSSProperties
+
+/** Частицы заданы константой, а не Math.random(): случайные позиции меняли бы
+    картинку на каждом рендере, и её нельзя было бы проверить скриншотом.
+    dx/dy — разлёт от центра галочки, rot — доворот к концу полёта. */
+const CONFETTI = [
+  { dx: -78, dy: -34, rot: -140, delay: 0,   color: 'bg-primary' },
+  { dx: -54, dy: -58, rot: 96,   delay: 40,  color: 'bg-amber-300' },
+  { dx: -22, dy: -70, rot: -64,  delay: 20,  color: 'bg-success' },
+  { dx: 16,  dy: -74, rot: 128,  delay: 60,  color: 'bg-primary-soft' },
+  { dx: 48,  dy: -60, rot: -108, delay: 30,  color: 'bg-amber-500' },
+  { dx: 74,  dy: -30, rot: 72,   delay: 70,  color: 'bg-primary' },
+  { dx: 86,  dy: 10,  rot: -152, delay: 50,  color: 'bg-amber-300' },
+  { dx: 66,  dy: 46,  rot: 116,  delay: 90,  color: 'bg-success' },
+  { dx: 30,  dy: 68,  rot: -88,  delay: 110, color: 'bg-primary-soft' },
+  { dx: -10, dy: 74,  rot: 144,  delay: 80,  color: 'bg-amber-500' },
+  { dx: -46, dy: 62,  rot: -120, delay: 120, color: 'bg-primary' },
+  { dx: -74, dy: 28,  rot: 84,   delay: 100, color: 'bg-amber-300' },
+  { dx: -90, dy: -6,  rot: -100, delay: 140, color: 'bg-primary-soft' },
+  { dx: 92,  dy: -12, rot: 132,  delay: 130, color: 'bg-success' },
+]
+
+function SuccessConfetti() {
+  return (
+    <div
+      className="absolute inset-x-0 top-0 h-44 overflow-hidden pointer-events-none"
+      aria-hidden="true"
+    >
+      {CONFETTI.map((c, i) => (
+        <span
+          key={i}
+          className={`confetti-piece ${c.color}`}
+          style={{
+            '--dx': `${c.dx}px`,
+            '--dy': `${c.dy}px`,
+            '--rot': `${c.rot}deg`,
+            '--c-delay': `${c.delay}ms`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  )
+}
 
 type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
 type PaymentMethod = 'card' | 'cash_on_delivery'
@@ -66,6 +112,20 @@ export default function CheckoutPage() {
   const [orderBonusEarned, setOrderBonusEarned] = useState(0)
   const [orderTotal, setOrderTotal] = useState(0)
   const [orderBonusUsed, setOrderBonusUsed] = useState(0)
+  const [orderCreatedAt, setOrderCreatedAt] = useState('')
+  /** Ступени включаются следующим кадром: если повесить .is-in сразу при
+      монтировании, браузер применит конечное состояние без перехода. */
+  const [entered, setEntered] = useState(false)
+  const reduceMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  useEffect(() => {
+    if (!orderPlaced) return
+    const raf = requestAnimationFrame(() => setEntered(true))
+    return () => cancelAnimationFrame(raf)
+  }, [orderPlaced])
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
 
@@ -179,6 +239,7 @@ export default function CheckoutPage() {
       setOrderBonusEarned(res.data.bonusEarned)
       setOrderTotal(res.data.total)
       setOrderBonusUsed(res.data.bonusUsed)
+      setOrderCreatedAt(res.data.createdAt)
       setOrderPlaced(true)
       await clearCart()
       sessionStorage.removeItem('promoCode')
@@ -200,63 +261,106 @@ export default function CheckoutPage() {
   }
 
   if (orderPlaced) {
+    const paymentLabel = orderPayment === 'card' ? 'Картой' : 'Наличными'
     return (
-      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-8 max-w-sm w-full text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1E7B4D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20,6 9,17 4,12"/>
-            </svg>
-          </div>
-          <h1 className="text-2xl font-black text-navy-900 mb-2">Заказ оформлен!</h1>
-          <p className="text-navy-500 text-sm mb-1">Номер заказа:</p>
-          <p className="font-bold text-navy-900 text-lg mb-4">{orderId ? orderId.slice(-6).toUpperCase() : '—'}</p>
-          <div className="border border-line rounded-xl p-3 mb-3 text-left">
-            <div className="flex justify-between text-sm">
-              <span className="text-navy-500">Сумма заказа</span>
-              <span className="font-bold text-navy-900 tabular-nums">{formatPrice(orderTotal)}</span>
+      <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center px-4 py-10">
+        <div className={`stagger-in ${entered ? 'is-in' : ''} relative w-full max-w-sm bg-white border border-line rounded-card animate-card-in`}>
+          {!reduceMotion && <SuccessConfetti />}
+
+          {/* Верх — что произошло. */}
+          <div className="px-6 pt-8 text-center" style={inDelay(0)}>
+            <div className="w-20 h-20 bg-success-tint rounded-full flex items-center justify-center mx-auto mb-5 ico-ring-in">
+              {/* Задержка живёт на обёртке: --draw-delay наследуется до пути
+                  внутри svg, где её и читает .icon-check-path. */}
+              <div style={{ '--draw-delay': '220ms' } as React.CSSProperties}>
+                <CheckIcon className="w-9 h-9 text-success ico-draw" />
+              </div>
             </div>
-            {orderBonusUsed > 0 && (
-              <div className="flex justify-between text-sm mt-1">
-                <span className="text-navy-500">Списано бонусов</span>
-                <span className="font-medium text-amber-600 tabular-nums">−{formatBonuses(orderBonusUsed)}</span>
+            <h1 className="text-2xl font-black text-navy-900">Заказ оформлен!</h1>
+            <p className="mt-1 text-sm text-navy-500">Мы уже собираем его</p>
+          </div>
+
+          {/* Факты — то, что покупатель переписывает или фотографирует. */}
+          <dl className="px-6 pt-6 pb-6 grid grid-cols-2 gap-x-4 gap-y-5" style={inDelay(200)}>
+            <div>
+              <dt className="text-xs font-bold uppercase tracking-wider text-navy-500 mb-1">Номер заказа</dt>
+              <dd className="text-lg font-black text-navy-900 tracking-wide tabular-nums">
+                #{orderId ? orderId.slice(-6).toUpperCase() : '—'}
+              </dd>
+            </div>
+            <div className="text-right">
+              <dt className="text-xs font-bold uppercase tracking-wider text-navy-500 mb-1">Сумма</dt>
+              <dd className="text-lg font-black text-navy-900 tabular-nums">{formatPrice(orderTotal)}</dd>
+            </div>
+            {orderCreatedAt && (
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wider text-navy-500 mb-1">Дата</dt>
+                <dd className="text-base font-bold text-navy-900 tabular-nums">{formatDateTime(orderCreatedAt)}</dd>
               </div>
             )}
-            <div className="flex justify-between text-sm mt-1">
-              <span className="text-navy-500">Оплата</span>
-              <span className="font-medium text-navy-900">
-                {orderPayment === 'card' ? 'Картой' : 'Наличными курьеру при получении'}
-              </span>
+            <div className="text-right">
+              <dt className="text-xs font-bold uppercase tracking-wider text-navy-500 mb-1">Оплата</dt>
+              <dd className="inline-flex items-center justify-end gap-2 text-base font-bold text-navy-900">
+                <CreditCardIcon className="w-5 h-5 text-navy-400" />
+                {paymentLabel}
+              </dd>
             </div>
+            {orderBonusUsed > 0 && (
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wider text-navy-500 mb-1">Списано бонусов</dt>
+                <dd className="text-base font-bold text-amber-600 tabular-nums">−{formatBonuses(orderBonusUsed)}</dd>
+              </div>
+            )}
+          </dl>
+
+          {/* Разрез отделяет «что произошло» от «что дальше». */}
+          <div className="px-6" style={inDelay(260)}>
+            <div className="h-0.5 receipt-dash" aria-hidden="true" />
           </div>
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-6">
-            <p className="text-sm text-navy-700">
-              Начислено <span className="font-bold text-amber-600">+{formatBonuses(orderBonusEarned)}</span> на ваш счёт
+
+          {/* Низ — что дальше. */}
+          <div className="px-6 pt-6 pb-5" style={inDelay(320)}>
+            <div className="flex items-center gap-3 bg-amber-50 rounded-xl px-4 py-3">
+              <GiftIcon className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <p className="text-sm text-navy-700">
+                Начислено <span className="font-bold text-amber-600">+{formatBonuses(orderBonusEarned)}</span>
+              </p>
+            </div>
+            {orderPayment === 'cash_on_delivery' && (
+              <p className="mt-3 text-xs text-navy-500">Оплата наличными курьеру при получении</p>
+            )}
+            <p className="mt-3 text-xs text-navy-500">
+              {contactEmail || isLoggedIn
+                ? 'Отправим письмо, когда заказ будет подтверждён'
+                : 'Сохраните номер заказа — по нему найдём его в поддержке'}
             </p>
           </div>
-          <p className="text-xs text-navy-500 mb-6">
-            Отправим письмо, когда заказ будет подтверждён
-          </p>
-          <div className="flex flex-col gap-2">
+
+          <div className="px-6 pb-6 flex flex-col gap-3" style={inDelay(380)}>
             {!isLoggedIn ? (
               <>
-                <Link to={`/auth?email=${encodeURIComponent(contactEmail)}`}
-                  className="block btn-primary font-bold py-3 rounded-xl text-sm">
-                  Войти по {contactEmail} и получить 300 бонусов
+                {/* Лейбл про результат, а не про механику: аккаунта у гостя ещё
+                    нет, «войти» ему нечем. Email ушёл в подпись — при пустом
+                    поле прежний лейбл давал дыру «Войти по  и получить…». */}
+                <Link to={contactEmail ? `/auth?email=${encodeURIComponent(contactEmail)}` : '/auth'}
+                  className="block btn-primary font-bold py-3 rounded-xl text-base text-center">
+                  Забрать 300 бонусов
                 </Link>
-                <Link to="/"
-                  className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
+                {contactEmail && (
+                  <p className="text-xs text-navy-500 text-center -mt-1">
+                    Войдите по {contactEmail} — бонусы придут на счёт
+                  </p>
+                )}
+                <Link to="/" className="btn-outline w-full py-3 rounded-xl text-base font-medium">
                   На главную
                 </Link>
               </>
             ) : (
               <>
-                <Link to="/profile"
-                  className="block btn-primary font-bold py-3 rounded-xl text-sm">
+                <Link to="/profile" className="block btn-primary font-bold py-3 rounded-xl text-base text-center">
                   Мои заказы
                 </Link>
-                <Link to="/"
-                  className="block border border-line text-navy-500 font-medium py-3 rounded-xl hover:bg-blue-50 transition-colors duration-100 ease text-sm">
+                <Link to="/" className="btn-outline w-full py-3 rounded-xl text-base font-medium">
                   На главную
                 </Link>
               </>
@@ -274,10 +378,7 @@ export default function CheckoutPage() {
         {/* Шапка */}
         <div className="flex items-center gap-3 mb-6">
           <Link to="/cart" className="text-navy-400 hover:text-navy-700 transition-colors">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"/>
-              <polyline points="12 19 5 12 12 5"/>
-            </svg>
+            <ArrowLeftIcon className="ico-nudge ico-nudge--back w-5 h-5" />
           </Link>
           <h1 className="text-xl font-bold text-navy-900">Оформление заказа</h1>
         </div>
@@ -354,7 +455,7 @@ export default function CheckoutPage() {
                           {opt.available ? (
                             opt.price > 0
                               ? <span className="text-navy-500 text-xs font-medium">{formatPrice(opt.price)}</span>
-                              : <span className="text-green-600 text-xs font-medium">Бесплатно</span>
+                              : <span className="text-success text-xs font-medium">Бесплатно</span>
                           ) : (
                             <span className="text-red-400 text-xs">{opt.error}</span>
                           )}
@@ -709,7 +810,7 @@ export default function CheckoutPage() {
                   <span className="text-navy-500">Доставка</span>
                   {deliveryCost > 0
                     ? <span className="text-navy-900 font-medium">{formatPrice(deliveryCost)}</span>
-                    : <span className="text-green-600 font-medium">Бесплатно</span>
+                    : <span className="text-success font-medium">Бесплатно</span>
                   }
                 </div>
                 {promoDiscount > 0 && (
