@@ -26,9 +26,14 @@ describe.skipIf(!hasTestDb)('Популярные товары (интеграц
     const prisma = getTestPrisma()
 
     // Создаём товары
+    // Товаров с продажами нужно минимум ЧЕТЫРЕ: при меньшем числе сервис
+    // (popular-products.service.ts:81) переходит на подобранный набор и
+    // отвечает basis 'curated'. Прежняя версия теста заводила три и ждала
+    // 'sales' — то есть противоречила правилу, которое проверяет соседний тест.
     const { product: p1, variant: v1 } = await createProductWithVariant()
     const { product: p2, variant: v2 } = await createProductWithVariant()
     const { product: p3, variant: v3 } = await createProductWithVariant()
+    const { product: p4, variant: v4 } = await createProductWithVariant()
 
     // Создаём пользователя и заказы
     const user = await createUser()
@@ -91,6 +96,20 @@ describe.skipIf(!hasTestDb)('Популярные товары (интеграц
       },
     })
 
+    // Четвёртый товар — тоже с продажей, но самой слабой: порядок выдачи
+    // от него не зависит, он нужен, чтобы базис стал 'sales'.
+    await prisma.orderItem.create({
+      data: {
+        orderId: order2.id,
+        productId: p4.id,
+        productVariantId: v4.id,
+        productName: p4.name,
+        variantWeight: v4.weight,
+        price: 10000,
+        quantity: 1,
+      },
+    })
+
     const res = await app.inject({
       method: 'GET',
       url: '/api/products/popular?limit=8',
@@ -133,6 +152,35 @@ describe.skipIf(!hasTestDb)('Популярные товары (интеграц
       },
     })
 
+    // Четыре товара с настоящими продажами. Без них базис скатывается в
+    // 'curated', а подобранный набор добирает витрину ЛЮБЫМ товаром с остатком
+    // (popular-products.service.ts:113-126) — в том числе нашим отменённым.
+    // Тогда тест падал бы, ничего не сообщая о самих отменённых заказах.
+    const paidOrder = await prisma.order.create({
+      data: {
+        userId: user.id,
+        status: 'confirmed',
+        deliveryMethod: 'cdek',
+        subtotal: 400000,
+        total: 400000,
+      },
+    })
+
+    for (let i = 0; i < 4; i++) {
+      const sold = await createProductWithVariant()
+      await prisma.orderItem.create({
+        data: {
+          orderId: paidOrder.id,
+          productId: sold.product.id,
+          productVariantId: sold.variant.id,
+          productName: sold.product.name,
+          variantWeight: sold.variant.weight,
+          price: 10000,
+          quantity: 2,
+        },
+      })
+    }
+
     const res = await app.inject({
       method: 'GET',
       url: '/api/products/popular?limit=8',
@@ -140,6 +188,7 @@ describe.skipIf(!hasTestDb)('Популярные товары (интеграц
 
     expect(res.statusCode).toBe(200)
     const body = JSON.parse(res.body)
+    expect(body.basis).toBe('sales')
     // Товар не должен быть в результате т.к. статус cancelled
     expect(body.items.some((p: any) => p.id === product.id)).toBe(false)
   })

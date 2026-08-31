@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import type { FastifyInstance } from 'fastify'
 import { calcOrderTotals } from '@simba/shared'
+import { InsufficientBonusError } from '../services/bonus.service.js'
 import { hasTestDb, skipReason, getTestPrisma, resetDb, closeTestPrisma } from './setup'
 import { createUser, createProductWithVariant, createCart, authHeader } from './factories'
 
@@ -257,48 +258,43 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
     expect(await prisma.cartItem.count()).toBe(0)
   })
 
-  it('баланс бонусов не уходит в минус при двух одновременных заказах с одного аккаунта', async () => {
+  it('баланс бонусов не уходит в минус при двух одновременных списаниях', async () => {
     const prisma = getTestPrisma()
-    // Сценарий обязан быть переподписан: на балансе 500, а два заказа просят
-    // по 500 каждый. С балансом 1000 оба запроса законны, и тест проходил бы
-    // даже с полностью отключённой защитой — проверяя пустоту.
+    // Проверка идёт по сервису списания, а не по двум HTTP-заказам. Через роут
+    // эта гонка недостижима: у пользователя ОДНА корзина (Cart.userId уникален),
+    // а признаком дубля служит её очистка (order.service.ts:395) — второй запрос
+    // получил бы DUPLICATE_ORDER, не дойдя до бонусов. Прежняя версия теста
+    // заводила две корзины одному пользователю и падала на уникальном индексе,
+    // то есть не выполнялась ни разу.
     const user = await createUser({ bonusPoints: 500 })
 
-    const { variant: variant1 } = await createProductWithVariant({ price: 100000, stock: 5 })
-    const { variant: variant2 } = await createProductWithVariant({ price: 100000, stock: 5 })
+    const { applyBonusChange } = await import('../services/bonus.service.js')
+    const spend = () =>
+      prisma.$transaction((tx) =>
+        applyBonusChange(tx as never, {
+          userId: user.id,
+          amount: -500,
+          type: 'spent',
+          requireSufficient: true,
+        })
+      )
 
-    const cart1 = await createCart(user.id, [{ variantId: variant1.id, quantity: 1 }])
-    const cart2 = await createCart(user.id, [{ variantId: variant2.id, quantity: 1 }])
+    // Оба списания законны по отдельности и несовместимы вместе: на балансе
+    // ровно 500. С балансом 1000 тест проходил бы и при снятой защите.
+    const results = await Promise.allSettled([spend(), spend()])
 
-    // Пре-проверка баланса в роуте пропустит оба: она читает баланс до транзакции.
-    const [res1, res2] = await Promise.all([
-      app.inject({
-        method: 'POST',
-        url: '/api/orders',
-        headers: authHeader(app, user.id),
-        payload: pickupOrder(cart1.id, { bonusUsed: 500 }),
-      }),
-      app.inject({
-        method: 'POST',
-        url: '/api/orders',
-        headers: authHeader(app, user.id),
-        payload: pickupOrder(cart2.id, { bonusUsed: 500 }),
-      }),
-    ])
+    const ok = results.filter((r) => r.status === 'fulfilled')
+    const failed = results.filter((r) => r.status === 'rejected')
+    expect(ok).toHaveLength(1)
+    expect(failed).toHaveLength(1)
+    expect((failed[0] as PromiseRejectedResult).reason).toBeInstanceOf(InsufficientBonusError)
 
-    expect([res1.statusCode, res2.statusCode].sort()).toEqual([201, 409])
-
-    const rejected = res1.statusCode === 409 ? res1 : res2
-    expect(rejected.json().code).toBe('INSUFFICIENT_BONUS')
-
-    const orders = await prisma.order.findMany({ where: { userId: user.id } })
-    expect(orders).toHaveLength(1)
-    expect(orders[0].bonusUsed).toBe(500)
-
-    // Списание прошло ровно один раз: 500 − 500 = 0. Начисления при оформлении
-    // нет, поэтому баланс именно ноль, а не bonusEarned прошедшего заказа.
+    // Списание прошло ровно один раз: 500 − 500 = 0, а не −500.
     const freshUser = await prisma.user.findUniqueOrThrow({ where: { id: user.id } })
     expect(freshUser.bonusPoints).toBe(0)
+
+    const spent = await prisma.bonusTransaction.findMany({ where: { userId: user.id } })
+    expect(spent).toHaveLength(1)
   })
 
   it('лимит 50% срезает запрос: в заказ и в баланс уходит урезанная сумма', async () => {

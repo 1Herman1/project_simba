@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite --port 5173",
     "build": "npm run build -w @simba/shared && tsc && vite build",
+    "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {

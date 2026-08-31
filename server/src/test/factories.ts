@@ -19,12 +19,15 @@ export async function createUser(opts: { bonusPoints?: number; name?: string } =
   })
 }
 
+/** Цена и остаток со значениями по умолчанию: тестам про рейтинг продаж и
+    подбор они безразличны, а требовать их значило заставлять каждый вызов
+    придумывать неважные числа. */
 export async function createProductWithVariant(opts: {
-  price: number
-  stock: number
+  price?: number
+  stock?: number
   weight?: number
   name?: string
-}) {
+} = {}) {
   const prisma = getTestPrisma()
   const name = opts.name ?? 'Корм тестовый'
   const product = await prisma.product.create({
@@ -34,8 +37,8 @@ export async function createProductWithVariant(opts: {
       description: 'Товар для интеграционных тестов',
       variants: {
         create: {
-          price: opts.price,
-          stock: opts.stock,
+          price: opts.price ?? 99900,
+          stock: opts.stock ?? 100,
           weight: opts.weight ?? 1,
         },
       },
