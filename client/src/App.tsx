@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import { initButtonSpotlight } from './lib/button-spotlight'
 import { initButtonPress } from './lib/button-press'
 import ScrollToTop from './components/ScrollToTop'
+import HashScroll from './components/HashScroll'
 import Layout from './components/layout/Layout'
 import { CartProvider } from './context/CartContext'
 import { FavoritesProvider } from './context/FavoritesContext'
@@ -44,6 +45,7 @@ export default function App() {
       <FavoritesProvider>
         <DrawerProvider>
           <ScrollToTop />
+          <HashScroll />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />

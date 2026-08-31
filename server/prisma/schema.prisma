@@ -33,6 +33,29 @@ enum PetSpecies {
   other
 }
 
+/// Вид животного, которому подходит ТОВАР. Намеренно отдельный тип от
+/// PetSpecies: там питомец покупателя, и у живого кота не бывает состояний
+/// «подходит обоим» и «вид не определён». Значение other в PetSpecies — это
+/// «хомяк, попугай», а не «неизвестно», переиспользовать его нельзя.
+///
+/// both и unknown — разные вещи. both — осознанное «универсальный уход для
+/// кошек и собак» (см. determineSpecies в services/quiz-autotag.ts, который
+/// намеренно не угадывает вид у таких товаров). unknown — «ещё не размечено».
+enum ProductSpecies {
+  cat
+  dog
+  both
+  unknown
+}
+
+/// Как вписывать логотип бренда в плитку на главной. Раньше — захардкоженная
+/// карта LOGO_GROUPS в client/src/components/home/BrandsSection.tsx.
+enum BrandLogoFit {
+  wide
+  mid
+  mark
+}
+
 enum SyncStatus {
   running
   success
@@ -231,6 +254,13 @@ model Brand {
   name        String
   slug        String   @unique
   logo        String?
+  /// Фирменный цвет бренда в hex (#0F70B5 у Farmina) — заливка плитки на главной.
+  /// В БД, а не в компоненте: hex вне палитры проекта ловит design-lint.mjs.
+  /// Формат держит CHECK brands_accentColor_format_check из миграции
+  /// species_and_brand_identity — в schema.prisma он невыразим.
+  accentColor String?
+  /// null означает mid — то же поведение по умолчанию, что и на клиенте сейчас.
+  logoFit     BrandLogoFit?
   description String?
   createdAt   DateTime @default(now())
 
@@ -259,6 +289,10 @@ model Product {
   seoTitle         String?
   seoDescription   String?
   isActive         Boolean  @default(true)
+  /// Вид животного, которому подходит товар. По умолчанию unknown, чтобы
+  /// неразмеченный товар не получил ложный вид. Дублирует тег species:* в
+  /// quizTags намеренно: тег обслуживает подбор, поле — фильтр каталога.
+  species          ProductSpecies @default(unknown)
   /// Теги для квиза-подборщика. Закрытый словарь — server/src/lib/quiz-tags.ts. Пустой массив = товар в подборе не участвует.
   quizTags         String[]             @default([])
   /// Теги, выведенные автоматически из фильтров/категорий/названия (backfill-quiz-tags.ts).
@@ -281,6 +315,9 @@ model Product {
   @@index([slug])
   @@index([brandId])
   @@index([isActive])
+  /// Запрос каталога — «товары этого вида, которые в продаже». Левый префикс
+  /// обслуживает и фильтр по одному species, отдельный индекс не нужен.
+  @@index([species, isActive])
   @@index([quizTags], type: Gin)
   @@index([autoQuizTags], type: Gin)
   @@map("products")

@@ -235,6 +235,34 @@ const BRAND_ANSWER_TO_SLUG: Record<string, string> = {
   happycat: 'happy-cat',
 }
 
+/**
+ * Плашка под результатом подбора.
+ *
+ * Про смену марки говорим по ФАКТУ выданного товара, а не по факту снятия
+ * фильтра. Раньше признаком служило `relaxed.includes('brand')`, и это врало:
+ * цикл уровней уходит с нулевого, как только в выбранной марке нашлось меньше
+ * трёх позиций, но сами товары этой марки остаются в пуле и всплывают наверх.
+ * Покупатель видел предупреждение о чужом бренде над товаром своего.
+ *
+ * Считается в одном месте: подбор и восстановление сессии обязаны отвечать
+ * одинаково, иначе перезагрузка страницы меняла бы текст под тем же товаром.
+ */
+function buildFallbackNote(
+  brandAnswer: string | null,
+  relaxed: string[],
+  resultBrandSlugs: (string | undefined)[]
+): string | null {
+  if (brandAnswer !== null && relaxed.includes('brand')) {
+    const answer = brandAnswer.replace('brand:', '')
+    const wanted = BRAND_ANSWER_TO_SLUG[answer] ?? answer
+    // Смешанный подбор выдаёт две карточки: молчим, если марку удержала хотя бы одна.
+    if (!resultBrandSlugs.some((slug) => slug === wanted)) {
+      return 'Точного совпадения в выбранной марке нет — подобрали похожий корм другого проверенного бренда'
+    }
+  }
+  return relaxed.length > 0 ? 'Специально подобрано под особенности вашего питомца' : null
+}
+
 function getBrandPriority(brandSlug?: string): number {
   if (brandSlug === 'farmina') return 3
   if (brandSlug === 'monge') return 2
@@ -495,14 +523,8 @@ async function matchQuiz(
 
   const reasons = buildReasons(u, main.allTags)
   const disclaimers = buildDisclaimers(u)
-  // Про снятый бренд говорим прямо: покупатель выбрал Happy Dog, получил
-  // Farmina и без объяснения считает подбор сломанным.
-  const brandRelaxed = u.brand !== null && relaxedUsed.includes('brand')
-  const fallbackNote = brandRelaxed
-    ? 'Точного совпадения в выбранной марке нет — подобрали похожий корм другого проверенного бренда'
-    : relaxedUsed.length > 0
-      ? 'Специально подобрано под особенности вашего питомца'
-      : null
+
+  const fallbackNote = buildFallbackNote(u.brand, relaxedUsed, [main.brand?.slug, pair?.brand?.slug])
 
   const totalCards = 1 + (pair ? 1 : 0) + alternatives.length
   const shortfall = totalCards < 3 ? { found: totalCards } : null
@@ -739,6 +761,13 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
   )
   const reasons = buildReasons(u, mainTags)
 
+  const mainProduct = productMap.get(session.resultProductIds[0])
+  const pairProduct = pair ? productMap.get(session.resultProductIds[1]) : null
+  const fallbackNote = buildFallbackNote(u.brand, session.relaxed, [
+    mainProduct?.brand?.slug,
+    pairProduct?.brand?.slug,
+  ])
+
   const totalCards = 1 + (pair ? 1 : 0) + alternatives.length
   const shortfall = totalCards < 3 ? { found: totalCards } : null
 
@@ -750,7 +779,7 @@ export async function getQuizSession(prisma: Prisma.TransactionClient, sessionId
     reasons,
     disclaimers: buildDisclaimers(u),
     relaxed: session.relaxed,
-    fallbackNote: session.relaxed.length > 0 ? 'Специально подобрано под особенности вашего питомца' : null,
+    fallbackNote,
     shortfall,
     bonus: { amount: 300, status: session.bonusGranted ? 'already_granted' : 'guest', balance: null },
   }

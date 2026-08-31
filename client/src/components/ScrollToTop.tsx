@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 /**
  * При смене маршрута прокручивает страницу к началу.
  * Плавно — если пользователь не просил «уменьшить движение», иначе мгновенно.
- * Якорные переходы (#hash) не трогаем — там свой плавный скролл к секции.
+ * Якорные переходы (#hash) пропускает — за ними отвечает useHashScroll.
  */
 export default function ScrollToTop() {
   const { pathname, hash } = useLocation()

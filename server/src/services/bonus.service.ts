@@ -1,4 +1,5 @@
 import { Prisma, BonusTxType } from '@prisma/client'
+import { calculateBonusLevel } from '@simba/shared'
 
 export class InsufficientBonusError extends Error {
   constructor() {
@@ -83,12 +84,6 @@ export async function applyBonusChange(
   }
 }
 
-/**
- * Пересчитать уровень бонусов по балансу
- */
-function calculateBonusLevel(points: number): 'newcomer' | 'active' | 'premium' {
-  return points >= 5000 ? 'premium' : points >= 1000 ? 'active' : 'newcomer'
-}
 
 /**
  * Вспомогательная функция для расчёта составляющих отмены заказа.

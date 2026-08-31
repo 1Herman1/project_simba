@@ -261,6 +261,13 @@ describe('B. Гарантия минимум трёх карточек', () => {
 
     expect(res.relaxed.length).toBeGreaterThan(0)
     expect(res.fallbackNote).not.toBeNull()
+    // Плашка про бренд показывается только если результат не Happy Dog; иначе про ослабление других фильтров
+    if (res.main.brandName !== 'Happy Dog' && res.pair?.brandName !== 'Happy Dog') {
+      expect(res.fallbackNote).toContain('марке')
+    } else {
+      // Если хотя бы одна карточка Happy Dog, плашка про ослабление других параметров
+      expect(res.fallbackNote).toContain('особенности')
+    }
   })
 
   it('карточки в ответе не дублируются', async () => {
@@ -394,6 +401,8 @@ describe('F. Предпочтение бренда', () => {
     const res = await runQuizMatch(prisma, dog({ brand: 'farmina', age: 'adult', size: 'medium' }))
 
     expect(res.main.brandName).toBe('Farmina')
+    // Бренд совпадает, плашки про неправильный бренд быть не должно
+    expect(res.fallbackNote).not.toContain('марке')
   })
 
   // Слаг бренда в ответах квиза — 'happydog'/'happycat', а в базе (seed.ts) —
@@ -416,6 +425,40 @@ describe('F. Предпочтение бренда', () => {
     const res = await runQuizMatch(prisma, dog({ brand: 'happydog', age: 'adult', format: 'dry' }))
 
     expect(res.main.brandName).toBe('Happy Dog')
+  })
+
+  it('если выбран Happy Dog, но товаров мало и выдан Farmina — плашка про неправильный бренд', async () => {
+    const catalog = [
+      product({
+        id: 'happydog-single',
+        brand: { name: 'Happy Dog', slug: 'happy-dog' },
+        quizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+      product({
+        id: 'farmina-1',
+        brand: { name: 'Farmina', slug: 'farmina' },
+        quizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+      product({
+        id: 'farmina-2',
+        brand: { name: 'Farmina', slug: 'farmina' },
+        quizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+      product({
+        id: 'farmina-3',
+        brand: { name: 'Farmina', slug: 'farmina' },
+        quizTags: ['species:dog', 'age:all', 'size:all', 'format:dry'],
+      }),
+    ]
+    const { prisma: customPrisma } = makePrisma(catalog as unknown as typeof quizCatalog)
+
+    const res = await runQuizMatch(customPrisma, dog({ brand: 'happydog', age: 'adult', size: 'medium' }))
+
+    // На уровне 0 будет 1 Happy Dog товар < 3, поэтому подбор ослабит бренд на уровне 1
+    // и возьмёт 3 Farmina товара (они выше в priorityScore из-за getBrandPriority)
+    expect(res.main.brandName).toBe('Farmina')
+    expect(res.relaxed).toContain('brand')
+    expect(res.fallbackNote).toContain('марке')
   })
 })
 

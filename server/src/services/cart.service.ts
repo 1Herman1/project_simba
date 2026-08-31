@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { hasStock, isSellableByPrice } from '@simba/shared'
 
 const cartInclude = {
   items: {
@@ -49,7 +50,7 @@ export async function addToCart(
   }
 
   // Импорт заводит фасовки без цены (price: 0) — продавать их нельзя.
-  if (variant.price <= 0) {
+  if (!isSellableByPrice(variant)) {
     throw new Error('Товар недоступен для заказа')
   }
 
@@ -69,7 +70,7 @@ export async function addToCart(
     ? existingItem.quantity + quantity
     : quantity
 
-  if (variant.stock < totalQuantity) {
+  if (!hasStock(variant, totalQuantity)) {
     throw new Error('Недостаточно товара на складе')
   }
 
@@ -117,7 +118,7 @@ export async function updateCartItem(
       where: { id: item.productVariantId },
     })
 
-    if (!variant || variant.stock < quantity) {
+    if (!variant || !hasStock(variant, quantity)) {
       throw new Error('Недостаточно товара на складе')
     }
 
@@ -140,7 +141,7 @@ export async function updateCartItem(
 
     if (conflicting) {
       const mergedQuantity = conflicting.quantity + quantity
-      if (variant.stock < mergedQuantity) {
+      if (!hasStock(variant, mergedQuantity)) {
         throw new Error('Недостаточно товара на складе')
       }
       await prisma.cartItem.update({
