@@ -180,35 +180,38 @@
     }
   }
 
-  /* Иконки в шапке — увеличение в манере дока macOS.
+  /* Иконки в шапке.
 
-     Эффект дока даёт не сила увеличения, а ВОЛНА: глиф под курсором растёт
-     сильнее, соседние — слабее, остальные чуть проседают. Без соседей это было
-     бы просто «кнопка подросла».
+     ВОЛНЫ ДОКА ЗДЕСЬ БОЛЬШЕ НЕТ. Она была сделана намеренно — в доке macOS
+     соседние значки приподнимаются вместе с наведённым, — но владелец счёл, что
+     ряд из-за этого «дрожит». Теперь растёт только та иконка, на которую навели.
 
      Масштабируется внутренний глиф (.icon-swap, 22px), а не кнопка 44px: если
      растить саму зону наведения, она наезжает на соседнюю, курсор попадает уже
-     на другую кнопку, и ряд начинает дрожать. 22 × 1.32 ≈ 29px при зазоре 16px
-     — соседи не пересекаются.
+     на другую кнопку, и ряд начинает дёргаться.
 
      Длительность 90мс: docs/core/motion.md относит ховер к частым действиям и
-     требует меньше 100мс. В доке Apple увеличение тоже мгновенное.
+     требует меньше 100мс.
 
-     Свапа контур↔заливка здесь больше нет: в Iconoir залитые пары есть у сердца
-     и звезды, но НЕ у корзины и профиля, а свап у одной иконки из четырёх
-     рассыпал бы ряд. Сигнал «под курсором» несут увеличение и цвет. */
-  .header-icon-link { transition: color 100ms ease; }
+     Заливка. Подмены контур↔заливка у самого глифа быть не может: в Iconoir
+     залитые пары есть у сердца и звезды, но НЕ у корзины, профиля и телеграма,
+     а свап у одной иконки из четырёх рассыпал бы ряд. Поэтому заливается КНОПКА
+     — кругом в фирменный тон, — и одновременно контур перекрашивается в тот же
+     цвет. Приём одинаков для всех четырёх. */
+  .header-icon-link {
+    transition: color 100ms ease, background-color 100ms ease;
+  }
   .icon-swap {
     transition: transform 90ms var(--ease-out);
     transform-origin: bottom center;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .header-icon-link:hover { color: theme('colors.primary.hover'); }
-    .header-dock:has(:hover) .icon-swap { transform: scale(0.98); }
-    .header-dock :hover + * .icon-swap,
-    .header-dock *:has(+ :hover) .icon-swap { transform: scale(1.14); }
-    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.32); }
+    .header-icon-link:hover {
+      color: theme('colors.primary.DEFAULT');
+      background-color: theme('colors.primary.tint');
+    }
+    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.18); }
   }
 
   .icon-state .icon-outline,

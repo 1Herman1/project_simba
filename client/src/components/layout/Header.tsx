@@ -76,8 +76,8 @@ export default function Header() {
               <span className="text-sm font-medium">{CONTACTS.phone}</span>
             </a>
 
-            {/* Четыре кнопки. header-dock включает «волну» увеличения: соседи
-                растут слабее наведённой, остальные слегка проседают. */}
+            {/* Четыре кнопки, зазор 16px на всех. Увеличивается только та, на
+                которую навели: волну соседей владелец попросил убрать. */}
             <div className="header-dock flex items-center gap-4">
               {/* Telegram */}
               <a
