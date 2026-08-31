@@ -68,14 +68,22 @@ export async function getPopularProducts(
 
   const topProductIds = salesByProduct.map(s => s.productId)
 
-  // Загружаем топовые товары с проверкой isActive
-  const topProducts = await prisma.product.findMany({
+  // Загружаем топовые товары с проверкой isActive.
+  // ВНИМАНИЕ: `IN (...)` не сохраняет порядок — база вернёт строки как ей
+  // удобно, и рейтинг, честно посчитанный groupBy выше, потеряется. Раньше
+  // именно так и было: секция «Популярные товары» показывала их в произвольном
+  // порядке, а тест на это падал через раз. Восстанавливаем порядок по списку.
+  const found = await prisma.product.findMany({
     where: {
       id: { in: topProductIds },
       isActive: true,
     },
     select: PRODUCT_SELECT,
   })
+  const byId = new Map(found.map((p) => [p.id, p]))
+  const topProducts = topProductIds
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
 
   // Если топовых товаров достаточно (>= 4), возвращаем
   if (topProducts.length >= 4) {

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { productsApi, type Product, type ProductVariant } from '../lib/api'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
 import { formatPrice } from '../lib/format'
 import { HeartIcon, HeartSolidIcon } from '../components/icons'
+import { isSellable } from '@simba/shared'
+import { apiErrorMessage } from '../lib/api-error'
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -14,6 +16,7 @@ export default function ProductPage() {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
   const [activeTab, setActiveTab] = useState<'about' | 'specs' | 'reviews'>('about')
   const [added, setAdded] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [mode, setMode] = useState<'once' | 'subscription'>('once')
@@ -27,7 +30,8 @@ export default function ProductPage() {
     productsApi.bySlug(slug)
       .then(res => {
         setProduct(res.data)
-        setSelectedVariant(res.data.variants[0] ?? null)
+        const firstSellable = res.data.variants.find(v => isSellable(v))
+        setSelectedVariant(firstSellable ?? res.data.variants[0] ?? null)
       })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false))
@@ -38,6 +42,7 @@ export default function ProductPage() {
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return
+    setError(null)
     try {
       await addItem(selectedVariant.id, quantity, {
         isSubscription: mode === 'subscription',
@@ -45,7 +50,11 @@ export default function ProductPage() {
       })
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
-    } catch { /* ignore */ }
+    } catch (err) {
+      const message = apiErrorMessage(err, 'Не получилось добавить товар')
+      setError(message)
+      setTimeout(() => setError(null), 2000)
+    }
   }
 
   if (loading) {
@@ -108,9 +117,18 @@ export default function ProductPage() {
             )}
 
             {/* Большое фото */}
-            <div className="flex-1 bg-white rounded-2xl flex items-center justify-center min-h-[400px] relative overflow-hidden">
+            <div
+              className="flex-1 bg-white rounded-2xl flex items-center justify-center min-h-[400px] relative overflow-hidden group"
+              onMouseMove={(e) => {
+                if (product.images.length <= 1) return
+                const rect = e.currentTarget.getBoundingClientRect()
+                const x = (e.clientX - rect.left) / rect.width
+                const index = Math.min(Math.floor(x * product.images.length), product.images.length - 1)
+                setActiveImage(index)
+              }}
+              onMouseLeave={() => setActiveImage(0)}>
               {product.images.length > 0
-                ? <img src={product.images[activeImage] ?? product.images[0]} alt={product.name} className="w-full h-full object-contain p-4" />
+                ? <img src={product.images[activeImage] ?? product.images[0]} alt={product.name} className="w-full h-full object-contain p-4 transition-opacity duration-100 ease" />
                 : null
               }
 
@@ -128,6 +146,19 @@ export default function ProductPage() {
                   <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">Гипоалл.</span>
                 )}
               </div>
+
+              {product.images.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 pointer-events-none group-hover:opacity-100 lg:opacity-0 transition-opacity">
+                  {product.images.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1 rounded-full transition-[width,background-color] ${
+                        i === activeImage ? 'bg-navy-700 w-2' : 'bg-navy-200 w-1.5'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -210,7 +241,7 @@ export default function ProductPage() {
             )}
 
             {/* Цена */}
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-3 flex-wrap">
               <span className="text-3xl font-black text-navy-900">
                 {formatPrice(selectedVariant.price)}
               </span>
@@ -221,6 +252,11 @@ export default function ProductPage() {
               )}
               {discount && (
                 <span className="text-amber-500 font-bold text-sm">Скидка {discount}%</span>
+              )}
+              {selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
+                <span className="text-sm text-destructive font-medium">
+                  Осталось {selectedVariant.stock}
+                </span>
               )}
             </div>
 
@@ -242,10 +278,23 @@ export default function ProductPage() {
               {/* В корзину */}
               <button
                 onClick={handleAddToCart}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm ${
-                  added ? 'bg-green-100 text-green-700' : 'btn-primary'
+                disabled={!selectedVariant || !isSellable(selectedVariant, quantity)}
+                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-colors ${
+                  error
+                    ? 'bg-white text-destructive border border-destructive'
+                    : added
+                    ? 'bg-green-100 text-green-700'
+                    : !selectedVariant || !isSellable(selectedVariant, quantity)
+                    ? 'bg-blue-50 text-navy-400 border border-line cursor-not-allowed'
+                    : 'btn-primary'
                 }`}>
-                {added ? 'Добавлено в корзину' : 'Добавить в корзину'}
+                {error
+                  ? error
+                  : added
+                  ? 'Добавлено в корзину'
+                  : !selectedVariant || !isSellable(selectedVariant, quantity)
+                  ? 'Недостаточно товара'
+                  : 'Добавить в корзину'}
               </button>
 
               {/* В избранное */}
@@ -254,7 +303,7 @@ export default function ProductPage() {
                 aria-label={isFavorite(product.id) ? 'Убрать из избранного' : 'Добавить в избранное'}
                 className="btn-press w-11 h-11 border border-blue-100 rounded-xl flex items-center justify-center bg-white hover:border-blue-200">
                 {isFavorite(product.id) ? (
-                  <HeartSolidIcon className={`w-5 h-5 transition-colors fill-red-500 stroke-red-500 ico-pop`} key="on" />
+                  <HeartSolidIcon className={`w-5 h-5 transition-colors fill-current text-red-500 ico-pop`} key="on" />
                 ) : (
                   <HeartIcon className={`w-5 h-5 transition-colors fill-none stroke-navy-300`} key="off" />
                 )}
