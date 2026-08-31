@@ -27,7 +27,6 @@ export default function EmptyCatalog({ sectionEmpty }: Props) {
         <LottieScene
           load={() => import('../../lottie/empty-catalog.json')}
           className="w-full aspect-[1065/922]"
-          loop={1}
         />
         <svg viewBox="0 0 100 8" aria-hidden="true" focusable="false"
           className="absolute inset-x-0 bottom-[3%] w-[76%] mx-auto">

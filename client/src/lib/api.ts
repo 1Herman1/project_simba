@@ -42,15 +42,30 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Система обработки 401 через колбэк вместо жёсткого редиректа.
+// Приложение регистрирует обработчик, который может вызвать роутер без перезагрузки.
+type OnUnauthorizedCallback = () => void | Promise<void>
+let onUnauthorizedCallback: OnUnauthorizedCallback | null = null
+
+export function registerUnauthorizedHandler(callback: OnUnauthorizedCallback): void {
+  onUnauthorizedCallback = callback
+}
+
 api.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
       const token = localStorage.getItem('token')
-      // Если был обычный токен (не гостевой) — редирект на /auth
+      // Если был обычный токен (не гостевой) — уведомить приложение о неавторизации
       if (token) {
         localStorage.removeItem('token')
-        window.location.href = '/auth'
+        if (onUnauthorizedCallback) {
+          // Приложение сам решит, куда идти (через роутер, без перезагрузки)
+          onUnauthorizedCallback()
+        } else {
+          // Запасной вариант если колбэк не зарегистрирован
+          window.location.href = '/auth'
+        }
       } else {
         // Гостевой токен истёк — просто удаляем, не выкидываем гостя
         localStorage.removeItem('guestToken')
@@ -149,13 +164,14 @@ export interface Order {
 }
 
 export interface User {
-  userId: string
+  id: string
   name: string
   email: string | null
   phone: string | null
   bonusPoints: number
   bonusLevel: 'newcomer' | 'active' | 'premium'
   role: string
+  isGuest?: boolean
 }
 
 export interface DeliveryQuote {
@@ -179,7 +195,7 @@ export const authApi = {
   verifyOtp: (email: string, code: string, guestToken?: string) => {
     const body: { email: string; code: string; guestToken?: string } = { email, code }
     if (guestToken) body.guestToken = guestToken
-    return api.post<{ token: string; user: User }>('/api/auth/verify-otp', body)
+    return api.post<{ token: string; user: User; bonusGranted?: number; cartMerged?: boolean }>('/api/auth/verify-otp', body)
   },
 
   me: () =>

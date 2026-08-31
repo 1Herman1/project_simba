@@ -27,9 +27,12 @@ export default function QuizIntro({ onStart, inModal }: QuizIntroProps) {
           Начать подбор
         </button>
 
+        {/* Ширина текста ограничена, а сам он выровнен влево: иначе строка
+            растягивается на весь блок, пара центрируется целиком, и подарок
+            повисает у левого края отдельно от фразы. */}
         <div className="bg-white rounded-card border border-line p-6 flex items-center justify-center gap-3 mb-8">
-          <GiftIcon className="w-6 h-6 text-amber-500" />
-          <span className="text-navy-700 font-medium">После подбора — 300 бонусов на первую покупку. Заберёте их после входа в аккаунт</span>
+          <GiftIcon className="w-6 h-6 flex-shrink-0 text-amber-500" />
+          <span className="max-w-[42ch] text-left text-navy-700 font-medium">После подбора — 300 бонусов на первую покупку. Заберёте их после входа в аккаунт</span>
         </div>
 
         <p className="text-sm text-navy-500">

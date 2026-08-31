@@ -8,6 +8,7 @@ import Layout from './components/layout/Layout'
 import { CartProvider } from './context/CartContext'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { DrawerProvider } from './context/DrawerContext'
+import { AuthProvider } from './context/AuthContext'
 import HomePage from './pages/HomePage'
 import CatalogPage from './pages/CatalogPage'
 import ProfilePage from './pages/ProfilePage'
@@ -41,12 +42,13 @@ export default function App() {
   }, [])
 
   return (
-    <CartProvider>
-      <FavoritesProvider>
-        <DrawerProvider>
-          <ScrollToTop />
-          <HashScroll />
-          <Routes>
+    <AuthProvider>
+      <CartProvider>
+        <FavoritesProvider>
+          <DrawerProvider>
+            <ScrollToTop />
+            <HashScroll />
+            <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route element={<Layout />}>
@@ -72,8 +74,9 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
-        </DrawerProvider>
-      </FavoritesProvider>
-    </CartProvider>
+            </DrawerProvider>
+          </FavoritesProvider>
+        </CartProvider>
+      </AuthProvider>
   )
 }

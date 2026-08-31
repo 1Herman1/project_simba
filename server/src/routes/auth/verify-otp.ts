@@ -98,10 +98,12 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
     }
 
     // Слить гостевую корзину если есть валидный гостевой токен
+    let cartMerged = false
     if (guestUserId) {
       await app.prisma.$transaction(async (tx) => {
         await mergeGuestCart(tx, guestUserId, user.id)
       })
+      cartMerged = true
     }
 
     const fresh = await app.prisma.user.findUniqueOrThrow({
@@ -128,6 +130,8 @@ const verifyOtp: FastifyPluginAsync = async (app) => {
       // Только факт выдачи в этом запросе. Признак «баланс ≥ 300» показывал бы
       // попап при каждом входе любому, кто бонусы ещё не потратил.
       bonusGranted,
+      // Был ли выполнен мерж корзины. Если нет — клиент покажет ошибку.
+      cartMerged,
     })
   })
 }

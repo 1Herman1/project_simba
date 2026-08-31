@@ -2,7 +2,7 @@ import { FastifyPluginAsync } from 'fastify'
 
 const me: FastifyPluginAsync = async (app) => {
   app.get('/me', { preHandler: app.authenticate }, async (request, reply) => {
-    const { userId } = request.user
+    const { userId, type } = request.user as { userId: string; type?: string }
 
     const user = await app.prisma.user.findUnique({
       where: { id: userId },
@@ -24,6 +24,7 @@ const me: FastifyPluginAsync = async (app) => {
       role: user.role,
       bonusPoints: user.bonusPoints,
       bonusLevel: user.bonusLevel,
+      isGuest: type === 'guest',
       addresses: user.addresses,
       pets: user.pets,
     })

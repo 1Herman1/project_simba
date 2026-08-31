@@ -84,7 +84,6 @@ export default function CertificatesPage() {
                 </div>
                 <h2 className="font-bold text-navy-900 text-center text-sm">{cert.brand}</h2>
                 <p className="text-xs text-navy-500 text-center">{cert.doc}</p>
-                <p className="text-xs text-navy-400 mt-auto pt-3">Скоро</p>
               </div>
             )}
           </div>

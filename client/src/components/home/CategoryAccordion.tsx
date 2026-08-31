@@ -39,7 +39,9 @@ const categories = [
     href: '/catalog?category=accessories',
     bgClass: 'bg-blue-200',
     image: '/pets/dogwithball.png',
-    imgClass: 'h-[64%] max-w-[54%]',
+    // Ниже соседей (86-90%) намеренно: у остальных кадр в рост, а здесь
+    // портрет по грудь — при равной высоте голова оказалась бы вдвое крупнее.
+    imgClass: 'h-[78%] max-w-[54%]',
   },
   {
     id: 'care',
