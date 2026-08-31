@@ -113,10 +113,10 @@ export default function QuizQuestionComponent({
                 }`}
               >
                 {option.pet === 'dog' && (
-                  <DogSilhouette className="w-12 h-12 mr-4 flex-shrink-0 text-navy-200" />
+                  <DogSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-primary-soft' : 'text-navy-300'}`} />
                 )}
                 {option.pet === 'cat' && (
-                  <CatSilhouette className="w-12 h-12 mr-4 flex-shrink-0 text-navy-200" />
+                  <CatSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-primary-soft' : 'text-navy-300'}`} />
                 )}
                 <div className="flex-1">
                   <div className="font-medium text-base">{option.label}</div>
