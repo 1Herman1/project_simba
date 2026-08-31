@@ -1,7 +1,9 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { calcOrderTotals } from '@simba/shared'
+import { calcOrderTotals, LOYALTY_TIERS } from '@simba/shared'
+import { LOYALTY_STYLE, LOYALTY_CURRENT_MARK } from '../../lib/loyalty-style'
 import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
 import { cartApi, type CartItem } from '../../lib/api'
 import { formatPrice, formatBonuses, pluralize } from '../../lib/format'
 import { PawIcon, TrashIcon, ArrowLeftIcon } from '../icons'
@@ -16,6 +18,7 @@ type Props = {
 
 export default function CartDrawer({ open, onClose }: Props) {
   const { updateItem: updateItemFromCart, removeItem: removeItemFromCart } = useCart()
+  const { user } = useAuth()
   const [items, setItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(false)
   const [promoCode, setPromoCode] = useState('')
@@ -42,10 +45,20 @@ export default function CartDrawer({ open, onClose }: Props) {
   }, [open])
 
   const updateQuantity = async (item: CartItem, delta: number) => {
-    const newQty = Math.max(1, Math.min(item.productVariant.stock, item.quantity + delta))
-    if (newQty === item.quantity) return
+    const newQty = item.quantity + delta
+
+    // При минусе на количестве 1 удаляем позицию, не обновляем
+    if (newQty <= 0) {
+      removeItem(item.id)
+      return
+    }
+
+    // Иначе ограничиваем верхней границей stock
+    const boundedQty = Math.min(newQty, item.productVariant.stock)
+    if (boundedQty === item.quantity) return
+
     try {
-      const res = await updateItemFromCart(item.id, newQty)
+      const res = await updateItemFromCart(item.id, boundedQty)
       setItems(res.data.items)
     } catch { /* ignore */ }
   }
@@ -349,9 +362,19 @@ export default function CartDrawer({ open, onClose }: Props) {
             </div>
             <p className="text-xs text-navy-400 mb-2">1 бонус = 1 ₽ скидки на следующий заказ</p>
             <div className="flex gap-2 text-xs">
-              <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Новичок: 0–999</span>
-              <span className="bg-white border border-amber-200 text-navy-600 px-2 py-0.5 rounded-full">Активный: 1000+</span>
-              <span className="bg-amber-200 text-amber-800 px-2 py-0.5 rounded-full font-medium">Премиум: 5000+</span>
+              {LOYALTY_TIERS.map((tier) => {
+                // Нагрев показываем на всех трёх ступенях, а не только на своей —
+                // иначе у не вошедшего покупателя лестница пропадает целиком.
+                const isCurrent = user?.bonusLevel === tier.key
+                return (
+                  <span
+                    key={tier.key}
+                    className={`px-2 py-0.5 rounded-full ${LOYALTY_STYLE[tier.key]} ${isCurrent ? LOYALTY_CURRENT_MARK : ''}`}
+                  >
+                    {tier.label}
+                  </span>
+                )
+              })}
             </div>
           </div>
         </div>

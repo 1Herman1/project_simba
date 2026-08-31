@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
+import { LOYALTY_STYLE } from '../lib/loyalty-style'
 import { CheckIcon } from '../components/icons'
 import { type CSSProperties } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
 import { useOnScreen } from '../hooks/useOnScreen'
+import { LOYALTY_TIERS, type BonusLevel } from '@simba/shared'
 
 /** Подарок: коробка + крышка (кант — Tabler icons/outline/gift.svg, MIT) и
     свой бант из зеркальных петель. Двигается только крышка с бантом
@@ -55,29 +57,18 @@ function WalletIcon() {
     в движении всегда ровно одна иконка. */
 const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 1400}ms` }) as CSSProperties
 
-const LEVELS = [
-  {
-    key: 'newcomer',
-    label: 'Новичок',
-    range: '0 — 999 бонусов',
-    badge: 'bg-navy-100 text-navy-700',
+// Шкала нагрева: холод → тепло → жар
+const LEVELS_PERKS: Record<BonusLevel, { perks: string[] }> = {
+  newcomer: {
     perks: ['Начисление 5% с каждого заказа', 'Оплата бонусами: 1 = 1 ₽, до 50% чека'],
   },
-  {
-    key: 'active',
-    label: 'Активный',
-    range: '1 000 — 4 999 бонусов',
-    badge: 'bg-blue-100 text-blue-500',
+  active: {
     perks: ['Начисление 5% с каждого заказа', 'Оплата бонусами: 1 = 1 ₽, до 50% чека', 'Приоритетная поддержка'],
   },
-  {
-    key: 'premium',
-    label: 'Премиум',
-    range: 'от 5 000 бонусов',
-    badge: 'bg-amber-300 text-amber-800',
+  premium: {
     perks: ['Начисление 5% с каждого заказа', 'Оплата бонусами: 1 = 1 ₽, до 50% чека', 'Приоритетная поддержка', 'Эксклюзивные акции'],
   },
-]
+}
 
 export default function BonusesPage() {
   const iconsRef = useOnScreen<HTMLDivElement>()
@@ -154,23 +145,29 @@ export default function BonusesPage() {
       {/* Таблица уровней */}
       <h2 className="text-2xl font-bold text-navy-900 mb-4">Уровни участника</h2>
       <div className="flex flex-col gap-3 mb-8">
-        {LEVELS.map(level => (
-          <div key={level.key} className="bg-white border border-line rounded-card p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-xs font-bold px-3 py-1 rounded-full ${level.badge}`}>
-                {level.label}
-              </span>
-              <span className="text-xs text-navy-500">{level.range}</span>
+        {LOYALTY_TIERS.map((tier, idx) => {
+          const nextTier = LOYALTY_TIERS[idx + 1]
+          const rangeText = nextTier
+            ? `${tier.minPoints.toLocaleString('ru-RU')} — ${(nextTier.minPoints - 1).toLocaleString('ru-RU')} бонусов`
+            : `от ${tier.minPoints.toLocaleString('ru-RU')} бонусов`
+          return (
+            <div key={tier.key} className="bg-white border border-line rounded-card p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${LOYALTY_STYLE[tier.key]}`}>
+                  {tier.label}
+                </span>
+                <span className="text-xs text-navy-500">{rangeText}</span>
+              </div>
+              <ul className="flex flex-col gap-1">
+                {LEVELS_PERKS[tier.key].perks.map(perk => (
+                  <li key={perk} className="text-sm text-navy-700 flex items-center gap-2">
+                    <CheckIcon className="w-4 h-4 text-amber-600" /> {perk}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul className="flex flex-col gap-1">
-              {level.perks.map(perk => (
-                <li key={perk} className="text-sm text-navy-700 flex items-center gap-2">
-                  <CheckIcon className="w-4 h-4 text-amber-600" /> {perk}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       {/* Мелкий текст */}

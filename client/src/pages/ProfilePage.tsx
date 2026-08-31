@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
+import { LOYALTY_STYLE, LOYALTY_CURRENT_MARK } from '../lib/loyalty-style'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi, ordersApi, usersApi, bonusesApi, subscriptionsApi, type User, type Order, type BonusTransaction, type Subscription } from '../lib/api'
 import { formatPrice, formatBonuses } from '../lib/format'
 import { CheckIcon, StepCurrentIcon, StepPendingIcon, ChevronDownIcon } from '../components/icons'
+import { LOYALTY_TIERS, type BonusLevel } from '@simba/shared'
+import LoginForm from '../components/auth/LoginForm'
 
 type OrderStatus = 'new' | 'confirmed' | 'in_transit' | 'delivered' | 'cancelled'
 
@@ -24,13 +27,7 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
 
 const STATUS_STEPS: OrderStatus[] = ['new', 'confirmed', 'in_transit', 'delivered']
 
-
-const BONUS_LEVELS = [
-  { key: 'newcomer', label: 'Новичок', min: 0, max: 999, color: 'bg-navy-100 text-navy-500' },
-  { key: 'active', label: 'Активный', min: 1000, max: 4999, color: 'bg-blue-100 text-blue-400' },
-  { key: 'premium', label: 'Премиум', min: 5000, max: Infinity, color: 'bg-amber-100 text-amber-600' },
-]
-
+// Шкала нагрева: холод → тепло → жар
 
 type Tab = 'orders' | 'bonuses' | 'subscriptions' | 'settings'
 
@@ -90,7 +87,9 @@ export default function ProfilePage() {
           email: res.data.email ?? '',
         })
       })
-      .catch(() => navigate('/auth'))
+      .catch(() => {
+        setUser(null)
+      })
       .finally(() => setLoadingUser(false))
     ordersApi.list()
       .then(res => setOrders(res.data))
@@ -119,11 +118,11 @@ export default function ProfilePage() {
       .finally(() => setLoadingSubscriptions(false))
   }, [tab])
 
-  const currentLevel = BONUS_LEVELS.find(l => (user?.bonusLevel ?? 'newcomer') === l.key) ?? BONUS_LEVELS[0]
-  const nextLevel = BONUS_LEVELS.find(l => l.min > currentLevel.min)
+  const currentLevelTier = LOYALTY_TIERS.find(t => (user?.bonusLevel ?? 'newcomer') === t.key) ?? LOYALTY_TIERS[0]
+  const nextLevelTier = LOYALTY_TIERS.find(t => t.minPoints > currentLevelTier.minPoints)
   const bonusPoints = user?.bonusPoints ?? 0
-  const progressToNext = nextLevel
-    ? Math.min(100, ((bonusPoints - currentLevel.min) / (nextLevel.min - currentLevel.min)) * 100)
+  const progressToNext = nextLevelTier
+    ? Math.min(100, ((bonusPoints - currentLevelTier.minPoints) / (nextLevelTier.minPoints - currentLevelTier.minPoints)) * 100)
     : 100
 
   const filteredOrders = filterStatus === 'all'
@@ -134,6 +133,27 @@ export default function ProfilePage() {
     return (
       <div className="min-h-[100dvh] bg-blue-50 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-200 border-t-transparent rounded-full" />
+      </div>
+    )
+  }
+
+  // Гостевая сессия — это настоящая учётная запись с именем «Гость»
+  // (server/src/routes/auth/guest-session.ts:33), поэтому раньше профиль
+  // рисовал её как свою и войти было неоткуда. Признак isGuest приходит
+  // из /auth/me по типу токена.
+  if (!user || user.isGuest) {
+    return (
+      <div className="min-h-[100dvh] bg-blue-50">
+        <div className="max-w-md mx-auto px-4 py-10 md:py-20">
+          <div className="bg-white rounded-2xl p-6 mb-4">
+            {/* Своего заголовка страница не ставит: он есть у формы, а два
+                подряд читались бы как ошибка вёрстки. */}
+            <p className="text-sm text-navy-500 mb-6">
+              Войдите, чтобы управлять заказами, следить за бонусами и хранить адреса доставки.
+            </p>
+            <LoginForm />
+          </div>
+        </div>
       </div>
     )
   }
@@ -150,8 +170,8 @@ export default function ProfilePage() {
             <h1 className="text-lg font-bold text-navy-900 truncate">{user?.name ?? '—'}</h1>
             <p className="text-sm text-navy-400 truncate">{user?.phone ?? user?.email ?? '—'}</p>
           </div>
-          <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${currentLevel.color}`}>
-            {currentLevel.label}
+          <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${LOYALTY_STYLE[user?.bonusLevel ?? 'newcomer']}`}>
+            {currentLevelTier.label}
           </span>
         </div>
 
@@ -325,7 +345,7 @@ export default function ProfilePage() {
             {/* Баланс */}
             <div className="bg-white rounded-2xl p-6 text-center">
               <p className="text-sm text-navy-400 mb-1">Ваш счёт бонусов</p>
-              <p className="text-5xl font-black text-amber-400 mb-1">{bonusPoints.toLocaleString()}</p>
+              <p className="text-5xl font-black text-amber-400 mb-1">{bonusPoints.toLocaleString('ru-RU')}</p>
               <p className="text-sm text-navy-400">бонусов · 1 бонус = 1 ₽</p>
             </div>
 
@@ -333,11 +353,11 @@ export default function ProfilePage() {
             <div className="bg-white rounded-2xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-navy-900">Уровень</h3>
-                <span className={`text-xs font-bold px-3 py-1 rounded-full ${currentLevel.color}`}>
-                  {currentLevel.label}
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${LOYALTY_STYLE[user?.bonusLevel ?? 'newcomer']}`}>
+                  {currentLevelTier.label}
                 </span>
               </div>
-              {nextLevel && (
+              {nextLevelTier && (
                 <>
                   <div className="h-2 bg-blue-50 rounded-full overflow-hidden mb-2">
                     <div
@@ -346,29 +366,27 @@ export default function ProfilePage() {
                     />
                   </div>
                   <p className="text-xs text-navy-400">
-                    До уровня <span className="font-semibold text-navy-700">«{nextLevel.label}»</span>:{' '}
-                    {formatBonuses(Math.max(0, nextLevel.min - bonusPoints))}
+                    До уровня <span className="font-semibold text-navy-700">«{nextLevelTier.label}»</span>:{' '}
+                    {formatBonuses(Math.max(0, nextLevelTier.minPoints - bonusPoints))}
                   </p>
                 </>
               )}
 
               <div className="grid grid-cols-3 gap-2 mt-4">
-                {BONUS_LEVELS.map(level => (
-                  <div
-                    key={level.key}
-                    className={`rounded-xl p-3 text-center border ${
-                      user?.bonusLevel === level.key
-                        ? 'border-amber-200 bg-amber-50'
-                        : 'border-line bg-blue-50'
-                    }`}>
-                    <p className={`text-xs font-bold mb-1 ${user?.bonusLevel === level.key ? 'text-amber-600' : 'text-navy-400'}`}>
-                      {level.label}
-                    </p>
-                    <p className="text-[10px] text-navy-400">
-                      {level.max === Infinity ? `от ${level.min}` : `${level.min}–${level.max}`}
-                    </p>
-                  </div>
-                ))}
+                {/* Градус показываем у всех трёх ступеней, как в корзине: иначе
+                    лестница видна только на своей клетке и подниматься некуда. */}
+                {LOYALTY_TIERS.map((tier) => {
+                  const isCurrentLevel = user?.bonusLevel === tier.key
+                  return (
+                    <div
+                      key={tier.key}
+                      className={`rounded-xl p-3 text-center ${LOYALTY_STYLE[tier.key]} ${
+                        isCurrentLevel ? LOYALTY_CURRENT_MARK : 'opacity-60'
+                      }`}>
+                      <p className="text-xs font-bold">{tier.label}</p>
+                    </div>
+                  )
+                })}
               </div>
             </div>
 

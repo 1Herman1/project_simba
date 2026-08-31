@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react'
 import { usersApi, type User } from '../../lib/api'
+import { LOYALTY_TIERS } from '@simba/shared'
 
 const ROLES = ['customer', 'products_manager', 'orders_manager', 'super_admin']
+
+// Преобразовать ключ уровня в название
+function getLevelLabel(levelKey: string): string {
+  const tier = LOYALTY_TIERS.find(t => t.key === levelKey)
+  return tier ? tier.label : levelKey
+}
 const ROLE_LABEL: Record<string, string> = {
   customer: 'Покупатель',
   products_manager: 'Менеджер товаров',
@@ -126,7 +133,7 @@ export default function UsersPage() {
                     <td className="px-5 py-3 text-gray-700">{user._count?.orders ?? 0}</td>
                     <td className="px-5 py-3">
                       <span className="text-amber-600 font-medium">{user.bonusPoints}</span>
-                      <span className="text-xs text-gray-400 ml-1">({user.bonusLevel})</span>
+                      <span className="text-xs text-gray-400 ml-1">({getLevelLabel(user.bonusLevel)})</span>
                     </td>
                     <td className="px-5 py-3">
                       <select
