@@ -1,0 +1,1322 @@
+{
+  "run_id": "serp_xmlriver_3e5624ed5686",
+  "provider": "xmlriver",
+  "topic": "vet-clinic-moscow",
+  "semantic_cluster_queries": [
+    "ветеринарный хирург в москве",
+    "операция для собаки москва",
+    "операция для кошки москва",
+    "операция коту москва",
+    "хирургия для животных в москве",
+    "хирургическая операция для животных в москве цена",
+    "ветеринарная клиника хирургия москва",
+    "ветеринар хирург москва цена",
+    "хирург для животных москва",
+    "операция животному москва",
+    "стерилизация кошки москва",
+    "стерилизация собаки москва",
+    "кастрация кота москва",
+    "кастрация собаки москва",
+    "полостная операция собаке москва",
+    "удаление опухоли у собаки москва",
+    "удаление опухоли у кошки москва",
+    "операция на суставе собаке москва",
+    "остеосинтез собаке москва",
+    "удаление зубов кошке под наркозом москва",
+    "кесарево сечение кошке москва",
+    "операция на глазах собаке москва",
+    "грыжа у собаки операция москва",
+    "пиометра у кошки операция москва",
+    "онкология у животных москва",
+    "узи животным москва",
+    "наркоз для животных безопасный москва",
+    "ветклиника хамовники",
+    "ветеринарная клиника хамовники",
+    "ветеринар хамовники",
+    "ветклиника на плющихе",
+    "ветеринарная клиника плющиха",
+    "ветклиника фрунзенская",
+    "ветеринарная клиника метро фрунзенская",
+    "ветклиника смоленская",
+    "ветеринарная клиника метро смоленская",
+    "ветклиника киевская",
+    "ветеринарная клиника метро киевская",
+    "ветклиника спортивная",
+    "ветеринарная клиника цао",
+    "ветеринарный хирург цао",
+    "ветклиника центр москвы",
+    "ветклиника рядом со мной",
+    "ветеринар рядом со мной москва",
+    "круглосуточная ветклиника хамовники",
+    "ветеринарная клиника ростовская набережная",
+    "ветклиника проспект комсомольский",
+    "круглосуточная ветеринарная клиника москва",
+    "экстренная операция животному москва",
+    "срочная операция собаке москва",
+    "вызов ветеринарного хирурга на дом москва",
+    "второе мнение ветеринар москва",
+    "консультация ветеринарного хирурга москва",
+    "эндоскопическая операция животным москва",
+    "малоинвазивная операция животным москва",
+    "стационар для животных после операции москва",
+    "реанимация для животных москва",
+    "лучший ветеринарный хирург москвы",
+    "ветеринарная клиника премиум класса москва",
+    "ветклиника с современным оборудованием москва",
+    "кт животным москва",
+    "мрт животным москва",
+    "анестезиолог ветеринарный москва"
+  ],
+  "cluster_query_count": 63,
+  "semantic_cluster_topic": "vet-clinic-moscow",
+  "semantic_cluster_status": "missing",
+  "semantic_cluster_source": "not_provided",
+  "semantic_cluster_confirmed": false,
+  "semantic_cluster_confirmation_required": false,
+  "max_queries_applied": "all_cluster_queries",
+  "depth": 10,
+  "requested_top_urls": 10,
+  "depth_semantics": "--depth is the requested organic URL count/top-N, not a pagination page count",
+  "planned_query_engine_pairs": 63,
+  "planned_paid_requests": 63,
+  "paid_request_count": 63,
+  "xmlriver_results_per_page": 10,
+  "xmlriver_serp_pages_per_query_engine": 1,
+  "xmlriver_paid_requests": [
+    {
+      "paid_request_id": "xmlriver_paid_0001",
+      "query_engine_pair_id": 1,
+      "query": "ветеринарный хирург в москве",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0002",
+      "query_engine_pair_id": 2,
+      "query": "операция для собаки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0003",
+      "query_engine_pair_id": 3,
+      "query": "операция для кошки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0004",
+      "query_engine_pair_id": 4,
+      "query": "операция коту москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0005",
+      "query_engine_pair_id": 5,
+      "query": "хирургия для животных в москве",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0006",
+      "query_engine_pair_id": 6,
+      "query": "хирургическая операция для животных в москве цена",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0007",
+      "query_engine_pair_id": 7,
+      "query": "ветеринарная клиника хирургия москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0008",
+      "query_engine_pair_id": 8,
+      "query": "ветеринар хирург москва цена",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0009",
+      "query_engine_pair_id": 9,
+      "query": "хирург для животных москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0010",
+      "query_engine_pair_id": 10,
+      "query": "операция животному москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0011",
+      "query_engine_pair_id": 11,
+      "query": "стерилизация кошки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0012",
+      "query_engine_pair_id": 12,
+      "query": "стерилизация собаки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0013",
+      "query_engine_pair_id": 13,
+      "query": "кастрация кота москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0014",
+      "query_engine_pair_id": 14,
+      "query": "кастрация собаки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0015",
+      "query_engine_pair_id": 15,
+      "query": "полостная операция собаке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0016",
+      "query_engine_pair_id": 16,
+      "query": "удаление опухоли у собаки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0017",
+      "query_engine_pair_id": 17,
+      "query": "удаление опухоли у кошки москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0018",
+      "query_engine_pair_id": 18,
+      "query": "операция на суставе собаке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0019",
+      "query_engine_pair_id": 19,
+      "query": "остеосинтез собаке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0020",
+      "query_engine_pair_id": 20,
+      "query": "удаление зубов кошке под наркозом москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0021",
+      "query_engine_pair_id": 21,
+      "query": "кесарево сечение кошке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0022",
+      "query_engine_pair_id": 22,
+      "query": "операция на глазах собаке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0023",
+      "query_engine_pair_id": 23,
+      "query": "грыжа у собаки операция москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0024",
+      "query_engine_pair_id": 24,
+      "query": "пиометра у кошки операция москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0025",
+      "query_engine_pair_id": 25,
+      "query": "онкология у животных москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0026",
+      "query_engine_pair_id": 26,
+      "query": "узи животным москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0027",
+      "query_engine_pair_id": 27,
+      "query": "наркоз для животных безопасный москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0028",
+      "query_engine_pair_id": 28,
+      "query": "ветклиника хамовники",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0029",
+      "query_engine_pair_id": 29,
+      "query": "ветеринарная клиника хамовники",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0030",
+      "query_engine_pair_id": 30,
+      "query": "ветеринар хамовники",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0031",
+      "query_engine_pair_id": 31,
+      "query": "ветклиника на плющихе",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0032",
+      "query_engine_pair_id": 32,
+      "query": "ветеринарная клиника плющиха",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0033",
+      "query_engine_pair_id": 33,
+      "query": "ветклиника фрунзенская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0034",
+      "query_engine_pair_id": 34,
+      "query": "ветеринарная клиника метро фрунзенская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0035",
+      "query_engine_pair_id": 35,
+      "query": "ветклиника смоленская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0036",
+      "query_engine_pair_id": 36,
+      "query": "ветеринарная клиника метро смоленская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0037",
+      "query_engine_pair_id": 37,
+      "query": "ветклиника киевская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0038",
+      "query_engine_pair_id": 38,
+      "query": "ветеринарная клиника метро киевская",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0039",
+      "query_engine_pair_id": 39,
+      "query": "ветклиника спортивная",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0040",
+      "query_engine_pair_id": 40,
+      "query": "ветеринарная клиника цао",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0041",
+      "query_engine_pair_id": 41,
+      "query": "ветеринарный хирург цао",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0042",
+      "query_engine_pair_id": 42,
+      "query": "ветклиника центр москвы",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0043",
+      "query_engine_pair_id": 43,
+      "query": "ветклиника рядом со мной",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0044",
+      "query_engine_pair_id": 44,
+      "query": "ветеринар рядом со мной москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0045",
+      "query_engine_pair_id": 45,
+      "query": "круглосуточная ветклиника хамовники",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0046",
+      "query_engine_pair_id": 46,
+      "query": "ветеринарная клиника ростовская набережная",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0047",
+      "query_engine_pair_id": 47,
+      "query": "ветклиника проспект комсомольский",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0048",
+      "query_engine_pair_id": 48,
+      "query": "круглосуточная ветеринарная клиника москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0049",
+      "query_engine_pair_id": 49,
+      "query": "экстренная операция животному москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0050",
+      "query_engine_pair_id": 50,
+      "query": "срочная операция собаке москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0051",
+      "query_engine_pair_id": 51,
+      "query": "вызов ветеринарного хирурга на дом москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0052",
+      "query_engine_pair_id": 52,
+      "query": "второе мнение ветеринар москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0053",
+      "query_engine_pair_id": 53,
+      "query": "консультация ветеринарного хирурга москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0054",
+      "query_engine_pair_id": 54,
+      "query": "эндоскопическая операция животным москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 4
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0055",
+      "query_engine_pair_id": 55,
+      "query": "малоинвазивная операция животным москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 5
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0056",
+      "query_engine_pair_id": 56,
+      "query": "стационар для животных после операции москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 6
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0057",
+      "query_engine_pair_id": 57,
+      "query": "реанимация для животных москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 7
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0058",
+      "query_engine_pair_id": 58,
+      "query": "лучший ветеринарный хирург москвы",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 8
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0059",
+      "query_engine_pair_id": 59,
+      "query": "ветеринарная клиника премиум класса москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 9
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0060",
+      "query_engine_pair_id": 60,
+      "query": "ветклиника с современным оборудованием москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 10
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0061",
+      "query_engine_pair_id": 61,
+      "query": "кт животным москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 1
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0062",
+      "query_engine_pair_id": 62,
+      "query": "мрт животным москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 2
+    },
+    {
+      "paid_request_id": "xmlriver_paid_0063",
+      "query_engine_pair_id": 63,
+      "query": "анестезиолог ветеринарный москва",
+      "engine": "yandex",
+      "requested_top_urls": 10,
+      "xmlriver_results_per_page": 10,
+      "serp_page_index": 1,
+      "page_param": 0,
+      "page_param_note": "Google first page is 1; Yandex first page is 0",
+      "xmlriver_max_threads": 10,
+      "planned_thread_slot": 3
+    }
+  ],
+  "xmlriver_max_threads": 10,
+  "xmlriver_thread_slots_planned": 10,
+  "xmlriver_thread_policy": "Use the maximum 10 XMLRiver live collection threads for the paid page-request queue; if fewer than 10 requests are pending, unused slots stay idle.",
+  "include_ai": true,
+  "ai_request_scope": "XMLRiver ai=1 is sent only on the first SERP page for each query-engine pair",
+  "load_async_ai_overview": false,
+  "region": "213",
+  "language": "ru",
+  "xmlriver_reference_files": {
+    "geo": "https://xmlriver.com/files/geo.csv",
+    "countries": "https://xmlriver.com/files/countries.xlsx",
+    "languages": "https://xmlriver.com/files/langs.xlsx",
+    "domains": "https://xmlriver.com/files/domains.xlsx"
+  },
+  "queries": [
+    {
+      "query": "ветеринарный хирург в москве",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция для собаки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция для кошки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция коту москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "хирургия для животных в москве",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "хирургическая операция для животных в москве цена",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника хирургия москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринар хирург москва цена",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "хирург для животных москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция животному москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "стерилизация кошки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "стерилизация собаки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "кастрация кота москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "кастрация собаки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "полостная операция собаке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "удаление опухоли у собаки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "удаление опухоли у кошки москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция на суставе собаке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "остеосинтез собаке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "удаление зубов кошке под наркозом москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "кесарево сечение кошке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "операция на глазах собаке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "грыжа у собаки операция москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "пиометра у кошки операция москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "онкология у животных москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "узи животным москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "наркоз для животных безопасный москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника хамовники",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника хамовники",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринар хамовники",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника на плющихе",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника плющиха",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника фрунзенская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника метро фрунзенская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника смоленская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника метро смоленская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника киевская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника метро киевская",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника спортивная",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника цао",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарный хирург цао",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника центр москвы",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника рядом со мной",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринар рядом со мной москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "круглосуточная ветклиника хамовники",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника ростовская набережная",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника проспект комсомольский",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "круглосуточная ветеринарная клиника москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "экстренная операция животному москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "срочная операция собаке москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "вызов ветеринарного хирурга на дом москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "второе мнение ветеринар москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "консультация ветеринарного хирурга москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "эндоскопическая операция животным москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "малоинвазивная операция животным москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "стационар для животных после операции москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "реанимация для животных москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "лучший ветеринарный хирург москвы",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветеринарная клиника премиум класса москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "ветклиника с современным оборудованием москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "кт животным москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "мрт животным москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    },
+    {
+      "query": "анестезиолог ветеринарный москва",
+      "engine": "yandex",
+      "source": "semantic_cluster_query",
+      "topic": "vet-clinic-moscow"
+    }
+  ],
+  "depth_errors": [],
+  "region_errors": [],
+  "request_validation_errors": [],
+  "workflow_mode": "quick_cluster",
+  "approval": {
+    "approved_by": "",
+    "network_approved": false,
+    "paid_approved": false,
+    "scope": {
+      "provider": "xmlriver",
+      "query_engine_pairs": 63,
+      "planned_paid_requests": 63,
+      "requested_top_urls": 10,
+      "engines": [
+        "yandex"
+      ],
+      "region": "213",
+      "language": "ru",
+      "include_ai": true
+    }
+  },
+  "max_async_ai_overview_extra_cost_usd": 0
+}

@@ -1,0 +1,143 @@
+name: GEO Collect (XMLRiver)
+
+# Сбор выдачи Яндекса и ИИ-ответов через XMLRiver для проекта ветклиники.
+# Ключ живёт в секретах репозитория и никогда не попадает ни в репозиторий,
+# ни в переписку с агентом — GitHub маскирует его в логах.
+#
+# Только по явному workflow_dispatch (никогда на push): сбор платный.
+# Режим по умолчанию — dry-run: показывает смету, денег не тратит.
+#
+# Работает в quick-cluster-mode — режиме изолированного исследования семантики.
+# Он нужен потому, что сайта у клиники ещё нет: полный режим требует аудита
+# существующих страниц, аудитировать нечего. После запуска сайта имеет смысл
+# перейти на полный режим с аудитом доступности для ИИ.
+#
+# Секреты: Settings → Secrets and variables → Actions
+#   XMLRIVER_USER, XMLRIVER_KEY
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'dry-run — только смета, денег не тратит. live — реальный платный сбор'
+        type: choice
+        options:
+          - dry-run
+          - live
+        default: dry-run
+      topic:
+        description: 'Тема прогона (папка с результатами)'
+        type: string
+        default: vet-clinic-moscow
+      depth:
+        description: 'Глубина топа. 10 = 1 платное обращение на запрос, 20 = 2, и т.д.'
+        type: string
+        default: '10'
+      max_queries:
+        description: '0 — все запросы из queries.txt, число — ограничить (для пробы)'
+        type: string
+        default: '0'
+
+concurrency:
+  group: geo-collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Подготовить список запросов
+        # Комментарии и пустые строки из queries.txt в сборщик не передаём.
+        run: |
+          set -euo pipefail
+          SRC=docs/projects/vet-clinic/queries.txt
+          grep -vE '^\s*(#|$)' "$SRC" > /tmp/queries-clean.txt
+          echo "Запросов к сбору: $(wc -l < /tmp/queries-clean.txt)"
+
+      - name: Записать учётные данные
+        env:
+          XMLRIVER_USER: ${{ secrets.XMLRIVER_USER }}
+          XMLRIVER_KEY: ${{ secrets.XMLRIVER_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${XMLRIVER_USER}" ] || [ -z "${XMLRIVER_KEY}" ]; then
+            echo "::error::Не заданы секреты XMLRIVER_USER / XMLRIVER_KEY."
+            exit 1
+          fi
+          umask 077
+          printf 'XMLRIVER_USER=%s\nXMLRIVER_KEY=%s\n' "$XMLRIVER_USER" "$XMLRIVER_KEY" > /tmp/geo.env
+
+      - name: Собрать выдачу
+        env:
+          PYTHONUTF8: '1'
+          PYTHONIOENCODING: utf-8
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.mode }}" = "live" ]; then
+            APPROVAL="--network-approved --paid-approved"
+            echo "РЕЖИМ: live — будут списаны деньги."
+          else
+            APPROVAL="--dry-run"
+            echo "РЕЖИМ: dry-run — смета, без трат."
+          fi
+          python .geo-topic-agent-runtime/geo_agent_cli.py collect-serp \
+            --project-dir . \
+            --topic "${{ inputs.topic }}" \
+            --provider xmlriver \
+            --engines yandex \
+            --region 213 \
+            --language ru \
+            --cluster-queries-file /tmp/queries-clean.txt \
+            --depth "${{ inputs.depth }}" \
+            --max-queries "${{ inputs.max_queries }}" \
+            --include-ai \
+            --quick-cluster-mode \
+            --env /tmp/geo.env \
+            $APPROVAL
+
+      - name: Убрать учётные данные
+        if: always()
+        run: rm -f /tmp/geo.env
+
+      - name: Проверить, что секретов нет в результатах
+        if: always()
+        run: |
+          set -euo pipefail
+          if git status --porcelain | grep -qE '\.env'; then
+            echo "::error::Среди изменений оказался .env — коммит остановлен."
+            exit 1
+          fi
+
+      - name: Сохранить результаты в репозиторий
+        if: inputs.mode == 'live'
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A geo_agent docs/projects/vet-clinic 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Новых данных нет — коммитить нечего."
+            exit 0
+          fi
+          git commit -m "GEO: собрана выдача Яндекса по теме ${{ inputs.topic }}"
+          git push
+
+      - name: Приложить результаты артефактом
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: geo-${{ inputs.topic }}-${{ inputs.mode }}
+          path: |
+            geo_agent/
+            docs/projects/vet-clinic/data/
+          if-no-files-found: warn
+          retention-days: 14

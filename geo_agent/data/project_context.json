@@ -1,0 +1,115 @@
+{
+  "domain": "",
+  "brand": "Ветклиника в Хамовниках",
+  "brand_variants": [
+    "Ветклиника в Хамовниках"
+  ],
+  "brand_variants_status": "confirmed",
+  "brand_variants_source": "explicit_user_confirmation",
+  "brand_variants_confirmation_required": false,
+  "target_goal": "both",
+  "topic": "",
+  "topic_cluster_intake_deferred": false,
+  "semantic_cluster_queries": [],
+  "cluster_query_count": 0,
+  "semantic_cluster_topic": "",
+  "semantic_cluster_status": "missing",
+  "semantic_cluster_source": "not_provided",
+  "semantic_cluster_confirmed": false,
+  "semantic_cluster_confirmation_required": true,
+  "region": {
+    "country": "213",
+    "city": "",
+    "language": "ru",
+    "scope_status": "unresolved",
+    "scope_provenance": "not_provided",
+    "google": {
+      "gl": "ru",
+      "hl": "ru"
+    },
+    "yandex": {
+      "lr": 213
+    },
+    "device": {
+      "default": "desktop",
+      "collect_mobile": false
+    }
+  },
+  "language": "ru",
+  "search_engines": [
+    "yandex"
+  ],
+  "competitors": [],
+  "site_pages": [],
+  "products_services": [],
+  "documents": [],
+  "site_discovery_approved": false,
+  "context_notes": "",
+  "context_not_applicable_decisions": [],
+  "audit_decisions": {
+    "site_accessibility": {
+      "audit_id": "site_accessibility",
+      "decision": "declined",
+      "reason": "Сайта клиники ещё не существует — аудитировать нечего. Провести после запуска сайта.",
+      "decided_by": "Гермес",
+      "decision_ref": "chat-2026-09-01",
+      "decided_at": "2026-09-01T07:04:59+00:00"
+    },
+    "target_page_llm_accessibility": {
+      "audit_id": "target_page_llm_accessibility",
+      "decision": "declined",
+      "reason": "Сайта клиники ещё не существует — аудитировать нечего. Провести после запуска сайта.",
+      "decided_by": "Гермес",
+      "decision_ref": "chat-2026-09-01",
+      "decided_at": "2026-09-01T07:04:59+00:00"
+    }
+  },
+  "context_quality_gate": {
+    "status": "fail",
+    "site_context_status": "not_collected",
+    "brand_variants_status": "confirmed",
+    "brand_variants_confirmed": true,
+    "brand_variants_waivable": false,
+    "material_open_questions": [],
+    "missing_context_fields": [],
+    "accepted_not_applicable_fields": [],
+    "accepted_not_applicable_decisions": [],
+    "rejected_not_applicable_decisions": []
+  },
+  "context_acquisition": {
+    "documents_provided": false,
+    "site_discovery_approved": false,
+    "network_required_for_site_discovery": true,
+    "accessibility_audit_separate": true,
+    "deep_context_collection_status": "not_collected",
+    "deep_context_completed_at": "",
+    "post_context_next_step": "resolve_context_quality_gaps",
+    "deep_context_offer_required": false,
+    "deep_context_run_recommended": false,
+    "recommended_deep_context_max_pages": 30,
+    "recommended_deep_context_scope": [
+      "homepage",
+      "user-provided core landing pages",
+      "main product/service/course pages",
+      "header and navigation links",
+      "footer links",
+      "pricing, tariffs, payment, subscription, checkout",
+      "trial, demo, free-access, delivery or shipping pages when relevant",
+      "contacts, about/company/team/author, legal, terms, refund, requisites",
+      "cases, reviews, FAQ and trust pages"
+    ],
+    "recommended_deep_context_command": ""
+  },
+  "assumptions": [
+    "Domain was not provided.",
+    "Topic was not provided.",
+    "No project documents were provided and public site discovery was not approved yet."
+  ],
+  "updated_at": "2026-09-01T07:05:06+00:00",
+  "brand_variants_confirmation": {
+    "variants_sha256": "58bc395dff584a718de1ea79748918080550d0298aaa393e2eb02113402ac0bd",
+    "confirmation_ref": "chat-2026-09-01-placeholder",
+    "confirmed_by": "Гермес",
+    "confirmed_at": "2026-09-01T07:05:06+00:00"
+  }
+}
