@@ -1,0 +1,118 @@
+{
+  "agent": {
+    "name": "geo-topic-agent",
+    "mode": "interactive",
+    "storage": "csv_json",
+    "language": "ru"
+  },
+  "project": {
+    "domain": "",
+    "brand": "Ветклиника в Хамовниках",
+    "brand_variants": [
+      "Ветклиника в Хамовниках"
+    ],
+    "brand_variants_status": "confirmed",
+    "brand_variants_source": "explicit_user_confirmation",
+    "target_goal": "both",
+    "priority_topics": [],
+    "semantic_cluster_queries": [],
+    "competitors": [],
+    "site_pages": [],
+    "products_services": [],
+    "documents": [],
+    "context_notes": "",
+    "site_discovery_approved": false,
+    "context_not_applicable_decisions": [],
+    "audit_decisions": {
+      "site_accessibility": {
+        "audit_id": "site_accessibility",
+        "decision": "declined",
+        "reason": "Сайта клиники ещё не существует — аудитировать нечего. Провести после запуска сайта.",
+        "decided_by": "Гермес",
+        "decision_ref": "chat-2026-09-01",
+        "decided_at": "2026-09-01T07:04:59+00:00"
+      },
+      "target_page_llm_accessibility": {
+        "audit_id": "target_page_llm_accessibility",
+        "decision": "declined",
+        "reason": "Сайта клиники ещё не существует — аудитировать нечего. Провести после запуска сайта.",
+        "decided_by": "Гермес",
+        "decision_ref": "chat-2026-09-01",
+        "decided_at": "2026-09-01T07:04:59+00:00"
+      }
+    },
+    "brand_variants_confirmed_at": "2026-09-01T07:05:06+00:00",
+    "brand_variants_confirmation": {
+      "variants_sha256": "58bc395dff584a718de1ea79748918080550d0298aaa393e2eb02113402ac0bd",
+      "confirmation_ref": "chat-2026-09-01-placeholder",
+      "confirmed_by": "Гермес",
+      "confirmed_at": "2026-09-01T07:05:06+00:00"
+    }
+  },
+  "region": {
+    "country": "213",
+    "city": "",
+    "language": "ru",
+    "scope_status": "unresolved",
+    "scope_provenance": "not_provided",
+    "google": {
+      "gl": "ru",
+      "hl": "ru"
+    },
+    "yandex": {
+      "lr": 213
+    },
+    "device": {
+      "default": "desktop",
+      "collect_mobile": false
+    }
+  },
+  "search_engines": {
+    "google": {
+      "enabled": false,
+      "provider": "xmlriver",
+      "depth": 20
+    },
+    "yandex": {
+      "enabled": true,
+      "provider": "xmlriver",
+      "depth": 20
+    },
+    "bing": {
+      "enabled": false,
+      "provider": "manual_or_existing",
+      "depth": 20
+    },
+    "brave": {
+      "enabled": false,
+      "provider": "manual_or_existing",
+      "depth": 20
+    }
+  },
+  "xmlriver": {
+    "enabled": true,
+    "use_existing_client": true,
+    "env_key_aliases": [
+      "XMLRIVER_USER",
+      "XMLRIVER_KEY"
+    ]
+  },
+  "ai_answers": {
+    "enabled": false,
+    "provider": "existing_or_manual",
+    "collect_raw": true,
+    "extract_citations": true,
+    "repeat_runs": 3,
+    "manual_import_template": "geo_agent/data/import/ai_answers_template.csv"
+  },
+  "outputs": {
+    "reports_dir": "geo_agent/reports",
+    "data_dir": "geo_agent/data",
+    "handoff_dir": "geo_agent/data/handoff"
+  },
+  "budgets": {
+    "max_serp_queries_without_explicit_approval": 50,
+    "max_repair_iterations": 3,
+    "max_runtime_minutes": 60
+  }
+}

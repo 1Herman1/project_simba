@@ -1,0 +1,417 @@
+<title>Поисковая ниша ветклиники</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+<style>
+:root {
+  --bg: #FAF7F2;
+  --surface: #F2EDE5;
+  --fg: #1C1A17;
+  --fg-muted: #5C554C;
+  --border: #E0D8CC;
+  --accent: #A85A38;
+  --accent-strong: #8A4529;
+  --st-open: #3F6B4A;
+  --st-tight: #8A6414;
+  --st-taken: #55504A;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171512;
+    --surface: #201D18;
+    --fg: #EFE9E0;
+    --fg-muted: #A8A096;
+    --border: #332F28;
+    --accent: #E08B5E;
+    --accent-strong: #E9A177;
+    --st-open: #7FB98A;
+    --st-tight: #D6A94A;
+    --st-taken: #9A9288;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171512;
+  --surface: #201D18;
+  --fg: #EFE9E0;
+  --fg-muted: #A8A096;
+  --border: #332F28;
+  --accent: #E08B5E;
+  --accent-strong: #E9A177;
+  --st-open: #7FB98A;
+  --st-tight: #D6A94A;
+  --st-taken: #9A9288;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Golos Text', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 64px; }
+
+section { margin-top: 64px; }
+@media (max-width: 767px) { section { margin-top: 48px; } }
+
+h1 { font: 700 30px/1.2 'Golos Text', sans-serif; margin: 0 0 12px; letter-spacing: -0.01em; }
+h1::after { content: ""; display: block; width: 64px; height: 2px; background: var(--accent); margin-top: 16px; }
+h2 { font: 700 22px/1.3 'Golos Text', sans-serif; margin: 0 0 8px; }
+h3 { font: 700 17px/1.35 'Golos Text', sans-serif; margin: 0; }
+
+.prose {
+  font: 400 17px/1.65 'Source Serif 4', Georgia, serif;
+  max-width: 68ch;
+}
+.sub { font-size: 13px; line-height: 1.5; color: var(--fg-muted); }
+.lede { color: var(--fg-muted); max-width: 68ch; margin: 0 0 24px; font-size: 15px; }
+
+.num { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+/* — шапка — */
+.meta { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-top: 16px; }
+.meta span { font-size: 13px; color: var(--fg-muted); }
+.meta b { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* — вердикты — */
+.verdict { padding: 32px 0; border-top: 1px solid var(--border); }
+.verdict:first-of-type { border-top: none; padding-top: 24px; }
+.verdict.major { padding-top: 40px; }
+.vno {
+  font: 500 13px/1 'Golos Text', sans-serif;
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .08em;
+  display: block;
+  margin-bottom: 10px;
+}
+.vfig {
+  font: 700 30px/1.1 'Golos Text', sans-serif;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+  margin: 10px 0 12px;
+}
+.vfig small { font-size: 15px; font-weight: 400; color: var(--fg-muted); }
+.verdict .prose { margin: 0; }
+
+/* — бары спроса — */
+.bars { display: flex; flex-direction: column; gap: 24px; }
+.brow { display: grid; grid-template-columns: 240px 1fr auto; gap: 12px; align-items: center; }
+.blabel { font-size: 15px; }
+.btrack { display: block; background: var(--surface); height: 18px; border-radius: 2px; }
+.bfill { display: block; height: 100%; background: var(--accent); border-radius: 2px; min-width: 4px; }
+.bnum { font-variant-numeric: tabular-nums; font-weight: 500; font-size: 15px; min-width: 52px; text-align: right; }
+.bnote { grid-column: 2 / 4; font-size: 13px; color: var(--fg-muted); margin-top: -16px; }
+@media (max-width: 767px) {
+  .brow { grid-template-columns: 1fr auto; }
+  .blabel { grid-column: 1 / 3; }
+  .bnote { grid-column: 1 / 3; }
+}
+
+/* — таблица — */
+table { border-collapse: collapse; width: 100%; }
+thead th {
+  font: 700 13px/1.4 'Golos Text', sans-serif;
+  text-align: left;
+  background: var(--surface);
+  padding: 10px 12px;
+  white-space: nowrap;
+}
+thead th.r, td.r { text-align: right; }
+tbody td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 15px; }
+tbody td.r { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; }
+.status { font-weight: 500; white-space: nowrap; }
+@media (max-width: 767px) { .status { font-weight: 700; } }
+.status.open  { color: var(--st-open); }
+.status.tight { color: var(--st-tight); }
+.status.taken { color: var(--st-taken); }
+
+@media (max-width: 767px) {
+  thead { display: none; }
+  table, tbody, tr, td { display: block; }
+  tbody tr { padding: 14px 0; border-bottom: 1px solid var(--border); }
+  tbody td { padding: 0; border: none; }
+  td.qcell { font-weight: 700; margin-bottom: 6px; }
+  .mrow { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+  .mrow > div { display: flex; gap: 6px; align-items: baseline; }
+  .mlabel { font-size: 13px; color: var(--fg-muted); min-width: 104px; display: inline-block; }
+  td.r { text-align: left; }
+}
+@media (min-width: 768px) {
+  .mlabel { display: none; }
+}
+
+/* — 11 тем — */
+.themes { display: flex; flex-direction: column; gap: 12px; }
+.trow { display: grid; grid-template-columns: 240px 1fr auto; gap: 12px; align-items: center; }
+.ttrack { display: block; background: var(--surface); height: 12px; border-radius: 2px; }
+.tfill { display: block; height: 100%; border-radius: 2px; min-width: 4px; }
+.tfill.open  { background: var(--st-open); }
+.tfill.tight { background: var(--st-tight); }
+.tfill.taken { background: var(--st-taken); }
+.tnum { font-variant-numeric: tabular-nums; font-weight: 500; min-width: 44px; text-align: right; }
+@media (max-width: 767px) {
+  .trow { grid-template-columns: 1fr auto; }
+  .tname { grid-column: 1 / 3; }
+}
+
+/* — делать / не делать — */
+.decide { display: grid; gap: 48px; }
+@media (min-width: 768px) {
+  .decide { grid-template-columns: 1fr 1fr; }
+  .decide > div:last-child { border-left: 1px solid var(--border); padding-left: 48px; }
+}
+.decide ul { margin: 16px 0 0; padding: 0; list-style: none; }
+.decide li { margin-bottom: 18px; padding-left: 18px; text-indent: -18px; }
+.decide li::before { content: "— "; }
+.decide .dont li::before { content: "\00d7  "; color: var(--st-taken); font-weight: 700; }
+.decide li b { font-weight: 700; }
+.decide li span { color: var(--fg); }
+
+/* — прочее — */
+.limits .prose { margin: 0 0 16px; }
+.limits b { font-family: 'Golos Text', sans-serif; font-size: 15px; }
+
+footer {
+  margin-top: 64px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+footer p { margin: 0 0 8px; max-width: 78ch; overflow-wrap: break-word; }
+footer a { color: var(--accent-strong); text-decoration: underline; display: inline-block; padding: 12px 0; font-size: 15px; word-break: break-word; }
+a:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+
+@media print {
+  :root { --bg: #fff; --surface: #efefef; --fg: #000; --fg-muted: #444; --border: #ccc; }
+  .verdict, tbody tr, .brow, .trow { page-break-inside: avoid; }
+  .decide { display: block; }
+  .decide > div:last-child { border: none; padding: 24px 0 0; }
+}
+</style>
+
+<div class="wrap">
+
+  <header>
+    <h1>Аналитика поисковой ниши · Москва</h1>
+    <div class="meta">
+      <span>запросов <b>117</b></span>
+      <span>срезов выдачи <b>193</b></span>
+      <span>поисковики <b>Яндекс + Google</b></span>
+      <span>глубина <b>топ-10</b></span>
+      <span>дата <b>02.09.2026</b></span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Четыре вывода</h2>
+
+    <article class="verdict">
+      <span class="vno">01</span>
+      <h3>Ставку на районные запросы — отменить</h3>
+      <div class="vfig">29 <small>показов/мес — «ветклиника хамовники»</small></div>
+      <p class="prose">Спроса на районные формулировки почти нет, а 66% первой
+      тройки выдачи занимают справочники. Строить сайт под район — вкладываться
+      туда, где нет ни людей, ни места.</p>
+    </article>
+
+    <article class="verdict major">
+      <span class="vno">02</span>
+      <h3>Спрос ушёл в «рядом со мной» — и это задача карточек, не сайта</h3>
+      <div class="vfig">1&nbsp;886 <small>показов/мес — в 65 раз больше районных</small></div>
+      <p class="prose">Самый частотный запрос ниши на 83% принадлежит
+      Яндекс.Картам, Zoon и 2ГИС. Присутствовать в нём можно только изнутри
+      справочников: заполненные карточки, фото, цены, отзывы.</p>
+    </article>
+
+    <article class="verdict major">
+      <span class="vno">03</span>
+      <h3>Главный вход на сайт — стерилизация и кастрация</h3>
+      <div class="vfig">1&nbsp;642 <small>показа/мес суммарно</small></div>
+      <p class="prose">Массовая плановая операция с настоящим спросом и почти
+      без справочников в выдаче. Клиент приходит на понятную услугу, убеждается
+      в уровне клиники — и возвращается со сложным случаем, где премиум и
+      зарабатывает.</p>
+    </article>
+
+    <article class="verdict">
+      <span class="vno">04</span>
+      <h3>Симптомные запросы свободны полностью</h3>
+      <div class="vfig">186 <small>показов/мес — «кошка тяжело дышит»</small></div>
+      <p class="prose">Человек в тревоге ищет симптом, а не клинику. В первой
+      тройке по таким запросам справочников нет вовсе — отвечающий на вопрос
+      забирает клиента до того, как прозвучало слово «операция».</p>
+    </article>
+  </section>
+
+  <section>
+    <h2>Масштаб спроса</h2>
+    <p class="lede">Длина полосы — показов в месяц по Wordstat, шкала линейная.
+    Разница между «рядом со мной» и районными формулировками — главный аргумент
+    этого отчёта.</p>
+    <div class="bars">
+      <div class="brow">
+        <span class="blabel">ветклиника рядом со мной</span>
+        <span class="btrack"><span class="bfill" style="width:100%"></span></span>
+        <span class="bnum">1&nbsp;886</span>
+        <span class="bnote">83% топ-3 — справочники</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">стерилизация кошки москва</span>
+        <span class="btrack"><span class="bfill" style="width:41.8%"></span></span>
+        <span class="bnum">788</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">кастрация кота москва</span>
+        <span class="btrack"><span class="bfill" style="width:24.1%"></span></span>
+        <span class="bnum">455</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">стерилизация собаки москва</span>
+        <span class="btrack"><span class="bfill" style="width:14.7%"></span></span>
+        <span class="bnum">277</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">кошка тяжело дышит</span>
+        <span class="btrack"><span class="bfill" style="width:9.9%"></span></span>
+        <span class="bnum">186</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">ветклиника хамовники</span>
+        <span class="btrack"><span class="bfill" style="width:1.5%"></span></span>
+        <span class="bnum">29</span>
+      </div>
+      <div class="brow">
+        <span class="blabel">ветеринарная клиника хамовники</span>
+        <span class="btrack"><span class="bfill" style="width:0.9%"></span></span>
+        <span class="bnum">17</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Запросы с подтверждённым спросом</h2>
+    <p class="lede">Статус определяется долей справочников в первой тройке:
+    до 25% — открыто, 25–50% — тесно, выше — занято. Статус назван словом,
+    цвет только помогает.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Запрос</th>
+          <th class="r">Показов/мес</th>
+          <th class="r">Справочники в топ-3</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="qcell">ветклиника рядом со мной</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>1&nbsp;886</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>83%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">стерилизация кошки москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>788</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>16%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">кастрация кота москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>455</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>66%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">стерилизация собаки москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>277</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">кошка тяжело дышит</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>186</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">кастрация собаки москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>122</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>16%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">собака хромает на заднюю лапу</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>84</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">узи брюшной полости собаке цена</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>47</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>16%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">ветклиника центр москвы</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>36</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>100%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">у собаки вздулся живот</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>36</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">ветклиника хамовники</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>29</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>66%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">ветеринарная клиника цао</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>27</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>66%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">уход за кошкой после стерилизации</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>19</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">ветеринарная клиника хамовники</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>17</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>66%</span></td><td><span class="status taken">занято</span></td></tr>
+        <tr><td class="qcell">собака скулит от боли</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>17</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">кот не встаёт на задние лапы</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>12</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">записаться к ветеринару москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>6</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">ветеринар для кролика москва</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>5</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">уход за собакой после операции</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>4</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+        <tr><td class="qcell">собака не ест несколько дней</td><td class="r"><span class="mrow"><span class="mlabel">показов/мес</span>2</span></td><td class="r"><span class="mrow"><span class="mlabel">справочники</span>0%</span></td><td><span class="status open">открыто</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Доступность одиннадцати тем</h2>
+    <p class="lede">Доля справочников в первой тройке по каждой группе запросов.
+    Чем короче полоса, тем больше места сайту.</p>
+    <div class="themes">
+      <div class="trow"><span class="tname">Гео-привязка к району</span><span class="ttrack"><span class="tfill taken" style="width:67%"></span></span><span class="tnum">67%</span></div>
+      <div class="trow"><span class="tname">Отзывы и выбор клиники</span><span class="ttrack"><span class="tfill taken" style="width:52%"></span></span><span class="tnum">52%</span></div>
+      <div class="trow"><span class="tname">Экзотические животные</span><span class="ttrack"><span class="tfill open" style="width:18%"></span></span><span class="tnum">18%</span></div>
+      <div class="trow"><span class="tname">Премиум-услуги</span><span class="ttrack"><span class="tfill open" style="width:14%"></span></span><span class="tnum">14%</span></div>
+      <div class="trow"><span class="tname">Первичный приём, диагностика</span><span class="ttrack"><span class="tfill open" style="width:13%"></span></span><span class="tnum">13%</span></div>
+      <div class="trow"><span class="tname">Общие запросы по хирургии</span><span class="ttrack"><span class="tfill open" style="width:12%"></span></span><span class="tnum">12%</span></div>
+      <div class="trow"><span class="tname">Конкретные операции</span><span class="ttrack"><span class="tfill open" style="width:10%"></span></span><span class="tnum">10%</span></div>
+      <div class="trow"><span class="tname">Породные проблемы</span><span class="ttrack"><span class="tfill open" style="width:1%"></span></span><span class="tnum">1%</span></div>
+      <div class="trow"><span class="tname">Симптомы</span><span class="ttrack"><span class="tfill open" style="width:0.4%"></span></span><span class="tnum">0%</span></div>
+      <div class="trow"><span class="tname">Возрастные животные</span><span class="ttrack"><span class="tfill open" style="width:0.4%"></span></span><span class="tnum">0%</span></div>
+      <div class="trow"><span class="tname">Уход после операции</span><span class="ttrack"><span class="tfill open" style="width:0.4%"></span></span><span class="tnum">0%</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="decide">
+      <div>
+        <h2>Делать</h2>
+        <ul>
+          <li><b>Карточки в Яндекс.Бизнес, 2ГИС и Zoon.</b>
+            <span>Самый частотный запрос ниши принадлежит справочникам — быть
+            в нём можно только изнутри. Работает без сайта, стоит времени,
+            а не денег.</span></li>
+          <li><b>Страницы стерилизации и кастрации.</b>
+            <span>1&nbsp;642 показа при низкой конкуренции: цена, подготовка,
+            наркоз, восстановление — отдельно для кошек и собак.</span></li>
+          <li><b>Симптомные материалы.</b>
+            <span>Короткий ответ «что делать сейчас» и телефон — перехват
+            клиента до слова «операция», без имиджевого глянца.</span></li>
+          <li><b>Отзывы с первого рабочего дня.</b>
+            <span>Набор занимает месяцы, а в премиум-сегменте рейтинг решает
+            больше, чем позиция.</span></li>
+        </ul>
+      </div>
+      <div class="dont">
+        <h2>Не делать</h2>
+        <ul>
+          <li><b>Сайт под районные запросы.</b>
+            <span>17–36 показов в месяц при 66% справочников. Район остаётся
+            в позиционировании и карточках, но не в структуре сайта.</span></li>
+          <li><b>Борьбу со справочниками в органике.</b>
+            <span>Zoon и Яндекс держат 85 позиций в первой тройке — больше,
+            чем все клиники вместе. Их не вытесняют, к ним присоединяются.</span></li>
+          <li><b>Премиум на неподтверждённой круглосуточности.</b>
+            <span>Половина премиум-семантики опирается на режим 24/7 — пока он
+            не решён, обещать его нельзя.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="limits">
+    <h2>Что в данных неполно</h2>
+    <p class="prose"><b>Частотность подтверждена по 20 запросам из 117.</b>
+    По остальным Wordstat вернул пустые списки — вероятнее всего, спрос ниже
+    порога учёта, но отличить «нет спроса» от особенности сервиса по этим
+    данным нельзя. Требует отдельной проверки.</p>
+    <p class="prose"><b>Блок карт не измерялся.</b> Собиралась органическая
+    выдача; блок с карточками организаций, стоящий выше неё по гео-запросам,
+    в данные не попал. Реальная доля справочников там, скорее всего, ещё выше.</p>
+    <p class="prose"><b>Бюджеты Яндекс.Директа не измерялись.</b> Инструмент их
+    не даёт — они берутся бесплатно из «Прогноза бюджета» в аккаунте Директа.</p>
+  </section>
+
+  <footer>
+    <p>Данные: XMLRiver — живая выдача Яндекса и Google, Wordstat. Регион —
+    Москва (lr&nbsp;213). Дата среза: 2 сентября 2026.</p>
+    <p>Задача сделана агентом из школы seomeat.ru. Полный курс и полный агент с
+    значительно большими возможностями есть в курсе:
+    <a href="https://seomeat.ru/course/geo-prodvizhenie-v-llm/">seomeat.ru/course/geo-prodvizhenie-v-llm</a>.
+    Подпишитесь на канал:
+    <a href="https://t.me/closedchannelkotenkov">t.me/closedchannelkotenkov</a></p>
+  </footer>
+
+</div>
