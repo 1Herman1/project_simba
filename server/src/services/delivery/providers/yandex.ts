@@ -25,6 +25,14 @@ export async function getQuote(
     return { ...base, available: false, error: 'Служба доставки не подключена' }
   }
 
+  // Без координат считать нечего. Раньше здесь молча подставлялся центр Москвы,
+  // и покупателю из любого другого места показывалась цена доставки до центра
+  // столицы — то есть заведомо неверная. Лучше не предлагать службу, чем
+  // назвать цену, которой не будет.
+  if (address.lat === undefined || address.lon === undefined) {
+    return { ...base, available: false, error: 'Уточните адрес на карте' }
+  }
+
   try {
     const res = await fetch(`${BASE_URL}/check-price`, {
       method: 'POST',
@@ -46,7 +54,7 @@ export async function getQuote(
         route_points: [
           { coordinates: [37.617617, 55.755864] }, // Москва — заменить на реальный склад
           {
-            coordinates: [address.lon ?? 37.617617, address.lat ?? 55.755864],
+            coordinates: [address.lon, address.lat],
             fullname: `${address.city}, ${address.street}, ${address.house}`,
           },
         ],
@@ -75,6 +83,13 @@ export async function createOrder(
 ): Promise<DeliveryOrder> {
   if (!process.env.YANDEX_DELIVERY_TOKEN) {
     return { externalId: `YA-MOCK-${orderId}`, trackingNumber: `YA${Date.now()}` }
+  }
+
+  // Заказ без координат отправлять нельзя: подстановка центра Москвы, которая
+  // стояла здесь, отправила бы курьера не туда, а покупатель узнал бы об этом
+  // последним. Котировка до этого шага уже отказывает по той же причине.
+  if (address.lat === undefined || address.lon === undefined) {
+    throw new Error('Для Яндекс.Доставки нужен адрес, уточнённый на карте')
   }
 
   const res = await fetch(`${BASE_URL}/claims/create`, {
@@ -109,7 +124,7 @@ export async function createOrder(
           visit_order: 2,
           address: {
             fullname: `${address.city}, ${address.street}, ${address.house}`,
-            coordinates: [address.lon ?? 37.617617, address.lat ?? 55.755864],
+            coordinates: [address.lon, address.lat],
           },
           contact: { name: 'Получатель', phone: recipientPhone },
           type: 'destination',

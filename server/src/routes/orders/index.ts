@@ -16,7 +16,7 @@ const deliveryAddressSchema = z.object({
   street: z.string().min(1),
   house: z.string().min(1),
   apartment: z.string().optional(),
-  postalCode: z.string().min(1),
+  postalCode: z.string().optional(),
 })
 
 const contactSchema = z.object({

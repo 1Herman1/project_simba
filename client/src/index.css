@@ -76,6 +76,12 @@
      кот/пёс/нос больше не анимируются отдельно, их сбрасывать не нужно. */
   .quiz-scene .quiz-card { transition-delay: 0ms !important; }
   .quiz-scene .quiz-prop--paw { transform: scaleX(-1) !important; }
+  /* Шаги входа держатся друг над другом через position, а не transform.
+     Без анимации активный шаг просто в потоке, а неактивный убирается совсем:
+     если оставить обоим opacity: 1, на экране окажутся сразу и почта, и код. */
+  .auth-step { position: relative !important; }
+  .auth-step:not(.is-in) { display: none; }
+  .auth-step.is-in { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -212,6 +218,29 @@
       background-color: theme('colors.primary.tint');
     }
     .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.18); }
+  }
+
+
+  /* Шаги формы входа (почта → код). Стили жили в <style> внутри LoginForm и
+     впрыскивались в документ при каждом монтировании: на странице входа это
+     работало, а в окне поверх чекаута содержимое уезжало выше рамки и
+     обрезалось. Место стилей — здесь, как у всего остального в проекте. */
+  .auth-step {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
+  }
+  .auth-step.is-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Неактивный шаг убирается СОВСЕМ, а не прячется абсолютным позиционированием.
+     Раньше он оставался в области прокрутки родителя: в окне поверх чекаута
+     высота содержимого выходила 598 при видимых 306, окно становилось
+     прокручиваемым, автофокус на поле почты прокручивал его вниз — и заголовок
+     уезжал за верхний край. Замерено, не предположено. */
+  .auth-step:not(.is-in) {
+    display: none;
   }
 
   .icon-state .icon-outline,

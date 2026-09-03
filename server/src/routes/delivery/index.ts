@@ -8,6 +8,11 @@ const quotesSchema = z.object({
   street: z.string().optional(),
   house: z.string().optional(),
   postalCode: z.string().optional(),
+  /// Координаты нужны Яндекс.Доставке: без них providers/yandex.ts подставляет
+  /// центр Москвы и считает цену до него, то есть неверно для любого адреса.
+  /// Схема их раньше отбрасывала, и тип DeliveryAddress.lat/lon стоял пустым.
+  lat: z.number().min(-90).max(90).optional(),
+  lon: z.number().min(-180).max(180).optional(),
   weightKg: z.number().positive().max(100),
 })
 
@@ -47,14 +52,15 @@ export default async function deliveryRoutes(app: FastifyInstance) {
 
     const result = quotesSchema.safeParse(req.body)
     if (!result.success) {
-      const message = result.error.errors[0]?.message ?? 'Ошибка валидации'
-      return reply.status(400).send({ error: message })
+      // Текст zod («Number must be greater than 0») показывать покупателю
+      // нельзя: он английский и про внутренности схемы, а не про его адрес.
+      return reply.status(400).send({ error: 'Не удалось рассчитать доставку по этому адресу' })
     }
 
-    const { city, street, house, postalCode, weightKg } = result.data
+    const { city, street, house, postalCode, lat, lon, weightKg } = result.data
 
     const quotes = await getAllQuotes(
-      { city, street, house, postalCode },
+      { city, street, house, postalCode, lat, lon },
       { weightKg }
     )
 

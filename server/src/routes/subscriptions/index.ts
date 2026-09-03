@@ -43,7 +43,7 @@ const subscriptionsRoutes: FastifyPluginAsync = async (app) => {
         street: z.string().min(1),
         house: z.string().min(1),
         apartment: z.string().optional(),
-        postalCode: z.string().min(1),
+        postalCode: z.string().optional(),
       })
       .optional(),
   })

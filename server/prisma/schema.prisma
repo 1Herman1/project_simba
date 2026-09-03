@@ -648,16 +648,18 @@ model QuizSession {
 
 /// Рекламные баннеры — управляются из админки
 model Banner {
-  id        String         @id @default(uuid())
-  title     String
-  image     String
-  link      String?
-  page      BannerPage
-  position  BannerPosition
-  isActive  Boolean        @default(true)
-  sortOrder Int            @default(0)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  id         String         @id @default(uuid())
+  title      String
+  subtitle   String?
+  image      String
+  link       String?
+  buttonText String?
+  page       BannerPage
+  position   BannerPosition
+  isActive   Boolean        @default(true)
+  sortOrder  Int            @default(0)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
 
   @@index([page, position])
   @@index([isActive])

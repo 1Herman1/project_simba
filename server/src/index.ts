@@ -17,6 +17,8 @@ import subscriptionsRoutes from './routes/subscriptions/index'
 import bonusesRoutes from './routes/bonuses/index'
 import quizRoutes from './routes/quiz/index'
 import deliveryRoutes from './routes/delivery/index'
+import mediaRoutes from './routes/media'
+import bannersRoutes from './routes/banners'
 import adminDashboard from './routes/admin/dashboard'
 import adminQuizRoutes from './routes/admin/quiz'
 import adminUsers from './routes/admin/users'
@@ -62,6 +64,8 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(subscriptionsRoutes, { prefix: '/api/subscriptions' })
   await app.register(bonusesRoutes, { prefix: '/api/bonuses' })
   await app.register(quizRoutes, { prefix: '/api/quiz' })
+  await app.register(bannersRoutes, { prefix: '/api/banners' })
+  await app.register(mediaRoutes, { prefix: '/api/media' })
   await app.register(adminDashboard, { prefix: '/api/admin/dashboard' })
   await app.register(adminUsers, { prefix: '/api/admin/users' })
   await app.register(adminBrands, { prefix: '/api/admin/brands' })

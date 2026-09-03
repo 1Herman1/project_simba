@@ -289,31 +289,6 @@ export default function LoginForm({ onSuccess, hideWelcomeBonus = false }: Login
         </div>
       </div>
 
-      {/* CSS для анимации шагов */}
-      <style>{`
-        @layer components {
-          .auth-step {
-            opacity: 0;
-            transform: translateY(8px);
-            transition: opacity 220ms var(--ease-out), transform 220ms var(--ease-out);
-            position: absolute;
-            width: 100%;
-          }
-          .auth-step.is-in {
-            opacity: 1;
-            transform: translateY(0);
-            position: relative;
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .auth-step {
-            transition: none;
-            opacity: 1;
-            transform: none;
-            position: relative;
-          }
-        }
-      `}</style>
     </div>
   )
 }

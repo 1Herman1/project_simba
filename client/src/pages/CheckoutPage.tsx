@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { calcOrderTotals } from '@simba/shared'
 import { useCart } from '../context/CartContext'
-import { cartApi, authApi, ordersApi, type CartItem } from '../lib/api'
+import { cartApi, authApi, ordersApi, deliveryApi, type CartItem, type DeliveryQuote, type DeliveryProviderKey } from '../lib/api'
+import { apiErrorMessage } from '../lib/api-error'
 import { formatPrice, formatBonuses, formatDateTime } from '../lib/format'
-import { CheckIcon, ArrowLeftIcon, CreditCardIcon, GiftIcon } from '../components/icons'
+import { normalizePhone, isValidPhoneRU, handlePhoneInput } from '../lib/phone'
+import { CheckIcon, ArrowLeftIcon, CreditCardIcon, GiftIcon, CloseIcon } from '../components/icons'
+import LoginForm from '../components/auth/LoginForm'
+import { useAuth } from '../context/AuthContext'
 
 /** Задержка ступени появления. Значения — из хореографии экрана успеха:
     шаг 60-80мс, последняя ступень стартует на 380мс. */
@@ -52,21 +56,24 @@ function SuccessConfetti() {
   )
 }
 
-type DeliveryMethod = 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
+type DeliveryMethod = DeliveryProviderKey
 type PaymentMethod = 'card' | 'cash_on_delivery'
 type Step = 'delivery' | 'payment' | 'confirm'
 
-interface DeliveryQuote {
-  provider: DeliveryMethod
-  key: string
-  title: string
-  description: string
-  price: number
-  daysMin: number
-  daysMax: number
-  available: boolean
-  error?: string
-}
+/// Запасной список, когда расчёт тарифов не удался. Только самовывоз: он
+/// единственный не зависит от внешних служб. Выдумывать цены остальных нельзя —
+/// раньше здесь стоял массив из семи служб с price: 0, и покупатель выбирал
+/// «бесплатную» доставку, которой не существует.
+const PICKUP_ONLY: DeliveryQuote[] = [{
+  provider: 'pickup',
+  key: 'pickup',
+  title: 'Самовывоз',
+  description: 'Магазин на ул. Ленина, 12',
+  price: 0,
+  daysMin: 0,
+  daysMax: 0,
+  available: true,
+}]
 
 const PROVIDER_ICONS: Record<string, string> = {
   simba_courier: '',
@@ -97,7 +104,8 @@ const STEPS: { key: Step; label: string }[] = [
 export default function CheckoutPage() {
   const navigate = useNavigate()
   const { clear: clearCart } = useCart()
-  const isLoggedIn = !!localStorage.getItem('token')
+  const { isLoggedIn: authLoggedIn } = useAuth()
+  const legacyIsLoggedIn = !!localStorage.getItem('token')
   const [step, setStep] = useState<Step>('delivery')
   const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
   const [payment, setPayment] = useState<PaymentMethod>('card')
@@ -113,13 +121,23 @@ export default function CheckoutPage() {
   const [orderTotal, setOrderTotal] = useState(0)
   const [orderBonusUsed, setOrderBonusUsed] = useState(0)
   const [orderCreatedAt, setOrderCreatedAt] = useState('')
-  /** Ступени включаются следующим кадром: если повесить .is-in сразу при
-      монтировании, браузер применит конечное состояние без перехода. */
   const [entered, setEntered] = useState(false)
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
   const reduceMotion =
     typeof window !== 'undefined' &&
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Валидация полей — какие уже трогали
+  const [touched, setTouched] = useState({
+    deliveryCity: false,
+    deliveryStreet: false,
+    deliveryHouse: false,
+    contactName: false,
+    contactEmail: false,
+    contactPhone: false,
+  })
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!orderPlaced) return
@@ -128,6 +146,10 @@ export default function CheckoutPage() {
   }, [orderPlaced])
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
+  const [quotesError, setQuotesError] = useState<string | null>(null)
+  // Повторная попытка обязана менять зависимость эффекта: иначе кнопка гасит
+  // сообщение, запрос не уходит, и человек жмёт её впустую.
+  const [quotesRetry, setQuotesRetry] = useState(0)
 
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [cartLoading, setCartLoading] = useState(true)
@@ -140,7 +162,6 @@ export default function CheckoutPage() {
     house: '',
     apartment: '',
     comment: '',
-    postalCode: '',
   })
 
   // Если доставка не курьером, отключить наличные
@@ -162,31 +183,88 @@ export default function CheckoutPage() {
 
   // Запрашиваем котировки при вводе города
   useEffect(() => {
-    if (!address.city || address.city.length < 3) return
+    // Пока корзина не загрузилась, вес нулевой, и сервер справедливо отвечает
+    // отказом. Раньше это пряталось за 404 из-за относительного пути.
+    if (!address.city || address.city.length < 3 || totalWeight <= 0) return
     const timer = setTimeout(async () => {
       setQuotesLoading(true)
+      setQuotesError(null)
       try {
-        const res = await fetch('/api/delivery/quotes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ city: address.city, street: address.street, house: address.house, postalCode: address.postalCode, weightKg: totalWeight }),
+        // Через deliveryApi, а не голым fetch: относительный путь в разработке
+        // уходит на порт клиента и отвечает 404, а общий слой знает адрес API.
+        const res = await deliveryApi.quotes({
+          city: address.city,
+          street: address.street,
+          house: address.house,
+          weightKg: totalWeight,
         })
-        if (res.ok) {
-          const data = await res.json() as { quotes: DeliveryQuote[] }
-          setQuotes(data.quotes)
-        }
-      } catch {
-        // Используем заглушки если API недоступен
+        setQuotes(res.data.quotes)
+        setQuotesError(null)
+      } catch (err) {
+        setQuotesError(apiErrorMessage(err, 'Не удалось рассчитать доставку. Попробуйте ещё раз.'))
+        setQuotes([])
       } finally {
         setQuotesLoading(false)
       }
     }, 600)
     return () => clearTimeout(timer)
-  }, [address.city, address.street, address.house])
+  }, [address.city, address.street, address.house, totalWeight, quotesRetry])
 
   const selectedQuote = quotes.find(q => q.provider === delivery)
   const deliveryCost = selectedQuote?.price ?? 0
   const promoCode = sessionStorage.getItem('promoCode') ?? undefined
+
+  // Валидация полей шага доставки
+  const validateDeliveryStep = (): boolean => {
+    const errors: Record<string, string> = {}
+
+    if (delivery !== 'pickup') {
+      if (!address.city.trim()) {
+        errors.deliveryCity = 'Укажите город'
+      }
+      if (!address.street.trim()) {
+        errors.deliveryStreet = 'Укажите улицу'
+      }
+      if (!address.house.trim()) {
+        errors.deliveryHouse = 'Укажите номер дома'
+      }
+    }
+
+    if (!legacyIsLoggedIn) {
+      if (!contactName.trim()) {
+        errors.contactName = 'Укажите имя'
+      }
+      if (!contactEmail.trim()) {
+        errors.contactEmail = 'Укажите email'
+      } else if (!/^[^\s@]+@[^\s@]+\.[a-zA-Zа-яА-Я]{2,}$/.test(contactEmail)) {
+        errors.contactEmail = 'Проверьте адрес — похоже, есть опечатка'
+      }
+      if (!contactPhone.trim()) {
+        errors.contactPhone = 'Укажите телефон'
+      } else if (!isValidPhoneRU(contactPhone)) {
+        errors.contactPhone = 'Укажите российский номер'
+      }
+    }
+
+    setValidationErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const handleNextFromDelivery = () => {
+    setTouched(t => ({
+      ...t,
+      deliveryCity: true,
+      deliveryStreet: true,
+      deliveryHouse: true,
+      contactName: true,
+      contactEmail: true,
+      contactPhone: true,
+    }))
+
+    if (validateDeliveryStep()) {
+      setStep('payment')
+    }
+  }
 
   const totals = calcOrderTotals({
     items: cartItems.map(i => ({ price: i.productVariant.price, quantity: i.quantity })),
@@ -215,7 +293,7 @@ export default function CheckoutPage() {
         cartId: cartRes.data.id,
         deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
         deliveryAddress: delivery !== 'pickup' && address.street
-          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: address.postalCode }
+          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: undefined }
           : undefined,
         comment: address.comment || undefined,
         bonusUsed: bonusUsedScoins,
@@ -225,11 +303,11 @@ export default function CheckoutPage() {
       }
 
       // Для гостя добавить контактные данные
-      if (!isLoggedIn && (contactName || contactEmail || contactPhone)) {
+      if (!legacyIsLoggedIn && (contactName || contactEmail || contactPhone)) {
         createOrderPayload.contact = {
           name: contactName || undefined,
           email: contactEmail || undefined,
-          phone: contactPhone || undefined,
+          phone: normalizePhone(contactPhone) || undefined,
         }
       }
 
@@ -330,14 +408,14 @@ export default function CheckoutPage() {
               <p className="mt-3 text-xs text-navy-500">Оплата наличными курьеру при получении</p>
             )}
             <p className="mt-3 text-xs text-navy-500">
-              {contactEmail || isLoggedIn
+              {contactEmail || authLoggedIn
                 ? 'Отправим письмо, когда заказ будет подтверждён'
                 : 'Сохраните номер заказа — по нему найдём его в поддержке'}
             </p>
           </div>
 
           <div className="px-6 pb-6 flex flex-col gap-3" style={inDelay(380)}>
-            {!isLoggedIn ? (
+            {!authLoggedIn ? (
               <>
                 {/* Лейбл про результат, а не про механику: аккаунта у гостя ещё
                     нет, «войти» ему нечем. Email ушёл в подпись — при пустом
@@ -428,16 +506,26 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {quotesError && (
+                  <div className="mb-4 p-3 rounded-xl bg-white border border-destructive">
+                    <p className="text-sm text-destructive mb-2">{quotesError}</p>
+                    <button
+                      onClick={() => {
+                        setQuotesError(null)
+                        setQuotesRetry((n) => n + 1)
+                      }}
+                      className="text-xs font-medium text-destructive underline">
+                      Попробовать ещё раз
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex flex-col gap-2 mb-5">
-                  {(quotes.length > 0 ? quotes : [
-                    { provider: 'simba_courier', key: 'simba_courier', title: 'Курьер Simba', description: 'Доставка до двери', price: 0, daysMin: 0, daysMax: 0, available: true },
-                    { provider: 'yandex', key: 'yandex', title: 'Яндекс Доставка', description: 'Быстрая доставка', price: 0, daysMin: 0, daysMax: 0, available: true },
-                    { provider: 'cdek', key: 'cdek', title: 'СДЭК', description: 'Пункт выдачи или курьер', price: 0, daysMin: 2, daysMax: 5, available: true },
-                    { provider: 'ozon', key: 'ozon', title: 'Ozon Delivery', description: 'Пункт выдачи Ozon', price: 0, daysMin: 2, daysMax: 4, available: true },
-                    { provider: 'dostavista', key: 'dostavista', title: 'Достависта', description: 'Экспресс за 1 час', price: 29900, daysMin: 0, daysMax: 0, available: true },
-                    { provider: 'post', key: 'post', title: 'Почта России', description: 'Отделение почты', price: 0, daysMin: 5, daysMax: 14, available: true },
-                    { provider: 'pickup', key: 'pickup', title: 'Самовывоз', description: 'Магазин на ул. Ленина, 12', price: 0, daysMin: 0, daysMax: 0, available: true },
-                  ] as DeliveryQuote[]).map(opt => (
+                  {/* Самовывоз не считается никакой службой — человек забирает
+                      заказ сам. Когда расчёт не удался, он обязан остаться
+                      доступным, иначе покупатель лишается единственного
+                      способа, который работает всегда. */}
+                  {(quotes.length > 0 ? quotes : PICKUP_ONLY).map(opt => (
                     <button
                       key={opt.key}
                       onClick={() => opt.available && setDelivery(opt.provider as DeliveryMethod)}
@@ -484,31 +572,64 @@ export default function CheckoutPage() {
                   <div>
                     <h3 className="font-semibold text-navy-900 mb-3 text-sm">Адрес доставки</h3>
                     <div className="flex flex-col gap-3">
-                      <input
-                        type="text"
-                        placeholder="Город"
-                        aria-label="Город"
-                        value={address.city}
-                        onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Улица"
-                        aria-label="Улица"
-                        value={address.street}
-                        onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
-                      <div className="grid grid-cols-2 gap-3">
+                      <div>
                         <input
                           type="text"
-                          placeholder="Дом"
-                          aria-label="Дом"
-                          value={address.house}
-                          onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
+                          placeholder="Город"
+                          aria-label="Город"
+                          aria-invalid={!!validationErrors.deliveryCity && touched.deliveryCity}
+                          value={address.city}
+                          onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
+                          onBlur={() => setTouched(t => ({ ...t, deliveryCity: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.deliveryCity && touched.deliveryCity
+                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
                         />
+                        {validationErrors.deliveryCity && touched.deliveryCity && (
+                          <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryCity}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Улица"
+                          aria-label="Улица"
+                          aria-invalid={!!validationErrors.deliveryStreet && touched.deliveryStreet}
+                          value={address.street}
+                          onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
+                          onBlur={() => setTouched(t => ({ ...t, deliveryStreet: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.deliveryStreet && touched.deliveryStreet
+                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
+                        />
+                        {validationErrors.deliveryStreet && touched.deliveryStreet && (
+                          <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryStreet}</p>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <input
+                            type="text"
+                            placeholder="Дом"
+                            aria-label="Дом"
+                            aria-invalid={!!validationErrors.deliveryHouse && touched.deliveryHouse}
+                            value={address.house}
+                            onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
+                            onBlur={() => setTouched(t => ({ ...t, deliveryHouse: true }))}
+                            className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                              validationErrors.deliveryHouse && touched.deliveryHouse
+                                ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                                : 'border-line focus:border-line focus:ring-blue-100'
+                            }`}
+                          />
+                          {validationErrors.deliveryHouse && touched.deliveryHouse && (
+                            <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryHouse}</p>
+                          )}
+                        </div>
                         <input
                           type="text"
                           placeholder="Квартира"
@@ -518,14 +639,6 @@ export default function CheckoutPage() {
                           className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
                         />
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Почтовый индекс"
-                        aria-label="Почтовый индекс"
-                        value={address.postalCode}
-                        onChange={e => setAddress(a => ({ ...a, postalCode: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
                       <textarea
                         placeholder="Комментарий к заказу (необязательно)"
                         aria-label="Комментарий к заказу"
@@ -539,40 +652,74 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Контактные данные для гостя */}
-                {!isLoggedIn && (
+                {!legacyIsLoggedIn && (
                   <div className="mt-5">
                     <h3 className="font-semibold text-navy-900 mb-3 text-sm">Контактные данные</h3>
                     <div className="flex flex-col gap-3">
-                      <input
-                        type="text"
-                        placeholder="Имя"
-                        aria-label="Имя"
-                        value={contactName}
-                        onChange={e => setContactName(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
-                      <input
-                        type="email"
-                        placeholder="Email"
-                        aria-label="Email"
-                        value={contactEmail}
-                        onChange={e => setContactEmail(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
-                      <input
-                        type="tel"
-                        placeholder="Телефон"
-                        aria-label="Телефон"
-                        value={contactPhone}
-                        onChange={e => setContactPhone(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Имя"
+                          aria-label="Имя"
+                          aria-invalid={!!validationErrors.contactName && touched.contactName}
+                          value={contactName}
+                          onChange={e => setContactName(e.target.value)}
+                          onBlur={() => setTouched(t => ({ ...t, contactName: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.contactName && touched.contactName
+                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
+                        />
+                        {validationErrors.contactName && touched.contactName && (
+                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactName}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          aria-label="Email"
+                          aria-invalid={!!validationErrors.contactEmail && touched.contactEmail}
+                          value={contactEmail}
+                          onChange={e => setContactEmail(e.target.value)}
+                          onBlur={() => setTouched(t => ({ ...t, contactEmail: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.contactEmail && touched.contactEmail
+                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
+                        />
+                        {validationErrors.contactEmail && touched.contactEmail && (
+                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactEmail}</p>
+                        )}
+                      </div>
+                      <div>
+                        <input
+                          type="tel"
+                          placeholder="Телефон"
+                          aria-label="Телефон"
+                          aria-invalid={!!validationErrors.contactPhone && touched.contactPhone}
+                          inputMode="tel"
+                          value={contactPhone}
+                          onChange={e => setContactPhone(handlePhoneInput(e.target.value))}
+                          onBlur={() => setTouched(t => ({ ...t, contactPhone: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.contactPhone && touched.contactPhone
+                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
+                        />
+                        {validationErrors.contactPhone && touched.contactPhone && (
+                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactPhone}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
 
                 <button
-                  onClick={() => setStep('payment')}
+                  onClick={handleNextFromDelivery}
                   className="w-full mt-5 btn-primary press-wide font-bold py-3 rounded-xl text-sm">
                   Далее: Оплата
                 </button>
@@ -621,7 +768,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Бонусы — только для авторизованных */}
-                {isLoggedIn && (() => {
+                {authLoggedIn && (() => {
                   // Расчитаем максимально доступно в этом заказе
                   const totalsWithMaxBonus = calcOrderTotals({
                     items: cartItems.map(i => ({ price: i.productVariant.price, quantity: i.quantity })),
@@ -680,12 +827,17 @@ export default function CheckoutPage() {
                   )
                 })()}
 
-                {/* Сообщение для гостей */}
-                {!isLoggedIn && (
+                {/* Блок входа для гостей */}
+                {!authLoggedIn && !legacyIsLoggedIn && (
                   <div className="rounded-xl border border-line bg-blue-50 p-4 mb-5">
-                    <p className="text-sm text-navy-700">
+                    <p className="text-sm text-navy-700 mb-3">
                       Войдите, чтобы списать бонусы
                     </p>
+                    <button
+                      onClick={() => setLoginModalOpen(true)}
+                      className="w-full btn-primary press-wide font-bold py-2 rounded-xl text-sm">
+                      Войти в аккаунт
+                    </button>
                   </div>
                 )}
 
@@ -753,6 +905,20 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Блок входа для гостей */}
+                {!authLoggedIn && !legacyIsLoggedIn && (
+                  <div className="mt-4 rounded-xl border border-line bg-blue-50 p-4 mb-5">
+                    <p className="text-sm text-navy-700 mb-3">
+                      Войдите, чтобы получить бонусы за заказ
+                    </p>
+                    <button
+                      onClick={() => setLoginModalOpen(true)}
+                      className="w-full btn-primary press-wide font-bold py-2 rounded-xl text-sm">
+                      Войти в аккаунт
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex gap-2">
                   <button
@@ -840,6 +1006,37 @@ export default function CheckoutPage() {
 
         </div>
       </div>
+
+      {/* Модальное окно входа */}
+      {loginModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-navy-900/40"
+            onClick={() => setLoginModalOpen(false)}
+            aria-hidden="true"
+          />
+          {/* Modal */}
+          <div className="relative bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-sm p-6 md:p-8 shadow-lg max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setLoginModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-navy-400 hover:text-navy-700 transition-colors"
+              aria-label="Закрыть">
+              <CloseIcon className="w-5 h-5" />
+            </button>
+            <LoginForm
+              onSuccess={(bonusGranted) => {
+                setLoginModalOpen(false)
+                // Перезагружаем данные пользователя и корзину после входа
+                authApi.me().then(res => {
+                  setUserBonusPoints(res.data.bonusPoints ?? 0)
+                }).catch(() => {})
+              }}
+              hideWelcomeBonus
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

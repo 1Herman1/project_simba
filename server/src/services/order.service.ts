@@ -9,7 +9,13 @@ type DeliveryAddress = {
   street: string
   house: string
   apartment?: string
-  postalCode: string
+  /// Необязателен: поле индекса убрано из формы, его подставляет геокодер.
+  /// Пока ключа геокодера нет, индекс пуст — и Почта России, единственный
+  /// потребитель (providers/post.ts:23), просто не предлагается.
+  postalCode?: string
+  /// Координаты нужны Яндекс.Доставке; приходят с карты, если она включена.
+  lat?: number
+  lon?: number
 }
 
 type ContactInfo = {

@@ -280,6 +280,60 @@ async function main() {
 
   console.log(`Quiz products: ${quizProducts.length} items created`)
 
+  // Баннеры главной страницы
+  await prisma.banner.upsert({
+    where: { id: 'banner-1-home' },
+    update: {},
+    create: {
+      id: 'banner-1-home',
+      title: 'Корм для здоровых почек',
+      subtitle: 'Royal Canin Renal — специальное питание для кошек',
+      buttonText: 'Выбрать корм',
+      image: '/pets/cat.png',
+      link: '/catalog?category=cats-food',
+      page: 'home',
+      position: 'main_slider',
+      sortOrder: 1,
+      isActive: true,
+    },
+  })
+
+  await prisma.banner.upsert({
+    where: { id: 'banner-2-home' },
+    update: {},
+    create: {
+      id: 'banner-2-home',
+      title: "Новинки от Hill's",
+      subtitle: 'Лечебное питание для кошек и собак — теперь в наличии',
+      buttonText: 'Смотреть',
+      image: '/pets/dogwithcat.png',
+      link: '/catalog?brand=hills',
+      page: 'home',
+      position: 'main_slider',
+      sortOrder: 2,
+      isActive: true,
+    },
+  })
+
+  await prisma.banner.upsert({
+    where: { id: 'banner-3-home' },
+    update: {},
+    create: {
+      id: 'banner-3-home',
+      title: 'Бонусная программа',
+      subtitle: 'Накапливайте бонусы и получайте скидку до 5% с каждой покупки',
+      buttonText: 'Узнать больше',
+      image: '/pets/smiledog.png',
+      link: '/profile',
+      page: 'home',
+      position: 'main_slider',
+      sortOrder: 3,
+      isActive: true,
+    },
+  })
+
+  console.log('Banners: 3 items created')
+
   // Суперадмин
   const admin = await prisma.user.upsert({
     where: { email: 'admin@simbazoo.ru' },

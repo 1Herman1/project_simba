@@ -174,8 +174,14 @@ export interface User {
   isGuest?: boolean
 }
 
+/// Службы доставки. Раньше союз жил только в CheckoutPage, а общий слой
+/// принимал любую строку — из-за этого два описания одного и того же типа
+/// расходились и не присваивались друг другу.
+export type DeliveryProviderKey =
+  | 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
+
 export interface DeliveryQuote {
-  provider: string
+  provider: DeliveryProviderKey
   key: string
   title: string
   description: string
@@ -367,6 +373,10 @@ export const deliveryApi = {
     street?: string
     house?: string
     postalCode?: string
+    /// Координаты приходят с карты. Яндекс.Доставка без них не считает —
+    /// раньше она молча подставляла центр Москвы и называла чужую цену.
+    lat?: number
+    lon?: number
     weightKg: number
   }) => api.post<{ quotes: DeliveryQuote[] }>('/api/delivery/quotes', params),
 
