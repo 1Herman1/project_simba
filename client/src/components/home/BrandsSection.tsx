@@ -11,23 +11,8 @@ import { brandsApi, type Brand } from '../../lib/api'
     площадь у всех совпадает, а не габарит.
 
     Пороги: ≥ 2.6 — wide, 1.6…2.6 — mid, < 1.6 — mark (геометрические середины
-    между группами). Новый бренд классифицируется по числу, а не на глаз. */
+    между группами). Классификация читается из logoFit в БД, а не из захардкода. */
 type LogoGroup = 'wide' | 'mid' | 'mark'
-
-const LOGO_GROUPS: Record<string, LogoGroup> = {
-  alphapet: 'wide', // 3.57
-  alleva: 'wide', // 3.41
-  monge: 'wide', // 3.35
-  grandorf: 'wide', // 2.99
-  muzzle: 'wide', // 2.91
-  'royal-canin': 'wide', // 2.79
-  'happy-cat': 'mid', // 1.94
-  'happy-dog': 'mid', // 1.92
-  craftia: 'mark', // 1.23
-  'hill-s': 'mark', // 1.08
-  farmina: 'mark', // 1.00
-  zillii: 'mark', // 0.94
-}
 
 /** Литеральные строки, а не сборка через шаблон: JIT-сканер Tailwind видит
     только целые классы в исходнике — собранные динамически молча не попадут
@@ -44,35 +29,64 @@ const LOGO_SIZE: Record<LogoGroup, string> = {
 
 function logoSrc(brand: Brand): string | null {
   if (brand.logo) return brand.logo
-  return brand.slug in LOGO_GROUPS ? `/brands/${brand.slug}.png` : null
+  return `/brands/${brand.slug}.png`
 }
 
 /** Плитка бренда — ссылка в каталог этого бренда.
     Логотип и название живут в одной полосе по высоте (40px, на lg — 48px):
     оптический вес выравнивается геометрией, поэтому смешанный ряд
-    «часть с логотипами, часть с названиями» читается цельно, а не сломанно. */
+    «часть с логотипами, часть с названиями» читается цельно, а не сломанно.
+    Если у бренда есть accentColor, плитка заливается им, а картинка кладётся
+    на белую подложку — так буквы (с альфой 0) видны через прозрачные дыры. */
 function BrandTileLink({ brand }: { brand: Brand }) {
   const [failed, setFailed] = useState(false)
   const src = logoSrc(brand)
   const showLogo = src !== null && !failed
+  const logoFit = (brand.logoFit ?? 'mid') as LogoGroup
 
   return (
     <Link
       to={`/catalog?brand=${brand.slug}`}
       aria-label={`${brand.name} — товары бренда`}
-      className="brand-card flex h-20 w-full items-center justify-center overflow-hidden rounded-card border border-line bg-white p-3 sm:h-24 lg:h-28 lg:p-4"
+      className={`brand-card flex h-20 w-full items-center justify-center overflow-hidden rounded-card sm:h-24 lg:h-28 ${
+        brand.accentColor ? 'border-0' : 'border border-line bg-white p-3 lg:p-4'
+      }`}
+      style={brand.accentColor ? { backgroundColor: brand.accentColor } : undefined}
     >
       {showLogo ? (
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          onError={() => setFailed(true)}
-          className={LOGO_SIZE[LOGO_GROUPS[brand.slug] ?? 'mid']}
-        />
+        brand.accentColor ? (
+          /* Логотип занимает плитку целиком, а белая подложка лежит ПОД НИМ
+             ровно по его размеру. Тогда белое видно только сквозь прозрачные
+             буквы (у farmina.png они с альфой 0), а фирменный синий картинки
+             стыкуется с таким же синим плитки — шва нет.
+             Отдельная белая коробка внутри цветной рамки, как было сначала,
+             давала ровно то, чего просили избежать: две видимые границы. */
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailed(true)}
+            className="h-full w-full bg-white object-cover"
+          />
+        ) : (
+        <div className="flex items-center justify-center w-full h-full">
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            onError={() => setFailed(true)}
+            className={LOGO_SIZE[logoFit]}
+          />
+        </div>
+        )
       ) : (
-        <span className="text-balance break-words text-center text-base font-extrabold leading-tight tracking-tight text-navy-800 lg:text-lg">
+        <span
+          className={`text-balance break-words text-center text-base font-extrabold leading-tight tracking-tight lg:text-lg ${
+            brand.accentColor ? 'text-white' : 'text-navy-800'
+          }`}
+        >
           {brand.name}
         </span>
       )}

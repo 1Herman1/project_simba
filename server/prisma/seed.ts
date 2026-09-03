@@ -151,8 +151,8 @@ async function main() {
   // Новые бренды для квиза
   const farmina = await prisma.brand.upsert({
     where: { slug: 'farmina' },
-    update: {},
-    create: { name: 'Farmina', slug: 'farmina' },
+    update: { accentColor: '#0F70B5', logoFit: 'mark' },
+    create: { name: 'Farmina', slug: 'farmina', accentColor: '#0F70B5', logoFit: 'mark' },
   })
 
   const monge = await prisma.brand.upsert({

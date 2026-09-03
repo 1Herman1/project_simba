@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { brandsApi, type Brand } from '../../lib/api'
 
-const empty = (): Partial<Brand> => ({ name: '', slug: '', logo: '', description: '' })
+const empty = (): Partial<Brand> => ({ name: '', slug: '', logo: '', accentColor: '', logoFit: null, description: '' })
 
 function autoSlug(n: string) {
   return n.toLowerCase().replace(/[а-яё]/g, (c: string) => ({
@@ -92,6 +92,20 @@ export default function BrandsPage() {
               <label className="block text-xs text-gray-500 mb-1">Логотип (URL)</label>
               <input value={form.logo ?? ''} onChange={e => setField('logo', e.target.value)} placeholder="https://..."
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Фирменный цвет (hex)</label>
+              <input value={form.accentColor ?? ''} onChange={e => setField('accentColor', e.target.value || null)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm font-mono focus:outline-none focus:border-blue-400" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Вписывание логотипа</label>
+              <select value={form.logoFit ?? ''} onChange={e => setField('logoFit', e.target.value || null)}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400">
+                <option value="">mid (по умолчанию)</option>
+                <option value="wide">wide</option>
+                <option value="mark">mark</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Описание</label>

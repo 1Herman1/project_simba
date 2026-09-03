@@ -261,6 +261,8 @@ export interface Brand {
   name: string
   slug: string
   logo: string | null
+  accentColor: string | null
+  logoFit: 'wide' | 'mid' | 'mark' | null
   productCount: number
 }
 

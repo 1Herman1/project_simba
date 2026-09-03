@@ -12,6 +12,8 @@ export default async function brandRoutes(app: FastifyInstance) {
         name: true,
         slug: true,
         logo: true,
+        accentColor: true,
+        logoFit: true,
         _count: { select: { products: { where: { isActive: true } } } },
       },
     })
@@ -28,6 +30,8 @@ export default async function brandRoutes(app: FastifyInstance) {
         name: true,
         slug: true,
         logo: true,
+        accentColor: true,
+        logoFit: true,
         description: true,
       },
     })
