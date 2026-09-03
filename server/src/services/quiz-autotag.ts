@@ -23,7 +23,7 @@ function matchesRegex(text: string, pattern: string): boolean {
   }
 }
 
-function determineSpecies(
+export function determineSpecies(
   name: string,
   categorySlugs: string[]
 ): 'dog' | 'cat' | null {

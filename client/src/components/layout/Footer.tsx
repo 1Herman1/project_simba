@@ -19,9 +19,8 @@ export default function Footer() {
 
   const aboutLinks: Array<{
     label: string
-    to?: string
+    to: string
     hash?: string
-    comingSoon?: boolean
   }> = [
     { label: 'О компании', to: '/about' },
     { label: 'Почему нам доверяют', to: '/trust' },
@@ -151,18 +150,12 @@ export default function Footer() {
               <div className="flex flex-col gap-2">
                 {aboutLinks.map((item) => (
                   <div key={item.label}>
-                    {item.comingSoon ? (
-                      <span className="text-base md:text-sm text-navy-500 cursor-default">
-                        {item.label}
-                        {/* Подсказка title на телефоне не показывается — пишем словом. */}
-                        <span className="ml-2 text-xs uppercase tracking-wide text-navy-500">Скоро</span>
-                      </span>
-                    ) : item.hash ? (
+                    {item.hash ? (
                       <a href={`${item.to}${item.hash}`} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                         {item.label}
                       </a>
                     ) : (
-                      <Link to={item.to || ''} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
+                      <Link to={item.to} className="text-base md:text-sm text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
                         {item.label}
                       </Link>
                     )}
