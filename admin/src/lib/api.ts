@@ -92,8 +92,10 @@ export interface Brand {
 export interface Banner {
   id: string
   title: string
+  subtitle?: string
   image: string
   link?: string
+  buttonText?: string
   page: 'home' | 'catalog' | 'other'
   position: 'main_slider' | 'promo_strip' | 'sidebar'
   isActive: boolean
@@ -222,6 +224,13 @@ export const bannersApi = {
   create: (data: unknown) => api.post<Banner>('/api/admin/banners', data),
   update: (id: string, data: unknown) => api.put<Banner>(`/api/admin/banners/${id}`, data),
   delete: (id: string) => api.delete(`/api/admin/banners/${id}`),
+  uploadImage: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post<{ key: string; url: string }>('/api/admin/banners/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 }
 
 export interface SyncRunExample {

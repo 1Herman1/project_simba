@@ -21,27 +21,36 @@ const bannersAdminRoute: FastifyPluginAsync = async (app) => {
   const guard = { preHandler: [app.authenticate, checkRole(['super_admin', 'products_manager'])] }
 
   // Загрузка изображения баннера
-  app.post<{ Body: any }>('/upload', guard, async (request, reply) => {
+  // Сообщения по-русски: их читает администратор магазина в админке, а не
+  // разработчик в журнале. Причину «хранилище не настроено» отдаём отдельно —
+  // иначе она теряется в общем «не удалось загрузить», и админке приходится
+  // угадывать её по подстроке в английском тексте.
+  app.post('/upload', guard, async (request, reply) => {
     const data = await request.file()
     if (!data) {
-      return reply.status(400).send({ error: 'No file provided' })
+      return reply.status(400).send({ error: 'Файл не выбран' })
     }
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
     if (!allowedTypes.includes(data.mimetype)) {
-      return reply.status(400).send({ error: 'Only JPEG, PNG, WebP, GIF allowed' })
+      return reply.status(400).send({ error: 'Подойдёт только картинка: JPEG, PNG, WebP или GIF' })
     }
 
     const buffer = await data.toBuffer()
     if (buffer.length > MAX_FILE_SIZE) {
-      return reply.status(413).send({ error: 'File too large (max 5MB)' })
+      return reply.status(413).send({ error: 'Файл больше 5 МБ — уменьшите картинку' })
     }
 
     try {
       const key = await saveFile(buffer, data.mimetype)
       return reply.status(201).send({ key, url: `/api/media/${key}` })
     } catch (err) {
-      return reply.status(500).send({ error: 'Failed to upload file' })
+      const notConfigured = err instanceof Error && err.message.includes('not configured')
+      return reply.status(notConfigured ? 503 : 500).send({
+        error: notConfigured
+          ? 'Хранилище картинок не подключено — обратитесь к разработчику'
+          : 'Не удалось загрузить картинку, попробуйте ещё раз',
+      })
     }
   })
 

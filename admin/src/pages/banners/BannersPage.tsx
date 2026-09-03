@@ -1,6 +1,22 @@
 import { useEffect, useState } from 'react'
 import { bannersApi, type Banner } from '../../lib/api'
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+/**
+ * Адрес картинки для показа В АДМИНКЕ.
+ *
+ * В базе путь хранится так, как его понимает витрина: загруженные файлы —
+ * /api/media/..., старые — /pets/... Админка живёт на своём адресе, поэтому
+ * без приставки браузер искал бы их у себя и не находил: предпросмотр оставался
+ * пустым, а подпись «Предпросмотр» висела над пустотой.
+ */
+function imageSrc(path: string): string {
+  if (/^https?:\/\//.test(path)) return path
+  if (path.startsWith('/api/')) return API_BASE + path
+  return path
+}
+
 const PAGE_LABELS: Record<string, string> = { home: 'Главная', catalog: 'Каталог', other: 'Другое' }
 const POSITION_LABELS: Record<string, string> = {
   main_slider: 'Главный слайдер',
@@ -10,8 +26,10 @@ const POSITION_LABELS: Record<string, string> = {
 
 const empty = (): Partial<Banner> => ({
   title: '',
+  subtitle: '',
   image: '',
   link: '',
+  buttonText: '',
   page: 'home',
   position: 'main_slider',
   isActive: true,
@@ -25,6 +43,8 @@ export default function BannersPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
@@ -33,13 +53,13 @@ export default function BannersPage() {
 
   useEffect(() => { load() }, [])
 
-  const openCreate = () => { setEditId(null); setForm(empty()); setError('') }
-  const openEdit = (b: Banner) => { setEditId(b.id); setForm({ ...b }); setError('') }
-  const closeForm = () => { setForm(null); setEditId(null) }
+  const openCreate = () => { setEditId(null); setForm(empty()); setError(''); setPreviewImage(null) }
+  const openEdit = (b: Banner) => { setEditId(b.id); setForm({ ...b }); setError(''); setPreviewImage(null) }
+  const closeForm = () => { setForm(null); setEditId(null); setPreviewImage(null) }
 
   const handleSave = async () => {
     if (!form?.title) { setError('Введите заголовок'); return }
-    if (!form?.image) { setError('Введите URL изображения'); return }
+    if (!form?.image) { setError('Загрузите или выберите изображение'); return }
     setSaving(true); setError('')
     try {
       if (editId) {
@@ -50,8 +70,9 @@ export default function BannersPage() {
         setBanners(prev => [...prev, res.data])
       }
       closeForm()
-    } catch (e: any) {
-      setError(e?.response?.data?.error || 'Ошибка сохранения')
+    } catch (e) {
+      const fromBody = (e as { response?: { data?: { error?: unknown } } })?.response?.data?.error
+      setError(typeof fromBody === 'string' && fromBody ? fromBody : 'Не удалось сохранить баннер')
     } finally { setSaving(false) }
   }
 
@@ -68,6 +89,32 @@ export default function BannersPage() {
 
   const setField = (field: keyof Banner, value: unknown) =>
     setForm(prev => prev ? { ...prev, [field]: value } : prev)
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0]
+    if (!file) return
+
+    // показать локальный preview
+    const reader = new FileReader()
+    reader.onload = () => setPreviewImage(reader.result as string)
+    reader.readAsDataURL(file)
+
+    // загрузить на сервер
+    setUploading(true)
+    setError('')
+    try {
+      const res = await bannersApi.uploadImage(file)
+      setField('image', res.data.url)
+    } catch (e) {
+      // Сервер отвечает готовой русской фразой, в том числе про неподключённое
+      // хранилище. Угадывать причину по подстроке не нужно — раньше проверка
+      // искала «MinIO» в тексте, которого сервер не присылал, и администратор
+      // видел английское «Failed to upload file».
+      const fromBody = (e as { response?: { data?: { error?: unknown } } })?.response?.data?.error
+      setError(typeof fromBody === 'string' && fromBody ? fromBody : 'Не удалось загрузить картинку')
+      setPreviewImage(null)
+    } finally { setUploading(false) }
+  }
 
   return (
     <div className="max-w-4xl">
@@ -89,14 +136,33 @@ export default function BannersPage() {
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
             </div>
             <div>
+              <label className="block text-xs text-gray-500 mb-1">Подзаголовок</label>
+              <input value={form.subtitle ?? ''} onChange={e => setField('subtitle', e.target.value)} placeholder="Дополнительный текст"
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
+            </div>
+            <div>
               <label className="block text-xs text-gray-500 mb-1">Ссылка (необязательно)</label>
               <input value={form.link ?? ''} onChange={e => setField('link', e.target.value)} placeholder="/catalog"
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-xs text-gray-500 mb-1">URL изображения *</label>
-              <input value={form.image ?? ''} onChange={e => setField('image', e.target.value)} placeholder="https://..."
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Текст кнопки</label>
+              <input value={form.buttonText ?? ''} onChange={e => setField('buttonText', e.target.value)} placeholder="Узнать больше"
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs text-gray-500 mb-1">Изображение *</label>
+              {/* Родной выбор файла спрятан: браузер рисует в нём английские
+                  «Choose File» и «No file chosen», а админка русская. */}
+              <div className="flex items-center gap-3">
+                <label className="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium cursor-pointer hover:bg-blue-100">
+                  Выбрать файл
+                  <input type="file" accept="image/*" onChange={handleImageSelect} disabled={uploading} className="sr-only" />
+                </label>
+                <span className="text-xs text-gray-500">
+                  {uploading ? 'Загружаем…' : 'JPEG, PNG, WebP или GIF, до 5 МБ'}
+                </span>
+              </div>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Страница</label>
@@ -125,9 +191,15 @@ export default function BannersPage() {
               </label>
             </div>
           </div>
-          {form.image && (
+          {(previewImage || form.image) && (
             <div className="mb-3">
-              <img src={form.image} alt="preview" className="h-24 rounded-lg object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
+              <p className="text-xs text-gray-500 mb-1">Текущая картинка</p>
+              <img
+                src={previewImage || imageSrc(form.image ?? '')}
+                alt=""
+                className="h-24 rounded-lg object-cover bg-gray-50"
+                onError={(e) => { e.currentTarget.replaceWith(Object.assign(document.createElement('p'), { className: 'text-xs text-gray-400', textContent: 'Картинка недоступна для показа' })) }}
+              />
             </div>
           )}
           <div className="flex gap-2">
@@ -167,6 +239,7 @@ export default function BannersPage() {
                           onError={e => (e.currentTarget.style.display = 'none')} />
                         <div>
                           <p className="font-medium text-gray-900">{b.title}</p>
+                          {b.subtitle && <p className="text-xs text-gray-500">{b.subtitle}</p>}
                           {b.link && <p className="text-xs text-gray-400">{b.link}</p>}
                         </div>
                       </div>
