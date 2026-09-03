@@ -1,59 +1,50 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
+import { bannersApi, type Banner } from '../../lib/api'
 
-// dotColor задаётся на слайд, а не глобально: фон меняется от светло-голубого
-// до navy-900, и одна константа не может остаться читаемой на обоих.
-const banners = [
+// Оформление слайда в базе не хранится — владелец меняет содержание, а не
+// градиенты. Схемы идут по кругу: dotColor задаётся на слайд, а не глобально,
+// потому что фон меняется от светло-голубого до navy-900, и одна константа не
+// может остаться читаемой на обоих.
+const THEMES = [
   {
-    id: 1,
-    title: 'Корм для здоровых почек',
-    subtitle: 'Royal Canin Renal — специальное питание для кошек',
-    cta: 'Выбрать корм',
-    href: '/catalog?category=cats-food',
     bg: 'from-blue-100 to-blue-200',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-500',
     accent: 'bg-primary text-white hover:bg-primary-hover',
     dot: { active: 'bg-navy-700', idle: 'bg-navy-700/40 group-hover:bg-navy-700/70' },
-    image: '/pets/cat.png',
-    imageAlt: '',
   },
   {
-    id: 2,
-    title: "Новинки от Hill's",
-    subtitle: 'Лечебное питание для кошек и собак — теперь в наличии',
-    cta: 'Смотреть',
-    href: '/catalog?brand=hills',
     bg: 'from-amber-300 to-amber-400',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-700',
     accent: 'bg-primary text-white hover:bg-primary-hover',
     dot: { active: 'bg-navy-900', idle: 'bg-navy-900/40 group-hover:bg-navy-900/70' },
-    image: '/pets/dogwithcat.png',
-    imageAlt: '',
   },
   {
-    id: 3,
-    title: 'Бонусная программа',
-    subtitle: 'Накапливайте бонусы и получайте скидку до 5% с каждой покупки',
-    cta: 'Узнать больше',
-    href: '/profile',
     bg: 'from-navy-700 to-navy-900',
     textColor: 'text-white',
     subtitleColor: 'text-blue-100',
     accent: 'bg-primary-tint text-navy-900 hover:bg-primary-soft',
     dot: { active: 'bg-white', idle: 'bg-white/50 group-hover:bg-white/80' },
-    image: '/pets/smiledog.png',
-    imageAlt: '',
   },
 ]
 
 const SLIDE_MS = 6500
 
 export default function BannerCarousel() {
+  const [banners, setBanners] = useState<Banner[]>([])
   const [current, setCurrent] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+
+  useEffect(() => {
+    bannersApi
+      .list({ page: 'home', position: 'main_slider' })
+      .then((res) => setBanners(res.data))
+      // Выдумывать баннеры при сбое нельзя: секция просто не показывается.
+      .catch(() => setBanners([]))
+  }, [])
 
   useEffect(() => {
     if (isPaused) return
@@ -72,11 +63,17 @@ export default function BannerCarousel() {
     setCurrent((c) => (c + 1) % banners.length)
   }
 
+  // Ни одного включённого баннера — секции на главной просто нет.
+  if (banners.length === 0) return null
+
   const banner = banners[current]
+  const theme = THEMES[current % THEMES.length]
 
   return (
-    <div
-      className="relative overflow-hidden"
+    <section
+      id="banners"
+      aria-label="Акции и предложения"
+      className="scroll-mt-24 relative overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}
@@ -84,7 +81,7 @@ export default function BannerCarousel() {
     >
       {/* h-56 на мобиле, а не h-48: зона нажатия точек внизу занимает 44px, и на
           192px кнопка CTA уходила под них. */}
-      <div className={`bg-gradient-to-r ${banner.bg} h-56 md:h-80 flex items-center`}>
+      <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center`}>
         <div
           key={banner.id}
           className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
@@ -92,17 +89,19 @@ export default function BannerCarousel() {
           <div className="max-w-lg pt-4 pb-10 md:py-6">
             {/* h2, а не h1: заголовок слайда меняется по таймеру и не может быть
                 главным заголовком страницы. Постоянный h1 — в HomePage. */}
-            <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${banner.textColor}`}>
+            <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${theme.textColor}`}>
               {banner.title}
             </h2>
-            <p className={`text-sm md:text-base mb-4 md:mb-6 ${banner.subtitleColor}`}>
-              {banner.subtitle}
-            </p>
+            {banner.subtitle && (
+              <p className={`text-sm md:text-base mb-4 md:mb-6 ${theme.subtitleColor}`}>
+                {banner.subtitle}
+              </p>
+            )}
             <Link
-              to={banner.href}
-              className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${banner.accent}`}
+              to={banner.link ?? "/catalog"}
+              className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
             >
-              {banner.cta}
+              {banner.buttonText ?? "Смотреть"}
             </Link>
           </div>
 
@@ -111,7 +110,7 @@ export default function BannerCarousel() {
               экране. На мобиле прячем — там места нет. */}
           <img
             src={banner.image}
-            alt={banner.imageAlt}
+            alt=""
             aria-hidden="true"
             width={520}
             height={320}
@@ -154,12 +153,12 @@ export default function BannerCarousel() {
           >
             <span
               className={`block h-2 rounded-full transition-[width,background-color] ${
-                i === current ? `w-6 ${banner.dot.active}` : `w-2 ${banner.dot.idle}`
+                i === current ? `w-6 ${theme.dot.active}` : `w-2 ${theme.dot.idle}`
               }`}
             />
           </button>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

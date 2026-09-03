@@ -264,6 +264,22 @@ export interface Brand {
   productCount: number
 }
 
+export interface Banner {
+  id: string
+  title: string
+  subtitle: string | null
+  image: string
+  link: string | null
+  buttonText: string | null
+}
+
+export const bannersApi = {
+  /// Главная берёт баннеры отсюда, а не из массива в компоненте: владелец
+  /// меняет их сам через админку.
+  list: (params?: { page?: string; position?: string }) =>
+    api.get<Banner[]>('/api/banners', { params }),
+}
+
 export const brandsApi = {
   list: () =>
     api.get<Brand[]>('/api/brands'),
