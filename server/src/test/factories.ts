@@ -27,6 +27,7 @@ export async function createProductWithVariant(opts: {
   stock?: number
   weight?: number
   name?: string
+  species?: 'cat' | 'dog' | 'both' | 'unknown'
 } = {}) {
   const prisma = getTestPrisma()
   const name = opts.name ?? 'Корм тестовый'
@@ -35,6 +36,7 @@ export async function createProductWithVariant(opts: {
       name,
       slug: uniq('product'),
       description: 'Товар для интеграционных тестов',
+      species: opts.species ?? 'unknown',
       variants: {
         create: {
           price: opts.price ?? 99900,

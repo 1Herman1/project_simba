@@ -224,6 +224,7 @@ export const productsApi = {
     brand?: string
     format?: 'dry' | 'wet'
     purpose?: 'medical'
+    species?: 'cat' | 'dog'
     tags?: string[]
     sort?: string
     page?: number

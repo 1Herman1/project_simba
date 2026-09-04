@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
@@ -9,10 +9,30 @@ import { PhoneIcon, HeartIcon, CartIcon, UserIcon, TelegramIcon, SearchIcon } fr
 import HeaderSearch from './HeaderSearch'
 import SearchModal from './SearchModal'
 
+/** Открыт ли сейчас раздел, на который ведёт пункт меню. NavLink здесь не
+    годится: он сравнивает только путь, а «Кошки» и «Собаки» — это один и тот же
+    /catalog, различающийся параметром species. */
+function useIsCurrent() {
+  const { pathname, search, hash } = useLocation()
+  return (href: string) => {
+    if (href.startsWith('/#')) return pathname === '/' && hash === href.slice(1)
+    const [path, query] = href.split('?')
+    if (pathname !== path) return false
+    if (!query) return !search
+    const want = new URLSearchParams(query)
+    const have = new URLSearchParams(search)
+    return [...want].every(([key, value]) => have.get(key) === value)
+  }
+}
+
+const NAV_CURRENT = 'text-primary bg-blue-50'
+const NAV_IDLE = 'text-navy-700 hover:text-primary-hover hover:bg-blue-50'
+
 const categories = [
   {
     label: 'Кошки',
     key: 'cats',
+    href: '/catalog?species=cat',
     subcategories: [
       { label: 'Сухой корм', href: '/catalog?category=cats-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=cats-food&format=wet' },
@@ -27,6 +47,7 @@ const categories = [
   {
     label: 'Собаки',
     key: 'dogs',
+    href: '/catalog?species=dog',
     subcategories: [
       { label: 'Сухой корм', href: '/catalog?category=dogs-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=dogs-food&format=wet' },
@@ -39,13 +60,14 @@ const categories = [
     ],
   },
   { label: 'Лакомства', key: null, href: '/catalog?category=treats' },
-  { label: 'Бренды', key: null, href: '/catalog?type=brands' },
-  { label: 'Акции', key: null, href: '/catalog?type=sale' },
+  { label: 'Бренды', key: null, href: '/#brands' },
+  { label: 'Акции', key: null, href: '/#banners' },
   { label: 'Блог', key: null, href: '/blog' },
 ]
 
 export default function Header() {
   const navigate = useNavigate()
+  const isCurrent = useIsCurrent()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -160,18 +182,13 @@ export default function Header() {
                   onMouseEnter={() => cat.key ? setActiveCategory(cat.key) : setActiveCategory(null)}
                   className="relative"
                 >
-                  {cat.href ? (
-                    <Link
-                      to={cat.href}
-                      className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease-smooth"
-                    >
-                      {cat.label}
-                    </Link>
-                  ) : (
-                    <span className="block px-4 py-3 text-sm font-medium text-navy-700 hover:text-primary-hover hover:bg-blue-50 transition-colors duration-100 ease-smooth cursor-default">
-                      {cat.label}
-                    </span>
-                  )}
+                  <Link
+                    to={cat.href}
+                    aria-current={isCurrent(cat.href) ? 'page' : undefined}
+                    className={`block px-4 py-3 text-sm font-medium transition-colors duration-100 ease-smooth ${isCurrent(cat.href) ? NAV_CURRENT : NAV_IDLE}`}
+                  >
+                    {cat.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -270,8 +287,9 @@ export default function Header() {
               {categories.map((cat) => (
                 <Link
                   key={cat.label}
-                  to={cat.href ?? `/catalog?category=${cat.key}`}
-                  className="py-2.5 px-3 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover font-medium transition-colors duration-100 ease-smooth"
+                  to={cat.href}
+                  aria-current={isCurrent(cat.href) ? 'page' : undefined}
+                  className={`py-2.5 px-3 rounded-lg font-medium transition-colors duration-100 ease-smooth ${isCurrent(cat.href) ? NAV_CURRENT : NAV_IDLE}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {cat.label}

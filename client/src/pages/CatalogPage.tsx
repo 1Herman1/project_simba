@@ -17,6 +17,7 @@ export default function CatalogPage() {
   const brand = searchParams.get('brand') || ''
   const format = searchParams.get('format') || ''
   const purpose = searchParams.get('purpose') || ''
+  const species = searchParams.get('species') || ''
   // Сортировка живёт в URL, как остальные фильтры: раньше она сидела в локальном
   // useState внутри SortSelect и никуда оттуда не попадала — контрол переключался,
   // а выдача не менялась.
@@ -30,9 +31,10 @@ export default function CatalogPage() {
     if (brand) params.brand = brand
     if (format) params.format = format
     if (purpose) params.purpose = purpose
+    if (species) params.species = species
     if (sort && sort !== 'popular') params.sort = sort
     setSearchParams(params, { replace: true })
-  }, [search, activeTag, category, brand, format, purpose, sort])
+  }, [search, activeTag, category, brand, format, purpose, species, sort])
 
   const handleSortChange = (next: string) => {
     const params = new URLSearchParams(searchParams)
@@ -61,10 +63,11 @@ export default function CatalogPage() {
           activeTag={activeTag}
           category={category}
           brand={brand}
+          species={species}
           sort={sort}
           onSortChange={handleSortChange}
         />
-        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} purpose={purpose} sort={sort} />
+        <CatalogGrid search={search} activeTag={activeTag} category={category} brand={brand} format={format} purpose={purpose} species={species} sort={sort} />
       </div>
 
       <QuestionnaireTeaser />
@@ -73,12 +76,13 @@ export default function CatalogPage() {
 }
 
 function CatalogHeader({
-  search, activeTag, category, brand, sort, onSortChange,
+  search, activeTag, category, brand, species, sort, onSortChange,
 }: {
   search: string
   activeTag: string
   category: string
   brand: string
+  species: string
   sort: string
   onSortChange: (value: string) => void
 }) {
@@ -118,6 +122,10 @@ function CatalogHeader({
     ? brandName || 'Товары бренда'
     : category
     ? categoryName || 'Каталог'
+    : species === 'cat'
+    ? 'Всё для кошек'
+    : species === 'dog'
+    ? 'Всё для собак'
     : 'Все товары'
 
   return (

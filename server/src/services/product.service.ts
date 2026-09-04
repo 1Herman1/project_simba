@@ -10,6 +10,10 @@ export interface ProductFilters {
   search?: string
   /** Сухой или влажный корм. Признак берётся из тегов подбора. */
   format?: 'dry' | 'wet'
+  /** Кому товар: кошке или собаке. Универсальные (both) попадают в обе выдачи,
+      неразмеченные (unknown) — ни в одну: лучше не показать товар, чем предложить
+      кошачий корм собаке. Разметку ставит scripts/backfill-species.ts. */
+  species?: 'cat' | 'dog'
   /** Ветеринарные диеты. Отдельного признака у товара нет — отбираем по линейке. */
   purpose?: 'medical'
   /** Быстрые фильтры-кнопки над выдачей. */
@@ -92,6 +96,10 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
       })),
     }
     where.AND = Array.isArray(where.AND) ? [...where.AND, condition] : [condition]
+  }
+
+  if (filters.species) {
+    where.species = { in: [filters.species, 'both'] }
   }
 
   if (filters.format) {

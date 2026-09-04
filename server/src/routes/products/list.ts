@@ -2,6 +2,10 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { getProducts } from '../../services/product.service'
 
+/// Пустой параметр (?species=) — это «фильтр не выбран», а не ошибка. Без этого
+/// каталог отвечал 400 на собственный же адрес с очищенным фильтром.
+const blankToUndefined = (value: unknown) => (value === '' ? undefined : value)
+
 const querySchema = z.object({
   category: z.string().optional(),
   brand: z.string().optional(),
@@ -9,10 +13,11 @@ const querySchema = z.object({
   minPrice: z.coerce.number().positive().optional(),
   maxPrice: z.coerce.number().positive().optional(),
   search: z.string().optional(),
-  format: z.enum(['dry', 'wet']).optional(),
-  purpose: z.enum(['medical']).optional(),
+  format: z.preprocess(blankToUndefined, z.enum(['dry', 'wet']).optional()),
+  species: z.preprocess(blankToUndefined, z.enum(['cat', 'dog']).optional()),
+  purpose: z.preprocess(blankToUndefined, z.enum(['medical']).optional()),
   tags: z.union([z.string(), z.array(z.string())]).optional(),
-  sort: z.enum(['price_asc', 'price_desc', 'newest', 'popular']).optional(),
+  sort: z.preprocess(blankToUndefined, z.enum(['price_asc', 'price_desc', 'newest', 'popular']).optional()),
   featured: z.enum(['true', 'false']).optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
@@ -39,6 +44,7 @@ export default async function listRoute(app: FastifyInstance) {
       maxPrice: q.maxPrice !== undefined ? q.maxPrice * 100 : undefined,
       search: q.search,
       format: q.format,
+      species: q.species,
       purpose: q.purpose,
       tags: q.tags === undefined ? undefined : Array.isArray(q.tags) ? q.tags : [q.tags],
       sortBy: q.sort,

@@ -10,6 +10,7 @@ import {
   isNonProductRow,
   type ImportRow,
 } from '../../services/product-import'
+import { determineSpecies } from '../../services/quiz-autotag'
 
 const importRoute: FastifyPluginAsync = async (app) => {
   const guard = { preHandler: [app.authenticate, checkRole(['super_admin', 'products_manager'])] }
@@ -338,6 +339,23 @@ const importRoute: FastifyPluginAsync = async (app) => {
             create: { productId, categoryId },
             update: {},
           })
+        }
+
+        // Вид животного для нового товара. Без этого каждая загрузка из
+        // МоегоСклада добавляла бы товары, не попадающие ни в «Кошки», ни в
+        // «Собаки», — и владелец узнавал бы об этом от покупателя.
+        // Уже проставленный вид не трогаем: он мог быть выбран вручную.
+        if (!existingProduct || existingProduct.species === 'unknown') {
+          const guessed = determineSpecies(baseName, [
+            ...row.categories,
+            ...row.categories.map(transliterate),
+          ])
+          if (guessed) {
+            await app.prisma.product.update({
+              where: { id: productId },
+              data: { species: guessed },
+            })
+          }
         }
 
         // 11. Атрибуты (фильтры и значения)

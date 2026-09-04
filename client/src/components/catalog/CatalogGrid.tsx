@@ -13,12 +13,13 @@ interface Props {
   brand?: string
   format?: string
   purpose?: string
+  species?: string
   sort?: string
 }
 
 const PAGE_SIZE = 24
 
-export default function CatalogGrid({ search, activeTag, category, brand, format, purpose, sort }: Props) {
+export default function CatalogGrid({ search, activeTag, category, brand, format, purpose, species, sort }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -34,10 +35,11 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
       if (brand) params.brand = brand
       if (format === 'dry' || format === 'wet') params.format = format
       if (purpose === 'medical') params.purpose = purpose
+      if (species === 'cat' || species === 'dog') params.species = species
       if (sort && sort !== 'popular') params.sort = sort
       return params
     },
-    [search, activeTag, category, brand, format, purpose, sort],
+    [search, activeTag, category, brand, format, purpose, species, sort],
   )
 
   // Смена любого фильтра — это новая выдача: страницу сбрасываем и грузим заново.
@@ -89,7 +91,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
   if (products.length === 0) {
     // Пустой раздел и пустая выдача по фильтрам — разные истории, и текст должен
     // их различать: в первом случае покупатель ничего не делал не так.
-    const sectionEmpty = !search && !activeTag && !format && !purpose && Boolean(category || brand)
+    const sectionEmpty = !search && !activeTag && !format && !purpose && Boolean(category || brand || species)
     return <EmptyCatalog sectionEmpty={sectionEmpty} />
   }
 
