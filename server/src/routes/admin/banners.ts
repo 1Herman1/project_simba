@@ -6,6 +6,8 @@ import { saveFile } from '../../lib/storage'
 const schema = z.object({
   title: z.string().min(1),
   image: z.string(),
+  imageMobile: z.string().optional(),
+  showText: z.boolean().default(true),
   subtitle: z.string().optional(),
   link: z.string().optional(),
   buttonText: z.string().optional(),

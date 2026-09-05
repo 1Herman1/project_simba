@@ -28,6 +28,8 @@ const empty = (): Partial<Banner> => ({
   title: '',
   subtitle: '',
   image: '',
+  imageMobile: '',
+  showText: true,
   link: '',
   buttonText: '',
   page: 'home',
@@ -44,7 +46,6 @@ export default function BannersPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [uploading, setUploading] = useState(false)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
 
   const load = () => {
     setLoading(true)
@@ -53,9 +54,9 @@ export default function BannersPage() {
 
   useEffect(() => { load() }, [])
 
-  const openCreate = () => { setEditId(null); setForm(empty()); setError(''); setPreviewImage(null) }
-  const openEdit = (b: Banner) => { setEditId(b.id); setForm({ ...b }); setError(''); setPreviewImage(null) }
-  const closeForm = () => { setForm(null); setEditId(null); setPreviewImage(null) }
+  const openCreate = () => { setEditId(null); setForm(empty()); setError('') }
+  const openEdit = (b: Banner) => { setEditId(b.id); setForm({ ...b }); setError('') }
+  const closeForm = () => { setForm(null); setEditId(null) }
 
   const handleSave = async () => {
     if (!form?.title) { setError('Введите заголовок'); return }
@@ -90,21 +91,19 @@ export default function BannersPage() {
   const setField = (field: keyof Banner, value: unknown) =>
     setForm(prev => prev ? { ...prev, [field]: value } : prev)
 
-  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'image' | 'imageMobile',
+  ) => {
     const file = e.currentTarget.files?.[0]
     if (!file) return
-
-    // показать локальный preview
-    const reader = new FileReader()
-    reader.onload = () => setPreviewImage(reader.result as string)
-    reader.readAsDataURL(file)
 
     // загрузить на сервер
     setUploading(true)
     setError('')
     try {
       const res = await bannersApi.uploadImage(file)
-      setField('image', res.data.url)
+      setField(field, res.data.url)
     } catch (e) {
       // Сервер отвечает готовой русской фразой, в том числе про неподключённое
       // хранилище. Угадывать причину по подстроке не нужно — раньше проверка
@@ -112,7 +111,6 @@ export default function BannersPage() {
       // видел английское «Failed to upload file».
       const fromBody = (e as { response?: { data?: { error?: unknown } } })?.response?.data?.error
       setError(typeof fromBody === 'string' && fromBody ? fromBody : 'Не удалось загрузить картинку')
-      setPreviewImage(null)
     } finally { setUploading(false) }
   }
 
@@ -150,19 +148,42 @@ export default function BannersPage() {
               <input value={form.buttonText ?? ''} onChange={e => setField('buttonText', e.target.value)} placeholder="Узнать больше"
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400" />
             </div>
+            <div className="md:col-span-2 grid md:grid-cols-2 gap-4">
+              <ImageField
+                label="Картинка — компьютер *"
+                hint="2560 × 640 px"
+                placeholder="/banners/desktop/akciya.jpg"
+                value={form.image ?? ''}
+                onChange={(v) => setField('image', v)}
+                onFile={(e) => handleImageSelect(e, 'image')}
+                uploading={uploading}
+              />
+              {/* Отдельный файл для телефона: широкая картинка на узком экране
+                  либо обрезается по краям, либо мельчает до нечитаемости.
+                  Поле необязательное — пусто, значит телефон получит ту же. */}
+              <ImageField
+                label="Картинка — телефон"
+                hint="1170 × 672 px, необязательно"
+                placeholder="/banners/mobile/akciya.jpg"
+                value={form.imageMobile ?? ''}
+                onChange={(v) => setField('imageMobile', v)}
+                onFile={(e) => handleImageSelect(e, 'imageMobile')}
+                uploading={uploading}
+              />
+            </div>
             <div className="md:col-span-2">
-              <label className="block text-xs text-gray-500 mb-1">Изображение *</label>
-              {/* Родной выбор файла спрятан: браузер рисует в нём английские
-                  «Choose File» и «No file chosen», а админка русская. */}
-              <div className="flex items-center gap-3">
-                <label className="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium cursor-pointer hover:bg-blue-100">
-                  Выбрать файл
-                  <input type="file" accept="image/*" onChange={handleImageSelect} disabled={uploading} className="sr-only" />
-                </label>
-                <span className="text-xs text-gray-500">
-                  {uploading ? 'Загружаем…' : 'JPEG, PNG, WebP или GIF, до 5 МБ'}
+              <label className="flex items-start gap-2 cursor-pointer">
+                <input type="checkbox" checked={form.showText ?? true}
+                  onChange={e => setField('showText', e.target.checked)}
+                  className="w-4 h-4 mt-0.5 rounded accent-blue-600" />
+                <span className="text-sm text-gray-700">
+                  Показывать текст поверх картинки
+                  <span className="block text-xs text-gray-500">
+                    Снимите, если заголовок и кнопка уже нарисованы на самой картинке —
+                    иначе поверх ляжет второй заголовок.
+                  </span>
                 </span>
-              </div>
+              </label>
             </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Страница</label>
@@ -191,17 +212,6 @@ export default function BannersPage() {
               </label>
             </div>
           </div>
-          {(previewImage || form.image) && (
-            <div className="mb-3">
-              <p className="text-xs text-gray-500 mb-1">Текущая картинка</p>
-              <img
-                src={previewImage || imageSrc(form.image ?? '')}
-                alt=""
-                className="h-24 rounded-lg object-cover bg-gray-50"
-                onError={(e) => { e.currentTarget.replaceWith(Object.assign(document.createElement('p'), { className: 'text-xs text-gray-400', textContent: 'Картинка недоступна для показа' })) }}
-              />
-            </div>
-          )}
           <div className="flex gap-2">
             <button onClick={handleSave} disabled={saving}
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 disabled:opacity-50">
@@ -271,6 +281,51 @@ export default function BannersPage() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/** Адрес картинки можно и вписать руками, и загрузить файлом: файлы из
+    client/public/banners/ лежат в репозитории и не требуют хранилища, а
+    загруженные — наоборот. Раньше было только второе, и путь из папки вписать
+    было некуда. */
+function ImageField({
+  label, hint, placeholder, value, onChange, onFile, uploading,
+}: {
+  label: string
+  hint: string
+  placeholder: string
+  value: string
+  onChange: (value: string) => void
+  onFile: (e: React.ChangeEvent<HTMLInputElement>) => void
+  uploading: boolean
+}) {
+  return (
+    <div>
+      <label className="block text-xs text-gray-500 mb-1">{label}</label>
+      <input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-blue-400"
+      />
+      <div className="flex items-center gap-3 mt-2">
+        {/* Родной выбор файла спрятан: браузер рисует в нём английские
+            «Choose File» и «No file chosen», а админка русская. */}
+        <label className="px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium cursor-pointer hover:bg-blue-100">
+          Загрузить файл
+          <input type="file" accept="image/*" onChange={onFile} disabled={uploading} className="sr-only" />
+        </label>
+        <span className="text-xs text-gray-500">{uploading ? 'Загружаем…' : hint}</span>
+      </div>
+      {value && (
+        <img
+          src={imageSrc(value)}
+          alt=""
+          className="mt-2 h-20 rounded-lg object-cover bg-gray-50"
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+      )}
     </div>
   )
 }

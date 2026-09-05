@@ -1,0 +1,2 @@
+ALTER TABLE "banners" ADD COLUMN "imageMobile" TEXT;
+ALTER TABLE "banners" ADD COLUMN "showText" BOOLEAN NOT NULL DEFAULT true;

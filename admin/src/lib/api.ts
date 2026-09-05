@@ -96,6 +96,10 @@ export interface Banner {
   title: string
   subtitle?: string
   image: string
+  /** Отдельная картинка для телефона. Пусто — телефон получит десктопную. */
+  imageMobile?: string
+  /** Накладывать ли заголовок, подпись и кнопку поверх картинки. */
+  showText: boolean
   link?: string
   buttonText?: string
   page: 'home' | 'catalog' | 'other'

@@ -29,6 +29,8 @@ export default async function bannersRoute(app: FastifyInstance) {
           title: true,
           subtitle: true,
           image: true,
+          imageMobile: true,
+          showText: true,
           link: true,
           buttonText: true,
           page: true,

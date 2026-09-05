@@ -33,6 +33,34 @@ const THEMES = [
 
 const SLIDE_MS = 6500
 
+/** Телефон и компьютер получают разные файлы: широкая десктопная картинка на
+    узком экране либо обрезается по краям, либо мельчает до нечитаемости.
+    Точка переключения — та же, что у Tailwind md (768px). */
+function BannerImage({
+  banner,
+  priority,
+  alt = '',
+  className,
+}: {
+  banner: Banner
+  priority: boolean
+  alt?: string
+  className: string
+}) {
+  return (
+    <picture>
+      {banner.imageMobile && <source media="(max-width: 767px)" srcSet={banner.imageMobile} />}
+      <img
+        src={banner.image}
+        alt={alt}
+        aria-hidden={alt ? undefined : true}
+        fetchPriority={priority ? 'high' : 'auto'}
+        className={className}
+      />
+    </picture>
+  )
+}
+
 export default function BannerCarousel() {
   const [banners, setBanners] = useState<Banner[]>([])
   const [current, setCurrent] = useState(0)
@@ -81,44 +109,54 @@ export default function BannerCarousel() {
     >
       {/* h-56 на мобиле, а не h-48: зона нажатия точек внизу занимает 44px, и на
           192px кнопка CTA уходила под них. */}
-      <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center`}>
-        <div
-          key={banner.id}
-          className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
-        >
-          <div className="max-w-lg pt-4 pb-10 md:py-6">
-            {/* h2, а не h1: заголовок слайда меняется по таймеру и не может быть
-                главным заголовком страницы. Постоянный h1 — в HomePage. */}
-            <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${theme.textColor}`}>
-              {banner.title}
-            </h2>
-            {banner.subtitle && (
-              <p className={`text-sm md:text-base mb-4 md:mb-6 ${theme.subtitleColor}`}>
-                {banner.subtitle}
-              </p>
-            )}
-            <Link
-              to={banner.link ?? "/catalog"}
-              className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
-            >
-              {banner.buttonText ?? "Смотреть"}
-            </Link>
-          </div>
+      {banner.showText ? (
+        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center`}>
+          <div
+            key={banner.id}
+            className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
+          >
+            <div className="max-w-lg pt-4 pb-10 md:py-6">
+              {/* h2, а не h1: заголовок слайда меняется по таймеру и не может быть
+                  главным заголовком страницы. Постоянный h1 — в HomePage. */}
+              <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${theme.textColor}`}>
+                {banner.title}
+              </h2>
+              {banner.subtitle && (
+                <p className={`text-sm md:text-base mb-4 md:mb-6 ${theme.subtitleColor}`}>
+                  {banner.subtitle}
+                </p>
+              )}
+              <Link
+                to={banner.link ?? "/catalog"}
+                className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
+              >
+                {banner.buttonText ?? "Смотреть"}
+              </Link>
+            </div>
 
-          {/* Питомец занимает правую половину: без него на десктопе оставалась
-              пустая полоса градиента, а магазин терял товар/образ на первом
-              экране. На мобиле прячем — там места нет. */}
-          <img
-            src={banner.image}
-            alt=""
-            aria-hidden="true"
-            width={520}
-            height={320}
-            fetchPriority={current === 0 ? 'high' : 'auto'}
-            className="hidden md:block h-full w-auto max-w-[48%] object-contain object-bottom select-none pointer-events-none"
-          />
+            {/* Питомец занимает правую половину: без него на десктопе оставалась
+                пустая полоса градиента, а магазин терял товар/образ на первом
+                экране. На мобиле прячем — там места нет. */}
+            <BannerImage
+              banner={banner}
+              priority={current === 0}
+              className="hidden md:block h-full w-auto max-w-[48%] object-contain object-bottom select-none pointer-events-none"
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        /* Готовый баннер: текст уже нарисован на картинке, накладывать свой
+           поверх нельзя. Слайд целиком — одна ссылка, а заголовок из админки
+           уходит в alt, чтобы баннер не был немым для чтения с экрана. */
+        <Link key={banner.id} to={banner.link ?? "/catalog"} className="block animate-fade-in">
+          <BannerImage
+            banner={banner}
+            priority={current === 0}
+            alt={banner.title}
+            className="w-full h-56 md:h-80 object-cover"
+          />
+        </Link>
+      )}
 
       {/* Стрелки. На мобиле скрыты: там они вставали поверх заголовка —
           для переключения хватает точек. */}
