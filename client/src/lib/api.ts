@@ -1,4 +1,4 @@
-import type { DeliveryKind, DeliveryOptionKey } from '@simba/shared'
+import type { DeliveryKind, DeliveryOptionKey, AddressSuggestion, PickupPoint, PickupPointProvider } from '@simba/shared'
 import axios from 'axios'
 import type { QuizAnswers } from './quiz-config'
 
@@ -391,9 +391,19 @@ export const ordersApi = {
   }) => api.post<Order>('/api/orders', data),
 }
 
+// ─── Адреса ──────────────────────────────────────────────────────────────────
+
+export const addressApi = {
+  suggest: (query: string) =>
+    api.post<{ suggestions: AddressSuggestion[] }>('/api/address/suggest', { query }),
+}
+
 // ─── Доставка ────────────────────────────────────────────────────────────────
 
 export const deliveryApi = {
+  features: () =>
+    api.get<{ suggest: boolean; map: boolean }>('/api/delivery/features'),
+
   quotes: (params: {
     city: string
     street?: string
@@ -405,6 +415,9 @@ export const deliveryApi = {
     lon?: number
     weightKg: number
   }) => api.post<{ quotes: DeliveryQuote[] }>('/api/delivery/quotes', params),
+
+  pickupPoints: (params: { provider: PickupPointProvider; city: string; lat?: number; lon?: number }) =>
+    api.get<{ points: PickupPoint[] }>('/api/delivery/pickup-points', { params }),
 
   createOrder: (data: {
     provider: string

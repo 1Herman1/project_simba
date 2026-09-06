@@ -17,6 +17,7 @@ import subscriptionsRoutes from './routes/subscriptions/index'
 import bonusesRoutes from './routes/bonuses/index'
 import quizRoutes from './routes/quiz/index'
 import deliveryRoutes from './routes/delivery/index'
+import addressRoutes from './routes/address/index'
 import mediaRoutes from './routes/media'
 import bannersRoutes from './routes/banners'
 import adminDashboard from './routes/admin/dashboard'
@@ -73,6 +74,7 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(adminImport, { prefix: '/api/admin/import' })
   await app.register(adminSync, { prefix: '/api/admin/sync' })
   await app.register(adminQuizRoutes, { prefix: '/api/admin/quiz' })
+  await app.register(addressRoutes, { prefix: '/api/address' })
   await app.register(deliveryRoutes, { prefix: '/api/delivery' })
 
   return app

@@ -15,3 +15,4 @@ export {
   type PickupPoint,
   type PickupPointProvider,
 } from './delivery'
+export { type AddressSuggestion } from './address'

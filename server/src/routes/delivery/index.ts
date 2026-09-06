@@ -1,7 +1,26 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import { getAllQuotes, createDeliveryOrder } from '../../services/delivery/delivery.service.js'
-import type { DeliveryProvider } from '../../services/delivery/types.js'
+import { getAllQuotes, createDeliveryOrder, listPickupPoints } from '../../services/delivery/delivery.service.js'
+import type { DeliveryProvider, PickupPoint } from '../../services/delivery/types.js'
+import { checkRateLimit } from '../../lib/rate-limit.js'
+
+const pickupPointSchema = z.object({
+  provider: z.enum(['cdek', 'yandex']),
+  code: z.string().min(1),
+  name: z.string(),
+  address: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  workTime: z.string().optional(),
+  phone: z.string().optional(),
+})
+
+const pickupPointsQuerySchema = z.object({
+  provider: z.enum(['cdek', 'yandex']),
+  city: z.string().trim().min(2).max(100),
+  lat: z.coerce.number().min(-90).max(90).optional(),
+  lon: z.coerce.number().min(-180).max(180).optional(),
+})
 
 const quotesSchema = z.object({
   city: z.string().min(2),
@@ -14,28 +33,8 @@ const quotesSchema = z.object({
   lat: z.number().min(-90).max(90).optional(),
   lon: z.number().min(-180).max(180).optional(),
   weightKg: z.number().positive().max(100),
+  pickupPoint: pickupPointSchema.optional(),
 })
-
-// In-memory rate limit: IP -> { count, resetAt }
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const limit = rateLimitMap.get(ip)
-
-  if (!limit || now > limit.resetAt) {
-    // Новое окно (5 минут)
-    rateLimitMap.set(ip, { count: 1, resetAt: now + 5 * 60 * 1000 })
-    return true
-  }
-
-  if (limit.count >= 20) {
-    return false
-  }
-
-  limit.count += 1
-  return true
-}
 
 export default async function deliveryRoutes(app: FastifyInstance) {
 
@@ -43,7 +42,7 @@ export default async function deliveryRoutes(app: FastifyInstance) {
   app.post('/quotes', async (req, reply) => {
     const clientIp = req.ip
 
-    if (!checkRateLimit(clientIp)) {
+    if (!checkRateLimit(clientIp, 'quotes')) {
       return reply.status(429).send({
         error: 'Слишком много запросов. Попробуйте позже',
         retryAfter: 300,
@@ -57,14 +56,42 @@ export default async function deliveryRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'Не удалось рассчитать доставку по этому адресу' })
     }
 
-    const { city, street, house, postalCode, lat, lon, weightKg } = result.data
+    const { city, street, house, postalCode, lat, lon, weightKg, pickupPoint } = result.data
 
     const quotes = await getAllQuotes(
-      { city, street, house, postalCode, lat, lon },
+      { city, street, house, postalCode, lat, lon, pickupPoint },
       { weightKg }
     )
 
     return reply.send({ quotes })
+  })
+
+  // GET /api/delivery/pickup-points — список пунктов выдачи службы в городе
+  app.get('/pickup-points', async (req, reply) => {
+    if (!checkRateLimit(req.ip, 'pickup-points')) {
+      return reply.status(429).send({
+        error: 'Слишком много запросов. Попробуйте позже',
+        retryAfter: 300,
+      })
+    }
+
+    const parsed = pickupPointsQuerySchema.safeParse(req.query)
+    if (!parsed.success) {
+      return reply.status(400).send({ error: 'Укажите службу доставки и город' })
+    }
+
+    const { provider, city, lat, lon } = parsed.data
+    const near = lat !== undefined && lon !== undefined ? { lat, lon } : undefined
+
+    try {
+      const points = await listPickupPoints(provider, city, near)
+      return reply.send({ points })
+    } catch (err) {
+      // Отказ службы — не «в этом городе пунктов нет»: покупатель должен
+      // увидеть «попробовать ещё раз», а не пустой список.
+      app.log.error({ err, provider, city }, 'Не удалось получить пункты выдачи')
+      return reply.status(502).send({ error: 'Не удалось получить список пунктов выдачи' })
+    }
   })
 
   // POST /api/delivery/create — создать заказ у провайдера
@@ -85,6 +112,7 @@ export default async function deliveryRoutes(app: FastifyInstance) {
         house?: string
         apartment?: string
         postalCode?: string
+        pickupPoint?: PickupPoint
       }
       weightKg: number
       recipientName: string
@@ -109,5 +137,13 @@ export default async function deliveryRoutes(app: FastifyInstance) {
       app.log.error(err)
       return reply.status(500).send({ error: 'Ошибка создания заказа доставки' })
     }
+  })
+
+  // GET /api/delivery/features — возможности системы доставки
+  app.get('/features', async (req, reply) => {
+    return reply.send({
+      suggest: Boolean(process.env.DADATA_TOKEN),
+      map: false,
+    })
   })
 }

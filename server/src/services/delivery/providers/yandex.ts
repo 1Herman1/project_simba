@@ -1,9 +1,18 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
 
-// Яндекс Доставка API
+// Яндекс Доставка API (курьер — быстрая доставка)
 // Документация: https://yandex.ru/dev/delivery-3/doc/dg/concepts/about.html
 
 const BASE_URL = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v2'
+
+function getWarehouseCoords(): { lat: number; lon: number } | null {
+  const lat = process.env.WAREHOUSE_LAT
+  const lon = process.env.WAREHOUSE_LON
+
+  if (!lat || !lon) return null
+
+  return { lat: parseFloat(lat), lon: parseFloat(lon) }
+}
 
 export async function getQuote(
   address: DeliveryAddress,
@@ -14,7 +23,7 @@ export async function getQuote(
     key: 'yandex_courier',
     kind: 'courier',
     title: 'Яндекс Доставка',
-    description: 'Быстрая доставка до двери',
+    description: 'Курьер до двери',
     price: 0,
     daysMin: 0,
     daysMax: 0,
@@ -22,14 +31,14 @@ export async function getQuote(
   }
 
   if (!process.env.YANDEX_DELIVERY_TOKEN) {
-    // API не настроен — служба недоступна
     return { ...base, available: false, error: 'Служба доставки не подключена' }
   }
 
-  // Без координат считать нечего. Раньше здесь молча подставлялся центр Москвы,
-  // и покупателю из любого другого места показывалась цена доставки до центра
-  // столицы — то есть заведомо неверная. Лучше не предлагать службу, чем
-  // назвать цену, которой не будет.
+  const warehouse = getWarehouseCoords()
+  if (!warehouse) {
+    return { ...base, available: false, error: 'Не задан адрес склада' }
+  }
+
   if (address.lat === undefined || address.lon === undefined) {
     return { ...base, available: false, error: 'Уточните адрес на карте' }
   }
@@ -53,7 +62,7 @@ export async function getQuote(
           quantity: 1,
         }],
         route_points: [
-          { coordinates: [37.617617, 55.755864] }, // Москва — заменить на реальный склад
+          { coordinates: [warehouse.lon, warehouse.lat] },
           {
             coordinates: [address.lon, address.lat],
             fullname: `${address.city}, ${address.street}, ${address.house}`,
@@ -86,12 +95,16 @@ export async function createOrder(
     return { externalId: `YA-MOCK-${orderId}`, trackingNumber: `YA${Date.now()}` }
   }
 
-  // Заказ без координат отправлять нельзя: подстановка центра Москвы, которая
-  // стояла здесь, отправила бы курьера не туда, а покупатель узнал бы об этом
-  // последним. Котировка до этого шага уже отказывает по той же причине.
   if (address.lat === undefined || address.lon === undefined) {
     throw new Error('Для Яндекс.Доставки нужен адрес, уточнённый на карте')
   }
+
+  const warehouse = getWarehouseCoords()
+  if (!warehouse) {
+    throw new Error('Не задан адрес склада для Яндекс.Доставки')
+  }
+
+  const warehouseAddress = process.env.WAREHOUSE_ADDRESS || 'Склад'
 
   const res = await fetch(`${BASE_URL}/claims/create`, {
     method: 'POST',
@@ -116,7 +129,7 @@ export async function createOrder(
         {
           point_id: 1,
           visit_order: 1,
-          address: { fullname: 'Москва, ул. Склад, 1', coordinates: [37.617617, 55.755864] },
+          address: { fullname: warehouseAddress, coordinates: [warehouse.lon, warehouse.lat] },
           contact: { name: 'Simba', phone: '+70000000000' },
           type: 'source',
         },

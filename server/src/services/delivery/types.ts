@@ -1,6 +1,6 @@
-import type { DeliveryKind, DeliveryOptionKey, PickupPoint } from '@simba/shared'
+import type { DeliveryKind, DeliveryOptionKey, PickupPoint, PickupPointProvider } from '@simba/shared'
 
-export type { DeliveryKind, DeliveryOptionKey, PickupPoint }
+export type { DeliveryKind, DeliveryOptionKey, PickupPoint, PickupPointProvider }
 
 export interface DeliveryAddress {
   city: string
