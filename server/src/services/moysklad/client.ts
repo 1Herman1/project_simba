@@ -99,8 +99,11 @@ export async function fetchAssortment(): Promise<MsAssortmentItem[]> {
 export async function fetchStockCurrent(): Promise<MsStockRow[]> {
   // Краткий отчёт об остатках приходит ПЛОСКИМ массивом, в отличие от остальных
   // ответов МойСклад с обёрткой { rows: [...] }. Принимаем обе формы.
+  // freeStock, а не stock: «остаток» в МоемСкладе не вычитает резерв под уже
+  // собранные заказы. На отчёте владельца это 2133 против 1817 доступных —
+  // 316 штук, которые витрина продала бы повторно.
   const response = await msRequest<MsStockResponse | MsStockRow[]>(
-    '/report/stock/all/current?stockType=stock'
+    '/report/stock/all/current?stockType=freeStock'
   )
   return Array.isArray(response) ? response : (response.rows ?? [])
 }
