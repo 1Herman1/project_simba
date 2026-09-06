@@ -1,0 +1,323 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Коммерческое предложение — продвижение ветклиники</title>
+
+<style>
+:root {
+  --bg-page: #f5f5f7;
+  --bg-section: #ffffff;
+  --text-primary: #1d1d1f;
+  --text-secondary: #565659;
+  --accent: #0066cc;
+  --accent-quiet: #d6e4f5;
+  --hairline: #d2d2d7;
+  --good: #0b7a3b;
+  --shadow: 0 2px 12px rgb(0 0 0 / .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-page: #000000;
+    --bg-section: #1d1d1f;
+    --text-primary: #f5f5f7;
+    --text-secondary: #a1a1a6;
+    --accent: #2997ff;
+    --accent-quiet: #1c3b5a;
+    --hairline: #38383a;
+    --good: #3ad07f;
+    --shadow: 0 2px 12px rgb(0 0 0 / .5);
+  }
+}
+:root[data-theme="dark"] {
+  --bg-page: #000000;
+  --bg-section: #1d1d1f;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --accent: #2997ff;
+  --accent-quiet: #1c3b5a;
+  --hairline: #38383a;
+  --good: #3ad07f;
+  --shadow: 0 2px 12px rgb(0 0 0 / .5);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+               "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 980px; margin-inline: auto; padding-inline: clamp(20px, 5vw, 24px); }
+.reading { max-width: 42rem; }
+.reading.centered { margin-inline: auto; text-align: center; }
+section { padding-block: 100px; }
+section.alt { background: var(--bg-section); }
+@media (max-width: 768px) { section { padding-block: 80px; } }
+@media (max-width: 560px) { section { padding-block: 64px; } }
+
+h1, h2, h3 { margin: 0; }
+h1 { font-size: clamp(2.25rem, 5.5vw + .5rem, 3.5rem); font-weight: 700; letter-spacing: -0.025em; line-height: 1.05; }
+h2 { font-size: clamp(1.75rem, 3.5vw + .5rem, 2.5rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+h3 { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.012em; line-height: 1.25; }
+.eyebrow { font-size: 1rem; font-weight: 600; color: var(--accent); margin: 0 0 12px; }
+.lede { font-size: 1.25rem; line-height: 1.45; color: var(--text-secondary); margin: 16px 0 0; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* шапка */
+.masthead { padding-block: 110px 80px; }
+@media (max-width: 768px) { .masthead { padding-block: 80px 64px; } }
+.masthead .sub {
+  font-size: clamp(1.125rem, 1.8vw + .5rem, 1.5rem);
+  color: var(--text-secondary); line-height: 1.35; margin: 18px auto 0;
+}
+.meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; margin-top: 36px;
+  font-size: .9375rem; color: var(--text-secondary); }
+.meta b { color: var(--text-primary); font-weight: 600; }
+
+/* факты-герои */
+.heroes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 44px; margin-top: 56px; }
+@media (max-width: 760px) { .heroes { grid-template-columns: 1fr; gap: 36px; } }
+.hero .fig { font-size: clamp(2.75rem, 7vw, 4.5rem); font-weight: 700; letter-spacing: -0.03em;
+  line-height: .95; font-variant-numeric: tabular-nums; }
+.hero .label { font-size: 1.0625rem; font-weight: 600; margin-top: 14px; }
+.hero .note { font-size: .9375rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+
+/* тарифы */
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 56px;
+  align-items: start; }
+@media (max-width: 860px) { .plans { grid-template-columns: 1fr; max-width: 30rem; margin-inline: auto; } }
+.plan {
+  background: var(--bg-page); border-radius: 22px; padding: 32px 28px;
+  box-shadow: var(--shadow); display: flex; flex-direction: column;
+}
+section.alt .plan { background: var(--bg-page); }
+section:not(.alt) .plan { background: var(--bg-section); }
+.plan.featured { outline: 2px solid var(--accent); }
+.plan .tag {
+  align-self: flex-start; font-size: .8125rem; font-weight: 600;
+  background: var(--accent-quiet); color: var(--accent);
+  padding: 4px 12px; border-radius: 999px; margin-bottom: 14px;
+}
+.plan h3 { margin-bottom: 4px; }
+.plan .price { font-size: 2.25rem; font-weight: 700; letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums; margin: 10px 0 2px; }
+.plan .per { font-size: .9375rem; color: var(--text-secondary); margin: 0 0 20px; }
+.plan .for { font-size: .9375rem; color: var(--text-secondary); line-height: 1.5; margin: 0 0 20px;
+  padding-bottom: 20px; border-bottom: 1px solid var(--hairline); }
+.plan ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.plan li { padding-left: 26px; position: relative; font-size: .9375rem; line-height: 1.5; }
+.plan li::before { content: "✓"; position: absolute; left: 0; top: 0; color: var(--good); font-weight: 700; }
+.plan li.extra::before { content: "+"; color: var(--accent); }
+.plan .fine { font-size: .8125rem; color: var(--text-secondary); margin: 20px 0 0; line-height: 1.5; }
+
+/* сравнение */
+.scrollwrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 48px; }
+.ctable { width: 100%; min-width: 640px; border-collapse: collapse; }
+.ctable th { font-size: .8125rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--text-secondary); text-align: left; padding: 0 16px 12px 0; border-bottom: 1px solid var(--hairline); }
+.ctable th.c, .ctable td.c { text-align: center; }
+.ctable td { padding: 13px 16px 13px 0; border-bottom: 1px solid var(--hairline); font-size: .9375rem; }
+.ctable td.yes { color: var(--good); font-weight: 700; }
+.ctable td.no { color: var(--text-secondary); }
+.scrollhint { display: none; font-size: .8125rem; color: var(--text-secondary); margin-top: 10px; }
+@media (max-width: 700px) { .scrollhint { display: block; } }
+
+/* этапы */
+.stages { list-style: none; margin: 56px 0 0; padding: 0; display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr)); gap: 40px; }
+@media (max-width: 760px) { .stages { grid-template-columns: 1fr; } }
+.stage .when { font-size: .9375rem; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+.stage p { margin: 0; font-size: .9375rem; color: var(--text-secondary); line-height: 1.55; }
+.stage b { color: var(--text-primary); }
+
+/* шаги */
+.steps { counter-reset: s; list-style: none; margin: 48px auto 0; padding: 0; max-width: 42rem;
+  display: flex; flex-direction: column; gap: 20px; }
+.steps li { counter-increment: s; padding-left: 52px; position: relative; line-height: 1.55; }
+.steps li::before { content: counter(s); position: absolute; left: 0; top: 0;
+  width: 34px; height: 34px; border-radius: 50%; background: var(--accent-quiet); color: var(--accent);
+  font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+
+footer { padding: 56px 0 72px; }
+footer p { font-size: .8125rem; color: var(--text-secondary); line-height: 1.6; margin: 0; }
+footer a { color: var(--text-secondary); }
+
+@media print {
+  body { background: #fff; color: #000; }
+  section, section.alt { background: #fff; padding-block: 32px; }
+  .plan { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  .stage, .steps li { break-inside: avoid; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="masthead">
+  <div class="container reading centered">
+    <p class="eyebrow">Коммерческое предложение</p>
+    <h1>Продвижение ветеринарной клиники в&nbsp;Хамовниках</h1>
+    <p class="sub">SEO и видимость в ответах нейросетей — на базе уже проведённого исследования ниши, а не с нуля.</p>
+    <div class="meta">
+      <span>Сентябрь 2026</span>
+      <span>Москва · Яндекс + Google</span>
+      <span>Предложение действует <b>30 дней</b></span>
+    </div>
+  </div>
+</header>
+
+<section class="alt">
+  <div class="container">
+    <div class="reading centered">
+      <h2>Аналитика уже сделана.<br>Вы платите за движение.</h2>
+      <p class="lede">Перед этим предложением собрано 193 среза живой выдачи по 117 запросам ниши. Мы знаем, где спрос, где свободно и куда бюджет сливать нельзя.</p>
+    </div>
+    <div class="heroes">
+      <div class="hero">
+        <div class="fig num">1 642</div>
+        <div class="label">показа в месяц — стерилизация и кастрация</div>
+        <div class="note">Подтверждённый спрос с низкой конкуренцией: главные страницы-деньги.</div>
+      </div>
+      <div class="hero">
+        <div class="fig num">0%</div>
+        <div class="label">агрегаторов в симптомных запросах</div>
+        <div class="note">«Кот не встаёт на лапы», «у собаки вздулся живот» — свободная зона, которую сети не заняли.</div>
+      </div>
+      <div class="hero">
+        <div class="fig num">×1,8</div>
+        <div class="label">звонков — результат такой стратегии в нише</div>
+        <div class="note">Ветеринарный кейс рынка на симптомном контенте: ×2,5 трафика за 9 месяцев. Агентства берут за это от 150 000 ₽/мес.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="reading centered">
+      <h2>Три тарифа</h2>
+      <p class="lede">Рекламный бюджет Яндекс.Директа и бюджет внешних размещений оплачиваются отдельно и напрямую — мы ими только управляем, прозрачно.</p>
+    </div>
+    <div class="plans">
+
+      <article class="plan">
+        <h3>Старт</h3>
+        <div class="price num">30 000 ₽</div>
+        <p class="per">в месяц</p>
+        <p class="for">Фундамент видимости: клинику находят там, где ищут «рядом со мной» — 1 886 показов в месяц.</p>
+        <ul>
+          <li>Карточки Яндекс.Бизнес, 2ГИС, Zoon: заполнение, фото, цены, ежемесячное обновление</li>
+          <li>Система сбора отзывов с первого дня + ответы на все отзывы</li>
+          <li>Структура сайта под собранные кластеры, title и H1 всех страниц</li>
+          <li>2 экспертные статьи в месяц с вычиткой врачом</li>
+          <li>Техническое SEO: индексация, скорость, микроразметка</li>
+          <li>Ежемесячный отчёт: позиции, звонки, динамика</li>
+        </ul>
+      </article>
+
+      <article class="plan featured">
+        <span class="tag">Рекомендуем</span>
+        <h3>Рост</h3>
+        <div class="price num">40 000 ₽</div>
+        <p class="per">в месяц</p>
+        <p class="for">Всё из «Старта» плюс контентный конвейер — главный двигатель этой ниши.</p>
+        <ul>
+          <li class="extra">3–4 экспертные статьи в месяц: симптомные, породные, возрастные кластеры</li>
+          <li class="extra">Страницы услуг с E-E-A-T: врач-автор, цены, противопоказания, подготовка к наркозу</li>
+          <li class="extra">Ведение Яндекс.Директа на подтверждённый спрос + коллтрекинг</li>
+          <li class="extra">GEO-слой: формат «вопрос → ответ», разметка FAQ — подготовка к цитированию нейросетями</li>
+          <li class="extra">Отчёт раз в 2 недели</li>
+        </ul>
+        <p class="fine">Рекламный бюджет Директа — отдельно, ориентир от 60 000 ₽/мес; точную стоимость клика фиксируем «Прогнозом бюджета» до старта.</p>
+      </article>
+
+      <article class="plan">
+        <h3>Премиум</h3>
+        <div class="price num">60 000 ₽</div>
+        <p class="per">в месяц</p>
+        <p class="for">Всё из «Роста» плюс работа на опережение: видимость в ИИ-ответах и внешний вес.</p>
+        <ul>
+          <li class="extra">5–6 материалов в месяц, включая именные страницы врачей с регалиями</li>
+          <li class="extra">Ежемесячный мониторинг нейросетей: позиция, присутствие в ИИ-ответе, цитирование сайта, упоминание бренда</li>
+          <li class="extra">2–3 внешних размещения в месяц на тематических площадках с живым трафиком</li>
+          <li class="extra">Аудит доступности сайта для ИИ-ботов после запуска</li>
+          <li class="extra">Ежеквартальный пересбор данных ниши</li>
+          <li class="extra">Живой дашборд + приоритетная связь</li>
+        </ul>
+        <p class="fine">Бюджет внешних размещений — отдельно, от 20 000 ₽/мес. Только белая стратегия: анкоры 80% бренд/URL.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container">
+    <div class="reading centered">
+      <h2>Сравнение тарифов</h2>
+    </div>
+    <div class="scrollwrap" role="region" aria-label="Таблица сравнения тарифов">
+      <table class="ctable">
+        <thead>
+          <tr><th>Что входит</th><th class="c">Старт · 30 000</th><th class="c">Рост · 40 000</th><th class="c">Премиум · 60 000</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Карточки справочников и отзывы</td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+          <tr><td>Структура сайта, title и H1</td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+          <tr><td>Статьи в месяц</td><td class="c num">2</td><td class="c num">3–4</td><td class="c num">5–6</td></tr>
+          <tr><td>Страницы услуг E-E-A-T</td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+          <tr><td>Ведение Директа + коллтрекинг</td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+          <tr><td>GEO-контент для нейросетей</td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+          <tr><td>Мониторинг цитируемости в ИИ</td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
+          <tr><td>Внешние размещения</td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
+          <tr><td>Именные страницы врачей</td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
+          <tr><td>Пересбор данных ниши</td><td class="c no">—</td><td class="c no">—</td><td class="c">ежеквартально</td></tr>
+          <tr><td>Отчётность</td><td class="c">ежемесячно</td><td class="c">раз в 2 недели</td><td class="c">2 недели + дашборд</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scrollhint">Таблица листается вбок.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="reading centered">
+      <h2>Что вы увидите по этапам</h2>
+      <p class="lede">Мы не обещаем позиции — в поиске и в ИИ-ответах есть вероятности, а не гарантии. Мы обещаем прозрачность: каждая цифра отчёта прослеживается до данных.</p>
+    </div>
+    <ol class="stages">
+      <li class="stage">
+        <div class="when">Месяцы 1–3</div>
+        <p><b>Карточки работают, звонки идут из Директа.</b> Сайт построен под кластеры, первые позиции по симптомным и низкочастотным запросам.</p>
+      </li>
+      <li class="stage">
+        <div class="when">Месяцы 4–6</div>
+        <p><b>Растут коммерческие запросы</b> — стерилизация, кастрация. Первые цитирования в ИИ-ответах, отзывы накоплены.</p>
+      </li>
+      <li class="stage">
+        <div class="when">Месяцы 9–12</div>
+        <p><b>Органика — стабильный канал записей.</b> Доля платной рекламы в затратах снижается.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="container reading centered">
+    <h2>Следующий шаг</h2>
+    <ol class="steps" style="text-align:left">
+      <li>Выбираете тариф.</li>
+      <li>Подписываем договор и снимаем «Прогноз бюджета» Директа — 15 минут, бесплатно. Фиксируем стоимость клика по вашим запросам до старта.</li>
+      <li>Первые работы — карточки справочников — стартуют в течение 3 дней.</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="container reading centered">
+    <p>Аналитическая база предложения подготовлена с использованием инструментария школы seomeat.ru. Полный курс и полный агент со значительно большими возможностями есть в курсе: <a href="https://seomeat.ru/course/geo-prodvizhenie-v-llm/">https://seomeat.ru/course/geo-prodvizhenie-v-llm/</a>. Подпишитесь на канал: <a href="https://t.me/closedchannelkotenkov">https://t.me/closedchannelkotenkov</a></p>
+  </div>
+</footer>
