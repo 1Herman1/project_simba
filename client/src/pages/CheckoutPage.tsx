@@ -804,12 +804,12 @@ export default function CheckoutPage() {
                           onBlur={() => setTouched(t => ({ ...t, contactName: true }))}
                           className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
                             validationErrors.contactName && touched.contactName
-                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              ? 'border-destructive focus:border-destructive focus:ring-destructive/30'
                               : 'border-line focus:border-line focus:ring-blue-100'
                           }`}
                         />
                         {validationErrors.contactName && touched.contactName && (
-                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactName}</p>
+                          <p className="text-xs text-destructive mt-1">{validationErrors.contactName}</p>
                         )}
                       </div>
                       <div>
@@ -823,12 +823,12 @@ export default function CheckoutPage() {
                           onBlur={() => setTouched(t => ({ ...t, contactEmail: true }))}
                           className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
                             validationErrors.contactEmail && touched.contactEmail
-                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              ? 'border-destructive focus:border-destructive focus:ring-destructive/30'
                               : 'border-line focus:border-line focus:ring-blue-100'
                           }`}
                         />
                         {validationErrors.contactEmail && touched.contactEmail && (
-                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactEmail}</p>
+                          <p className="text-xs text-destructive mt-1">{validationErrors.contactEmail}</p>
                         )}
                       </div>
                       <div>
@@ -843,12 +843,12 @@ export default function CheckoutPage() {
                           onBlur={() => setTouched(t => ({ ...t, contactPhone: true }))}
                           className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
                             validationErrors.contactPhone && touched.contactPhone
-                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              ? 'border-destructive focus:border-destructive focus:ring-destructive/30'
                               : 'border-line focus:border-line focus:ring-blue-100'
                           }`}
                         />
                         {validationErrors.contactPhone && touched.contactPhone && (
-                          <p className="text-xs text-red-600 mt-1">{validationErrors.contactPhone}</p>
+                          <p className="text-xs text-destructive mt-1">{validationErrors.contactPhone}</p>
                         )}
                       </div>
                     </div>
