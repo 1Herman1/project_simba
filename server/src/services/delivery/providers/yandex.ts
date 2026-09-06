@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // Яндекс Доставка API (курьер — быстрая доставка)
 // Документация: https://yandex.ru/dev/delivery-3/doc/dg/concepts/about.html
@@ -44,7 +45,7 @@ export async function getQuote(
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/check-price`, {
+    const res = await fetchWithTimeout(`${BASE_URL}/check-price`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ export async function createOrder(
 
   const warehouseAddress = process.env.WAREHOUSE_ADDRESS || 'Склад'
 
-  const res = await fetch(`${BASE_URL}/claims/create`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/claims/create`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

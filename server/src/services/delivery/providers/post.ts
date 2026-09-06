@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // Почта России API
 // Документация: https://otpravka.pochta.ru/specification
@@ -28,7 +29,7 @@ export async function getQuote(
   try {
     const weightGr = Math.ceil(pkg.weightKg * 1000)
 
-    const res = await fetch(`${BASE_URL}/1.0/tariff`, {
+    const res = await fetchWithTimeout(`${BASE_URL}/1.0/tariff`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
@@ -78,7 +79,7 @@ export async function createOrder(
     return { externalId: `POST-MOCK-${orderId}` }
   }
 
-  const res = await fetch(`${BASE_URL}/1.0/user/shipment`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/1.0/user/shipment`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=UTF-8',

@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // Ozon Delivery (Seller API)
 // Документация: https://docs.ozon.ru/api/seller/#tag/Posting
@@ -39,7 +40,7 @@ export async function createOrder(
   }
 
   // Пример запроса к Ozon Seller API для получения списка отправлений
-  const res = await fetch(`${BASE_URL}/v3/posting/fbs/list`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/v3/posting/fbs/list`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

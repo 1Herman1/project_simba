@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, PickupPoint } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // Яндекс.Доставка ПВЗ (платформа пунктов выдачи)
 // Документация: https://yandex.ru/support2/delivery-profile/ru/api/other/pickup-points-list
@@ -74,7 +75,7 @@ export async function listPickupPoints(center: { lat: number; lon: number }): Pr
 
   // ±0.35° широты и ±0.5° долготы — примерно 40 × 35 км, хватает на любой
   // город с пригородами.
-  const res = await fetch(`${BASE_URL}/pickup-points/list`, {
+  const res = await fetchWithTimeout(`${BASE_URL}/pickup-points/list`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -118,7 +119,7 @@ export async function getPickupPointQuote(
   }
 
   try {
-    const res = await fetch(`${BASE_URL}/pricing-calculator`, {
+    const res = await fetchWithTimeout(`${BASE_URL}/pricing-calculator`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

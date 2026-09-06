@@ -33,7 +33,11 @@ import adminSync from './routes/admin/sync'
  * через app.inject() без сети. Запуск сервера — в start() ниже.
  */
 export async function buildApp(opts: { logger?: boolean } = {}) {
-  const app = Fastify({ logger: opts.logger ?? true, trustProxy: true })
+  // trustProxy: 1, а не true. Перед сервером ровно один прокси — nginx, и
+  // доверять можно только адресу, который дописал он. С `true` Fastify брал
+  // самый левый адрес из X-Forwarded-For, то есть тот, что прислал сам клиент,
+  // и любой лимит по IP обходился одним заголовком.
+  const app = Fastify({ logger: opts.logger ?? true, trustProxy: 1 })
 
   await app.register(cors, {
     origin: [process.env.CLIENT_URL!, process.env.ADMIN_URL!],

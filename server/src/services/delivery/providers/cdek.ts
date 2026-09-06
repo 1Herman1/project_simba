@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, PickupPoint } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // СДЭК API v2: https://api.cdek.ru/v2
 // Документация: https://api-docs.cdek.ru/
@@ -28,7 +29,7 @@ async function getToken(): Promise<string> {
   const isSandbox = process.env.CDEK_SANDBOX === 'true'
   const url = `${isSandbox ? SANDBOX_URL : BASE_URL}/oauth/token`
 
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -78,7 +79,7 @@ export async function getCourierQuote(
 
     const senderCityCode = process.env.CDEK_SENDER_CITY_CODE || '44'
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -144,7 +145,7 @@ export async function getPickupPointQuote(
 
     const senderCityCode = process.env.CDEK_SENDER_CITY_CODE || '44'
 
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -191,7 +192,7 @@ export async function lookupCity(
   if (!process.env.CDEK_CLIENT_ID || !process.env.CDEK_CLIENT_SECRET) return null
 
   const token = await getToken()
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${getBaseUrl()}/location/cities?city=${encodeURIComponent(city)}&country_codes=RU&size=10`,
     { headers: { Authorization: `Bearer ${token}` } }
   )
@@ -220,7 +221,7 @@ export async function listPickupPoints(city: string): Promise<PickupPoint[]> {
   let page = 0
 
   while (true) {
-    const res = await fetch(
+    const res = await fetchWithTimeout(
       `${getBaseUrl()}/deliverypoints?city_code=${found.code}&type=PVZ&size=${PAGE_SIZE}&page=${page}`,
       { headers: { Authorization: `Bearer ${token}` } }
     )
@@ -309,7 +310,7 @@ export async function createOrder(
     }
   }
 
-  const res = await fetch(url, {
+  const res = await fetchWithTimeout(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

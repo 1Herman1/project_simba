@@ -106,6 +106,8 @@ export async function getQuoteForMethod(
 // срок сутки. Кэшируется только успешный ответ: закэшировать «пунктов нет»
 // после сбоя службы значило бы прятать все пункты города на сутки.
 const PICKUP_POINTS_TTL_MS = 24 * 60 * 60 * 1000
+/// Город — строка от покупателя; без предела кэш можно раздуть выдуманными.
+const PICKUP_POINTS_CACHE_MAX = 500
 const pickupPointsCache = new Map<string, { points: PickupPoint[]; expiresAt: number }>()
 
 export async function listPickupPoints(
@@ -129,6 +131,9 @@ export async function listPickupPoints(
     points = center ? await yandexPvz.listPickupPoints(center) : []
   }
 
+  if (pickupPointsCache.size >= PICKUP_POINTS_CACHE_MAX) {
+    pickupPointsCache.delete(pickupPointsCache.keys().next().value as string)
+  }
   pickupPointsCache.set(cacheKey, { points, expiresAt: now + PICKUP_POINTS_TTL_MS })
   return points
 }

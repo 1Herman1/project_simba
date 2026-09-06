@@ -3,7 +3,11 @@ import { suggestAddress } from '../address/dadata.js'
 
 export type CityCoords = { lat: number; lon: number }
 
-const cache = new Map<string, CityCoords | null>()
+// Ключ — ввод покупателя: без предела и срока кэш растёт на каждый выдуманный
+// «город» до падения процесса.
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000
+const CACHE_MAX = 2000
+const cache = new Map<string, { coords: CityCoords | null; expiresAt: number }>()
 
 /**
  * Центр города по названию. Нужен Яндексу: его список пунктов выдачи
@@ -16,7 +20,7 @@ const cache = new Map<string, CityCoords | null>()
 export async function getCityCoords(city: string): Promise<CityCoords | null> {
   const key = city.toLowerCase().trim()
   const cached = cache.get(key)
-  if (cached !== undefined) return cached
+  if (cached && Date.now() < cached.expiresAt) return cached.coords
 
   let coords: CityCoords | null = null
 
@@ -29,6 +33,7 @@ export async function getCityCoords(city: string): Promise<CityCoords | null> {
     if (hit?.lat !== undefined && hit.lon !== undefined) coords = { lat: hit.lat, lon: hit.lon }
   }
 
-  cache.set(key, coords)
+  if (cache.size >= CACHE_MAX) cache.delete(cache.keys().next().value as string)
+  cache.set(key, { coords, expiresAt: Date.now() + CACHE_TTL_MS })
   return coords
 }

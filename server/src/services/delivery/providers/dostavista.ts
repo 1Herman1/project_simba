@@ -1,4 +1,5 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
+import { fetchWithTimeout } from '../../../lib/fetch-timeout.js'
 
 // Достависта API
 // Документация: https://dostavista.ru/api
@@ -32,7 +33,7 @@ export async function getQuote(
   }
 
   try {
-    const res = await fetch(`${getBaseUrl()}/calculate-order`, {
+    const res = await fetchWithTimeout(`${getBaseUrl()}/calculate-order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -71,7 +72,7 @@ export async function createOrder(
     return { externalId: `DV-MOCK-${orderId}` }
   }
 
-  const res = await fetch(`${getBaseUrl()}/create-order`, {
+  const res = await fetchWithTimeout(`${getBaseUrl()}/create-order`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
