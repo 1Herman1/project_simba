@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { lookupCity, listPickupPoints } from './cdek.js'
+import { lookupCity, listPickupPoints, getCourierQuote, getPickupPointQuote, createOrder } from './cdek.js'
+import type { DeliveryAddress } from '../types.js'
 
 type Row = Record<string, unknown>
 
@@ -154,5 +155,166 @@ describe('listPickupPoints', () => {
     pvzStatus = 503
 
     await expect(listPickupPoints('Москва')).rejects.toThrow('CDEK pvz list failed: 503')
+  })
+})
+
+describe('Котировки СДЭК', () => {
+  const point = {
+    provider: 'cdek' as const,
+    code: 'MSK1',
+    name: 'ПВЗ Тверская',
+    address: 'Москва, ул. Тверская, 1',
+    lat: 55.76,
+    lon: 37.61,
+  }
+  const address: DeliveryAddress = { city: 'Москва' }
+
+  /** Тариф отвечает на любой POST /calculator/tariff. */
+  const tariff = (data: unknown) => {
+    global.fetch = vi.fn(async (url: string | URL | Request) => {
+      const u = String(url)
+      if (u.includes('/oauth/token')) return jsonRes({ access_token: 'token', expires_in: 3600 })
+      if (u.includes('/calculator/tariff')) return jsonRes(data)
+      throw new Error(`Неожиданный запрос: ${u}`)
+    }) as unknown as typeof fetch
+  }
+
+  const lastBody = () => {
+    const calls = vi.mocked(global.fetch).mock.calls
+    const call = calls.find(([u]) => String(u).includes('/calculator/tariff'))!
+    return JSON.parse(String((call[1] as RequestInit).body))
+  }
+
+  it('рубли службы переводятся в копейки, вес — в граммы с округлением вверх', async () => {
+    tariff({ delivery_sum: 349.5, period_min: 3, period_max: 6 })
+
+    const quote = await getPickupPointQuote({ ...address, pickupPoint: point }, { weightKg: 1.2345 })
+
+    expect(quote).toMatchObject({ available: true, price: 34950, daysMin: 3, daysMax: 6 })
+    expect(lastBody().packages[0].weight).toBe(1235)
+  })
+
+  it('пункт выдачи считается по складскому тарифу, курьер — по дверному', async () => {
+    tariff({ delivery_sum: 100 })
+    await getPickupPointQuote({ ...address, pickupPoint: point }, { weightKg: 1 })
+    expect(lastBody().tariff_code).toBe(136)
+
+    tariff({ delivery_sum: 100 })
+    await getCourierQuote(address, { weightKg: 1 })
+    expect(lastBody().tariff_code).toBe(137)
+  })
+
+  it('без выбранного пункта ПВЗ-котировка недоступна и денег не называет', async () => {
+    tariff({ delivery_sum: 100 })
+
+    const quote = await getPickupPointQuote(address, { weightKg: 1 })
+
+    expect(quote).toMatchObject({ available: false, price: 0, error: 'Выберите пункт выдачи' })
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  it('без реквизитов службы — недоступно, а не бесплатно', async () => {
+    delete process.env.CDEK_CLIENT_SECRET
+
+    const quote = await getCourierQuote(address, { weightKg: 1 })
+
+    expect(quote).toMatchObject({ available: false, price: 0, error: 'Служба доставки не подключена' })
+  })
+
+  it('сбой тарифа не роняет расчёт: вариант помечается недоступным', async () => {
+    global.fetch = vi.fn(async (url: string | URL | Request) =>
+      String(url).includes('/oauth/token')
+        ? jsonRes({ access_token: 'token', expires_in: 3600 })
+        : failRes(500)
+    ) as unknown as typeof fetch
+
+    const quote = await getCourierQuote(address, { weightKg: 1 })
+
+    expect(quote.available).toBe(false)
+    expect(quote.price).toBe(0)
+    expect(quote.error).toContain('500')
+  })
+
+  it('ответ без суммы тарифа не превращается в нулевую доставку', async () => {
+    tariff({ period_min: 2, period_max: 4 })
+
+    const quote = await getCourierQuote(address, { weightKg: 1 })
+
+    expect(quote.available).toBe(false)
+    expect(quote.price).toBe(0)
+  })
+})
+
+describe('Заявка в СДЭК', () => {
+  const point = {
+    provider: 'cdek' as const,
+    code: 'MSK1',
+    name: 'ПВЗ Тверская',
+    address: 'Москва, ул. Тверская, 1',
+    lat: 55.76,
+    lon: 37.61,
+  }
+
+  const orders = (data: unknown, ok = true, status = 200) => {
+    global.fetch = vi.fn(async (url: string | URL | Request) => {
+      const u = String(url)
+      if (u.includes('/oauth/token')) return jsonRes({ access_token: 'token', expires_in: 3600 })
+      if (u.includes('/orders')) return ok ? jsonRes(data) : failRes(status)
+      throw new Error(`Неожиданный запрос: ${u}`)
+    }) as unknown as typeof fetch
+  }
+
+  const sentBody = () => {
+    const call = vi.mocked(global.fetch).mock.calls.find(([u]) => String(u).includes('/orders'))!
+    return JSON.parse(String((call[1] as RequestInit).body))
+  }
+
+  it('в пункт выдачи уезжает код точки, а не адрес получателя', async () => {
+    orders({ entity: { uuid: 'uuid-1' } })
+
+    const result = await createOrder(
+      { city: 'Москва', pickupPoint: point },
+      { weightKg: 2 },
+      'ORD-1'
+    )
+
+    const body = sentBody()
+    expect(body.delivery_point).toBe('MSK1')
+    expect(body.tariff_code).toBe(136)
+    // Адреса у заявки в ПВЗ быть не должно: посылка едет на склад точки.
+    expect(body.to_location.address).toBeUndefined()
+    expect(result.externalId).toBe('uuid-1')
+    expect(result.trackingUrl).toContain('uuid-1')
+  })
+
+  it('курьеру уезжает улица с домом и дверной тариф, без кода точки', async () => {
+    orders({ entity: { uuid: 'uuid-2' } })
+
+    await createOrder(
+      { city: 'Москва', street: 'ул. Тверская', house: '1', postalCode: '101000' },
+      { weightKg: 2 },
+      'ORD-2'
+    )
+
+    const body = sentBody()
+    expect(body.delivery_point).toBeUndefined()
+    expect(body.tariff_code).toBe(137)
+    expect(body.to_location).toMatchObject({ city: 'Москва', address: 'ул. Тверская, 1', postal_code: '101000' })
+  })
+
+  it('отказ службы уходит исключением, а не «заявка создана»', async () => {
+    orders(null, false, 400)
+
+    await expect(createOrder({ city: 'Москва' }, { weightKg: 1 }, 'ORD-3'))
+      .rejects.toThrow('CDEK create order failed: 400')
+  })
+
+  it('без реквизитов возвращает заглушку и наружу не ходит', async () => {
+    delete process.env.CDEK_CLIENT_ID
+
+    const result = await createOrder({ city: 'Москва' }, { weightKg: 1 }, 'ORD-4')
+
+    expect(result.externalId).toBe('CDEK-MOCK-ORD-4')
+    expect(global.fetch).not.toHaveBeenCalled()
   })
 })
