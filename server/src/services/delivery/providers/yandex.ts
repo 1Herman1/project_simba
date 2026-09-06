@@ -11,7 +11,8 @@ export async function getQuote(
 ): Promise<DeliveryQuote> {
   const base: DeliveryQuote = {
     provider: 'yandex',
-    key: 'yandex_delivery',
+    key: 'yandex_courier',
+    kind: 'courier',
     title: 'Яндекс Доставка',
     description: 'Быстрая доставка до двери',
     price: 0,

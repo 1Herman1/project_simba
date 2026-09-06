@@ -12,6 +12,7 @@ export async function getQuote(
   const base: DeliveryQuote = {
     provider: 'post',
     key: 'post_parcel',
+    kind: 'courier',
     title: 'Почта России',
     description: 'Отделение почты',
     price: 0,

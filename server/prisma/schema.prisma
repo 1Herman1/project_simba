@@ -464,6 +464,10 @@ model Order {
   status              OrderStatus    @default(new)
   deliveryMethod      DeliveryMethod
   deliveryAddress     Json?
+  /// Пункт выдачи (PickupPoint из @simba/shared) целиком, а не ссылкой:
+  /// если пункт закроется, в заказе должно остаться, куда везли. Есть пункт —
+  /// заказ в ПВЗ, нет — до двери или самовывоз по deliveryMethod.
+  deliveryPoint       Json?
   deliveryCost        Int            @default(0)
   subtotal            Int
   total               Int
@@ -557,6 +561,7 @@ model Subscription {
   paymentMethodId  String?
   deliveryMethod   DeliveryMethod?
   deliveryAddress  Json?
+  deliveryPoint    Json?
   isPaused         Boolean  @default(false)
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())

@@ -36,6 +36,7 @@ export async function getQuote(
   const base: DeliveryQuote = {
     provider: 'cdek',
     key: 'cdek_pvz',
+    kind: 'courier',
     title: 'СДЭК',
     description: 'Пункт выдачи или курьер',
     price: 0,

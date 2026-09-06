@@ -13,6 +13,7 @@ export async function getQuote(
     return {
       provider: 'simba_courier',
       key: 'simba_courier',
+      kind: 'courier',
       title: 'Курьер Simba',
       description: 'Доставка до двери',
       price: 0,
@@ -29,6 +30,7 @@ export async function getQuote(
   return {
     provider: 'simba_courier',
     key: 'simba_courier',
+    kind: 'courier',
     title: 'Курьер Simba',
     description: 'Доставка до двери сегодня',
     price,

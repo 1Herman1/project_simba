@@ -1,3 +1,7 @@
+import type { DeliveryKind, DeliveryOptionKey, PickupPoint } from '@simba/shared'
+
+export type { DeliveryKind, DeliveryOptionKey, PickupPoint }
+
 export interface DeliveryAddress {
   city: string
   street?: string
@@ -6,6 +10,8 @@ export interface DeliveryAddress {
   postalCode?: string
   lat?: number
   lon?: number
+  /** Выбранный пункт выдачи — для вариантов вида pickup_point. */
+  pickupPoint?: PickupPoint
 }
 
 export interface DeliveryPackage {
@@ -17,7 +23,9 @@ export interface DeliveryPackage {
 
 export interface DeliveryQuote {
   provider: DeliveryProvider
-  key: string             // идентификатор тарифа у провайдера
+  key: DeliveryOptionKey  // вариант, который видит покупатель
+  /// По виду чекаут решает, что спросить: адрес, пункт на карте или ничего.
+  kind: DeliveryKind
   title: string           // название для показа пользователю
   description: string
   price: number           // в копейках

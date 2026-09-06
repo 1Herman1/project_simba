@@ -18,6 +18,7 @@ export async function getQuote(
   const base: DeliveryQuote = {
     provider: 'dostavista',
     key: 'dostavista_express',
+    kind: 'courier',
     title: 'Достависта',
     description: 'Экспресс-доставка за 1–3 часа',
     price: 29900,

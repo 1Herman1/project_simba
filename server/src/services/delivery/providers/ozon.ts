@@ -15,6 +15,7 @@ export async function getQuote(
   return {
     provider: 'ozon',
     key: 'ozon_delivery',
+    kind: 'courier',
     title: 'Ozon Delivery',
     description: 'Пункт выдачи Ozon (ПВЗ)',
     price: 0,

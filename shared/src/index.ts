@@ -8,3 +8,10 @@ export {
   type LoyaltyTier,
 } from './loyalty'
 export { isSellable, isSellableByPrice, hasStock, type Variant } from './sellable'
+export {
+  deliveryKindOf,
+  type DeliveryKind,
+  type DeliveryOptionKey,
+  type PickupPoint,
+  type PickupPointProvider,
+} from './delivery'

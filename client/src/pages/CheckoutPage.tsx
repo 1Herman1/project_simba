@@ -67,6 +67,7 @@ type Step = 'delivery' | 'payment' | 'confirm'
 const PICKUP_ONLY: DeliveryQuote[] = [{
   provider: 'pickup',
   key: 'pickup',
+  kind: 'store',
   title: 'Самовывоз',
   description: 'Магазин на ул. Ленина, 12',
   price: 0,

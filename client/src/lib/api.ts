@@ -1,3 +1,4 @@
+import type { DeliveryKind, DeliveryOptionKey } from '@simba/shared'
 import axios from 'axios'
 import type { QuizAnswers } from './quiz-config'
 
@@ -182,7 +183,9 @@ export type DeliveryProviderKey =
 
 export interface DeliveryQuote {
   provider: DeliveryProviderKey
-  key: string
+  key: DeliveryOptionKey
+  /** По виду чекаут решает, что спросить: адрес, пункт на карте или ничего. */
+  kind: DeliveryKind
   title: string
   description: string
   price: number
