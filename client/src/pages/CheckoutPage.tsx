@@ -533,8 +533,8 @@ export default function CheckoutPage() {
                 }`}>
                   {i < stepIndex ? <CheckIcon className="w-4 h-4" /> : i + 1}
                 </div>
-                <span className={`text-sm font-medium hidden sm:block ${
-                  i === stepIndex ? 'text-navy-900' : 'text-navy-400'
+                <span className={`text-sm font-medium ${
+                  i === stepIndex ? 'block text-navy-900' : 'hidden sm:block text-navy-400'
                 }`}>{s.label}</span>
               </button>
               {i < STEPS.length - 1 && (
@@ -584,45 +584,57 @@ export default function CheckoutPage() {
                     const isSelectPickupPointError = opt.key === 'yandex_pvz' && opt.error === 'Выберите пункт выдачи'
                     const isDisabled = !opt.available && !isSelectPickupPointError
 
+                    const selectable = !isDisabled
+                    const active = option === opt.key
+                    // Описание сервера часто повторяет подпись варианта («СДЭК — в пункт
+                    // выдачи» / «В пункт выдачи») — тогда это шум, а не информация.
+                    const description =
+                      opt.description && !DELIVERY_LABELS[opt.key]?.toLowerCase().includes(opt.description.toLowerCase())
+                        ? opt.description
+                        : null
+                    const days =
+                      opt.daysMax > 0
+                        ? opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`
+                        : selectable ? 'Сегодня' : null
+
                     return (
                       <button
                         key={opt.key}
-                        onClick={() => !isDisabled && setOption(opt.key as DeliveryOptionKey)}
+                        type="button"
+                        onClick={() => selectable && setOption(opt.key as DeliveryOptionKey)}
                         disabled={isDisabled}
+                        aria-pressed={active}
                         className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
-                          isDisabled ? 'border-line bg-blue-50 opacity-50 cursor-not-allowed' :
-                          option === opt.key
+                          isDisabled ? 'border-line bg-blue-50 cursor-not-allowed' :
+                          active
                             ? 'border-primary-soft bg-primary-tint'
                             : 'border-line bg-white hover:border-primary-soft'
                         }`}>
                         {PROVIDER_ICONS[opt.provider] ? <span className="text-2xl">{PROVIDER_ICONS[opt.provider]}</span> : null}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-navy-900 text-sm">{DELIVERY_LABELS[opt.key]}</span>
-                            {opt.available && !isSelectPickupPointError ? (
-                              opt.price > 0
-                                ? <span className="text-navy-500 text-xs font-medium">{formatPrice(opt.price)}</span>
-                                : <span className="text-success text-xs font-medium">Бесплатно</span>
-                            ) : isSelectPickupPointError ? (
-                              <span className="text-navy-500 text-xs font-medium">цена после выбора пункта</span>
-                            ) : (
-                              <span className="text-destructive text-xs">{opt.error}</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-navy-500">{opt.description}</p>
-                          {opt.daysMax > 0 && (
-                            <p className="text-xs text-primary-hover mt-0.5">
-                              {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
-                            </p>
-                          )}
-                          {opt.daysMax === 0 && (opt.available || isSelectPickupPointError) && (
-                            <p className="text-xs text-primary-hover mt-0.5">Сегодня</p>
-                          )}
+                        {/* Недоступная служба — приглушённые токены, а не opacity на всей
+                            строке: прозрачность гасила и текст, и рамку, и радио разом, а
+                            красный у семи мёртвых строк перекрикивал три живые. */}
+                        <div className="flex-1 min-w-0">
+                          <span className={`block font-semibold text-sm ${isDisabled ? 'text-navy-400' : 'text-navy-900'}`}>
+                            {DELIVERY_LABELS[opt.key]}
+                          </span>
+                          {isDisabled && <span className="block text-xs text-navy-500">{opt.error}</span>}
+                          {description && <span className="block text-xs text-navy-500">{description}</span>}
+                          {days && <span className={`block text-xs mt-0.5 ${isDisabled ? 'text-navy-400' : 'text-primary-hover'}`}>{days}</span>}
                         </div>
+                        {selectable && (
+                          <span className="flex-shrink-0 text-right text-sm font-bold tabular-nums text-navy-900">
+                            {isSelectPickupPointError
+                              ? <span className="text-xs font-medium text-navy-500">после выбора пункта</span>
+                              : opt.price > 0
+                                ? formatPrice(opt.price)
+                                : <span className="text-success font-semibold">Бесплатно</span>}
+                          </span>
+                        )}
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                          option === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
+                          active ? 'border-primary-soft bg-primary-soft' : 'border-line'
                         }`}>
-                          {option === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
+                          {active && <div className="w-2 h-2 rounded-full bg-white" />}
                         </div>
                       </button>
                     )
@@ -1093,7 +1105,7 @@ export default function CheckoutPage() {
                 {orderError && (
                   <p className="text-center text-sm text-destructive mt-3">{orderError}</p>
                 )}
-                <p className="text-center text-xs text-navy-300 mt-3">
+                <p className="text-center text-xs text-navy-500 mt-3">
                   Нажимая кнопку, вы соглашаетесь с{' '}
                   <Link to="/offer" className="text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">условиями оферты</Link>
                 </p>
@@ -1101,8 +1113,9 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Правая часть — итого (sticky) */}
-          <div className="lg:col-span-1">
+          {/* Правая часть — итого (sticky). На телефоне — первой: иначе
+              «Оформить заказ» нажимается раньше, чем виден итог. */}
+          <div className="lg:col-span-1 order-first lg:order-none">
             <div className="bg-white rounded-2xl p-5 sticky top-24">
               <h3 className="font-bold text-navy-900 mb-3">Ваш заказ</h3>
 
@@ -1110,7 +1123,7 @@ export default function CheckoutPage() {
                 {cartItems.map(item => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-navy-500 truncate mr-2">
-                      {item.productVariant.product.name.split(' ').slice(0, 3).join(' ')}... ×{item.quantity}
+                      {item.productVariant.product.name} ×{item.quantity}
                     </span>
                     <span className="text-navy-900 font-medium flex-shrink-0">
                       {formatPrice(item.productVariant.price * item.quantity)}

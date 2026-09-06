@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PickupPoint, PickupPointProvider } from '@simba/shared'
 import { deliveryApi } from '../../lib/api'
+import { CheckIcon, SearchIcon } from '../icons'
 import { hasYandexMapsKey, loadYandexMaps, type LngLat, type YMap, type YMaps } from '../../lib/yandex-maps'
 
 /**
@@ -255,25 +256,31 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
 
       <div className={hasMap ? 'md:flex md:gap-4 md:h-[420px]' : ''}>
         <div
-          className={`flex flex-col rounded-xl border border-line bg-white ${hasMap ? 'md:w-2/5 md:max-h-full' : ''} ${
-            showList ? '' : 'max-md:hidden'
-          }`}
+          className={`flex flex-col ${hasMap ? 'md:w-2/5 md:max-h-full' : ''} ${showList ? '' : 'max-md:hidden'}`}
         >
-          <div className="border-b border-line p-3">
-            <label htmlFor="pickup-search" className="sr-only">
-              Поиск по адресу или названию
-            </label>
+          {/* Поиск — с лупой и своей подписью: без них поле читалось как ещё
+              одно поле адреса рядом с городом. */}
+          <label htmlFor="pickup-search" className="sr-only">
+            Найти пункт по адресу или названию
+          </label>
+          <div className="relative">
+            <SearchIcon className="pointer-events-none absolute left-3 top-1/2 w-4 h-4 -translate-y-1/2 text-navy-400" />
             <input
               id="pickup-search"
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Поиск по адресу"
-              className="h-11 w-full rounded-lg border border-line px-3 text-sm text-navy-900 placeholder:text-navy-400"
+              placeholder="Найти пункт по адресу"
+              className="h-11 w-full rounded-lg border border-line pl-9 pr-3 text-sm text-navy-900 placeholder:text-navy-400"
             />
           </div>
+          <p className="mt-2 text-xs text-navy-500" aria-live="polite">
+            {filtered.length === points.length
+              ? `Пунктов в городе: ${points.length}`
+              : `Найдено: ${filtered.length} из ${points.length}`}
+          </p>
 
-          <div ref={listRef} className={`${hasMap ? 'md:flex-1 md:overflow-y-auto' : ''} max-h-[420px] overflow-y-auto`}>
+          <div ref={listRef} className={`mt-2 ${hasMap ? 'md:flex-1 md:overflow-y-auto' : ''} max-h-[420px] overflow-y-auto border-t border-line`}>
             {filtered.length === 0 ? (
               <p className="p-4 text-sm text-navy-500">По такому адресу пунктов нет</p>
             ) : (
@@ -287,14 +294,22 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
                       role="option"
                       aria-selected={active}
                       data-code={point.code}
-                      onClick={() => setCurrent(point)}
-                      className={`block w-full min-h-[44px] p-3 text-left transition-colors duration-100 ease-smooth ${
+                      onClick={() => {
+                        setCurrent(point)
+                        // Без карты второй шаг «Выбрать этот пункт» не нужен: кнопка
+                        // стояла под длинным списком, за краем экрана телефона.
+                        if (!hasMap) onSelect(point)
+                      }}
+                      className={`flex w-full min-h-[44px] items-start gap-3 p-3 text-left transition-colors duration-100 ease-smooth ${
                         active ? 'bg-primary-tint' : 'hover:bg-blue-50'
                       }`}
                     >
-                      <span className="block font-semibold text-navy-900">{point.name}</span>
-                      <span className="block text-sm text-navy-500">{point.address}</span>
-                      {point.workTime && <span className="block text-xs text-navy-500">{point.workTime}</span>}
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-semibold text-navy-900">{point.name}</span>
+                        <span className="block text-sm text-navy-500">{point.address}</span>
+                        {point.workTime && <span className="block text-xs text-navy-500">{point.workTime}</span>}
+                      </span>
+                      {active && <CheckIcon className="mt-1 w-4 h-4 flex-shrink-0 text-primary" aria-hidden="true" />}
                     </button>
                   )
                 })}
@@ -318,7 +333,7 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
       </div>
 
       {current && (
-        <div className="rounded-xl border border-line bg-white p-4">
+        <div className="rounded-xl bg-primary-tint p-4">
           <p className="font-semibold text-navy-900">{current.name}</p>
           <p className="mt-1 text-sm text-navy-700">{current.address}</p>
           {current.workTime && <p className="mt-1 text-sm text-navy-500">{current.workTime}</p>}
@@ -328,7 +343,8 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
             </a>
           )}
           {current.code === selected?.code ? (
-            <p className="mt-3 flex h-11 items-center justify-center rounded-xl border border-line bg-white text-sm font-semibold text-navy-900">
+            <p className="mt-3 flex h-11 items-center gap-2 text-sm font-semibold text-success">
+              <CheckIcon className="w-4 h-4" aria-hidden="true" />
               Пункт выбран
             </p>
           ) : (
