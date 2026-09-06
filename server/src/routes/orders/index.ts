@@ -10,6 +10,7 @@ import {
   InsufficientBonusError,
 } from '../../services/order.service'
 import { findOrCreateCustomerByEmail } from '../../services/customer.service'
+import { pickupPointSchema } from '../../services/delivery/pickup-point.schema'
 
 // Сообщения — по-русски: первое из них уходит покупателю как есть, а «Required»
 // от zod ему ничего не говорит.
@@ -21,17 +22,6 @@ const deliveryAddressSchema = z.object({
   postalCode: z.string().optional(),
   lat: z.number().min(-90).max(90).optional(),
   lon: z.number().min(-180).max(180).optional(),
-})
-
-const pickupPointSchema = z.object({
-  provider: z.enum(['cdek', 'yandex']),
-  code: z.string().min(1),
-  name: z.string().min(1),
-  address: z.string().min(1),
-  lat: z.number(),
-  lon: z.number(),
-  workTime: z.string().optional(),
-  phone: z.string().optional(),
 })
 
 const contactSchema = z.object({

@@ -27,6 +27,10 @@ export default function AddressSuggest({
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
+  // Номер последнего отправленного запроса: ответ на более ранний, пришедший
+  // позже, не должен перекрыть свежие подсказки.
+  const lastRequestRef = useRef(0)
+
   // Debounce поиска
   const debouncedFetch = useMemo(
     () =>
@@ -40,8 +44,10 @@ export default function AddressSuggest({
 
           setIsLoading(true)
 
+          const requestNo = ++lastRequestRef.current
           try {
             const response = await addressApi.suggest(query)
+            if (requestNo !== lastRequestRef.current) return
             setSuggestions(response.data.suggestions)
             setIsOpen(true)
             setActiveIndex(-1)
@@ -69,6 +75,8 @@ export default function AddressSuggest({
       debouncedFetch(trimmed)
     }
   }, [value, debouncedFetch])
+
+  useEffect(() => () => debouncedFetch.cancel(), [debouncedFetch])
 
   // Обработчик клавиатуры
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -162,6 +170,7 @@ export default function AddressSuggest({
           onFocus={() => value.length >= 3 && setIsOpen(true)}
           placeholder="Город, улица, дом"
           role="combobox"
+          aria-autocomplete="list"
           aria-label="Адрес доставки"
           aria-expanded={isOpen}
           aria-controls={listId}

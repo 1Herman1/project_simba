@@ -112,7 +112,7 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
     const container = mapContainerRef.current
     if (mapLib !== 'ready' || !ymaps || !container || pointsState !== 'ready') return
 
-    const center: LngLat = cityCoords ? [cityCoords.lon, cityCoords.lat] : centerOf(points)
+    const center: LngLat = lat !== undefined && lon !== undefined ? [lon, lat] : centerOf(points)
     const map = new ymaps.YMap(container, { location: { center, zoom: 11 }, showScaleInCopyrights: true })
     map.addChild(new ymaps.YMapDefaultSchemeLayer())
     map.addChild(new ymaps.YMapDefaultFeaturesLayer())
@@ -182,7 +182,9 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
       markersRef.current = new Map()
       shownRef.current = new Set()
     }
-  }, [mapLib, pointsState, points, cityCoords])
+    // Зависимости — числа, а не объект координат: новый объект на каждый
+    // рендер родителя пересоздавал бы карту при наборе текста в соседнем поле.
+  }, [mapLib, pointsState, points, lat, lon])
 
   // Выбранная метка крупнее и с тёмным кольцом; остальные — обычные.
   useEffect(() => {
@@ -234,13 +236,12 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
   return (
     <div className="space-y-4">
       {hasMap && (
-        <div className="flex gap-2 md:hidden" role="tablist" aria-label="Вид пунктов выдачи">
+        <div className="flex gap-2 md:hidden" aria-label="Вид пунктов выдачи">
           {(['list', 'map'] as const).map((tab) => (
             <button
               key={tab}
               type="button"
-              role="tab"
-              aria-selected={mobileTab === tab}
+              aria-pressed={mobileTab === tab}
               onClick={() => setMobileTab(tab)}
               className={`h-11 flex-1 rounded-xl text-sm font-semibold transition-colors duration-100 ease-smooth ${
                 mobileTab === tab ? 'bg-primary text-white' : 'border border-line bg-white text-navy-700'

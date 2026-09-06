@@ -6,12 +6,12 @@
 export function createDebouncedAsync<Args extends unknown[], R>(
   fn: (...args: Args) => Promise<R>,
   delay?: number
-): (...args: Args) => Promise<R> {
+): ((...args: Args) => Promise<R>) & { cancel(): void } {
   let timeoutId: ReturnType<typeof setTimeout> | null = null
   let requestCount = 0
   const waitTime = delay ?? 300
 
-  return (...args: Args) => {
+  const debounced = (...args: Args) => {
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
@@ -27,4 +27,13 @@ export function createDebouncedAsync<Args extends unknown[], R>(
       }, waitTime)
     })
   }
+
+  // Уход со страницы во время паузы: отложенный вызов не должен сработать.
+  debounced.cancel = () => {
+    if (timeoutId) clearTimeout(timeoutId)
+    timeoutId = null
+    requestCount += 1
+  }
+
+  return debounced
 }

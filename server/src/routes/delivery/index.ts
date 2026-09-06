@@ -1,25 +1,32 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { getAllQuotes, createDeliveryOrder, listPickupPoints } from '../../services/delivery/delivery.service.js'
-import type { DeliveryProvider, PickupPoint } from '../../services/delivery/types.js'
 import { checkRateLimit } from '../../lib/rate-limit.js'
-
-const pickupPointSchema = z.object({
-  provider: z.enum(['cdek', 'yandex']),
-  code: z.string().min(1),
-  name: z.string(),
-  address: z.string(),
-  lat: z.number(),
-  lon: z.number(),
-  workTime: z.string().optional(),
-  phone: z.string().optional(),
-})
+import { pickupPointSchema } from '../../services/delivery/pickup-point.schema.js'
 
 const pickupPointsQuerySchema = z.object({
   provider: z.enum(['cdek', 'yandex']),
   city: z.string().trim().min(2).max(100),
   lat: z.coerce.number().min(-90).max(90).optional(),
   lon: z.coerce.number().min(-180).max(180).optional(),
+})
+
+const createSchema = z.object({
+  provider: z.enum(['simba_courier', 'yandex', 'cdek', 'ozon', 'dostavista', 'post', 'pickup']),
+  orderId: z.string().min(1),
+  address: z.object({
+    city: z.string().trim().min(1),
+    street: z.string().optional(),
+    house: z.string().optional(),
+    apartment: z.string().optional(),
+    postalCode: z.string().optional(),
+    lat: z.number().min(-90).max(90).optional(),
+    lon: z.number().min(-180).max(180).optional(),
+    pickupPoint: pickupPointSchema.optional(),
+  }),
+  weightKg: z.number().positive().max(100),
+  recipientName: z.string().trim().min(1),
+  recipientPhone: z.string().trim().min(5),
 })
 
 const quotesSchema = z.object({
@@ -94,34 +101,13 @@ export default async function deliveryRoutes(app: FastifyInstance) {
     }
   })
 
-  // POST /api/delivery/create — создать заказ у провайдера
+  // POST /api/delivery/create — создать заявку у службы доставки
   app.post('/create', { onRequest: [app.authenticate] }, async (req, reply) => {
-    const {
-      provider,
-      orderId,
-      address,
-      weightKg,
-      recipientName,
-      recipientPhone,
-    } = req.body as {
-      provider: DeliveryProvider
-      orderId: string
-      address: {
-        city: string
-        street?: string
-        house?: string
-        apartment?: string
-        postalCode?: string
-        pickupPoint?: PickupPoint
-      }
-      weightKg: number
-      recipientName: string
-      recipientPhone: string
+    const parsed = createSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return reply.status(400).send({ error: 'Проверьте данные доставки' })
     }
-
-    if (!provider || !orderId || !address?.city) {
-      return reply.status(400).send({ error: 'provider, orderId и address.city обязательны' })
-    }
+    const { provider, orderId, address, weightKg, recipientName, recipientPhone } = parsed.data
 
     try {
       const result = await createDeliveryOrder(
