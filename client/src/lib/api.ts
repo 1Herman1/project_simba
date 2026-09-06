@@ -175,11 +175,11 @@ export interface User {
   isGuest?: boolean
 }
 
-/// Службы доставки. Раньше союз жил только в CheckoutPage, а общий слой
-/// принимал любую строку — из-за этого два описания одного и того же типа
-/// расходились и не присваивались друг другу.
+/// Службы доставки на витрине. Решение владельца: только 4 способа.
+/// На сервере в истории могут быть старые (post, ozon, dostavista), но новые
+/// котировки приходят только эти четыре.
 export type DeliveryProviderKey =
-  | 'simba_courier' | 'pickup' | 'cdek' | 'yandex' | 'post' | 'ozon' | 'dostavista'
+  | 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
 
 export interface DeliveryQuote {
   provider: DeliveryProviderKey
@@ -379,7 +379,7 @@ export const ordersApi = {
 
   create: (data: {
     cartId: string
-    deliveryMethod: string
+    deliveryMethod: 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
     deliveryAddress?: { city: string; street?: string; house?: string; apartment?: string; postalCode?: string; lat?: number; lon?: number }
     deliveryPoint?: PickupPoint
     comment?: string

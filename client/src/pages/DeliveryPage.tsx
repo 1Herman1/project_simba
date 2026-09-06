@@ -77,36 +77,32 @@ type DeliveryMethod = {
   icon: React.ReactNode
   name: string
   description: string
-  price: number
+  price?: number
   free?: boolean
 }
 
 const deliveryMethods: DeliveryMethod[] = [
   {
-    icon: <PickupPointIcon />,
-    name: 'Яндекс Доставка',
-    description: 'до пункта выдачи',
-    price: 0,
-    free: true,
-  },
-  {
-    icon: <PickupPointIcon />,
-    name: 'Ozon',
-    description: 'до пункта выдачи',
-    price: 0,
+    icon: <CourierIcon />,
+    name: 'Курьер Simba',
+    description: 'Москва, Санкт-Петербург',
     free: true,
   },
   {
     icon: <PickupPointIcon />,
     name: 'СДЭК',
-    description: 'до пункта выдачи',
-    price: 9900,
+    description: 'в пункт выдачи',
   },
   {
-    icon: <CourierIcon />,
-    name: 'Курьер по Москве',
-    description: 'до двери',
-    price: 70000,
+    icon: <PickupPointIcon />,
+    name: 'Яндекс Доставка',
+    description: 'в пункт выдачи',
+  },
+  {
+    icon: <PickupPointIcon />,
+    name: 'Самовывоз',
+    description: 'из магазина',
+    free: true,
   },
 ]
 
@@ -148,7 +144,9 @@ export default function DeliveryPage() {
             <div style={iconDelay(idx)} className="text-primary-soft mb-3">{method.icon}</div>
             <h3 className="font-bold text-navy-900 mb-1">{method.name}</h3>
             <p className="text-sm text-navy-500 mb-3 flex-grow">{method.description}</p>
-            <p className="text-2xl font-bold text-navy-900 tabular-nums">{`${(method.price / 100).toLocaleString('ru-RU')} ₽`}</p>
+            {method.price !== undefined && (
+              <p className="text-2xl font-bold text-navy-900 tabular-nums">{`${(method.price / 100).toLocaleString('ru-RU')} ₽`}</p>
+            )}
           </div>
         ))}
       </div>
@@ -157,8 +155,7 @@ export default function DeliveryPage() {
       <section className="mt-10">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">Как получить заказ</h2>
         <p className="text-navy-500 leading-relaxed max-w-prose">
-          До пункта выдачи Яндекс Доставки или Ozon — бесплатно. СДЭК до пункта выдачи — 99 ₽. Курьером по Москве до двери
-          — 700 ₽. Способ выбираете при оформлении заказа.
+          Курьером Simba по Москве и Санкт-Петербургу — бесплатно, или 299 ₽ при весе больше 15 кг. В пункт выдачи СДЭК или Яндекс Доставки — цена и срок рассчитываются при оформлении по выбранному пункту. Самовывоз из магазина — бесплатно. Способ выбираете при оформлении заказа.
         </p>
       </section>
 

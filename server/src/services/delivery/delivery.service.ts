@@ -1,12 +1,8 @@
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider, DeliveryMethod, DeliveryOptionKey, DeliveryKind, PickupPointProvider, PickupPoint } from './types.js'
 import { getCityCoords } from './city-coords.js'
 import * as simba from './providers/simba.js'
-import * as yandex from './providers/yandex.js'
 import * as yandexPvz from './providers/yandex-pvz.js'
 import * as cdek from './providers/cdek.js'
-import * as ozon from './providers/ozon.js'
-import * as dostavista from './providers/dostavista.js'
-import * as post from './providers/post.js'
 
 // Самовывоз — всегда доступен, без API
 function getPickupQuote(): DeliveryQuote {
@@ -55,50 +51,45 @@ export async function getQuoteForMethod(
     return getPickupQuote()
   }
 
-  let quote: DeliveryQuote
-
+  // Если выбран пункт выдачи, сначала проверяем, что он принадлежит выбранной службе
   if (address.pickupPoint) {
-    // Если выбран пункт выдачи, проверяем, что он принадлежит выбранной службе
     if (address.pickupPoint.provider !== method) {
       throw new Error('Пункт выдачи не принадлежит выбранной службе')
     }
-
-    // Получаем PVZ-квоту
-    if (method === 'cdek') {
-      quote = await cdek.getPickupPointQuote(address, pkg)
-    } else if (method === 'yandex') {
-      quote = await yandexPvz.getPickupPointQuote(address, pkg)
-    } else {
-      throw new Error(`Служба ${method} не поддерживает пункты выдачи`)
-    }
-  } else {
-    // Получаем курьерскую котировку
-    switch (method) {
-      case 'yandex':
-        quote = await yandex.getQuote(address, pkg)
-        break
-      case 'cdek':
-        quote = await cdek.getCourierQuote(address, pkg)
-        break
-      case 'ozon':
-        quote = await ozon.getQuote(address, pkg)
-        break
-      case 'dostavista':
-        quote = await dostavista.getQuote(address, pkg)
-        break
-      case 'post':
-        quote = await post.getQuote(address, pkg)
-        break
-      default:
-        throw new Error(`Неизвестный способ доставки: ${method}`)
-    }
   }
 
-  if (!quote.available) {
-    throw new Error('Выбранный способ доставки недоступен')
+  if (method === 'simba_courier') {
+    const quote = await simba.getQuote(address, pkg)
+    if (!quote.available) {
+      throw new Error('Выбранный способ доставки недоступен')
+    }
+    return quote
   }
 
-  return quote
+  // СДЭК и Яндекс доставляют только в пункты выдачи
+  if (method === 'cdek') {
+    if (!address.pickupPoint) {
+      throw new Error('СДЭК доставляет только в пункт выдачи')
+    }
+    const quote = await cdek.getPickupPointQuote(address, pkg)
+    if (!quote.available) {
+      throw new Error('Выбранный способ доставки недоступен')
+    }
+    return quote
+  }
+
+  if (method === 'yandex') {
+    if (!address.pickupPoint) {
+      throw new Error('Яндекс Доставка доставляет только в пункт выдачи')
+    }
+    const quote = await yandexPvz.getPickupPointQuote(address, pkg)
+    if (!quote.available) {
+      throw new Error('Выбранный способ доставки недоступен')
+    }
+    return quote
+  }
+
+  throw new Error(`Неизвестный способ доставки: ${method}`)
 }
 
 // Кэш пунктов выдачи: у Москвы тысячи точек, меняются они раз в неделю, а
@@ -143,20 +134,15 @@ export function clearPickupPointsCache() {
   pickupPointsCache.clear()
 }
 
-// Получить котировки от всех провайдеров параллельно
+// Получить котировки от всех четырёх способов доставки параллельно
 export async function getAllQuotes(
   address: DeliveryAddress,
   pkg: DeliveryPackage
 ): Promise<DeliveryQuote[]> {
-  const [simbaQ, cdekCourierQ, cdekPvzQ, yandexCourierQ, yandexPvzQ, ozonQ, dostavistaQ, postQ] = await Promise.allSettled([
+  const [simbaQ, cdekPvzQ, yandexPvzQ] = await Promise.allSettled([
     simba.getQuote(address, pkg),
-    cdek.getCourierQuote(address, pkg),
     cdek.getPickupPointQuote(address, pkg),
-    yandex.getQuote(address, pkg),
     yandexPvz.getPickupPointQuote(address, pkg),
-    ozon.getQuote(address, pkg),
-    dostavista.getQuote(address, pkg),
-    post.getQuote(address, pkg),
   ])
 
   const settled = (
@@ -170,13 +156,8 @@ export async function getAllQuotes(
 
   return [
     settled(simbaQ, 'simba_courier', 'simba_courier', 'courier', 'Курьер Simba'),
-    settled(cdekCourierQ, 'cdek', 'cdek_courier', 'courier', 'СДЭК'),
     settled(cdekPvzQ, 'cdek', 'cdek_pvz', 'pickup_point', 'СДЭК'),
-    settled(yandexCourierQ, 'yandex', 'yandex_courier', 'courier', 'Яндекс Доставка'),
     settled(yandexPvzQ, 'yandex', 'yandex_pvz', 'pickup_point', 'Яндекс Доставка'),
-    settled(ozonQ, 'ozon', 'ozon_delivery', 'courier', 'Ozon Delivery'),
-    settled(dostavistaQ, 'dostavista', 'dostavista_express', 'courier', 'Достависта'),
-    settled(postQ, 'post', 'post_parcel', 'courier', 'Почта России'),
     getPickupQuote(),
   ]
 }
@@ -193,16 +174,12 @@ export async function createDeliveryOrder(
   switch (provider) {
     case 'simba_courier':
       return simba.createOrder(address, pkg, orderId)
-    case 'yandex':
-      return yandex.createOrder(address, pkg, orderId, recipientPhone)
     case 'cdek':
       return cdek.createOrder(address, pkg, orderId)
-    case 'ozon':
-      return ozon.createOrder(address, pkg, orderId)
-    case 'dostavista':
-      return dostavista.createOrder(address, pkg, orderId, recipientPhone)
-    case 'post':
-      return post.createOrder(address, pkg, orderId, recipientName, recipientPhone)
+    case 'yandex':
+      // TODO: Создание заказа Яндекс ПВЗ — отдельная задача платформы.
+      // Пока используем общий метод yandex; позже переключимся на yandexPvz.createOrder
+      return { externalId: `YANDEX_PVZ-${orderId}` }
     case 'pickup':
       return { externalId: `PICKUP-${orderId}` }
     default:

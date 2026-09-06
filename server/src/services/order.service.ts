@@ -1,7 +1,7 @@
-import { DeliveryMethod, OrderStatus, PaymentStatus, Prisma, PrismaClient } from '@prisma/client'
+import { OrderStatus, PaymentStatus, Prisma, PrismaClient } from '@prisma/client'
 import { calcOrderTotals, type OrderCalcInput, type OrderTotals, type PickupPoint } from '@simba/shared'
 import { getQuoteForMethod } from './delivery/delivery.service.js'
-import type { DeliveryAddress as DeliveryServiceAddress } from './delivery/types.js'
+import type { DeliveryAddress as DeliveryServiceAddress, DeliveryMethod } from './delivery/types.js'
 import { applyBonusChange, settleOnCancelComponents } from './bonus.service.js'
 
 
@@ -33,6 +33,8 @@ type ContactInfo = {
 
 export type CreateOrderData = {
   cartId: string
+  /// Четыре способа из contract'а, а не весь Prisma-enum: post/ozon/dostavista
+  /// в базе остались, но заказ с ними больше не создаётся.
   deliveryMethod: DeliveryMethod
   deliveryAddress?: DeliveryAddress
   deliveryPoint?: PickupPoint
@@ -186,9 +188,18 @@ async function resolveDeliveryCost(
       throw new Error('Для выбранного способа доставки нужен адрес')
     }
 
-    // Если нет ПВЗ, улица и дом обязательны
-    if (!data.deliveryPoint && (!data.deliveryAddress.street || !data.deliveryAddress.house)) {
-      throw new Error('Для доставки до двери нужен адрес с улицей и домом')
+    // simba_courier требует улицу и дом
+    if (data.deliveryMethod === 'simba_courier') {
+      if (!data.deliveryAddress.street || !data.deliveryAddress.house) {
+        throw new Error('Для доставки курьером укажите улицу и дом')
+      }
+    }
+
+    // cdek и yandex требуют пункт выдачи
+    if (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') {
+      if (!data.deliveryPoint) {
+        throw new Error('Выберите пункт выдачи')
+      }
     }
 
     // Вес берём из БД, а не из запроса — иначе доставку можно занизить.
@@ -291,11 +302,13 @@ export async function createOrder(
       data: {
         userId: actor.customerUserId,
         deliveryMethod: data.deliveryMethod,
-        deliveryAddress: data.deliveryMethod === 'pickup' ? undefined : (data.deliveryAddress ?? undefined),
+        // simba_courier сохраняет адрес, остальные — нет
+        deliveryAddress: data.deliveryMethod === 'simba_courier' ? (data.deliveryAddress ?? undefined) : undefined,
+        // только cdek и yandex сохраняют пункт выдачи
         deliveryPoint:
-          data.deliveryMethod === 'pickup' || !data.deliveryPoint
-            ? undefined
-            : toJson(data.deliveryPoint),
+          (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') && data.deliveryPoint
+            ? toJson(data.deliveryPoint)
+            : undefined,
         comment: data.comment,
         hasSpecialPackaging: data.hasSpecialPackaging,
         subtotal,
@@ -348,8 +361,11 @@ export async function createOrder(
               data: {
                 intervalDays: cartItem.subscriptionIntervalDays,
                 deliveryMethod: data.deliveryMethod,
-                deliveryAddress: data.deliveryAddress ?? undefined,
-                deliveryPoint: data.deliveryMethod === 'pickup' || !data.deliveryPoint ? undefined : toJson(data.deliveryPoint),
+                deliveryAddress: data.deliveryMethod === 'simba_courier' ? (data.deliveryAddress ?? undefined) : undefined,
+                deliveryPoint:
+                  (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') && data.deliveryPoint
+                    ? toJson(data.deliveryPoint)
+                    : undefined,
                 isPaused: false,
                 isActive: true,
               },
@@ -364,8 +380,11 @@ export async function createOrder(
                   Date.now() + cartItem.subscriptionIntervalDays * 24 * 60 * 60 * 1000
                 ),
                 deliveryMethod: data.deliveryMethod,
-                deliveryAddress: data.deliveryAddress ?? undefined,
-                deliveryPoint: data.deliveryMethod === 'pickup' || !data.deliveryPoint ? undefined : toJson(data.deliveryPoint),
+                deliveryAddress: data.deliveryMethod === 'simba_courier' ? (data.deliveryAddress ?? undefined) : undefined,
+                deliveryPoint:
+                  (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') && data.deliveryPoint
+                    ? toJson(data.deliveryPoint)
+                    : undefined,
                 paymentMethodId: null,
                 isActive: true,
                 isPaused: false,

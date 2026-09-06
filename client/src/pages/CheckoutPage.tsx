@@ -79,24 +79,16 @@ const PICKUP_ONLY: DeliveryQuote[] = [{
 
 const PROVIDER_ICONS: Record<string, string> = {
   simba_courier: '',
-  yandex: '',
   cdek: '',
-  ozon: '',
-  dostavista: '',
-  post: '',
+  yandex: '',
   pickup: '',
 }
 
 const DELIVERY_LABELS: Record<DeliveryOptionKey, string> = {
   simba_courier: 'Курьер Simba',
-  cdek_courier: 'СДЭК — до двери',
   cdek_pvz: 'СДЭК — в пункт выдачи',
-  yandex_courier: 'Яндекс Доставка — до двери',
   yandex_pvz: 'Яндекс Доставка — в пункт выдачи',
   pickup: 'Самовывоз',
-  post_parcel: 'Почта России',
-  ozon_delivery: 'Ozon Delivery',
-  dostavista_express: 'Достависта',
 }
 
 const STEPS: { key: Step; label: string }[] = [
@@ -328,9 +320,8 @@ export default function CheckoutPage() {
       const promoCode = sessionStorage.getItem('promoCode') ?? undefined
       const cartRes = await cartApi.get()
 
-      // Маппим ключ варианта на служу доставки
-      const deliveryProvider = selectedQuote?.provider ?? 'simba_courier'
-      const deliveryMethod = deliveryProvider === 'simba_courier' ? 'cdek' : deliveryProvider
+      // Служба доставки берётся напрямую из котировки
+      const deliveryMethod = selectedQuote?.provider ?? 'simba_courier'
 
       const createOrderPayload: Parameters<typeof ordersApi.create>[0] = {
         cartId: cartRes.data.id,
@@ -775,10 +766,10 @@ export default function CheckoutPage() {
                         )}
                       </div>
 
-                      {address.city.trim().length >= 2 && (
+                      {address.city.trim().length >= 2 && selectedQuote?.provider && (selectedQuote.provider === 'cdek' || selectedQuote.provider === 'yandex') && (
                         <div>
                           <PickupPointPicker
-                            provider={selectedQuote?.provider === 'cdek' || selectedQuote?.provider === 'yandex' ? selectedQuote.provider : 'cdek'}
+                            provider={selectedQuote.provider}
                             city={address.city}
                             cityCoords={address.lat && address.lon ? { lat: address.lat, lon: address.lon } : undefined}
                             selected={pickupPoint}
@@ -885,9 +876,8 @@ export default function CheckoutPage() {
                     { key: 'card' as PaymentMethod, title: 'Картой онлайн', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
                     { key: 'cash_on_delivery' as PaymentMethod, title: 'Наличными курьеру', desc: 'Только при доставке курьером до двери' },
                   ].map(opt => {
-                    // Наличные доступны только для курьерской доставки у определённых провайдеров
-                    const allowedProviders = ['cdek', 'yandex', 'dostavista', 'simba_courier']
-                    const isDisabled = opt.key === 'cash_on_delivery' && (kind !== 'courier' || !allowedProviders.includes(selectedQuote?.provider ?? ''))
+                    // Наличные доступны только при доставке курьером Simba
+                    const isDisabled = opt.key === 'cash_on_delivery' && selectedQuote?.provider !== 'simba_courier'
                     return (
                       <button
                         key={opt.key}

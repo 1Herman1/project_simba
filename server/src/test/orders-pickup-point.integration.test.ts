@@ -89,7 +89,8 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
 
     const row = await prisma.order.findFirstOrThrow()
     expect(row.deliveryPoint).toEqual(point)
-    expect(row.deliveryAddress).toEqual({ city: 'Москва' })
+    // cdek и yandex не сохраняют deliveryAddress — адрес пункта хранится в deliveryPoint
+    expect(row.deliveryAddress).toBeNull()
     expect(row.deliveryMethod).toBe('cdek')
     expect(row.deliveryCost).toBe(PVZ_PRICE)
     expect(row.total).toBe(row.subtotal + PVZ_PRICE - row.bonusUsed)
@@ -129,7 +130,7 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
     expect(await prisma.order.count()).toBe(0)
   })
 
-  it('cdek без пункта выдачи считается по курьерскому тарифу, deliveryPoint остаётся пустым', async () => {
+  it('cdek без пункта выдачи возвращает ошибку 400', async () => {
     const prisma = getTestPrisma()
     const { variant } = await createProductWithVariant({ price: 100000, stock: 10, weight: 1 })
     const user = await createUser()
@@ -148,11 +149,12 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
       },
     })
 
-    expect(res.statusCode).toBe(201)
+    // СДЭК доставляет только в пункт выдачи — без пункта ошибка
+    expect(res.statusCode).toBe(400)
+    expect(res.json().error).toMatch(/пункт выдачи/i)
 
-    const row = await prisma.order.findFirstOrThrow()
-    expect(row.deliveryPoint).toBeNull()
-    expect(row.deliveryCost).toBe(COURIER_PRICE)
+    expect(await prisma.order.count()).toBe(0)
+    expect(cdek.getCourierQuote).not.toHaveBeenCalled()
     expect(cdek.getPickupPointQuote).not.toHaveBeenCalled()
   })
 })

@@ -23,7 +23,7 @@ export interface DeliveryPackage {
 
 export interface DeliveryQuote {
   provider: DeliveryProvider
-  key: DeliveryOptionKey  // вариант, который видит покупатель
+  key: QuoteKey
   /// По виду чекаут решает, что спросить: адрес, пункт на карте или ничего.
   kind: DeliveryKind
   title: string           // название для показа пользователю
@@ -41,6 +41,7 @@ export interface DeliveryOrder {
   trackingUrl?: string
 }
 
+// Провайдеры доставки: используются в логике сервиса
 export type DeliveryProvider =
   | 'simba_courier'
   | 'yandex'
@@ -50,10 +51,18 @@ export type DeliveryProvider =
   | 'post'
   | 'pickup'
 
-export type DeliveryMethod =
-  | 'yandex'
-  | 'cdek'
-  | 'ozon'
-  | 'dostavista'
-  | 'post'
-  | 'pickup'
+/** Способы, которые принимает заказ — ровно четыре, как в shared. */
+export type DeliveryMethod = 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
+
+/**
+ * Ключ котировки. Первые четыре доезжают до витрины; остальные — у
+ * провайдеров, которых покупателю не предлагают (код сохранён по решению
+ * владельца), и в getAllQuotes они не попадают.
+ */
+export type QuoteKey =
+  | DeliveryOptionKey
+  | 'cdek_courier'
+  | 'yandex_courier'
+  | 'ozon_delivery'
+  | 'dostavista_express'
+  | 'post_parcel'

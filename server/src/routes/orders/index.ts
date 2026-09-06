@@ -33,7 +33,7 @@ const contactSchema = z.object({
 const createOrderSchema = z
   .object({
     cartId: z.string().uuid(),
-    deliveryMethod: z.enum(['cdek', 'yandex', 'post', 'ozon', 'dostavista', 'pickup']),
+    deliveryMethod: z.enum(['simba_courier', 'cdek', 'yandex', 'pickup']),
     deliveryAddress: deliveryAddressSchema.optional(),
     deliveryPoint: pickupPointSchema.optional(),
     comment: z.string().optional(),
@@ -45,7 +45,7 @@ const createOrderSchema = z
     contact: contactSchema.optional(),
   })
   .superRefine((data, ctx) => {
-    // Самовывоз: адрес и пункт не нужны, если есть — игнорировать (валидация пройдёт)
+    // Самовывоз: адрес и пункт не нужны
     if (data.deliveryMethod === 'pickup') {
       return
     }
@@ -54,15 +54,22 @@ const createOrderSchema = z
     if (!data.deliveryAddress?.city?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Город обязателен для этого способа доставки',
+        message: 'Укажите город',
         path: ['deliveryAddress', 'city'],
       })
       return
     }
 
-    // Если есть пункт выдачи
-    if (data.deliveryPoint) {
-      // Проверить, что provider совпадает с методом
+    // СДЭК и Яндекс — только в пункт выдачи
+    if (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') {
+      if (!data.deliveryPoint) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Выберите пункт выдачи',
+          path: ['deliveryPoint'],
+        })
+        return
+      }
       if (data.deliveryPoint.provider !== data.deliveryMethod) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -70,24 +77,25 @@ const createOrderSchema = z
           path: ['deliveryPoint'],
         })
       }
-    } else {
-      // Нет пункта выдачи: улица и дом обязательны
+    }
+
+    // simba_courier — требует адрес с улицей и домом
+    if (data.deliveryMethod === 'simba_courier') {
       if (!data.deliveryAddress?.street?.trim() || !data.deliveryAddress?.house?.trim()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Для доставки до двери укажите улицу и дом',
+          message: 'Для доставки курьером укажите улицу и дом',
           path: ['deliveryAddress'],
         })
       }
     }
 
-    // Наличные: только курьер до двери, не ПВЗ
+    // Наличные: только simba_courier
     if (data.paymentMethod === 'cash_on_delivery') {
-      const courierMethods = ['cdek', 'yandex', 'dostavista']
-      if (!courierMethods.includes(data.deliveryMethod) || data.deliveryPoint) {
+      if (data.deliveryMethod !== 'simba_courier') {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Наличными можно оплатить только курьеру',
+          message: 'Наличными можно оплатить только курьеру Simba',
           path: ['paymentMethod'],
         })
       }

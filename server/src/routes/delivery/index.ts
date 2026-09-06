@@ -12,7 +12,7 @@ const pickupPointsQuerySchema = z.object({
 })
 
 const createSchema = z.object({
-  provider: z.enum(['simba_courier', 'yandex', 'cdek', 'ozon', 'dostavista', 'post', 'pickup']),
+  provider: z.enum(['simba_courier', 'cdek', 'yandex', 'pickup']),
   orderId: z.string().min(1),
   address: z.object({
     city: z.string().trim().min(1),

@@ -620,7 +620,7 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
       expect(order.deliveryPoint).toBeNull()
     })
 
-    it('доставка без deliveryPoint и без улицы → 400', async () => {
+    it('simba_courier без улицы и дома → 400', async () => {
       const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
       const user = await createUser()
       const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
@@ -631,7 +631,7 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
         headers: authHeader(app, user.id),
         payload: {
           cartId: cart.id,
-          deliveryMethod: 'yandex',
+          deliveryMethod: 'simba_courier',
           deliveryAddress: { city: 'Москва' },
           hasSpecialPackaging: false,
           deliveryCost: 0,

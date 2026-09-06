@@ -36,7 +36,7 @@ const subscriptionsRoutes: FastifyPluginAsync = async (app) => {
     nextDeliveryAt: z.string().datetime().optional(),
     intervalDays: z.number().int().min(1).optional(),
     productVariantId: z.string().uuid().optional(),
-    deliveryMethod: z.enum(['cdek', 'yandex', 'post', 'ozon', 'dostavista', 'pickup']).optional(),
+    deliveryMethod: z.enum(['simba_courier', 'cdek', 'yandex', 'pickup']).optional(),
     deliveryAddress: z
       .object({
         city: z.string().min(1),

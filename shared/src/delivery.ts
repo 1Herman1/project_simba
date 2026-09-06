@@ -10,18 +10,13 @@
 /** Как заказ попадает к покупателю. */
 export type DeliveryKind = 'courier' | 'pickup_point' | 'store'
 
-/** Ключи вариантов, которые показывает чекаут. */
-export type DeliveryOptionKey =
-  | 'simba_courier'
-  | 'cdek_courier'
-  | 'cdek_pvz'
-  | 'yandex_courier'
-  | 'yandex_pvz'
-  | 'pickup'
-  // Заглушки служб, которые пока не подключены: до двери, без карты.
-  | 'post_parcel'
-  | 'ozon_delivery'
-  | 'dostavista_express'
+/**
+ * Ключи вариантов, которые показывает чекаут. Ровно четыре — решение
+ * владельца: свой курьер, СДЭК и Яндекс только в пункт выдачи, самовывоз.
+ * Код курьеров СДЭК/Яндекса, Ozon, Достависты и Почты в репозитории остался,
+ * но в список не попадает.
+ */
+export type DeliveryOptionKey = 'simba_courier' | 'cdek_pvz' | 'yandex_pvz' | 'pickup'
 
 /** Службы, у которых есть пункты выдачи. */
 export type PickupPointProvider = 'cdek' | 'yandex'

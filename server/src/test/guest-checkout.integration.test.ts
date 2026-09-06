@@ -149,7 +149,7 @@ describe.skipIf(!hasTestDb)('Гостевой чекаут и email-вход (и
 
     const res = await sendOrder(guest, ip, {
       cartId: guest.cartId,
-      deliveryMethod: 'cdek',
+      deliveryMethod: 'simba_courier',
       hasSpecialPackaging: false,
       deliveryCost: 0,
       deliveryAddress: {
