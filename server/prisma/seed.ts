@@ -281,58 +281,59 @@ async function main() {
   console.log(`Quiz products: ${quizProducts.length} items created`)
 
   // Баннеры главной страницы
-  await prisma.banner.upsert({
-    where: { id: 'banner-1-home' },
-    update: {},
-    create: {
-      id: 'banner-1-home',
-      title: 'Корм для здоровых почек',
-      subtitle: 'Royal Canin Renal — специальное питание для кошек',
-      buttonText: 'Выбрать корм',
-      image: '/pets/cat.png',
-      link: '/catalog?category=cats-food',
-      page: 'home',
-      position: 'main_slider',
-      sortOrder: 1,
-      isActive: true,
+  // Баннеры владельца: текст уже нарисован на картинке (showText: false),
+  // у каждого — своя версия для телефона. update повторяет create, чтобы
+  // повторный сид обновлял содержимое, а не оставлял старые картинки.
+  const homeBanners = [
+    {
+      id: 'banner-bonus-registration',
+      title: '300 бонусов в подарок за регистрацию',
+      subtitle: '1 бонус = 1 рубль. Оплачивайте бонусами до 50% следующего заказа',
+      slug: 'bonus-registration',
+      link: '/auth',
     },
-  })
-
-  await prisma.banner.upsert({
-    where: { id: 'banner-2-home' },
-    update: {},
-    create: {
-      id: 'banner-2-home',
-      title: "Новинки от Hill's",
-      subtitle: 'Лечебное питание для кошек и собак — теперь в наличии',
-      buttonText: 'Смотреть',
-      image: '/pets/dogwithcat.png',
-      link: '/catalog?brand=hills',
-      page: 'home',
-      position: 'main_slider',
-      sortOrder: 2,
-      isActive: true,
+    {
+      id: 'banner-cashback-5',
+      title: 'Возвращаем 5% бонусами с каждого заказа',
+      subtitle: 'Бонусы действуют 6 месяцев',
+      slug: 'cashback-5',
+      link: '/bonuses',
     },
-  })
-
-  await prisma.banner.upsert({
-    where: { id: 'banner-3-home' },
-    update: {},
-    create: {
-      id: 'banner-3-home',
-      title: 'Бонусная программа',
-      subtitle: 'Накапливайте бонусы и получайте скидку до 5% с каждой покупки',
-      buttonText: 'Узнать больше',
-      image: '/pets/smiledog.png',
-      link: '/profile',
-      page: 'home',
-      position: 'main_slider',
-      sortOrder: 3,
-      isActive: true,
+    {
+      id: 'banner-free-delivery-pvz',
+      title: 'Бесплатная доставка до пункта выдачи на любой заказ',
+      subtitle: 'Яндекс Маркет и СДЭК',
+      slug: 'free-delivery-pvz',
+      link: '/delivery',
     },
-  })
+    {
+      id: 'banner-pickup-free',
+      title: 'Заберите заказ уже через час самовывозом бесплатно',
+      subtitle: 'Доставим по Москве за 1 день',
+      slug: 'pickup-free',
+      link: '/delivery',
+    },
+  ]
 
-  console.log('Banners: 3 items created')
+  for (const [index, b] of homeBanners.entries()) {
+    const data = {
+      title: b.title,
+      subtitle: b.subtitle,
+      image: `/banners/desktop/${b.slug}.webp`,
+      imageMobile: `/banners/mobile/${b.slug}.webp`,
+      showText: false,
+      link: b.link,
+      page: 'home' as const,
+      position: 'main_slider' as const,
+      sortOrder: index + 1,
+      isActive: true,
+    }
+    await prisma.banner.upsert({ where: { id: b.id }, update: data, create: { id: b.id, ...data } })
+  }
+  // Старые демонстрационные слайды с котом и собакой больше не нужны.
+  await prisma.banner.deleteMany({ where: { id: { in: ['banner-1-home', 'banner-2-home', 'banner-3-home'] } } })
+
+  console.log(`Banners: ${homeBanners.length} items created`)
 
   // Суперадмин
   const admin = await prisma.user.upsert({

@@ -96,6 +96,9 @@ export default function BannerCarousel() {
 
   const banner = banners[current]
   const theme = THEMES[current % THEMES.length]
+  // У готового баннера точки стоят под картинкой на светлом фоне страницы, а
+  // не на градиенте слайда: белые точки тёмной темы там просто пропадут.
+  const dot = banner.showText ? theme.dot : THEMES[0].dot
 
   return (
     <section
@@ -147,15 +150,24 @@ export default function BannerCarousel() {
       ) : (
         /* Готовый баннер: текст уже нарисован на картинке, накладывать свой
            поверх нельзя. Слайд целиком — одна ссылка, а заголовок из админки
-           уходит в alt, чтобы баннер не был немым для чтения с экрана. */
-        <Link key={banner.id} to={banner.link ?? "/catalog"} className="block animate-fade-in">
-          <BannerImage
-            banner={banner}
-            priority={current === 0}
-            alt={banner.title}
-            className="w-full h-56 md:h-80 object-cover"
-          />
-        </Link>
+           уходит в alt, чтобы баннер не был немым для чтения с экрана.
+           Пропорции — как у файлов владельца (2:1 и 1520:1035): резать
+           картинку под фиксированную высоту значит отрезать текст на ней.
+           Поэтому слайд живёт в контейнере со скруглением, а не во всю ширину. */
+        <div className="max-w-7xl mx-auto px-4 pt-4 md:pt-6 pb-11">
+          <Link
+            key={banner.id}
+            to={banner.link ?? "/catalog"}
+            className="block overflow-hidden rounded-card animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
+          >
+            <BannerImage
+              banner={banner}
+              priority={current === 0}
+              alt={banner.title}
+              className="w-full h-full object-cover"
+            />
+          </Link>
+        </div>
       )}
 
       {/* Стрелки. На мобиле скрыты: там они вставали поверх заголовка —
@@ -191,7 +203,7 @@ export default function BannerCarousel() {
           >
             <span
               className={`block h-2 rounded-full transition-[width,background-color] ${
-                i === current ? `w-6 ${theme.dot.active}` : `w-2 ${theme.dot.idle}`
+                i === current ? `w-6 ${dot.active}` : `w-2 ${dot.idle}`
               }`}
             />
           </button>
