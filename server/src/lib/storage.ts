@@ -3,7 +3,12 @@ import { Readable } from 'stream'
 import { Client } from 'minio'
 
 let storageClient: Client | null = null
-let initError: Error | null = null
+/** Когда последняя попытка подключиться провалилась. Через RETRY_AFTER_MS
+    пробуем снова: раньше ошибка запоминалась навсегда, и если MinIO не успел
+    подняться к первому запросу, загрузка картинок оставалась сломанной до
+    перезапуска сервера — без единой записи о причине. */
+let lastInitFailureAt: number | null = null
+const RETRY_AFTER_MS = 30_000
 
 /**
  * Инициализирует MinIO клиент при первом использовании.
@@ -11,9 +16,8 @@ let initError: Error | null = null
  * чтобы сервер мог стартовать без настроенного MinIO на локальной машине.
  */
 export async function initStorage(): Promise<void> {
-  if (storageClient !== null || initError !== null) {
-    return
-  }
+  if (storageClient !== null) return
+  if (lastInitFailureAt !== null && Date.now() - lastInitFailureAt < RETRY_AFTER_MS) return
 
   const endpoint = process.env.MINIO_ENDPOINT
   const port = process.env.MINIO_PORT
@@ -44,9 +48,11 @@ export async function initStorage(): Promise<void> {
     }
 
     storageClient = client
+    lastInitFailureAt = null
   } catch (err) {
-    initError = err instanceof Error ? err : new Error(String(err))
-    console.error('MinIO init failed (non-blocking, uploads will fail):', initError.message)
+    lastInitFailureAt = Date.now()
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('MinIO init failed (uploads will fail, retry in 30s):', message)
   }
 }
 

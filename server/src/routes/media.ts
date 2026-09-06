@@ -29,8 +29,15 @@ export default async function mediaRoute(app: FastifyInstance) {
         reply.header('Cache-Control', 'public, max-age=31536000, immutable')
         reply.header('Content-Type', contentType)
 
-        reply.send(stream)
+        // return обязателен: без него асинхронный обработчик завершается со
+        // значением undefined, Fastify считает это ответом и отдаёт пустое
+        // тело. Заголовки при этом приходят верные, поэтому браузер показывал
+        // «битую картинку» при полностью исправном хранилище.
+        return reply.send(stream)
       } catch (err) {
+        // Без записи в журнал отказ хранилища выглядел бы как «картинка не
+        // грузится», и причину пришлось бы искать вслепую.
+        app.log.error({ err, key }, 'Не удалось отдать файл из хранилища')
         return reply.status(500).send({ error: 'Failed to retrieve file' })
       }
     },
