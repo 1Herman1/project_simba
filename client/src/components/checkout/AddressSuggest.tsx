@@ -23,7 +23,6 @@ export default function AddressSuggest({
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const [loadError, setLoadError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
@@ -40,7 +39,6 @@ export default function AddressSuggest({
           }
 
           setIsLoading(true)
-          setLoadError(null)
 
           try {
             const response = await addressApi.suggest(query)
@@ -51,8 +49,7 @@ export default function AddressSuggest({
             // Ошибка сети — просто закрываем список, не мешаем пользователю
             setSuggestions([])
             setIsOpen(false)
-            setLoadError(null)
-          } finally {
+            } finally {
             setIsLoading(false)
           }
         },
@@ -171,7 +168,7 @@ export default function AddressSuggest({
           aria-activedescendant={activedescendant}
           aria-invalid={!!error}
           className={`w-full px-4 py-3 rounded-xl border bg-white text-navy-900 placeholder-navy-500 text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary-soft ${
-            error || loadError
+            error
               ? 'border-destructive focus:border-destructive'
               : 'border-line focus:border-primary-soft'
           }`}
