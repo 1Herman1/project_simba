@@ -1,6 +1,6 @@
 import { FastifyPluginAsync } from 'fastify'
 import { z } from 'zod'
-import { calcOrderTotals } from '@simba/shared'
+import { calcOrderTotals, type PickupPoint } from '@simba/shared'
 import {
   createOrder,
   DuplicateOrderError,
@@ -11,12 +11,27 @@ import {
 } from '../../services/order.service'
 import { findOrCreateCustomerByEmail } from '../../services/customer.service'
 
+// Сообщения — по-русски: первое из них уходит покупателю как есть, а «Required»
+// от zod ему ничего не говорит.
 const deliveryAddressSchema = z.object({
-  city: z.string().min(1),
-  street: z.string().min(1),
-  house: z.string().min(1),
+  city: z.string({ required_error: 'Укажите город' }).trim().min(1, 'Укажите город'),
+  street: z.string().trim().optional(),
+  house: z.string().trim().optional(),
   apartment: z.string().optional(),
   postalCode: z.string().optional(),
+  lat: z.number().min(-90).max(90).optional(),
+  lon: z.number().min(-180).max(180).optional(),
+})
+
+const pickupPointSchema = z.object({
+  provider: z.enum(['cdek', 'yandex']),
+  code: z.string().min(1),
+  name: z.string().min(1),
+  address: z.string().min(1),
+  lat: z.number(),
+  lon: z.number(),
+  workTime: z.string().optional(),
+  phone: z.string().optional(),
 })
 
 const contactSchema = z.object({
@@ -30,6 +45,7 @@ const createOrderSchema = z
     cartId: z.string().uuid(),
     deliveryMethod: z.enum(['cdek', 'yandex', 'post', 'ozon', 'dostavista', 'pickup']),
     deliveryAddress: deliveryAddressSchema.optional(),
+    deliveryPoint: pickupPointSchema.optional(),
     comment: z.string().optional(),
     hasSpecialPackaging: z.boolean().default(false),
     bonusUsed: z.number().int().min(0).default(0),
@@ -38,20 +54,55 @@ const createOrderSchema = z
     paymentMethod: z.enum(['card', 'cash_on_delivery']).default('card'),
     contact: contactSchema.optional(),
   })
-  .refine(
-    (data) => {
-      // Наличные допустимы только для курьерской доставки до двери
-      if (data.paymentMethod === 'cash_on_delivery') {
-        const courierMethods = ['cdek', 'yandex', 'dostavista']
-        return courierMethods.includes(data.deliveryMethod)
-      }
-      return true
-    },
-    {
-      message: 'Оплата наличными допустима только при курьерской доставке',
-      path: ['paymentMethod'],
+  .superRefine((data, ctx) => {
+    // Самовывоз: адрес и пункт не нужны, если есть — игнорировать (валидация пройдёт)
+    if (data.deliveryMethod === 'pickup') {
+      return
     }
-  )
+
+    // Другие методы: город обязателен
+    if (!data.deliveryAddress?.city?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Город обязателен для этого способа доставки',
+        path: ['deliveryAddress', 'city'],
+      })
+      return
+    }
+
+    // Если есть пункт выдачи
+    if (data.deliveryPoint) {
+      // Проверить, что provider совпадает с методом
+      if (data.deliveryPoint.provider !== data.deliveryMethod) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Пункт выдачи не относится к выбранной службе',
+          path: ['deliveryPoint'],
+        })
+      }
+    } else {
+      // Нет пункта выдачи: улица и дом обязательны
+      if (!data.deliveryAddress?.street?.trim() || !data.deliveryAddress?.house?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Для доставки до двери укажите улицу и дом',
+          path: ['deliveryAddress'],
+        })
+      }
+    }
+
+    // Наличные: только курьер до двери, не ПВЗ
+    if (data.paymentMethod === 'cash_on_delivery') {
+      const courierMethods = ['cdek', 'yandex', 'dostavista']
+      if (!courierMethods.includes(data.deliveryMethod) || data.deliveryPoint) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Наличными можно оплатить только курьеру',
+          path: ['paymentMethod'],
+        })
+      }
+    }
+  })
 
 // Rate limit для гостевых заказов по IP: 5 в час
 const guestOrderAttempts = new Map<string, { attempts: number; resetAt: Date }>()

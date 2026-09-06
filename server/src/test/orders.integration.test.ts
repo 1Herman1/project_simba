@@ -587,4 +587,142 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
       expect(await balanceOf(user.id)).toBe(START)
     })
   })
+
+  describe('Пункты выдачи (PickupPoint)', () => {
+    it('заказ с deliveryPoint (pickup) → 201, deliveryPoint null (игнорируется)', async () => {
+      const prisma = getTestPrisma()
+      const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
+      const user = await createUser()
+      const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: {
+          cartId: cart.id,
+          deliveryMethod: 'pickup',
+          deliveryPoint: {
+            provider: 'cdek',
+            code: 'MSK123',
+            name: 'Пункт СДЭК',
+            address: 'Москва',
+            lat: 55.7558,
+            lon: 37.6173,
+          },
+          hasSpecialPackaging: false,
+          deliveryCost: 0,
+        },
+      })
+
+      expect(res.statusCode).toBe(201)
+      const order = res.json()
+      expect(order.deliveryPoint).toBeNull()
+    })
+
+    it('доставка без deliveryPoint и без улицы → 400', async () => {
+      const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
+      const user = await createUser()
+      const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: {
+          cartId: cart.id,
+          deliveryMethod: 'yandex',
+          deliveryAddress: { city: 'Москва' },
+          hasSpecialPackaging: false,
+          deliveryCost: 0,
+        },
+      })
+
+      expect(res.statusCode).toBe(400)
+      expect(res.json().error).toMatch(/улиц.*дом|дом.*улиц/i)
+    })
+
+    it('deliveryPoint.provider не совпадает с deliveryMethod → 400', async () => {
+      const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
+      const user = await createUser()
+      const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: {
+          cartId: cart.id,
+          deliveryMethod: 'cdek',
+          deliveryAddress: { city: 'Москва' },
+          deliveryPoint: {
+            provider: 'yandex',
+            code: 'abc123',
+            name: 'Пункт Яндекса',
+            address: 'Москва',
+            lat: 55.7558,
+            lon: 37.6173,
+          },
+          hasSpecialPackaging: false,
+          deliveryCost: 0,
+        },
+      })
+
+      expect(res.statusCode).toBe(400)
+      expect(res.json().error).toMatch(/службе/i)
+    })
+
+    it('cash_on_delivery + deliveryPoint → 400', async () => {
+      const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
+      const user = await createUser()
+      const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: {
+          cartId: cart.id,
+          deliveryMethod: 'yandex',
+          deliveryAddress: { city: 'Москва', street: 'ул. Тверская', house: '1' },
+          deliveryPoint: {
+            provider: 'yandex',
+            code: 'abc123',
+            name: 'Пункт Яндекса',
+            address: 'Москва',
+            lat: 55.7558,
+            lon: 37.6173,
+          },
+          hasSpecialPackaging: false,
+          deliveryCost: 0,
+          paymentMethod: 'cash_on_delivery',
+        },
+      })
+
+      expect(res.statusCode).toBe(400)
+      expect(res.json().error).toMatch(/курьеру|наличными/i)
+    })
+
+    it('доставка без city → 400', async () => {
+      const { variant } = await createProductWithVariant({ price: 100000, stock: 10 })
+      const user = await createUser()
+      const cart = await createCart(user.id, [{ variantId: variant.id, quantity: 1 }])
+
+      const res = await app.inject({
+        method: 'POST',
+        url: '/api/orders',
+        headers: authHeader(app, user.id),
+        payload: {
+          cartId: cart.id,
+          deliveryMethod: 'yandex',
+          deliveryAddress: { street: 'ул. Тверская', house: '1' },
+          hasSpecialPackaging: false,
+          deliveryCost: 0,
+        },
+      })
+
+      expect(res.statusCode).toBe(400)
+      expect(res.json().error).toMatch(/город|city/i)
+    })
+  })
 })

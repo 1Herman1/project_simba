@@ -380,7 +380,8 @@ export const ordersApi = {
   create: (data: {
     cartId: string
     deliveryMethod: string
-    deliveryAddress?: object
+    deliveryAddress?: { city: string; street?: string; house?: string; apartment?: string; postalCode?: string; lat?: number; lon?: number }
+    deliveryPoint?: PickupPoint
     comment?: string
     hasSpecialPackaging?: boolean
     bonusUsed?: number
@@ -413,6 +414,7 @@ export const deliveryApi = {
     /// раньше она молча подставляла центр Москвы и называла чужую цену.
     lat?: number
     lon?: number
+    pickupPoint?: PickupPoint
     weightKg: number
   }) => api.post<{ quotes: DeliveryQuote[] }>('/api/delivery/quotes', params),
 

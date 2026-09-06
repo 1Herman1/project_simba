@@ -1,13 +1,20 @@
-import { DeliveryMethod, OrderStatus, PaymentStatus, PrismaClient } from '@prisma/client'
-import { calcOrderTotals, type OrderCalcInput, type OrderTotals } from '@simba/shared'
+import { DeliveryMethod, OrderStatus, PaymentStatus, Prisma, PrismaClient } from '@prisma/client'
+import { calcOrderTotals, type OrderCalcInput, type OrderTotals, type PickupPoint } from '@simba/shared'
 import { getQuoteForMethod } from './delivery/delivery.service.js'
 import type { DeliveryAddress as DeliveryServiceAddress } from './delivery/types.js'
 import { applyBonusChange, settleOnCancelComponents } from './bonus.service.js'
 
+
+/** Prisma принимает в Json только объект с индексной сигнатурой, интерфейс
+    PickupPoint ей не обладает — копия через spread её получает. */
+function toJson(point: PickupPoint): Prisma.InputJsonObject {
+  return { ...point }
+}
+
 type DeliveryAddress = {
   city: string
-  street: string
-  house: string
+  street?: string
+  house?: string
   apartment?: string
   /// Необязателен: поле индекса убрано из формы, его подставляет геокодер.
   /// Пока ключа геокодера нет, индекс пуст — и Почта России, единственный
@@ -28,6 +35,7 @@ export type CreateOrderData = {
   cartId: string
   deliveryMethod: DeliveryMethod
   deliveryAddress?: DeliveryAddress
+  deliveryPoint?: PickupPoint
   comment?: string
   hasSpecialPackaging: boolean
   bonusUsed?: number
@@ -178,6 +186,11 @@ async function resolveDeliveryCost(
       throw new Error('Для выбранного способа доставки нужен адрес')
     }
 
+    // Если нет ПВЗ, улица и дом обязательны
+    if (!data.deliveryPoint && (!data.deliveryAddress.street || !data.deliveryAddress.house)) {
+      throw new Error('Для доставки до двери нужен адрес с улицей и домом')
+    }
+
     // Вес берём из БД, а не из запроса — иначе доставку можно занизить.
     const cart = await prisma.cart.findUnique({
       where: { id: data.cartId, userId: cartOwnerId },
@@ -195,7 +208,10 @@ async function resolveDeliveryCost(
 
     const quote = await getQuoteForMethod(
       data.deliveryMethod,
-      data.deliveryAddress as DeliveryServiceAddress,
+      {
+        ...data.deliveryAddress,
+        pickupPoint: data.deliveryPoint,
+      } as DeliveryServiceAddress,
       { weightKg: totalWeightKg }
     )
 
@@ -275,7 +291,11 @@ export async function createOrder(
       data: {
         userId: actor.customerUserId,
         deliveryMethod: data.deliveryMethod,
-        deliveryAddress: data.deliveryAddress ?? undefined,
+        deliveryAddress: data.deliveryMethod === 'pickup' ? undefined : (data.deliveryAddress ?? undefined),
+        deliveryPoint:
+          data.deliveryMethod === 'pickup' || !data.deliveryPoint
+            ? undefined
+            : toJson(data.deliveryPoint),
         comment: data.comment,
         hasSpecialPackaging: data.hasSpecialPackaging,
         subtotal,
@@ -329,6 +349,7 @@ export async function createOrder(
                 intervalDays: cartItem.subscriptionIntervalDays,
                 deliveryMethod: data.deliveryMethod,
                 deliveryAddress: data.deliveryAddress ?? undefined,
+                deliveryPoint: data.deliveryPoint ? toJson(data.deliveryPoint) : undefined,
                 isPaused: false,
                 isActive: true,
               },
@@ -344,6 +365,7 @@ export async function createOrder(
                 ),
                 deliveryMethod: data.deliveryMethod,
                 deliveryAddress: data.deliveryAddress ?? undefined,
+                deliveryPoint: data.deliveryPoint ? toJson(data.deliveryPoint) : undefined,
                 paymentMethodId: null,
                 isActive: true,
                 isPaused: false,

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { calcOrderTotals } from '@simba/shared'
+import { calcOrderTotals, type DeliveryKind, type DeliveryOptionKey, type PickupPoint, type AddressSuggestion, deliveryKindOf } from '@simba/shared'
 import { useCart } from '../context/CartContext'
-import { cartApi, authApi, ordersApi, deliveryApi, type CartItem, type DeliveryQuote, type DeliveryProviderKey } from '../lib/api'
+import { cartApi, authApi, ordersApi, deliveryApi, type CartItem, type DeliveryQuote } from '../lib/api'
 import { apiErrorMessage } from '../lib/api-error'
 import { formatPrice, formatBonuses, formatDateTime } from '../lib/format'
 import { normalizePhone, isValidPhoneRU, handlePhoneInput } from '../lib/phone'
 import { CheckIcon, ArrowLeftIcon, CreditCardIcon, GiftIcon, CloseIcon } from '../components/icons'
 import LoginForm from '../components/auth/LoginForm'
+import AddressSuggest from '../components/checkout/AddressSuggest'
+import { PickupPointPicker } from '../components/checkout/PickupPointPicker'
 import { useAuth } from '../context/AuthContext'
 
 /** Задержка ступени появления. Значения — из хореографии экрана успеха:
@@ -56,7 +58,6 @@ function SuccessConfetti() {
   )
 }
 
-type DeliveryMethod = DeliveryProviderKey
 type PaymentMethod = 'card' | 'cash_on_delivery'
 type Step = 'delivery' | 'payment' | 'confirm'
 
@@ -86,14 +87,16 @@ const PROVIDER_ICONS: Record<string, string> = {
   pickup: '',
 }
 
-const DELIVERY_LABELS: Record<string, string> = {
+const DELIVERY_LABELS: Record<DeliveryOptionKey, string> = {
   simba_courier: 'Курьер Simba',
-  yandex: 'Яндекс Доставка',
-  cdek: 'СДЭК',
-  ozon: 'Ozon Delivery',
-  dostavista: 'Достависта',
-  post: 'Почта России',
+  cdek_courier: 'СДЭК — до двери',
+  cdek_pvz: 'СДЭК — в пункт выдачи',
+  yandex_courier: 'Яндекс Доставка — до двери',
+  yandex_pvz: 'Яндекс Доставка — в пункт выдачи',
   pickup: 'Самовывоз',
+  post_parcel: 'Почта России',
+  ozon_delivery: 'Ozon Delivery',
+  dostavista_express: 'Достависта',
 }
 
 const STEPS: { key: Step; label: string }[] = [
@@ -108,7 +111,7 @@ export default function CheckoutPage() {
   const { isLoggedIn: authLoggedIn } = useAuth()
   const legacyIsLoggedIn = !!localStorage.getItem('token')
   const [step, setStep] = useState<Step>('delivery')
-  const [delivery, setDelivery] = useState<DeliveryMethod>('simba_courier')
+  const [option, setOption] = useState<DeliveryOptionKey>('simba_courier')
   const [payment, setPayment] = useState<PaymentMethod>('card')
   const [bonusSpend, setBonusSpend] = useState(false)
   const [contactName, setContactName] = useState('')
@@ -134,6 +137,7 @@ export default function CheckoutPage() {
     deliveryCity: false,
     deliveryStreet: false,
     deliveryHouse: false,
+    deliveryPickupPoint: false,
     contactName: false,
     contactEmail: false,
     contactPhone: false,
@@ -148,8 +152,6 @@ export default function CheckoutPage() {
   const [quotes, setQuotes] = useState<DeliveryQuote[]>([])
   const [quotesLoading, setQuotesLoading] = useState(false)
   const [quotesError, setQuotesError] = useState<string | null>(null)
-  // Повторная попытка обязана менять зависимость эффекта: иначе кнопка гасит
-  // сообщение, запрос не уходит, и человек жмёт её впустую.
   const [quotesRetry, setQuotesRetry] = useState(0)
 
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -163,15 +165,42 @@ export default function CheckoutPage() {
     house: '',
     apartment: '',
     comment: '',
+    postalCode: '',
+    lat: 0,
+    lon: 0,
   })
 
+  const [pickupPoint, setPickupPoint] = useState<PickupPoint | null>(null)
+  const [features, setFeatures] = useState<{ suggest: boolean }>({ suggest: false })
+
+  // Загрузить features при монтировании
+  useEffect(() => {
+    deliveryApi.features().then(res => {
+      setFeatures(res.data)
+    }).catch(() => {
+      setFeatures({ suggest: false })
+    })
+  }, [])
+
+  // Вид доставки из ключа варианта
+  const kind: DeliveryKind = deliveryKindOf(option)
+
   // Если доставка не курьером, отключить наличные
-  const isCourierDelivery = delivery === 'simba_courier'
+  const isCourierDelivery = kind === 'courier'
   useEffect(() => {
     if (!isCourierDelivery && payment === 'cash_on_delivery') {
       setPayment('card')
     }
-  }, [delivery])
+  }, [kind])
+
+  // При смене варианта доставки — сбросить пункт выдачи и очистить координаты
+  useEffect(() => {
+    setPickupPoint(null)
+    // Сбросить координаты для других видов доставки
+    if (kind !== 'pickup_point') {
+      setAddress(a => ({ ...a, lat: 0, lon: 0 }))
+    }
+  }, [option, kind])
 
   useEffect(() => {
     Promise.all([
@@ -182,22 +211,22 @@ export default function CheckoutPage() {
 
   const totalWeight = cartItems.reduce((s, i) => s + i.productVariant.weight * i.quantity, 0)
 
-  // Запрашиваем котировки при вводе города
+  // Запрашиваем котировки при вводе города и других параметров
   useEffect(() => {
-    // Пока корзина не загрузилась, вес нулевой, и сервер справедливо отвечает
-    // отказом. Раньше это пряталось за 404 из-за относительного пути.
+    // Пока корзина не загрузилась, вес нулевой, и сервер справедливо отвечает отказом
     if (!address.city || address.city.length < 3 || totalWeight <= 0) return
     const timer = setTimeout(async () => {
       setQuotesLoading(true)
       setQuotesError(null)
       try {
-        // Через deliveryApi, а не голым fetch: относительный путь в разработке
-        // уходит на порт клиента и отвечает 404, а общий слой знает адрес API.
         const res = await deliveryApi.quotes({
           city: address.city,
           street: address.street,
           house: address.house,
           weightKg: totalWeight,
+          lat: address.lat || undefined,
+          lon: address.lon || undefined,
+          postalCode: address.postalCode || undefined,
         })
         setQuotes(res.data.quotes)
         setQuotesError(null)
@@ -209,9 +238,9 @@ export default function CheckoutPage() {
       }
     }, 600)
     return () => clearTimeout(timer)
-  }, [address.city, address.street, address.house, totalWeight, quotesRetry])
+  }, [address.city, address.street, address.house, address.lat, address.lon, address.postalCode, totalWeight, quotesRetry])
 
-  const selectedQuote = quotes.find(q => q.provider === delivery)
+  const selectedQuote = quotes.find(q => q.key === option)
   const deliveryCost = selectedQuote?.price ?? 0
   const promoCode = sessionStorage.getItem('promoCode') ?? undefined
 
@@ -219,7 +248,7 @@ export default function CheckoutPage() {
   const validateDeliveryStep = (): boolean => {
     const errors: Record<string, string> = {}
 
-    if (delivery !== 'pickup') {
+    if (kind === 'courier') {
       if (!address.city.trim()) {
         errors.deliveryCity = 'Укажите город'
       }
@@ -228,6 +257,13 @@ export default function CheckoutPage() {
       }
       if (!address.house.trim()) {
         errors.deliveryHouse = 'Укажите номер дома'
+      }
+    } else if (kind === 'pickup_point') {
+      if (!address.city.trim()) {
+        errors.deliveryCity = 'Укажите город'
+      }
+      if (!pickupPoint) {
+        errors.deliveryPickupPoint = 'Выберите пункт выдачи на карте или в списке'
       }
     }
 
@@ -257,6 +293,7 @@ export default function CheckoutPage() {
       deliveryCity: true,
       deliveryStreet: true,
       deliveryHouse: true,
+      deliveryPickupPoint: true,
       contactName: true,
       contactEmail: true,
       contactPhone: true,
@@ -290,17 +327,37 @@ export default function CheckoutPage() {
     try {
       const promoCode = sessionStorage.getItem('promoCode') ?? undefined
       const cartRes = await cartApi.get()
+
+      // Маппим ключ варианта на служу доставки
+      const deliveryProvider = selectedQuote?.provider ?? 'simba_courier'
+      const deliveryMethod = deliveryProvider === 'simba_courier' ? 'cdek' : deliveryProvider
+
       const createOrderPayload: Parameters<typeof ordersApi.create>[0] = {
         cartId: cartRes.data.id,
-        deliveryMethod: delivery === 'simba_courier' ? 'cdek' : delivery,
-        deliveryAddress: delivery !== 'pickup' && address.street
-          ? { city: address.city, street: address.street, house: address.house, apartment: address.apartment || undefined, postalCode: undefined }
-          : undefined,
+        deliveryMethod,
         comment: address.comment || undefined,
         bonusUsed: bonusUsedScoins,
         promoCode,
         deliveryCost,
         paymentMethod: payment,
+      }
+
+      // Доставка до дома — адрес
+      if (kind === 'courier' && address.street) {
+        createOrderPayload.deliveryAddress = {
+          city: address.city,
+          street: address.street,
+          house: address.house,
+          apartment: address.apartment || undefined,
+          postalCode: address.postalCode || undefined,
+          lat: address.lat || undefined,
+          lon: address.lon || undefined,
+        }
+      }
+
+      // Пункт выдачи — пункт целиком
+      if (kind === 'pickup_point' && pickupPoint) {
+        createOrderPayload.deliveryPoint = pickupPoint
       }
 
       // Для гостя добавить контактные данные
@@ -522,56 +579,169 @@ export default function CheckoutPage() {
                 )}
 
                 <div className="flex flex-col gap-2 mb-5">
-                  {/* Самовывоз не считается никакой службой — человек забирает
-                      заказ сам. Когда расчёт не удался, он обязан остаться
-                      доступным, иначе покупатель лишается единственного
-                      способа, который работает всегда. */}
-                  {(quotes.length > 0 ? quotes : PICKUP_ONLY).map(opt => (
-                    <button
-                      key={opt.key}
-                      onClick={() => opt.available && setDelivery(opt.provider as DeliveryMethod)}
-                      disabled={!opt.available}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
-                        !opt.available ? 'border-line bg-blue-50 opacity-50 cursor-not-allowed' :
-                        delivery === opt.provider
-                          ? 'border-primary-soft bg-primary-tint'
-                          : 'border-line bg-white hover:border-primary-soft'
-                      }`}>
-                      {PROVIDER_ICONS[opt.provider] ? <span className="text-2xl">{PROVIDER_ICONS[opt.provider]}</span> : null}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-navy-900 text-sm">{opt.title}</span>
-                          {opt.available ? (
-                            opt.price > 0
-                              ? <span className="text-navy-500 text-xs font-medium">{formatPrice(opt.price)}</span>
-                              : <span className="text-success text-xs font-medium">Бесплатно</span>
-                          ) : (
-                            <span className="text-red-400 text-xs">{opt.error}</span>
+                  {(quotes.length > 0 ? quotes : PICKUP_ONLY).map(opt => {
+                    // yandex_pvz с ошибкой "Выберите пункт выдачи" - показывается как доступный
+                    const isSelectPickupPointError = opt.key === 'yandex_pvz' && opt.error === 'Выберите пункт выдачи'
+                    const isDisabled = !opt.available && !isSelectPickupPointError
+
+                    return (
+                      <button
+                        key={opt.key}
+                        onClick={() => !isDisabled && setOption(opt.key as DeliveryOptionKey)}
+                        disabled={isDisabled}
+                        className={`flex items-center gap-4 p-4 rounded-xl border transition-[border-color,background-color] text-left ${
+                          isDisabled ? 'border-line bg-blue-50 opacity-50 cursor-not-allowed' :
+                          option === opt.key
+                            ? 'border-primary-soft bg-primary-tint'
+                            : 'border-line bg-white hover:border-primary-soft'
+                        }`}>
+                        {PROVIDER_ICONS[opt.provider] ? <span className="text-2xl">{PROVIDER_ICONS[opt.provider]}</span> : null}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-semibold text-navy-900 text-sm">{DELIVERY_LABELS[opt.key]}</span>
+                            {opt.available && !isSelectPickupPointError ? (
+                              opt.price > 0
+                                ? <span className="text-navy-500 text-xs font-medium">{formatPrice(opt.price)}</span>
+                                : <span className="text-success text-xs font-medium">Бесплатно</span>
+                            ) : isSelectPickupPointError ? (
+                              <span className="text-navy-500 text-xs font-medium">цена после выбора пункта</span>
+                            ) : (
+                              <span className="text-destructive text-xs">{opt.error}</span>
+                            )}
+                          </div>
+                          <p className="text-xs text-navy-500">{opt.description}</p>
+                          {opt.daysMax > 0 && (
+                            <p className="text-xs text-primary-hover mt-0.5">
+                              {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
+                            </p>
+                          )}
+                          {opt.daysMax === 0 && (opt.available || isSelectPickupPointError) && (
+                            <p className="text-xs text-primary-hover mt-0.5">Сегодня</p>
                           )}
                         </div>
-                        <p className="text-xs text-navy-500">{opt.description}</p>
-                        {opt.daysMax > 0 && (
-                          <p className="text-xs text-primary-hover mt-0.5">
-                            {opt.daysMin === opt.daysMax ? `${opt.daysMin} дн.` : `${opt.daysMin}–${opt.daysMax} дн.`}
-                          </p>
-                        )}
-                        {opt.daysMax === 0 && opt.available && (
-                          <p className="text-xs text-primary-hover mt-0.5">Сегодня</p>
-                        )}
-                      </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                        delivery === opt.provider ? 'border-primary-soft bg-primary-soft' : 'border-line'
-                      }`}>
-                        {delivery === opt.provider && <div className="w-2 h-2 rounded-full bg-white" />}
-                      </div>
-                    </button>
-                  ))}
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                          option === opt.key ? 'border-primary-soft bg-primary-soft' : 'border-line'
+                        }`}>
+                          {option === opt.key && <div className="w-2 h-2 rounded-full bg-white" />}
+                        </div>
+                      </button>
+                    )
+                  })}
                 </div>
 
-                {/* Адрес — только для курьера и СДЭК */}
-                {delivery !== 'pickup' && (
+                {/* Адрес — для курьера или ПВЗ */}
+                {kind === 'courier' && (
                   <div>
                     <h3 className="font-semibold text-navy-900 mb-3 text-sm">Адрес доставки</h3>
+                    <div className="flex flex-col gap-3">
+                      {/* Город для курьера — всегда текстовое поле */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Город"
+                          aria-label="Город"
+                          aria-invalid={!!validationErrors.deliveryCity && touched.deliveryCity}
+                          value={address.city}
+                          onChange={e => setAddress(a => ({ ...a, city: e.target.value }))}
+                          onBlur={() => setTouched(t => ({ ...t, deliveryCity: true }))}
+                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                            validationErrors.deliveryCity && touched.deliveryCity
+                              ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
+                              : 'border-line focus:border-line focus:ring-blue-100'
+                          }`}
+                        />
+                        {validationErrors.deliveryCity && touched.deliveryCity && (
+                          <p className="text-xs text-destructive mt-1">{validationErrors.deliveryCity}</p>
+                        )}
+                      </div>
+
+                      {/* Адрес — через AddressSuggest или обычные поля */}
+                      {features.suggest ? (
+                        <AddressSuggest
+                          id="address-suggest"
+                          value={address.street}
+                          onChange={text => setAddress(a => ({ ...a, street: text }))}
+                          onSelect={(suggestion: AddressSuggestion) => {
+                            setAddress(a => ({
+                              ...a,
+                              street: suggestion.street || '',
+                              house: suggestion.house || '',
+                              postalCode: suggestion.postalCode || '',
+                              lat: suggestion.lat || 0,
+                              lon: suggestion.lon || 0,
+                            }))
+                          }}
+                          error={validationErrors.deliveryStreet && touched.deliveryStreet ? validationErrors.deliveryStreet : undefined}
+                        />
+                      ) : (
+                        <>
+                          <div>
+                            <input
+                              type="text"
+                              placeholder="Улица"
+                              aria-label="Улица"
+                              aria-invalid={!!validationErrors.deliveryStreet && touched.deliveryStreet}
+                              value={address.street}
+                              onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
+                              onBlur={() => setTouched(t => ({ ...t, deliveryStreet: true }))}
+                              className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                                validationErrors.deliveryStreet && touched.deliveryStreet
+                                  ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
+                                  : 'border-line focus:border-line focus:ring-blue-100'
+                              }`}
+                            />
+                            {validationErrors.deliveryStreet && touched.deliveryStreet && (
+                              <p className="text-xs text-destructive mt-1">{validationErrors.deliveryStreet}</p>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <input
+                                type="text"
+                                placeholder="Дом"
+                                aria-label="Дом"
+                                aria-invalid={!!validationErrors.deliveryHouse && touched.deliveryHouse}
+                                value={address.house}
+                                onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
+                                onBlur={() => setTouched(t => ({ ...t, deliveryHouse: true }))}
+                                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
+                                  validationErrors.deliveryHouse && touched.deliveryHouse
+                                    ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
+                                    : 'border-line focus:border-line focus:ring-blue-100'
+                                }`}
+                              />
+                              {validationErrors.deliveryHouse && touched.deliveryHouse && (
+                                <p className="text-xs text-destructive mt-1">{validationErrors.deliveryHouse}</p>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Квартира"
+                              aria-label="Квартира"
+                              value={address.apartment}
+                              onChange={e => setAddress(a => ({ ...a, apartment: e.target.value }))}
+                              className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      <textarea
+                        placeholder="Комментарий к заказу (необязательно)"
+                        aria-label="Комментарий к заказу"
+                        value={address.comment}
+                        onChange={e => setAddress(a => ({ ...a, comment: e.target.value }))}
+                        rows={2}
+                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100 resize-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Пункт выдачи — для ПВЗ */}
+                {kind === 'pickup_point' && (
+                  <div>
+                    <h3 className="font-semibold text-navy-900 mb-3 text-sm">Пункт выдачи</h3>
                     <div className="flex flex-col gap-3">
                       <div>
                         <input
@@ -584,70 +754,36 @@ export default function CheckoutPage() {
                           onBlur={() => setTouched(t => ({ ...t, deliveryCity: true }))}
                           className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
                             validationErrors.deliveryCity && touched.deliveryCity
-                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
+                              ? 'border-destructive focus:border-destructive focus:ring-destructive/20'
                               : 'border-line focus:border-line focus:ring-blue-100'
                           }`}
                         />
                         {validationErrors.deliveryCity && touched.deliveryCity && (
-                          <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryCity}</p>
+                          <p className="text-xs text-destructive mt-1">{validationErrors.deliveryCity}</p>
                         )}
                       </div>
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Улица"
-                          aria-label="Улица"
-                          aria-invalid={!!validationErrors.deliveryStreet && touched.deliveryStreet}
-                          value={address.street}
-                          onChange={e => setAddress(a => ({ ...a, street: e.target.value }))}
-                          onBlur={() => setTouched(t => ({ ...t, deliveryStreet: true }))}
-                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
-                            validationErrors.deliveryStreet && touched.deliveryStreet
-                              ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
-                              : 'border-line focus:border-line focus:ring-blue-100'
-                          }`}
-                        />
-                        {validationErrors.deliveryStreet && touched.deliveryStreet && (
-                          <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryStreet}</p>
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
+
+                      {address.city.trim().length >= 2 && (
                         <div>
-                          <input
-                            type="text"
-                            placeholder="Дом"
-                            aria-label="Дом"
-                            aria-invalid={!!validationErrors.deliveryHouse && touched.deliveryHouse}
-                            value={address.house}
-                            onChange={e => setAddress(a => ({ ...a, house: e.target.value }))}
-                            onBlur={() => setTouched(t => ({ ...t, deliveryHouse: true }))}
-                            className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
-                              validationErrors.deliveryHouse && touched.deliveryHouse
-                                ? 'border-red-400 focus:border-red-400 focus:ring-red-200'
-                                : 'border-line focus:border-line focus:ring-blue-100'
-                            }`}
+                          <PickupPointPicker
+                            provider={selectedQuote?.provider === 'cdek' || selectedQuote?.provider === 'yandex' ? selectedQuote.provider : 'cdek'}
+                            city={address.city}
+                            cityCoords={address.lat && address.lon ? { lat: address.lat, lon: address.lon } : undefined}
+                            selected={pickupPoint}
+                            onSelect={(point) => {
+                              setPickupPoint(point)
+                              // Ошибка «выберите пункт» после выбора не имеет смысла — гасим сразу.
+                              setValidationErrors((e) => {
+                                const { deliveryPickupPoint: _omit, ...rest } = e
+                                return rest
+                              })
+                            }}
                           />
-                          {validationErrors.deliveryHouse && touched.deliveryHouse && (
-                            <p className="text-xs text-red-600 mt-1">{validationErrors.deliveryHouse}</p>
+                          {validationErrors.deliveryPickupPoint && touched.deliveryPickupPoint && (
+                            <p className="text-xs text-destructive mt-2">{validationErrors.deliveryPickupPoint}</p>
                           )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="Квартира"
-                          aria-label="Квартира"
-                          value={address.apartment}
-                          onChange={e => setAddress(a => ({ ...a, apartment: e.target.value }))}
-                          className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100"
-                        />
-                      </div>
-                      <textarea
-                        placeholder="Комментарий к заказу (необязательно)"
-                        aria-label="Комментарий к заказу"
-                        value={address.comment}
-                        onChange={e => setAddress(a => ({ ...a, comment: e.target.value }))}
-                        rows={2}
-                        className="w-full px-4 py-2.5 rounded-xl border border-line text-sm text-navy-900 focus:outline-none focus:border-line focus:ring-2 focus:ring-blue-100 resize-none"
-                      />
+                      )}
                     </div>
                   </div>
                 )}
@@ -737,7 +873,9 @@ export default function CheckoutPage() {
                     { key: 'card' as PaymentMethod, title: 'Картой онлайн', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
                     { key: 'cash_on_delivery' as PaymentMethod, title: 'Наличными курьеру', desc: 'Только при доставке курьером до двери' },
                   ].map(opt => {
-                    const isDisabled = opt.key === 'cash_on_delivery' && !isCourierDelivery
+                    // Наличные доступны только для курьерской доставки у определённых провайдеров
+                    const allowedProviders = ['cdek', 'yandex', 'dostavista', 'simba_courier']
+                    const isDisabled = opt.key === 'cash_on_delivery' && (kind !== 'courier' || !allowedProviders.includes(selectedQuote?.provider ?? ''))
                     return (
                       <button
                         key={opt.key}
@@ -867,15 +1005,24 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-sm">
                     <span className="text-navy-500">Доставка</span>
                     <span className="font-medium text-navy-900">
-                      {DELIVERY_LABELS[delivery] ?? delivery}
+                      {DELIVERY_LABELS[option]}
                     </span>
                   </div>
-                  {delivery !== 'pickup' && address.street && (
+                  {kind === 'courier' && address.street && (
                     <div className="flex justify-between text-sm">
                       <span className="text-navy-500">Адрес</span>
                       <span className="font-medium text-navy-900 text-right max-w-[200px]">
                         {address.city}, {address.street}, д.{address.house}
                         {address.apartment && `, кв.${address.apartment}`}
+                      </span>
+                    </div>
+                  )}
+                  {kind === 'pickup_point' && pickupPoint && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-navy-500">Пункт выдачи</span>
+                      <span className="font-medium text-navy-900 text-right max-w-[220px]">
+                        {pickupPoint.name}
+                        <span className="block text-xs font-normal text-navy-500">{pickupPoint.address}</span>
                       </span>
                     </div>
                   )}
@@ -944,7 +1091,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {orderError && (
-                  <p className="text-center text-sm text-red-500 mt-3">{orderError}</p>
+                  <p className="text-center text-sm text-destructive mt-3">{orderError}</p>
                 )}
                 <p className="text-center text-xs text-navy-300 mt-3">
                   Нажимая кнопку, вы соглашаетесь с{' '}
