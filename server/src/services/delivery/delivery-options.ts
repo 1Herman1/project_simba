@@ -35,3 +35,16 @@ export async function getDeliveryOption(
   if (!row || !row.isActive) return null
   return { key, kind: deliveryKindOf(key), title: row.title, subtitle: row.subtitle, price: row.price }
 }
+
+/**
+ * Получает расход магазина на указанный способ доставки.
+ * Нужен для способов без API (simba_courier, pickup).
+ */
+export async function getDeliveryOptionExpense(
+  prisma: PrismaClient,
+  key: DeliveryOptionKey
+): Promise<number | null> {
+  const row = await prisma.deliveryOption.findUnique({ where: { key } })
+  if (!row || !row.isActive) return null
+  return row.expense
+}

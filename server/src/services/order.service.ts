@@ -1,6 +1,7 @@
 import { OrderStatus, PaymentStatus, Prisma, PrismaClient } from '@prisma/client'
 import { calcOrderTotals, type OrderCalcInput, type OrderTotals, type PickupPoint } from '@simba/shared'
 import { getQuoteForMethod } from './delivery/delivery.service.js'
+import { computeDeliveryExpense } from './delivery/delivery-expense.js'
 import type { DeliveryAddress as DeliveryServiceAddress, DeliveryMethod } from './delivery/types.js'
 import { applyBonusChange, settleOnCancelComponents } from './bonus.service.js'
 
@@ -247,7 +248,7 @@ export async function createOrder(
   // службе, держать на нём открытую транзакцию с блокировками нельзя.
   const serverDeliveryCost = await resolveDeliveryCost(prisma, actor.cartOwnerId, data)
 
-  return prisma.$transaction(async (tx) => {
+  const orderResult = await prisma.$transaction(async (tx) => {
     const cart = await tx.cart.findUnique({
       where: { id: data.cartId, userId: actor.cartOwnerId },
       include: {
@@ -302,8 +303,15 @@ export async function createOrder(
       data: {
         userId: actor.customerUserId,
         deliveryMethod: data.deliveryMethod,
-        // simba_courier сохраняет адрес, остальные — нет
-        deliveryAddress: data.deliveryMethod === 'simba_courier' ? (data.deliveryAddress ?? undefined) : undefined,
+        // simba_courier сохраняет полный адрес, cdek/yandex только город (для расчёта расходов)
+        deliveryAddress:
+          data.deliveryMethod === 'simba_courier'
+            ? (data.deliveryAddress ?? undefined)
+            : data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex'
+              ? data.deliveryAddress
+                ? { city: data.deliveryAddress.city }
+                : undefined
+              : undefined,
         // только cdek и yandex сохраняют пункт выдачи
         deliveryPoint:
           (data.deliveryMethod === 'cdek' || data.deliveryMethod === 'yandex') && data.deliveryPoint
@@ -450,6 +458,14 @@ export async function createOrder(
 
     return orderWithItems
   })
+
+  // Расчёт расходов на доставку асинхронно, после успешной транзакции.
+  // Сбой не должен ломать заказ.
+  void computeDeliveryExpense(prisma, orderResult.id).catch((err) => {
+    console.error(`Ошибка при расчёте расходов на доставку заказа ${orderResult.id}:`, err)
+  })
+
+  return orderResult
 }
 
 export async function getOrdersByUser(prisma: PrismaClient, userId: string) {

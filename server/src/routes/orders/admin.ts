@@ -6,6 +6,7 @@ import {
   markOrderRefunded,
   OrderCancelledError,
 } from '../../services/order.service'
+import { computeDeliveryExpense } from '../../services/delivery/delivery-expense.js'
 import { createReturnDocument } from '../../services/moysklad/returns'
 
 async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
@@ -187,6 +188,36 @@ const orderAdminRoutes: FastifyPluginAsync = async (app) => {
       return reply.send(order)
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Ошибка обновления платежа'
+      return reply.status(400).send({ error: message })
+    }
+  })
+
+  app.post('/:id/delivery-expense/recompute', { preHandler: adminOnly }, async (request, reply) => {
+    const { id } = request.params as { id: string }
+
+    // Проверяем, что заказ существует
+    const order = await app.prisma.order.findUnique({
+      where: { id },
+      select: { id: true, deliveryExpense: true, deliveryExpenseNote: true },
+    })
+
+    if (!order) {
+      return reply.status(404).send({ error: 'Заказ не найден' })
+    }
+
+    try {
+      // Пересчитываем расходы
+      await computeDeliveryExpense(app.prisma, id)
+
+      // Возвращаем обновлённые поля
+      const updated = await app.prisma.order.findUniqueOrThrow({
+        where: { id },
+        select: { deliveryExpense: true, deliveryExpenseNote: true },
+      })
+
+      return reply.send(updated)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Ошибка пересчёта расходов'
       return reply.status(400).send({ error: message })
     }
   })

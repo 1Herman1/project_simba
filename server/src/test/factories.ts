@@ -123,27 +123,27 @@ export async function seedDeliveryOptions() {
   // Вставить или обновить стандартные опции доставки
   await prisma.deliveryOption.upsert({
     where: { key: 'simba_courier' },
-    create: { key: 'simba_courier', title: 'Курьер Simba', price: 70000, isActive: true, sortOrder: 0 },
-    update: { isActive: true, price: 70000, sortOrder: 0 },
+    create: { key: 'simba_courier', title: 'Курьер Simba', price: 70000, expense: 25000, isActive: true, sortOrder: 0 },
+    update: { isActive: true, price: 70000, expense: 25000, sortOrder: 0 },
   })
   await prisma.deliveryOption.upsert({
     where: { key: 'cdek_pvz' },
-    create: { key: 'cdek_pvz', title: 'СДЭК', price: 9900, isActive: true, sortOrder: 1 },
-    update: { isActive: true, price: 9900, sortOrder: 1 },
+    create: { key: 'cdek_pvz', title: 'СДЭК', price: 9900, expense: 0, isActive: true, sortOrder: 1 },
+    update: { isActive: true, price: 9900, expense: 0, sortOrder: 1 },
   })
   await prisma.deliveryOption.upsert({
     where: { key: 'yandex_pvz' },
-    create: { key: 'yandex_pvz', title: 'Яндекс Доставка', price: 0, isActive: true, sortOrder: 2 },
-    update: { isActive: true, price: 0, sortOrder: 2 },
+    create: { key: 'yandex_pvz', title: 'Яндекс Доставка', price: 0, expense: 0, isActive: true, sortOrder: 2 },
+    update: { isActive: true, price: 0, expense: 0, sortOrder: 2 },
   })
   await prisma.deliveryOption.upsert({
     where: { key: 'ozon_pvz' },
-    create: { key: 'ozon_pvz', title: 'Ozon', price: 0, isActive: false, sortOrder: 3 },
-    update: { isActive: false, price: 0, sortOrder: 3 },
+    create: { key: 'ozon_pvz', title: 'Ozon', price: 0, expense: 0, isActive: false, sortOrder: 3 },
+    update: { isActive: false, price: 0, expense: 0, sortOrder: 3 },
   })
   await prisma.deliveryOption.upsert({
     where: { key: 'pickup' },
-    create: { key: 'pickup', title: 'Самовывоз', price: 0, isActive: true, sortOrder: 4 },
-    update: { isActive: true, price: 0, sortOrder: 4 },
+    create: { key: 'pickup', title: 'Самовывоз', price: 0, expense: 0, isActive: true, sortOrder: 4 },
+    update: { isActive: true, price: 0, expense: 0, sortOrder: 4 },
   })
 }

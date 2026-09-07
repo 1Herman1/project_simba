@@ -62,8 +62,8 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
 
     const row = await prisma.order.findFirstOrThrow()
     expect(row.deliveryPoint).toEqual(point)
-    // cdek и yandex не сохраняют deliveryAddress — адрес пункта хранится в deliveryPoint
-    expect(row.deliveryAddress).toBeNull()
+    // cdek и yandex сохраняют только город в deliveryAddress для расчёта расходов доставки
+    expect(row.deliveryAddress).toEqual({ city: 'Москва' })
     expect(row.deliveryMethod).toBe('cdek')
     expect(row.deliveryCost).toBe(PVZ_PRICE)
     expect(row.total).toBe(row.subtotal + PVZ_PRICE - row.bonusUsed)
