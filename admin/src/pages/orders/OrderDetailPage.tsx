@@ -10,6 +10,15 @@ const STATUSES = [
   { value: 'cancelled',  label: 'Отменён' },
 ]
 
+// Ключи — значения Order.deliveryMethod (служба), а не варианты прайса.
+const DELIVERY_METHOD_LABELS: Record<string, string> = {
+  simba_courier: 'Курьер Simba',
+  cdek: 'СДЭК, пункт выдачи',
+  yandex: 'Яндекс Доставка, пункт выдачи',
+  ozon: 'Ozon, пункт выдачи',
+  pickup: 'Самовывоз',
+}
+
 const STATUS_STYLE: Record<string, string> = {
   new:        'bg-amber-100 text-amber-700',
   confirmed:  'bg-blue-100 text-blue-700',
@@ -28,6 +37,8 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const [recomputingExpense, setRecomputingExpense] = useState(false)
+  const [expenseError, setExpenseError] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -52,6 +63,23 @@ export default function OrderDetailPage() {
       const res = await ordersApi.updatePayment(order.id, paymentStatus)
       setOrder(res.data)
     } finally { setUpdating(false) }
+  }
+
+  const handleRecomputeDeliveryExpense = async () => {
+    if (!order) return
+    setRecomputingExpense(true)
+    setExpenseError('')
+    try {
+      const res = await ordersApi.recomputeDeliveryExpense(order.id)
+      setOrder(prev => prev ? {
+        ...prev,
+        deliveryExpense: res.data.deliveryExpense,
+        deliveryExpenseNote: res.data.deliveryExpenseNote,
+      } : null)
+    } catch (e) {
+      const msg = (e as { response?: { data?: { error?: unknown } } })?.response?.data?.error
+      setExpenseError(typeof msg === 'string' ? msg : 'Ошибка при пересчёте')
+    } finally { setRecomputingExpense(false) }
   }
 
   if (loading) {
@@ -110,9 +138,23 @@ export default function OrderDetailPage() {
             </span>
           </div>
           {order.deliveryMethod && (
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-500">Доставка</span>
+                <span className="text-gray-700">{DELIVERY_METHOD_LABELS[order.deliveryMethod] || order.deliveryMethod}</span>
+              </div>
+              {order.deliveryPoint && (
+                <div className="text-xs text-gray-500 mb-2 pl-0">
+                  <p>{order.deliveryPoint.name}</p>
+                  <p>{order.deliveryPoint.address}</p>
+                </div>
+              )}
+            </div>
+          )}
+          {order.deliveryCost !== undefined && (
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500">Доставка</span>
-              <span className="text-gray-700">{order.deliveryMethod}</span>
+              <span className="text-gray-500">Доставка для покупателя</span>
+              <span className="text-gray-700">{formatPrice(order.deliveryCost)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm mb-1">
@@ -123,6 +165,40 @@ export default function OrderDetailPage() {
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500">Бонусы</span>
               <span className="text-red-500">−{order.bonusUsed} scoins</span>
+            </div>
+          )}
+          {order.deliveryExpense !== undefined && (
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-500">Расход на доставку</span>
+                {order.deliveryExpense !== null && order.deliveryExpense !== undefined ? (
+                  <span className="text-gray-700">{formatPrice(order.deliveryExpense)}</span>
+                ) : (
+                  <span className="text-gray-400 text-xs">{order.deliveryExpenseNote ?? 'не посчитан'}</span>
+                )}
+              </div>
+              {order.deliveryExpense === null && (
+                <div className="flex items-center gap-2 mb-1">
+                  <button
+                    onClick={handleRecomputeDeliveryExpense}
+                    disabled={recomputingExpense}
+                    className="text-xs px-2 py-1 text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
+                  >
+                    {recomputingExpense ? 'Считаем…' : 'Пересчитать'}
+                  </button>
+                </div>
+              )}
+              {expenseError && (
+                <div className="text-xs text-red-600 mb-1">{expenseError}</div>
+              )}
+            </div>
+          )}
+          {order.deliveryExpense !== null && order.deliveryExpense !== undefined && order.deliveryCost !== undefined && (
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-500">Разница</span>
+              <span className={order.deliveryCost >= order.deliveryExpense ? 'text-green-600 font-medium' : 'text-red-600 font-medium'}>
+                {formatPrice(order.deliveryCost - order.deliveryExpense)}
+              </span>
             </div>
           )}
           <div className="flex justify-between text-sm font-semibold pt-2 border-t border-gray-100 mt-2">

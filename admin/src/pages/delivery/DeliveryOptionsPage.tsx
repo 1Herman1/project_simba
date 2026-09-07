@@ -56,13 +56,18 @@ export default function DeliveryOptionsPage() {
       const data = formData[key]
       // Парсим цену: пользователь вводит в рублях, отправляем в копейках
       const priceValue = data.priceInput ? parsePrice(data.priceInput) : data.price
+      const expenseValue = data.expenseInput ? parsePrice(data.expenseInput) : data.expense
 
-      const updateData = {
+      const updateData: Record<string, any> = {
         title: data.title,
         subtitle: data.subtitle || null,
         price: priceValue,
         isActive: data.isActive,
         sortOrder: data.sortOrder,
+      }
+
+      if (data.expense !== undefined) {
+        updateData.expense = expenseValue
       }
 
       const res = await deliveryOptionsApi.update(key, updateData)
@@ -75,7 +80,7 @@ export default function DeliveryOptionsPage() {
       // Обновляем форму с возвращённым значением (цена может быть целой)
       setFormData(prev => ({
         ...prev,
-        [key]: { ...res.data, priceInput: formatPrice(res.data.price) },
+        [key]: { ...res.data, priceInput: formatPrice(res.data.price), expenseInput: res.data.expense !== undefined ? formatPrice(res.data.expense) : '' },
       }))
 
       setEditingKey(null)
@@ -92,7 +97,7 @@ export default function DeliveryOptionsPage() {
     if (opt) {
       setFormData(prev => ({
         ...prev,
-        [key]: { ...opt, priceInput: formatPrice(opt.price) },
+        [key]: { ...opt, priceInput: formatPrice(opt.price), expenseInput: opt.expense !== undefined ? formatPrice(opt.expense) : '' },
       }))
       setEditingKey(key)
     }
@@ -139,6 +144,7 @@ export default function DeliveryOptionsPage() {
                   <th className="px-5 py-3 font-medium">Название</th>
                   <th className="px-5 py-3 font-medium">Подпись</th>
                   <th className="px-5 py-3 font-medium">Цена (₽)</th>
+                  <th className="px-5 py-3 font-medium">Расход (₽)</th>
                   <th className="px-5 py-3 font-medium">Порядок</th>
                   <th className="px-5 py-3 font-medium">Статус</th>
                   <th className="px-5 py-3 font-medium"></th>
@@ -197,6 +203,22 @@ export default function DeliveryOptionsPage() {
                           />
                         ) : (
                           <span className="text-gray-900 font-medium">{formatPrice(opt.price)}</span>
+                        )}
+                      </td>
+
+                      <td className="px-5 py-3">
+                        {isEditing ? (
+                          <input
+                            type="number"
+                            value={data.expenseInput ?? ''}
+                            onChange={e => handleChange(opt.key, 'expenseInput', e.target.value)}
+                            className="w-24 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-blue-400"
+                            step="0.01"
+                            min="0"
+                            placeholder="—"
+                          />
+                        ) : (
+                          <span className="text-gray-600">{opt.expense !== undefined ? formatPrice(opt.expense) : '—'}</span>
                         )}
                       </td>
 
@@ -288,6 +310,9 @@ export default function DeliveryOptionsPage() {
           </div>
         )}
       </div>
+      <p className="text-xs text-gray-500 mt-4">
+        <span className="font-medium">Расход</span> — сколько способ стоит магазину. Для СДЭК и Яндекса считается по тарифу службы на каждый заказ, здесь — для курьера и самовывоза.
+      </p>
     </div>
   )
 }

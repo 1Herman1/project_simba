@@ -78,6 +78,7 @@ export default function OrdersPage() {
                   <th className="px-5 py-3 font-medium">Заказ</th>
                   <th className="px-5 py-3 font-medium">Покупатель</th>
                   <th className="px-5 py-3 font-medium">Сумма</th>
+                  <th className="px-5 py-3 font-medium">Расход</th>
                   <th className="px-5 py-3 font-medium">Статус</th>
                   <th className="px-5 py-3 font-medium">Оплата</th>
                   <th className="px-5 py-3 font-medium">Дата</th>
@@ -95,6 +96,13 @@ export default function OrdersPage() {
                     </td>
                     <td className="px-5 py-3 font-medium text-gray-900">
                       {formatPrice(order.total)}
+                    </td>
+                    <td className="px-5 py-3 text-gray-700">
+                      {order.deliveryExpense !== null && order.deliveryExpense !== undefined ? (
+                        formatPrice(order.deliveryExpense)
+                      ) : (
+                        <span className="text-gray-400" title={order.deliveryExpenseNote ?? undefined}>—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_STYLE[order.status] ?? 'bg-gray-100 text-gray-600'}`}>
@@ -122,7 +130,7 @@ export default function OrdersPage() {
                 ))}
                 {orders.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center text-gray-400">
+                    <td colSpan={8} className="px-5 py-12 text-center text-gray-400">
                       Заказов не найдено
                     </td>
                   </tr>

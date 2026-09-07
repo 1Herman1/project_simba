@@ -114,6 +114,7 @@ export interface DeliveryOption {
   title: string
   subtitle: string | null
   price: number
+  expense?: number
   isActive: boolean
   sortOrder: number
   updatedAt: string
@@ -131,6 +132,10 @@ export interface Order {
   id: string
   status: string
   deliveryMethod?: string
+  deliveryPoint?: { id: string; name: string; address: string }
+  deliveryCost?: number
+  deliveryExpense?: number | null
+  deliveryExpenseNote?: string | null
   subtotal: number
   total: number
   bonusUsed: number
@@ -224,6 +229,8 @@ export const ordersApi = {
     api.put<Order>(`/api/admin/orders/${id}/status`, { status }),
   updatePayment: (id: string, paymentStatus: 'paid' | 'failed' | 'refunded') =>
     api.put<Order>(`/api/admin/orders/${id}/payment`, { paymentStatus }),
+  recomputeDeliveryExpense: (id: string) =>
+    api.post<{ deliveryExpense: number | null; deliveryExpenseNote: string | null }>(`/api/admin/orders/${id}/delivery-expense/recompute`, {}),
 }
 
 export const usersApi = {

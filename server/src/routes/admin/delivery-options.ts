@@ -8,6 +8,7 @@ const updateSchema = z.object({
   title: z.string().min(1).max(60).optional(),
   subtitle: z.string().max(120).nullable().optional(),
   price: z.number().int().min(0).optional(),
+  expense: z.number().int().min(0).optional(),
   isActive: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
 })
