@@ -728,3 +728,20 @@ model SyncRun {
   @@index([status])
   @@map("sync_runs")
 }
+
+/// Прайс-лист доставки. Цены фиксированные и меняются из админки — это
+/// единственный источник и для чекаута, и для страницы «Доставка»: раньше текст
+/// страницы и расчёт сервера жили порознь и разошлись.
+model DeliveryOption {
+  /// Ключ варианта из shared DeliveryOptionKey: simba_courier, cdek_pvz, …
+  key       String  @id
+  title     String
+  subtitle  String?
+  /// В копейках, как все цены проекта.
+  price     Int     @default(0)
+  isActive  Boolean @default(true)
+  sortOrder Int     @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@map("delivery_options")
+}

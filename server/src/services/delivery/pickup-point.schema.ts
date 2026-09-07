@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 /** Единая схема пункта выдачи на входе API: заказы, котировки, заявки. */
 export const pickupPointSchema = z.object({
-  provider: z.enum(['cdek', 'yandex']),
+  provider: z.enum(['cdek', 'yandex', 'ozon']),
   code: z.string().trim().min(1),
   name: z.string().trim().min(1),
   address: z.string().trim().min(1),

@@ -25,10 +25,10 @@ interface Props {
 type PointsState = 'loading' | 'ready' | 'empty' | 'error'
 type MapLib = 'none' | 'loading' | 'ready' | 'failed'
 
-/// Цвета меток — из палитры MASTER.md: primary для СДЭК, amber-500 для Яндекса,
+/// Цвета меток — из палитры MASTER.md: primary для СДЭК, amber-500 для Яндекса, navy-500 для Ozon,
 /// navy-900 — кольцо выбранной. Инлайн, потому что метка живёт в DOM карты, а
 /// не в дереве React, и классы Tailwind туда не доезжают.
-const MARKER_COLOR: Record<PickupPointProvider, string> = { cdek: '#3A6FE0', yandex: '#E8921A' }
+const MARKER_COLOR: Record<PickupPointProvider, string> = { cdek: '#3A6FE0', yandex: '#E8921A', ozon: '#4A5C7A' }
 const SELECTED_RING = '#16233C'
 
 /// Больше этого числа меток на карте — рисуем только те, что в кадре.

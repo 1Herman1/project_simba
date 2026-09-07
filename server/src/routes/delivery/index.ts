@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { getAllQuotes, createDeliveryOrder, listPickupPoints } from '../../services/delivery/delivery.service.js'
 import { checkRateLimit } from '../../lib/rate-limit.js'
+import { listDeliveryOptions } from '../../services/delivery/delivery-options.js'
 import { pickupPointSchema } from '../../services/delivery/pickup-point.schema.js'
 
 const pickupPointsQuerySchema = z.object({
@@ -44,6 +45,14 @@ const quotesSchema = z.object({
 })
 
 export default async function deliveryRoutes(app: FastifyInstance) {
+  // GET /api/delivery/options — прайс-лист: включённые способы с ценами.
+  // Его читают и чекаут, и страница «Доставка», чтобы цифры не расходились.
+  app.get('/options', async (_req, reply) => {
+    const options = await listDeliveryOptions(app.prisma)
+    reply.header('Cache-Control', 'public, max-age=60')
+    return reply.send({ options })
+  })
+
 
   // POST /api/delivery/quotes — расчёт стоимости всех провайдеров
   app.post('/quotes', async (req, reply) => {

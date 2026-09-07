@@ -12,6 +12,7 @@ export {
   deliveryKindOf,
   type DeliveryKind,
   type DeliveryOptionKey,
+  type DeliveryOptionInfo,
   type PickupPoint,
   type PickupPointProvider,
 } from './delivery'

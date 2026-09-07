@@ -52,7 +52,7 @@ export type DeliveryProvider =
   | 'pickup'
 
 /** Способы, которые принимает заказ — ровно четыре, как в shared. */
-export type DeliveryMethod = 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
+export type DeliveryMethod = 'simba_courier' | 'cdek' | 'yandex' | 'ozon' | 'pickup'
 
 /**
  * Ключ котировки. Первые четыре доезжают до витрины; остальные — у

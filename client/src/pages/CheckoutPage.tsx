@@ -81,6 +81,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   simba_courier: '',
   cdek: '',
   yandex: '',
+  ozon_pvz: '',
   pickup: '',
 }
 
@@ -88,6 +89,7 @@ const DELIVERY_LABELS: Record<DeliveryOptionKey, string> = {
   simba_courier: 'Курьер Simba',
   cdek_pvz: 'СДЭК — в пункт выдачи',
   yandex_pvz: 'Яндекс Доставка — в пункт выдачи',
+  ozon_pvz: 'Ozon — в пункт выдачи',
   pickup: 'Самовывоз',
 }
 
