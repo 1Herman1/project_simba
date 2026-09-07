@@ -1,36 +1,10 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import type { FastifyInstance } from 'fastify'
 import { hasTestDb, getTestPrisma, resetDb, closeTestPrisma } from './setup'
-import { createUser, createProductWithVariant, createCart, authHeader } from './factories'
+import { createUser, createProductWithVariant, createCart, authHeader, seedDeliveryOptions } from './factories'
 
-// СДЭК в тестовой среде не подключён: без реквизитов провайдер отдаёт
-// available: false, и getQuoteForMethod роняет оформление. Подменяем только
-// две функции провайдера — вся остальная цепочка (роут → order.service →
-// delivery.service) работает по-настоящему, включая выбор ПВЗ-тарифа вместо
-// курьерского и сверку стоимости доставки.
-vi.mock('../services/delivery/providers/cdek.js', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../services/delivery/providers/cdek.js')>()),
-  getPickupPointQuote: vi.fn(),
-  getCourierQuote: vi.fn(),
-}))
-
-import * as cdek from '../services/delivery/providers/cdek.js'
-import type { DeliveryQuote } from '../services/delivery/types.js'
-
-const PVZ_PRICE = 35000
-const COURIER_PRICE = 49000
-
-const quote = (price: number, pvz: boolean): DeliveryQuote => ({
-  provider: 'cdek',
-  key: pvz ? 'cdek_pvz' : 'cdek_courier',
-  kind: pvz ? 'pickup_point' : 'courier',
-  title: 'СДЭК',
-  description: pvz ? 'В пункт выдачи' : 'Курьер до двери',
-  price,
-  daysMin: 2,
-  daysMax: 5,
-  available: true,
-})
+// Цены из таблицы delivery_options
+const PVZ_PRICE = 9900 // cdek_pvz цена
 
 const point = {
   provider: 'cdek' as const,
@@ -60,8 +34,7 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
 
   beforeEach(async () => {
     await resetDb()
-    vi.mocked(cdek.getPickupPointQuote).mockReset().mockResolvedValue(quote(PVZ_PRICE, true))
-    vi.mocked(cdek.getCourierQuote).mockReset().mockResolvedValue(quote(COURIER_PRICE, false))
+    await seedDeliveryOptions()
   })
 
   it('cdek + пункт выдачи и город без улицы → 201, пункт сохранён в заказе целиком', async () => {
@@ -94,14 +67,6 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
     expect(row.deliveryMethod).toBe('cdek')
     expect(row.deliveryCost).toBe(PVZ_PRICE)
     expect(row.total).toBe(row.subtotal + PVZ_PRICE - row.bonusUsed)
-
-    // Тариф ПВЗ, а не курьерский, и вес — из корзины в БД (2 шт × 2.5 кг),
-    // а не из запроса покупателя.
-    expect(cdek.getCourierQuote).not.toHaveBeenCalled()
-    const [addressArg, pkgArg] = vi.mocked(cdek.getPickupPointQuote).mock.calls[0]
-    expect(addressArg.pickupPoint).toEqual(point)
-    expect(addressArg.city).toBe('Москва')
-    expect(pkgArg.weightKg).toBe(5)
   })
 
   it('заниженная клиентом стоимость доставки → 409 DELIVERY_COST_CHANGED, заказа нет', async () => {
@@ -145,7 +110,7 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
         deliveryMethod: 'cdek',
         deliveryAddress: { city: 'Москва', street: 'ул. Тверская', house: '1' },
         hasSpecialPackaging: false,
-        deliveryCost: COURIER_PRICE,
+        deliveryCost: PVZ_PRICE,
       },
     })
 
@@ -154,7 +119,5 @@ describe.skipIf(!hasTestDb)('Заказ в пункт выдачи СДЭК (и�
     expect(res.json().error).toMatch(/пункт выдачи/i)
 
     expect(await prisma.order.count()).toBe(0)
-    expect(cdek.getCourierQuote).not.toHaveBeenCalled()
-    expect(cdek.getPickupPointQuote).not.toHaveBeenCalled()
   })
 })

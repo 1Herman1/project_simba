@@ -75,6 +75,7 @@ export default async function deliveryRoutes(app: FastifyInstance) {
     const { city, street, house, postalCode, lat, lon, weightKg, pickupPoint } = result.data
 
     const quotes = await getAllQuotes(
+      app.prisma,
       { city, street, house, postalCode, lat, lon, pickupPoint },
       { weightKg }
     )

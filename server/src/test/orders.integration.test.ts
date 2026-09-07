@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 import { calcOrderTotals } from '@simba/shared'
 import { InsufficientBonusError } from '../services/bonus.service.js'
 import { hasTestDb, skipReason, getTestPrisma, resetDb, closeTestPrisma } from './setup'
-import { createUser, createProductWithVariant, createCart, authHeader } from './factories'
+import { createUser, createProductWithVariant, createCart, authHeader, seedDeliveryOptions } from './factories'
 
 describe.skipIf(!hasTestDb)('Оформление заказа (интеграционные)', () => {
   let app: FastifyInstance
@@ -22,6 +22,7 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
 
   beforeEach(async () => {
     await resetDb()
+    await seedDeliveryOptions()
   })
 
   const pickupOrder = (cartId: string, extra: Record<string, unknown> = {}) => ({
@@ -634,7 +635,7 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
           deliveryMethod: 'simba_courier',
           deliveryAddress: { city: 'Москва' },
           hasSpecialPackaging: false,
-          deliveryCost: 0,
+          deliveryCost: 70000,
         },
       })
 
@@ -664,7 +665,7 @@ describe.skipIf(!hasTestDb)('Оформление заказа (интеграц
             lon: 37.6173,
           },
           hasSpecialPackaging: false,
-          deliveryCost: 0,
+          deliveryCost: 9900,
         },
       })
 

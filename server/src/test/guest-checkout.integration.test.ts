@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest'
 import type { FastifyInstance } from 'fastify'
 import { hasTestDb, getTestPrisma, resetDb, closeTestPrisma } from './setup'
-import { createUser, createProductWithVariant, createGuestSession } from './factories'
+import { createUser, createProductWithVariant, createGuestSession, seedDeliveryOptions } from './factories'
 import { otpService } from '../services/otp.service'
 
 describe.skipIf(!hasTestDb)('Гостевой чекаут и email-вход (интеграционные)', () => {
@@ -21,6 +21,7 @@ describe.skipIf(!hasTestDb)('Гостевой чекаут и email-вход (и
 
   beforeEach(async () => {
     await resetDb()
+    await seedDeliveryOptions()
   })
 
   // Rate-limit гостевых сессий и заказов хранится в памяти процесса и ключуется
@@ -151,7 +152,7 @@ describe.skipIf(!hasTestDb)('Гостевой чекаут и email-вход (и
       cartId: guest.cartId,
       deliveryMethod: 'simba_courier',
       hasSpecialPackaging: false,
-      deliveryCost: 0,
+      deliveryCost: 70000,
       deliveryAddress: {
         city: 'Москва',
         street: 'Ленина',

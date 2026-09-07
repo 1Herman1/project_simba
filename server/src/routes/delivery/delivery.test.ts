@@ -135,7 +135,8 @@ describe('POST /api/delivery/quotes — пункт выдачи в запрос�
     const res = await post({ city: 'Москва', weightKg: 3, pickupPoint: point }, '10.2.0.1')
 
     expect(res.statusCode).toBe(200)
-    const [addressArg, pkgArg] = vi.mocked(getAllQuotes).mock.calls[0]
+    // prisma — первый параметр, потом address, потом pkg
+    const [, addressArg, pkgArg] = vi.mocked(getAllQuotes).mock.calls[0]
     expect(addressArg.pickupPoint).toEqual(point)
     expect(pkgArg).toEqual({ weightKg: 3 })
   })
@@ -163,7 +164,7 @@ describe('POST /api/delivery/quotes — пункт выдачи в запрос�
     const res = await post({ city: 'Москва', weightKg: 1, lat: 55.76, lon: 37.61 }, '10.2.0.4')
 
     expect(res.statusCode).toBe(200)
-    const [addressArg] = vi.mocked(getAllQuotes).mock.calls[0]
+    const [, addressArg] = vi.mocked(getAllQuotes).mock.calls[0]
     expect(addressArg.lat).toBe(55.76)
     expect(addressArg.lon).toBe(37.61)
   })

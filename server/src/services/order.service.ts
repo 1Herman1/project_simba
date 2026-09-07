@@ -218,6 +218,7 @@ async function resolveDeliveryCost(
     )
 
     const quote = await getQuoteForMethod(
+      prisma,
       data.deliveryMethod,
       {
         ...data.deliveryAddress,
@@ -230,8 +231,7 @@ async function resolveDeliveryCost(
   }
 
   const clientCost = data.expectedDeliveryCost ?? 0
-  const tolerance = Math.max(5000, Math.round(serverDeliveryCost * 0.01))
-  if (Math.abs(clientCost - serverDeliveryCost) > tolerance) {
+  if (clientCost !== serverDeliveryCost) {
     throw new DeliveryCostMismatchError(serverDeliveryCost)
   }
 

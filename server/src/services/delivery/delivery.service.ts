@@ -1,95 +1,81 @@
-import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider, DeliveryMethod, DeliveryOptionKey, DeliveryKind, PickupPointProvider, PickupPoint } from './types.js'
+import type { PrismaClient } from '@prisma/client'
+import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider, DeliveryMethod, DeliveryOptionKey, PickupPointProvider, PickupPoint } from './types.js'
 import { getCityCoords } from './city-coords.js'
-import * as simba from './providers/simba.js'
-import * as yandexPvz from './providers/yandex-pvz.js'
 import * as cdek from './providers/cdek.js'
+import * as yandexPvz from './providers/yandex-pvz.js'
+import * as simba from './providers/simba.js'
+import { listDeliveryOptions, getDeliveryOption } from './delivery-options.js'
 
-// Самовывоз — всегда доступен, без API
-function getPickupQuote(): DeliveryQuote {
-  return {
-    provider: 'pickup',
-    key: 'pickup',
-    kind: 'store',
-    title: 'Самовывоз',
-    description: 'Магазин на ул. Ленина, 12 — бесплатно',
-    price: 0,
-    daysMin: 0,
-    daysMax: 0,
-    available: true,
-  }
+/// Служба по ключу варианта — одна таблица на котировки и проверку заказа.
+const PROVIDER_BY_KEY: Record<DeliveryOptionKey, DeliveryProvider> = {
+  simba_courier: 'simba_courier',
+  cdek_pvz: 'cdek',
+  yandex_pvz: 'yandex',
+  ozon_pvz: 'ozon',
+  pickup: 'pickup',
 }
 
-// Единая функция для недоступных вариантов
-function unavailable(
-  provider: DeliveryProvider,
-  key: DeliveryOptionKey,
-  kind: DeliveryKind,
-  title: string,
-  reason: string
-): DeliveryQuote {
-  return {
-    provider,
-    key,
-    kind,
-    title,
-    description: '',
-    price: 0,
-    daysMin: 0,
-    daysMax: 0,
-    available: false,
-    error: reason,
-  }
+/// Сроки — справочная константа, не цена: цена живёт в базе.
+const DELIVERY_DAYS: Record<DeliveryOptionKey, { min: number; max: number }> = {
+  simba_courier: { min: 0, max: 0 }, // сегодня
+  cdek_pvz: { min: 2, max: 5 },
+  yandex_pvz: { min: 1, max: 3 },
+  ozon_pvz: { min: 2, max: 4 },
+  pickup: { min: 0, max: 0 },
 }
 
 // Получить котировку для выбранного способа доставки
 export async function getQuoteForMethod(
+  prisma: PrismaClient,
   method: DeliveryMethod,
   address: DeliveryAddress,
   pkg: DeliveryPackage
 ): Promise<DeliveryQuote> {
-  if (method === 'pickup') {
-    return getPickupQuote()
+  const methodToKey: Record<DeliveryMethod, DeliveryOptionKey> = {
+    pickup: 'pickup',
+    simba_courier: 'simba_courier',
+    cdek: 'cdek_pvz',
+    yandex: 'yandex_pvz',
+    ozon: 'ozon_pvz',
   }
 
-  // Если выбран пункт выдачи, сначала проверяем, что он принадлежит выбранной службе
-  if (address.pickupPoint) {
-    if (address.pickupPoint.provider !== method) {
-      throw new Error('Пункт выдачи не принадлежит выбранной службе')
-    }
-  }
+  const key = methodToKey[method]
 
-  if (method === 'simba_courier') {
-    const quote = await simba.getQuote(address, pkg)
-    if (!quote.available) {
-      throw new Error('Выбранный способ доставки недоступен')
-    }
-    return quote
-  }
-
-  // СДЭК и Яндекс доставляют только в пункты выдачи
-  if (method === 'cdek') {
+  // Пункты выдачи требуют выбранного пункта своей же службы: пункт СДЭК с
+  // методом yandex — подмена данных, а не опечатка.
+  if (key.endsWith('_pvz')) {
     if (!address.pickupPoint) {
-      throw new Error('СДЭК доставляет только в пункт выдачи')
+      throw new Error('Выберите пункт выдачи')
     }
-    const quote = await cdek.getPickupPointQuote(address, pkg)
-    if (!quote.available) {
-      throw new Error('Выбранный способ доставки недоступен')
+    if (address.pickupPoint.provider !== PROVIDER_BY_KEY[key]) {
+      throw new Error('Пункт выдачи не относится к выбранной службе')
     }
-    return quote
   }
 
-  if (method === 'yandex') {
-    if (!address.pickupPoint) {
-      throw new Error('Яндекс Доставка доставляет только в пункт выдачи')
-    }
-    const quote = await yandexPvz.getPickupPointQuote(address, pkg)
-    if (!quote.available) {
-      throw new Error('Выбранный способ доставки недоступен')
-    }
-    return quote
+  // Курьер только в Москве
+  if (method === 'simba_courier' && !simba.isMoscow(address.city)) {
+    throw new Error('Курьером доставляем только по Москве')
   }
 
-  throw new Error(`Неизвестный способ доставки: ${method}`)
+  // Получить цену из таблицы
+  const option = await getDeliveryOption(prisma, key)
+  if (!option) {
+    throw new Error('Этот способ доставки сейчас недоступен')
+  }
+
+  const days = DELIVERY_DAYS[key]
+
+  return {
+    provider: method,
+    key,
+    kind: option.kind,
+    title: option.title,
+    description: option.subtitle ?? '',
+    price: option.price,
+    daysMin: days.min,
+    daysMax: days.max,
+    available: true,
+  }
 }
 
 // Кэш пунктов выдачи: у Москвы тысячи точек, меняются они раз в неделю, а
@@ -134,32 +120,43 @@ export function clearPickupPointsCache() {
   pickupPointsCache.clear()
 }
 
-// Получить котировки от всех четырёх способов доставки параллельно
+// Получить котировки от всех включённых способов доставки из таблицы
 export async function getAllQuotes(
+  prisma: PrismaClient,
   address: DeliveryAddress,
   pkg: DeliveryPackage
 ): Promise<DeliveryQuote[]> {
-  const [simbaQ, cdekPvzQ, yandexPvzQ] = await Promise.allSettled([
-    simba.getQuote(address, pkg),
-    cdek.getPickupPointQuote(address, pkg),
-    yandexPvz.getPickupPointQuote(address, pkg),
-  ])
+  const options = await listDeliveryOptions(prisma)
 
-  const settled = (
-    result: PromiseSettledResult<DeliveryQuote>,
-    provider: DeliveryProvider,
-    key: DeliveryOptionKey,
-    kind: DeliveryKind,
-    title: string
-  ): DeliveryQuote =>
-    result.status === 'fulfilled' ? result.value : unavailable(provider, key, kind, title, String(result.reason))
+  const quotes: DeliveryQuote[] = []
 
-  return [
-    settled(simbaQ, 'simba_courier', 'simba_courier', 'courier', 'Курьер Simba'),
-    settled(cdekPvzQ, 'cdek', 'cdek_pvz', 'pickup_point', 'СДЭК'),
-    settled(yandexPvzQ, 'yandex', 'yandex_pvz', 'pickup_point', 'Яндекс Доставка'),
-    getPickupQuote(),
-  ]
+  for (const option of options) {
+    const days = DELIVERY_DAYS[option.key]
+
+    let available = true
+    let error: string | undefined
+
+    // Курьер только в Москве
+    if (option.key === 'simba_courier' && !simba.isMoscow(address.city)) {
+      available = false
+      error = 'Курьером доставляем только по Москве'
+    }
+
+    quotes.push({
+      provider: PROVIDER_BY_KEY[option.key],
+      key: option.key,
+      kind: option.kind,
+      title: option.title,
+      description: option.subtitle ?? '',
+      price: option.price,
+      daysMin: days.min,
+      daysMax: days.max,
+      available,
+      error,
+    })
+  }
+
+  return quotes
 }
 
 // Создать заказ в выбранном сервисе доставки
@@ -177,8 +174,6 @@ export async function createDeliveryOrder(
     case 'cdek':
       return cdek.createOrder(address, pkg, orderId)
     case 'yandex':
-      // TODO: Создание заказа Яндекс ПВЗ — отдельная задача платформы.
-      // Пока используем общий метод yandex; позже переключимся на yandexPvz.createOrder
       return { externalId: `YANDEX_PVZ-${orderId}` }
     case 'pickup':
       return { externalId: `PICKUP-${orderId}` }

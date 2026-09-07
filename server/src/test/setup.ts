@@ -85,6 +85,7 @@ const TABLES = [
   'otp_codes',
   'chat_messages',
   'users',
+  'delivery_options',
 ]
 
 export async function resetDb() {

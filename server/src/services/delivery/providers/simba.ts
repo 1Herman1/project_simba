@@ -1,43 +1,11 @@
-import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder } from '../types.js'
+import type { DeliveryAddress, DeliveryPackage, DeliveryOrder } from '../types.js'
 
 // Собственная курьерская служба — фиксированные правила, никакого внешнего API
 
-export async function getQuote(
-  address: DeliveryAddress,
-  pkg: DeliveryPackage
-): Promise<DeliveryQuote> {
-  const isMoscow = address.city.toLowerCase().includes('москв')
-  const isSPb = address.city.toLowerCase().includes('петербург') || address.city.toLowerCase().includes('питер')
-
-  if (!isMoscow && !isSPb) {
-    return {
-      provider: 'simba_courier',
-      key: 'simba_courier',
-      kind: 'courier',
-      title: 'Курьер Simba',
-      description: 'Доставка до двери',
-      price: 0,
-      daysMin: 0,
-      daysMax: 0,
-      available: false,
-      error: 'Доступно только по Москве и Санкт-Петербургу',
-    }
-  }
-
-  // Бесплатно от 2000 руб (200000 копеек) — но вес тоже считаем
-  const price = pkg.weightKg > 15 ? 29900 : 0
-
-  return {
-    provider: 'simba_courier',
-    key: 'simba_courier',
-    kind: 'courier',
-    title: 'Курьер Simba',
-    description: 'Доставка до двери сегодня',
-    price,
-    daysMin: 0,
-    daysMax: 0,
-    available: true,
-  }
+/** Именно Москва: «Московская область» и «Москва, Химки» курьер не возит. */
+export function isMoscow(city: string): boolean {
+  const head = city.split(',')[0].toLowerCase().replace(/^\s*(город|г\.?)\s*/, '').trim()
+  return head === 'москва'
 }
 
 export async function createOrder(

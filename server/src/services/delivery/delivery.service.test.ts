@@ -1,5 +1,7 @@
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { describe, expect, it, beforeEach, beforeAll, afterAll, vi } from 'vitest'
 import type { DeliveryAddress, DeliveryPackage, PickupPoint } from './types.js'
+import { hasTestDb, getTestPrisma, resetDb, closeTestPrisma } from '../../test/setup.js'
+import { seedDeliveryOptions } from '../../test/factories.js'
 
 vi.mock('./providers/cdek.js', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./providers/cdek.js')>()),
@@ -20,7 +22,15 @@ const point = (code: string): PickupPoint => ({
   provider: 'cdek', code, name: code, address: 'ул. Тестовая, 1', lat: 55.75, lon: 37.62,
 })
 
-describe('Delivery Service', () => {
+describe.skipIf(!hasTestDb)('Delivery Service', () => {
+  beforeAll(async () => {
+    // Ничего не нужно — БД уже готова
+  })
+
+  afterAll(async () => {
+    await closeTestPrisma()
+  })
+
   beforeEach(() => {
     vi.clearAllMocks()
     clearPickupPointsCache()
@@ -77,7 +87,51 @@ describe('Delivery Service', () => {
   })
 
   describe('getQuoteForMethod', () => {
-    it('выбрасывает если пункт выдачи принадлежит другой службе', async () => {
+    beforeEach(async () => {
+      await resetDb()
+      await seedDeliveryOptions()
+    })
+
+    it('курьер в Москве возвращает котировку с ценой из таблицы', async () => {
+      const prisma = getTestPrisma()
+      const address: DeliveryAddress = {
+        city: 'Москва',
+        street: 'ул. Ленина',
+        house: '1',
+      }
+      const pkg: DeliveryPackage = { weightKg: 1 }
+
+      const quote = await getQuoteForMethod(prisma, 'simba_courier', address, pkg)
+      expect(quote.available).toBe(true)
+      expect(quote.price).toBe(70000) // из таблицы
+      expect(quote.daysMin).toBe(0)
+      expect(quote.daysMax).toBe(0)
+    })
+
+    it('курьер вне Москвы выбрасывает ошибку', async () => {
+      const prisma = getTestPrisma()
+      const address: DeliveryAddress = {
+        city: 'Казань',
+        street: 'ул. Ленина',
+        house: '1',
+      }
+      const pkg: DeliveryPackage = { weightKg: 1 }
+
+      await expect(getQuoteForMethod(prisma, 'simba_courier', address, pkg))
+        .rejects.toThrow('Курьером доставляем только по Москве')
+    })
+
+    it('пункт выдачи требует выбранный пункт', async () => {
+      const prisma = getTestPrisma()
+      const address: DeliveryAddress = { city: 'Москва' }
+      const pkg: DeliveryPackage = { weightKg: 1 }
+
+      await expect(getQuoteForMethod(prisma, 'cdek', address, pkg))
+        .rejects.toThrow('Выберите пункт выдачи')
+    })
+
+    it('пункт выдачи неправильного провайдера выбрасывает ошибку', async () => {
+      const prisma = getTestPrisma()
       const address: DeliveryAddress = {
         city: 'Москва',
         pickupPoint: {
@@ -91,34 +145,40 @@ describe('Delivery Service', () => {
       }
       const pkg: DeliveryPackage = { weightKg: 1 }
 
-      await expect(() => getQuoteForMethod('cdek', address, pkg))
-        .rejects
-        .toThrow('Пункт выдачи не принадлежит выбранной службе')
+      await expect(getQuoteForMethod(prisma, 'cdek', address, pkg))
+        .rejects.toThrow('Пункт выдачи не относится к выбранной службе')
     })
 
-    it('simba_courier требует адрес с улицей и домом', async () => {
-      const address: DeliveryAddress = {
-        city: 'Москва',
-      }
+    it('самовывоз всегда доступен и бесплатен', async () => {
+      const prisma = getTestPrisma()
+      const address: DeliveryAddress = { city: 'Москва' }
       const pkg: DeliveryPackage = { weightKg: 1 }
 
-      // simba_courier должен быть вызван, но мок вернёт недоступный (фиксируется в других тестах)
-      // Это просто проверка, что метод вызывается
-      const quote = await getQuoteForMethod('simba_courier', address, pkg)
-      expect(quote).toBeDefined()
-    })
-
-    it('работает с курьерской доставкой без пункта выдачи', async () => {
-      const address: DeliveryAddress = {
-        city: 'Москва',
-        street: 'ул. Ленина',
-        house: '1',
-      }
-      const pkg: DeliveryPackage = { weightKg: 1 }
-
-      // Simba всегда доступна (это внутренняя служба)
-      const quote = await getQuoteForMethod('pickup', address, pkg)
+      const quote = await getQuoteForMethod(prisma, 'pickup', address, pkg)
       expect(quote.available).toBe(true)
+      expect(quote.price).toBe(0)
+      expect(quote.daysMin).toBe(0)
+      expect(quote.daysMax).toBe(0)
+    })
+
+    it('выключенный способ доставки выбрасывает ошибку', async () => {
+      const prisma = getTestPrisma()
+      // ozon_pvz выключен по умолчанию в seedDeliveryOptions
+      const address: DeliveryAddress = {
+        city: 'Москва',
+        pickupPoint: {
+          provider: 'ozon',
+          code: 'OZ123',
+          name: 'Ozon',
+          address: 'ул. Ленина, 1',
+          lat: 55.75,
+          lon: 37.62,
+        },
+      }
+      const pkg: DeliveryPackage = { weightKg: 1 }
+
+      await expect(getQuoteForMethod(prisma, 'ozon', address, pkg))
+        .rejects.toThrow('Этот способ доставки сейчас недоступен')
     })
   })
 })
