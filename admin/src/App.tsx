@@ -13,6 +13,7 @@ import UsersPage from './pages/users/UsersPage'
 import CategoriesPage from './pages/categories/CategoriesPage'
 import BrandsPage from './pages/brands/BrandsPage'
 import BannersPage from './pages/banners/BannersPage'
+import DeliveryOptionsPage from './pages/delivery/DeliveryOptionsPage'
 import SettingsPage from './pages/SettingsPage'
 import SyncPage from './pages/SyncPage'
 
@@ -72,6 +73,7 @@ export default function App() {
               <Route path="/categories" element={<CategoriesPage />} />
               <Route path="/brands" element={<BrandsPage />} />
               <Route path="/banners" element={<BannersPage />} />
+              <Route path="/delivery-options" element={<DeliveryOptionsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

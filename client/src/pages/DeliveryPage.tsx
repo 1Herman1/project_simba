@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
-import { type CSSProperties } from 'react'
+import { type CSSProperties, useEffect, useState } from 'react'
 import { useMetaTags } from '../hooks/useMetaTags'
 import { CONTACTS } from '../lib/contacts'
 import { useOnScreen } from '../hooks/useOnScreen'
+import { deliveryApi } from '../lib/api'
+import { formatPrice } from '../lib/format'
+import type { DeliveryKind, DeliveryOptionKey } from '@simba/shared'
 
 import { TelegramIcon } from '../components/icons'
 
@@ -15,9 +18,6 @@ function ClockIcon({ size = 20, className }: { size?: number; className?: string
   )
 }
 
-/** Геометрия — Tabler Icons (MIT), icons/outline/building-store.svg.
-    Пункт выдачи как физическая точка с маркизой, а не абстрактный ящик.
-    Двигается только маркиза (.delivery-pickup) — корпус и дверь стоят. */
 function PickupPointIcon() {
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -32,28 +32,13 @@ function PickupPointIcon() {
   )
 }
 
-/** Геометрия — Tabler Icons (MIT), icons/outline/truck-delivery.svg (проверенный
-    контур, уже был на сайте и хорошо читается). Анимация: бегущая подсветка
-    пробегает по верхнему контуру кузова и кабины один раз за цикл — отдельный
-    path поверх статичного чёрного контура, со своим stroke-dasharray/dashoffset
-    (pathLength="100" считает офсет в процентах, а не в пикселях). Колёса
-    и чёрточки скорости — отдельные элементы, подсветка их не задевает. */
 function CourierIcon() {
   const bodyPath = 'M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5'
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {/* Кузов и кабина: статичный контур */}
       <path d={bodyPath} />
-      {/* Колёса: контур, без заливки */}
       <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
       <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-
-      {/* Бегущая подсветка: отдельный непрерывный путь по верхнему контуру
-          (крыша кузова → крыша кабины → скос лобового стекла), совпадает с
-          основным контуром визуально, но не наследует его разрывы (bodyPath
-          состоит из нескольких несвязанных подпутей — общий dashoffset на нём
-          давал одновременно несколько беспорядочных вспышек вместо одной
-          плавной линии, проверено рендером перед этой правкой). */}
       <path
         d="M4 5 L13 5 L13 6 L18 6 L21 11"
         className="delivery-sweep"
@@ -63,8 +48,6 @@ function CourierIcon() {
         strokeLinejoin="round"
         pathLength="100"
       />
-
-      {/* Чёрточки скорости справа-сверху: сдвигаются вправо вместе с подсветкой */}
       <g className="delivery-trail">
         <path d="M20 4 l2.5 0" strokeWidth="1.2" strokeLinecap="round" />
         <path d="M20 6 l2 0" strokeWidth="1.2" strokeLinecap="round" />
@@ -76,42 +59,50 @@ function CourierIcon() {
 type DeliveryMethod = {
   icon: React.ReactNode
   name: string
-  description: string
-  price?: number
-  free?: boolean
+  subtitle: string | null
+  price: number
+  isFree: boolean
 }
 
-const deliveryMethods: DeliveryMethod[] = [
-  {
-    icon: <CourierIcon />,
-    name: 'Курьер Simba',
-    description: 'Москва, Санкт-Петербург',
-    free: true,
-  },
-  {
-    icon: <PickupPointIcon />,
-    name: 'СДЭК',
-    description: 'в пункт выдачи',
-  },
-  {
-    icon: <PickupPointIcon />,
-    name: 'Яндекс Доставка',
-    description: 'в пункт выдачи',
-  },
-  {
-    icon: <PickupPointIcon />,
-    name: 'Самовывоз',
-    description: 'из магазина',
-    free: true,
-  },
-]
+function getIconForKind(kind: DeliveryKind): React.ReactNode {
+  switch (kind) {
+    case 'courier':
+      return <CourierIcon />
+    case 'pickup_point':
+    case 'store':
+      return <PickupPointIcon />
+    default:
+      return <PickupPointIcon />
+  }
+}
 
-/** 4 иконки в ряду: шаг = цикл / число иконок = 5600/4 = 1400мс, в движении
-    всегда ровно одна. 600мс форы, чтобы жест не наложился на reveal секции. */
 const iconDelay = (i: number) => ({ '--idle-delay': `${600 + i * 1400}ms` }) as CSSProperties
 
 export default function DeliveryPage() {
   const iconsRef = useOnScreen<HTMLDivElement>()
+  const [methods, setMethods] = useState<DeliveryMethod[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  useEffect(() => {
+    deliveryApi.options()
+      .then(res => {
+        const methods = res.data.options.map(opt => ({
+          icon: getIconForKind(opt.kind),
+          name: opt.title,
+          subtitle: opt.subtitle,
+          price: opt.price,
+          isFree: opt.price === 0,
+        }))
+        setMethods(methods)
+      })
+      .catch(() => {
+        setError(true)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
 
   useMetaTags({
     title: 'Доставка и оплата — Зоомагазин Симба, Москва',
@@ -129,33 +120,56 @@ export default function DeliveryPage() {
 
       {/* Delivery methods grid */}
       <div ref={iconsRef} className="delivery-icons grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {deliveryMethods.map((method, idx) => (
-          <div
-            key={method.name}
-            className={`relative bg-white rounded-card p-5 flex flex-col ${
-              method.free ? 'border-2 border-primary-soft' : 'border border-line'
-            }`}
-          >
-            {method.free && (
-              <span className="absolute -top-2 left-4 bg-primary text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
-                Бесплатно
-              </span>
-            )}
-            <div style={iconDelay(idx)} className="text-primary-soft mb-3">{method.icon}</div>
-            <h3 className="font-bold text-navy-900 mb-1">{method.name}</h3>
-            <p className="text-sm text-navy-500 mb-3 flex-grow">{method.description}</p>
-            {method.price !== undefined && (
-              <p className="text-2xl font-bold text-navy-900 tabular-nums">{`${(method.price / 100).toLocaleString('ru-RU')} ₽`}</p>
-            )}
+        {loading ? (
+          // Скелеты при загрузке
+          Array.from({ length: 4 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-blue-50 rounded-card p-5 animate-pulse h-48"
+            />
+          ))
+        ) : error ? (
+          <div className="col-span-full text-center py-8">
+            <p className="text-navy-500">Не удалось загрузить условия доставки</p>
           </div>
-        ))}
+        ) : (
+          methods.map((method: DeliveryMethod, idx: number) => (
+            <div
+              key={method.name}
+              className={`relative bg-white rounded-card p-5 flex flex-col ${
+                method.isFree ? 'border-2 border-primary-soft' : 'border border-line'
+              }`}
+            >
+              {method.isFree && (
+                <span className="absolute -top-2 left-4 bg-primary text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                  Бесплатно
+                </span>
+              )}
+              <div style={iconDelay(idx)} className="text-primary-soft mb-3">{method.icon}</div>
+              <h3 className="font-bold text-navy-900 mb-1">{method.name}</h3>
+              <p className="text-sm text-navy-500 mb-3 flex-grow">{method.subtitle || ''}</p>
+              {!method.isFree && (
+                <p className="text-2xl font-bold text-navy-900 tabular-nums">{formatPrice(method.price)}</p>
+              )}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Content sections */}
       <section className="mt-10">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">Как получить заказ</h2>
+        {/* Абзац собирается из того же прайса, что и карточки: свободный текст
+            с городами и ценами однажды разошёлся с кодом и был стёрт как
+            «выдуманный». Теперь расходиться нечему. */}
         <p className="text-navy-500 leading-relaxed max-w-prose">
-          Курьером Simba по Москве и Санкт-Петербургу — бесплатно, или 299 ₽ при весе больше 15 кг. В пункт выдачи СДЭК или Яндекс Доставки — цена и срок рассчитываются при оформлении по выбранному пункту. Самовывоз из магазина — бесплатно. Способ выбираете при оформлении заказа.
+          {loading || error
+            ? 'Загружаем условия доставки…'
+            : `Способ выбираете при оформлении заказа. ${methods
+                .map((m) => `${m.name}${m.subtitle ? ` (${m.subtitle})` : ''} — ${
+                  m.price > 0 ? formatPrice(m.price) : 'бесплатно'
+                }`)
+                .join('. ')}.`}
         </p>
       </section>
 

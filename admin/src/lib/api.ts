@@ -109,6 +109,16 @@ export interface Banner {
   createdAt: string
 }
 
+export interface DeliveryOption {
+  key: string
+  title: string
+  subtitle: string | null
+  price: number
+  isActive: boolean
+  sortOrder: number
+  updatedAt: string
+}
+
 export interface OrderItem {
   id: string
   productName: string
@@ -237,6 +247,11 @@ export const bannersApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+}
+
+export const deliveryOptionsApi = {
+  list: () => api.get<DeliveryOption[]>('/api/admin/delivery-options'),
+  update: (key: string, data: unknown) => api.patch<DeliveryOption>(`/api/admin/delivery-options/${key}`, data),
 }
 
 export interface SyncRunExample {

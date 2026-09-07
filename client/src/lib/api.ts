@@ -402,6 +402,9 @@ export const addressApi = {
 // ─── Доставка ────────────────────────────────────────────────────────────────
 
 export const deliveryApi = {
+  options: () =>
+    api.get<{ options: Array<{ key: DeliveryOptionKey; kind: DeliveryKind; title: string; subtitle: string | null; price: number }> }>('/api/delivery/options'),
+
   features: () =>
     api.get<{ suggest: boolean; map: boolean }>('/api/delivery/features'),
 

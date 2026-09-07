@@ -27,6 +27,7 @@ import adminBrands from './routes/admin/brands'
 import adminBanners from './routes/admin/banners'
 import adminImport from './routes/admin/import'
 import adminSync from './routes/admin/sync'
+import adminDeliveryOptions from './routes/admin/delivery-options'
 
 /**
  * Собирает приложение, но НЕ слушает порт — чтобы тесты могли поднять его
@@ -75,6 +76,7 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(adminUsers, { prefix: '/api/admin/users' })
   await app.register(adminBrands, { prefix: '/api/admin/brands' })
   await app.register(adminBanners, { prefix: '/api/admin/banners' })
+  await app.register(adminDeliveryOptions, { prefix: '/api/admin/delivery-options' })
   await app.register(adminImport, { prefix: '/api/admin/import' })
   await app.register(adminSync, { prefix: '/api/admin/sync' })
   await app.register(adminQuizRoutes, { prefix: '/api/admin/quiz' })
