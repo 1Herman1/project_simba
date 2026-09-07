@@ -474,6 +474,11 @@ model Order {
   /// заказ в ПВЗ, нет — до двери или самовывоз по deliveryMethod.
   deliveryPoint       Json?
   deliveryCost        Int            @default(0)
+  /// Сколько доставка этого заказа стоит магазину (копейки) — по тарифу службы
+  /// на момент заказа. Не путать с deliveryCost: то платит покупатель.
+  /// Пусто — посчитать не удалось, причина в deliveryExpenseNote.
+  deliveryExpense     Int?
+  deliveryExpenseNote String?
   subtotal            Int
   total               Int
   bonusUsed           Int            @default(0)
@@ -739,6 +744,10 @@ model DeliveryOption {
   subtitle  String?
   /// В копейках, как все цены проекта.
   price     Int     @default(0)
+  /// Расход магазина на этот способ, копейки. Для служб с API не нужен —
+  /// расход по заказу считается у службы; для своего курьера и самовывоза
+  /// это единственный источник цифры.
+  expense   Int     @default(0)
   isActive  Boolean @default(true)
   sortOrder Int     @default(0)
   updatedAt DateTime @updatedAt
