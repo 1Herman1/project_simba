@@ -23,6 +23,39 @@
           }
         ]
       }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "$CLAUDE_PROJECT_DIR/.claude/scripts/archive-session.sh precompact"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 15,
+            "command": "$CLAUDE_PROJECT_DIR/.claude/scripts/archive-session.sh sessionend"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "$CLAUDE_PROJECT_DIR/.claude/scripts/archive-session.sh stop"
+          }
+        ]
+      }
     ]
   }
 }
