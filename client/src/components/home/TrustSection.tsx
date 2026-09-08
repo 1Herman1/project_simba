@@ -115,7 +115,7 @@ export default function TrustSection() {
               rating={m.rating}
               stats={m.stats}
               url={m.url}
-              showLink={m.name === 'Яндекс Маркет'}
+              showLink={m.name === 'Яндекс Маркет' || m.name === 'Ozon'}
             />
           ))}
         </div>

@@ -172,7 +172,7 @@ export default function TrustPage() {
             rating={marketplace.rating}
             stats={marketplace.stats}
             url={marketplace.url}
-            showLink={marketplace.name === 'Яндекс Маркет'}
+            showLink={marketplace.name === 'Яндекс Маркет' || marketplace.name === 'Ozon'}
           />
         ))}
       </div>
