@@ -33,7 +33,7 @@ const contactSchema = z.object({
 const createOrderSchema = z
   .object({
     cartId: z.string().uuid(),
-    deliveryMethod: z.enum(['simba_courier', 'cdek', 'yandex', 'pickup']),
+    deliveryMethod: z.enum(['simba_courier', 'cdek', 'yandex', 'ozon', 'pickup']),
     deliveryAddress: deliveryAddressSchema.optional(),
     deliveryPoint: pickupPointSchema.optional(),
     comment: z.string().optional(),

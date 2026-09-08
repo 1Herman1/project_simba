@@ -1,6 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import type { DeliveryAddress, DeliveryPackage, DeliveryQuote, DeliveryOrder, DeliveryProvider, DeliveryMethod, DeliveryOptionKey, PickupPointProvider, PickupPoint } from './types.js'
 import { getCityCoords } from './city-coords.js'
+import * as ozon from './providers/ozon.js'
 import * as cdek from './providers/cdek.js'
 import * as yandexPvz from './providers/yandex-pvz.js'
 import * as simba from './providers/simba.js'
@@ -101,6 +102,11 @@ export async function listPickupPoints(
   let points: PickupPoint[]
   if (provider === 'cdek') {
     points = await cdek.listPickupPoints(city)
+  } else if (provider === 'ozon') {
+    // Ozon Seller API не отдаёт список ПВЗ сторонним магазинам — до появления
+    // ключей и согласованного с Ozon способа список честно пуст, и покупатель
+    // видит «попробуйте другой способ», а не ошибку.
+    points = await ozon.listPickupPoints()
   } else {
     // Яндекс отдаёт пункты только по прямоугольнику координат, а у нас есть
     // лишь название города — центр берём из справочников.

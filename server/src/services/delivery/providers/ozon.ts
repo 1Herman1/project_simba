@@ -62,3 +62,12 @@ export async function createOrder(
     trackingUrl: 'https://ozon.ru/my/orderlist',
   }
 }
+
+// Списка пунктов выдачи для сторонних магазинов у Ozon Seller API нет.
+// Заглушка держит место под интеграцию: когда владелец вставит OZON_CLIENT_ID
+// и OZON_API_KEY и Ozon согласует механику, логика появится здесь — роуты и
+// чекаут уже умеют провайдера ozon.
+export async function listPickupPoints(): Promise<import('../types.js').PickupPoint[]> {
+  if (!process.env.OZON_API_KEY || !process.env.OZON_CLIENT_ID) return []
+  return []
+}

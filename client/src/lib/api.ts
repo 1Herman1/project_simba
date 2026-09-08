@@ -179,7 +179,7 @@ export interface User {
 /// На сервере в истории могут быть старые (post, ozon, dostavista), но новые
 /// котировки приходят только эти четыре.
 export type DeliveryProviderKey =
-  | 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
+  | 'simba_courier' | 'cdek' | 'yandex' | 'ozon' | 'pickup'
 
 export interface DeliveryQuote {
   provider: DeliveryProviderKey
@@ -379,7 +379,7 @@ export const ordersApi = {
 
   create: (data: {
     cartId: string
-    deliveryMethod: 'simba_courier' | 'cdek' | 'yandex' | 'pickup'
+    deliveryMethod: 'simba_courier' | 'cdek' | 'yandex' | 'ozon' | 'pickup'
     deliveryAddress?: { city: string; street?: string; house?: string; apartment?: string; postalCode?: string; lat?: number; lon?: number }
     deliveryPoint?: PickupPoint
     comment?: string

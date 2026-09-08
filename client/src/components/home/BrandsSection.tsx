@@ -21,10 +21,12 @@ type LogoGroup = 'wide' | 'mid' | 'mark'
     поэтому внутри плитки нет сдвига при lazy-загрузке.
     Группа mark на 5-10% крупнее прочих намеренно: квадратный знак при равной
     площади читается легче горизонтальной надписи. */
+/* Владелец выбрал размер по живому макету: 85% высоты плитки для всех групп,
+   боковой отступ держит max-w — логотип крупный, но не касается краёв. */
 const LOGO_SIZE: Record<LogoGroup, string> = {
-  wide: 'h-5 w-16 max-w-full object-contain sm:h-8 sm:w-24 lg:h-9 lg:w-28',
-  mid: 'h-6 w-14 max-w-full object-contain sm:h-10 sm:w-20 lg:h-11 lg:w-24',
-  mark: 'h-9 w-11 max-w-full object-contain sm:h-14 sm:w-16 lg:h-16 lg:w-20',
+  wide: 'h-[85%] w-auto max-w-[86%] object-contain',
+  mid: 'h-[85%] w-auto max-w-[86%] object-contain',
+  mark: 'h-[85%] w-auto max-w-[86%] object-contain',
 }
 
 function logoSrc(brand: Brand): string | null {

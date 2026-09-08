@@ -14,7 +14,7 @@ async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
 }
 
 const pickupPointsQuerySchema = z.object({
-  provider: z.enum(['cdek', 'yandex']),
+  provider: z.enum(['cdek', 'yandex', 'ozon']),
   city: z.string().trim().min(2).max(100),
   lat: z.coerce.number().min(-90).max(90).optional(),
   lon: z.coerce.number().min(-180).max(180).optional(),
