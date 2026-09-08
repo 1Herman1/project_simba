@@ -37,7 +37,7 @@
 | card | `white` + `border-line` | `#FFFFFF` | — |
 | **primary (CTA, фон под белым текстом)** | `primary` | `#3A6FE0` | on: `white` 4.63:1 ✅ |
 | primary hover + **любой синий текст/ссылка** | `primary-hover` | `#2E5DC8` | on: `white` 5.97:1 ✅ |
-| primary deep (низ градиента кнопок) | `primary-deep` | `#1E458F` | on: `white` 9.3:1 ✅ |
+| primary deep (подложка кнопки при ховере — свечение у курсора на ней читается глубже; в покое кнопка плоская `primary`) | `primary-deep` | `#1E458F` | on: `white` 9.3:1 ✅ |
 | primary soft (**только нетекст**: иконки, рамка выбранного, фокус) | `primary-soft` | `#4C82F7` | 3.59:1 — под текстом ❌ |
 | primary tint (подложка инфо-блоков, раскрытый FAQ) | `primary-tint` | `#F2F6FE` | — |
 | accent (бренд, Scoins) — **только фон/заливка** | `amber-500` | `#E8921A` | on: `white` 2.45:1 ❌ как текст запрещён |
