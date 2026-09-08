@@ -53,6 +53,14 @@ function getBaseUrl(): string {
   return process.env.CDEK_SANDBOX === 'true' ? SANDBOX_URL : BASE_URL
 }
 
+/** Сумма от службы должна быть числом: NaN уехал бы в деньги заказа. */
+function assertFiniteSum(sum: unknown): number {
+  if (typeof sum !== 'number' || !Number.isFinite(sum)) {
+    throw new Error('Некорректная сумма доставки в ответе СДЭК')
+  }
+  return sum
+}
+
 export async function getCourierQuote(
   address: DeliveryAddress,
   pkg: DeliveryPackage
@@ -106,7 +114,7 @@ export async function getCourierQuote(
     return {
       ...base,
       available: true,
-      price: Math.round(data.delivery_sum * 100),
+      price: Math.round(assertFiniteSum(data.delivery_sum) * 100),
       daysMin: data.period_min ?? 2,
       daysMax: data.period_max ?? 5,
     }
@@ -172,7 +180,7 @@ export async function getPickupPointQuote(
     return {
       ...base,
       available: true,
-      price: Math.round(data.delivery_sum * 100),
+      price: Math.round(assertFiniteSum(data.delivery_sum) * 100),
       daysMin: data.period_min ?? 2,
       daysMax: data.period_max ?? 5,
     }

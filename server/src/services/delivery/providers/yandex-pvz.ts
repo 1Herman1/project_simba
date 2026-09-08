@@ -140,10 +140,15 @@ export async function getPickupPointQuote(
 
     if (data.pricing_total === undefined) throw new Error('No price in response')
 
+    // Цена приходит строкой: пустая или в чужом формате даст NaN, а NaN дальше
+    // уедет в деньги заказа и упадёт уже на записи в БД.
+    const rubles = parseFloat(data.pricing_total)
+    if (!Number.isFinite(rubles)) throw new Error('Некорректная цена в ответе Яндекса')
+
     return {
       ...base,
       available: true,
-      price: Math.round(parseFloat(data.pricing_total) * 100),
+      price: Math.round(rubles * 100),
       daysMin: data.delivery_days ?? 1,
       daysMax: data.delivery_days ?? 1,
     }

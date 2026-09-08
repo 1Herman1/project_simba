@@ -5,6 +5,9 @@ on:
     branches:
       - deploy/simba
 
+permissions:
+  contents: read
+
 concurrency:
   group: deploy-simba
   cancel-in-progress: false

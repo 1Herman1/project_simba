@@ -14,7 +14,7 @@ const WINDOW_MS = 5 * 60 * 1000
 const LIMITS: Record<Bucket, number> = {
   quotes: 40,
   /// Подсказка уходит на каждую паузу в наборе — один адрес это 5–10 запросов.
-  suggest: 120,
+  suggest: 40,
   'pickup-points': 30,
 }
 

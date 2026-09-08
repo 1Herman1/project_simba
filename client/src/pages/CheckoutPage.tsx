@@ -185,7 +185,7 @@ export default function CheckoutPage() {
     if (!isCourierDelivery && payment === 'cash_on_delivery') {
       setPayment('card')
     }
-  }, [kind])
+  }, [isCourierDelivery, payment])
 
   // При смене варианта доставки — сбросить пункт выдачи и очистить координаты
   useEffect(() => {

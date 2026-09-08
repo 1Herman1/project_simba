@@ -251,9 +251,9 @@ export default function DeliveryOptionsPage() {
                         ) : (
                           <button
                             onClick={() => {
-                              // Быстрое включение/выключение без редактирования
-                              handleSave(opt.key)
-                              const toggled = { ...opt, isActive: !opt.isActive }
+                              // Быстрое включение/выключение без редактирования.
+                              // Только сам флаг: параллельный handleSave слал
+                              // второй PATCH тем же ключом и мог перетереть цену.
                               deliveryOptionsApi.update(opt.key, { isActive: !opt.isActive })
                                 .then(res => {
                                   setOptions(prev => prev.map(o => o.key === opt.key ? res.data : o))

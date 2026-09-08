@@ -1,9 +1,17 @@
-import type { FastifyInstance } from 'fastify'
+import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 import { getAllQuotes, createDeliveryOrder, listPickupPoints } from '../../services/delivery/delivery.service.js'
 import { checkRateLimit } from '../../lib/rate-limit.js'
 import { listDeliveryOptions } from '../../services/delivery/delivery-options.js'
 import { pickupPointSchema } from '../../services/delivery/pickup-point.schema.js'
+
+async function adminOnly(request: FastifyRequest, reply: FastifyReply) {
+  await request.jwtVerify()
+  const { role } = request.user
+  if (role !== 'super_admin' && role !== 'orders_manager') {
+    return reply.status(403).send({ error: 'Недостаточно прав' })
+  }
+}
 
 const pickupPointsQuerySchema = z.object({
   provider: z.enum(['cdek', 'yandex']),
@@ -111,8 +119,11 @@ export default async function deliveryRoutes(app: FastifyInstance) {
     }
   })
 
-  // POST /api/delivery/create — создать заявку у службы доставки
-  app.post('/create', { onRequest: [app.authenticate] }, async (req, reply) => {
+  // POST /api/delivery/create — создать заявку у службы доставки.
+  // Операция бэк-офиса: покупатель заявку не создаёт, её оформляет магазин.
+  // Раньше хватало любого токена (включая гостевой), а заказ по orderId не
+  // сверялся с владельцем — чужой заказ можно было отгрузить на свой адрес.
+  app.post('/create', { preHandler: adminOnly }, async (req, reply) => {
     const parsed = createSchema.safeParse(req.body)
     if (!parsed.success) {
       return reply.status(400).send({ error: 'Проверьте данные доставки' })

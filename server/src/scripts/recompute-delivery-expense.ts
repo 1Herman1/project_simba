@@ -36,14 +36,21 @@ async function main() {
   let skipped = 0
   const pageSize = 50
 
-  for (let page = 0; page * pageSize < total; page++) {
+  // Курсор, а не skip: пересчёт убирает заказы из выборки на лету
+  // (deliveryExpense перестаёт быть null), и смещение начало бы их перепрыгивать.
+  let cursor: string | undefined
+
+  for (;;) {
     const orders = await prisma.order.findMany({
       where,
       select: { id: true, deliveryMethod: true },
-      skip: page * pageSize,
       take: pageSize,
-      orderBy: { createdAt: 'asc' },
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+      orderBy: { id: 'asc' },
     })
+
+    if (orders.length === 0) break
+    cursor = orders[orders.length - 1].id
 
     for (const order of orders) {
       try {

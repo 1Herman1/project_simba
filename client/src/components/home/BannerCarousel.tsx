@@ -81,7 +81,7 @@ export default function BannerCarousel() {
       setCurrent((prev) => (prev + 1) % banners.length)
     }, SLIDE_MS)
     return () => clearInterval(timer)
-  }, [isPaused])
+  }, [isPaused, banners.length])
 
   function prev() {
     setCurrent((c) => (c - 1 + banners.length) % banners.length)
