@@ -61,6 +61,12 @@ jobs:
 
             echo "==> Applying migrations and reloading in one step (no old-code/new-schema window)"
             (cd server && npx prisma migrate deploy)
+
+            echo "==> Backfilling data the code expects (idempotent, admin edits win)"
+            (cd server && npx tsx src/scripts/backfill-brand-identity.ts --apply)
+            (cd server && npx tsx src/scripts/backfill-banners.ts --apply)
+            (cd server && npx tsx src/scripts/backfill-species.ts --apply --only-unknown)
+
             pm2 reload simba-server --update-env
 
             echo "==> Deploying static files"

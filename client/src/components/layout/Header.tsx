@@ -62,7 +62,7 @@ const categories = [
   { label: 'Лакомства', key: null, href: '/catalog?category=treats' },
   { label: 'Бренды', key: null, href: '/#brands' },
   { label: 'Акции', key: null, href: '/#banners' },
-  { label: 'Блог', key: null, href: '/blog' },
+  { label: 'Блог', key: null, href: '/#blog' },
 ]
 
 export default function Header() {

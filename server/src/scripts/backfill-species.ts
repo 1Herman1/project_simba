@@ -131,14 +131,19 @@ async function determineProductSpecies(product: Product): Promise<{
 
 async function main() {
   const apply = process.argv.includes('--apply')
+  // --only-unknown: трогать только неразмеченные товары. Режим для деплой-
+  // воркфлоу: полный прогон пересчитал бы и перезаписал вид, выставленный
+  // админом вручную, а этот — заполняет пробелы и ничьи правки не трогает.
+  const onlyUnknown = process.argv.includes('--only-unknown')
 
   console.log('\n════════════════════════════════════════════════════════════════════')
   console.log('  Разметка вида животного для товаров (species)')
   console.log('════════════════════════════════════════════════════════════════════')
-  console.log(`Режим: ${apply ? '✅ ПРИМЕНЕНИЕ' : '📋 ПРЕДПРОСМОТР (без записи)'}\n`)
+  console.log(`Режим: ${apply ? '✅ ПРИМЕНЕНИЕ' : '📋 ПРЕДПРОСМОТР (без записи)'}${onlyUnknown ? ' · только неразмеченные' : ''}\n`)
 
   // Загружаем все товары с категориями и тегами
   const products = await prisma.product.findMany({
+    ...(onlyUnknown ? { where: { species: 'unknown' as ProductSpecies } } : {}),
     select: {
       id: true,
       name: true,
