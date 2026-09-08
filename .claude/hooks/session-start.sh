@@ -31,3 +31,6 @@ if [ "$CURRENT" != "$BRANCH" ]; then
 fi
 
 git pull origin "$BRANCH" --ff-only 2>/dev/null || true
+
+# Память прошлых сессий: stdout SessionStart попадает прямо в контекст Claude.
+"$CLAUDE_PROJECT_DIR/.claude/scripts/archive-read.sh" 2>/dev/null || true

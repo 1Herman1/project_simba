@@ -22,3 +22,6 @@ perfect-skin/shared/src/*.d.ts.map
 
 # hb-landing: кэш Astro
 hb-landing/.astro/
+
+# Смещения архиватора сессий — служебное состояние, у каждой машины своё
+.claude/.archive-state/
