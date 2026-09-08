@@ -91,7 +91,23 @@ const TABLES = [
 export async function resetDb() {
   const prisma = getTestPrisma()
   const list = TABLES.map((t) => `"public"."${t}"`).join(', ')
-  await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`)
+
+  // Создание заказа догоняет расчёт расхода на доставку уже после ответа 201,
+  // и эта фоновая запись сталкивается с TRUNCATE следующего теста — Postgres
+  // сообщает о взаимной блокировке (40P01) и роняет случайные тесты. Ждём
+  // блокировку недолго и повторяем: к этому моменту фоновая запись завершается.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await prisma.$executeRawUnsafe(`SET LOCAL lock_timeout = '2s'`)
+      await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`)
+      return
+    } catch (err) {
+      const code = (err as { code?: string; meta?: { code?: string } }).meta?.code
+      const deadlocked = code === '40P01' || code === '55P03' || String(err).includes('40P01')
+      if (!deadlocked || attempt >= 4) throw err
+      await new Promise((resolve) => setTimeout(resolve, 100 * (attempt + 1)))
+    }
+  }
 }
 
 export async function closeTestPrisma() {

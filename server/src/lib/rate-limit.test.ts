@@ -13,7 +13,7 @@ describe('checkRateLimit', () => {
   it('исчерпанные подсказки не блокируют расчёт доставки и пункты выдачи', async () => {
     const ip = '203.0.113.1'
 
-    expect(drain(ip, 'suggest', 120).every(Boolean)).toBe(true)
+    expect(drain(ip, 'suggest', 40).every(Boolean)).toBe(true)
     expect(checkRateLimit(ip, 'suggest')).toBe(false)
 
     // Набирая адрес, покупатель тратит подсказки десятками. Общий счётчик

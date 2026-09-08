@@ -128,10 +128,9 @@ describe('POST /api/address/suggest', () => {
       json: async () => ({ suggestions: [] }),
     })
 
-    // Лимит корзины подсказок — 120 за 5 минут (lib/rate-limit.ts): один
-    // адрес это 5–10 запросов, и общий с доставкой счётчик на 20 упирался
-    // в 429 посреди чекаута.
-    for (let i = 0; i < 120; i++) {
+    // Лимит корзины подсказок — 40 за 5 минут (lib/rate-limit.ts): один
+    // адрес это 5–10 запросов, а квота DaData не бесконечная.
+    for (let i = 0; i < 40; i++) {
       const response = await app.inject({
         method: 'POST',
         url: '/api/address/suggest',
@@ -141,7 +140,7 @@ describe('POST /api/address/suggest', () => {
       expect(response.statusCode).toBe(200)
     }
 
-    // 121-й запрос с тем же IP должен быть ограничен
+    // 41-й запрос с тем же IP должен быть ограничен
     const limitedResponse = await app.inject({
       method: 'POST',
       url: '/api/address/suggest',
