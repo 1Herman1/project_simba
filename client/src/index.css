@@ -65,7 +65,9 @@
     transition-property: opacity, color, background-color, border-color !important;
     animation-duration: 0.01ms !important;
   }
-  .btn-primary { transition-property: background-color, box-shadow; }
+  /* Цветовые переходы подложки остаются плавными (motion.md §5) — под
+     reduced-motion гаснет движение, а не смена цвета. */
+  .btn-primary { transition-property: --btn-g1, --btn-g2, box-shadow !important; transition-duration: 180ms !important; }
   .btn-primary:hover, .btn-primary:active, .btn-primary.is-pressed { transform: none; }
   .btn-primary:hover, .btn-primary.is-pressed { --btn-spot: 0; }
   .btn-outline:active, .btn-outline.is-pressed,
@@ -94,15 +96,19 @@
 
 @layer components {
   /* CTA. Покой — плоская заливка primary (4.63:1 с белым текстом).
-     Hover — база уходит в primary.hover (6.03:1), а под курсором зажигается
-     spotlight: тёплое ядро -> холодный ободок primary.soft (#4C82F7).
-     Самая светлая точка эффекта = 4.74:1, AA держится в любой точке пятна.
+     Hover — база уходит в primary.deep, под курсором зажигается spotlight:
+     тёплое ядро → плато → холодный ободок primary.soft → шлейф. Радиус 5.5rem
+     нарочно меньше ширины кнопки — это локальный пул света, а не заливка;
+     ядро вдвое ярче края, иначе пятно изолюминантно и читается грязью.
+     Самая светлая точка композита = 4.96:1 (замер по пикселям), выше нельзя:
+     α 0.28 уже проваливает AA. Отдельный слой блеска отклонён по той же
+     причине — даже белый 0.05 сверху съедает контраст в зоне текста; объём
+     даёт тёмная нижняя грань. Вход 150-180мс на `ease` (easeOutQuint проходил
+     93.5% за 50мс — измеренный скачок), выход 70% входа по motion.md.
      Координаты курсора приходят из lib/button-spotlight.ts (--mx/--my). */
   .btn-primary {
     --btn-spot: 0;
     --btn-dim: 0;
-    /* Покой — плоская заливка (решение владельца): переливается кнопка только
-       под курсором. Равные концы делают вертикальный градиент невидимым. */
     --btn-g1: theme('colors.primary.DEFAULT');
     --btn-g2: theme('colors.primary.DEFAULT');
     --press-scale: 0.97;
@@ -117,45 +123,58 @@
     background-image:
       linear-gradient(rgb(22 35 60 / var(--btn-dim)), rgb(22 35 60 / var(--btn-dim))),
       radial-gradient(
-        circle 11rem at var(--mx, 50%) var(--my, 50%),
-        rgb(255 248 236 / calc(var(--btn-spot) * 0.14)) 0%,
-        rgb(76 130 247 / calc(var(--btn-spot) * 0.42)) 40%,
+        circle 5.5rem at var(--mx, 50%) var(--my, 50%),
+        rgb(255 248 236 / calc(var(--btn-spot) * 0.24)) 0%,
+        rgb(255 248 236 / calc(var(--btn-spot) * 0.21)) 14%,
+        rgb(76 130 247 / calc(var(--btn-spot) * 0.50)) 30%,
+        rgb(76 130 247 / calc(var(--btn-spot) * 0.22)) 58%,
         rgb(76 130 247 / 0) 100%
       ),
       linear-gradient(to bottom, var(--btn-g1), var(--btn-g2));
-    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.14);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.14),
+      inset 0 -1px 0 0 rgb(30 69 143 / 0.35);
     touch-action: manipulation;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    /* Выход: 70-72% длительностей входа, по обратной траектории. */
     transition:
-      --btn-spot 140ms var(--ease-out),
-      --btn-dim  160ms var(--ease-out),
-      --btn-g1   120ms var(--ease-out),
-      --btn-g2   120ms var(--ease-out),
-      transform  160ms var(--ease-out),
-      box-shadow 120ms var(--ease-out);
+      --btn-spot 105ms var(--ease-out),
+      --btn-dim  110ms var(--ease-out),
+      --btn-g1   130ms ease,
+      --btn-g2   130ms ease,
+      transform  100ms var(--ease-out),
+      box-shadow 130ms ease;
   }
 
   /* Ховер-эффект только для мыши: тач не должен залипать в hover-состоянии. */
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
       --btn-spot: 1;
-      /* Подложка уходит в deep — на тёмном свечение под курсором читается
-         втрое глубже прежнего. Светлейшая точка блика: белый текст 4.56:1. */
       --btn-g1: theme('colors.primary.deep');
       --btn-g2: theme('colors.primary.deep');
       transform: translateY(-1px);
       box-shadow:
         inset 0 1px 0 0 rgb(255 255 255 / 0.10),
+        inset 0 -1px 0 0 rgb(30 69 143 / 0.45),
         0 4px 12px rgb(58 111 224 / 0.28);
+      /* Вход. */
+      transition:
+        --btn-spot 150ms var(--ease-out),
+        --btn-g1   180ms ease,
+        --btn-g2   180ms ease,
+        transform  140ms var(--ease-out),
+        box-shadow 180ms ease;
     }
   }
 
-  /* Тач: курсора нет — пятно распускается из центра (--mx/--my = дефолт 50%). */
+  /* Тач: курсора нет — вспышка распускается из центра (--mx/--my = дефолт 50%).
+     0.8 с новым ядром даёт 4.78:1 — вспышка заметна, AA держится. */
   @media (hover: none) {
     .btn-primary:active:not(:disabled):not([aria-disabled='true']),
     .btn-primary.is-pressed:not(:disabled):not([aria-disabled='true']) {
-      --btn-spot: 0.7;
+      --btn-spot: 0.8;
+      transition: --btn-spot 120ms var(--ease-out);
     }
   }
 

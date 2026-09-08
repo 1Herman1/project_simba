@@ -15,11 +15,19 @@ export function initButtonSpotlight(): () => void {
   let active: HTMLElement | null = null
   let listening = false
 
+  let clearTimer = 0
+
+  // Координаты снимаем ПОСЛЕ затухания (выход --btn-spot = 105мс): иначе
+  // пятно телепортируется в центр кнопки прямо посреди угасания.
   const clear = () => {
     if (!active) return
-    active.style.removeProperty('--mx')
-    active.style.removeProperty('--my')
+    const el = active
     active = null
+    window.clearTimeout(clearTimer)
+    clearTimer = window.setTimeout(() => {
+      el.style.removeProperty('--mx')
+      el.style.removeProperty('--my')
+    }, 160)
   }
 
   const paint = () => {
@@ -29,6 +37,7 @@ export function initButtonSpotlight(): () => void {
     if (!p) return
     if (p.target !== active) clear()
     if (!p.target) return
+    window.clearTimeout(clearTimer)
     const r = p.target.getBoundingClientRect()
     if (r.width === 0 || r.height === 0) return
     active = p.target
