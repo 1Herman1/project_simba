@@ -107,7 +107,7 @@ export default function SideDrawer({ open, onClose, title, titleSuffix, children
         aria-labelledby={titleId}
         className={`absolute inset-y-0 right-0 flex flex-col
                     w-full sm:w-[420px] max-w-full
-                    bg-white shadow-xl sm:border-l sm:border-line
+                    bg-white shadow-xl sm:border-l sm:border-line sm:rounded-l-card sm:overflow-hidden
                     transition-[transform,opacity] ease-drawer
                     ${shown ? 'translate-x-0 opacity-100 duration-300' : 'translate-x-full opacity-0 duration-200'}`}
       >

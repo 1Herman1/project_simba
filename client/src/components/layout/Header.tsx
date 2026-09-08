@@ -198,7 +198,7 @@ export default function Header() {
 
         {/* Мегаменю */}
         {activeCategory && (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line animate-slide-down z-50">
+          <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line rounded-b-card overflow-hidden animate-slide-down z-50">
             <div className="max-w-7xl mx-auto px-4 py-6">
               <div className="grid grid-cols-4 gap-4">
                 {categories

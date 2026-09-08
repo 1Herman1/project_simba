@@ -1170,7 +1170,7 @@ export default function CheckoutPage() {
             aria-hidden="true"
           />
           {/* Modal */}
-          <div className="relative bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-sm p-6 md:p-8 shadow-lg max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white rounded-t-card md:rounded-card w-full md:max-w-sm p-6 md:p-8 shadow-lg max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setLoginModalOpen(false)}
               className="absolute top-4 right-4 p-2 text-navy-400 hover:text-navy-700 transition-colors"
