@@ -31,7 +31,7 @@ export default function ReviewsPage() {
             stats={marketplace.stats}
             url={marketplace.url}
             /* Кликабелен только Яндекс Маркет — решение владельца. */
-            showLink={marketplace.name === 'Яндекс Маркет'}
+            showLink={marketplace.name === 'Яндекс Маркет' || marketplace.name === 'Ozon'}
           />
         ))}
       </div>
