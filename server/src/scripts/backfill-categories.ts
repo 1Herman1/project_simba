@@ -9,16 +9,21 @@ const SPECIES_TO_SLUG: Record<string, string> = {
   'species:dog': 'dogs-food',
 }
 
+/** Лакомство узнаётся по названию — теги подбора про корм и его не покрывают. */
+const TREAT_NAME = /лакомств|лакомый|snack|treat/i
+const TREATS_SLUG = 'treats'
+
 async function main() {
   const apply = process.argv.includes('--apply')
 
   const categories = await prisma.category.findMany({ select: { id: true, slug: true, name: true } })
   const bySlug = new Map(categories.map((c) => [c.slug, c]))
 
-  for (const slug of Object.values(SPECIES_TO_SLUG)) {
-    if (!bySlug.has(slug)) {
-      throw new Error(`В базе нет категории «${slug}» — привязывать некуда`)
-    }
+  // Отсутствующая категория — пропуск с предупреждением, не падение: скрипт
+  // ходит в деплой-воркфлоу, и падение здесь завалило бы выкатку целиком.
+  const missing = [...Object.values(SPECIES_TO_SLUG), TREATS_SLUG].filter((slug) => !bySlug.has(slug))
+  for (const slug of missing) {
+    console.warn(`⚠️  В базе нет категории «${slug}» — соответствующие привязки пропущены`)
   }
 
   const products = await prisma.product.findMany({
@@ -40,12 +45,23 @@ async function main() {
   for (const p of withoutCategory) {
     const tags = [...p.quizTags, ...p.autoQuizTags]
     const species = Object.keys(SPECIES_TO_SLUG).find((s) => tags.includes(s))
-    if (!species) {
+    if (!species || !bySlug.has(SPECIES_TO_SLUG[species])) {
       unresolved.push(p.name)
       continue
     }
     const slug = SPECIES_TO_SLUG[species]
     plan.push({ id: p.id, name: p.name, categoryId: bySlug.get(slug)!.id, slug })
+  }
+
+  // Лакомства — дополнительной категорией, поверх видовой: пункт «Лакомства»
+  // в шапке фильтрует по slug treats, и без этой привязки он всегда пуст.
+  const treats = bySlug.get(TREATS_SLUG)
+  if (treats) {
+    for (const p of products) {
+      if (!TREAT_NAME.test(p.name)) continue
+      if (p.categories.some((c) => c.categoryId === treats.id)) continue
+      plan.push({ id: p.id, name: p.name, categoryId: treats.id, slug: TREATS_SLUG })
+    }
   }
 
   console.log('\n════════ ПРИВЯЗКА ТОВАРОВ К КАТЕГОРИЯМ ════════')
