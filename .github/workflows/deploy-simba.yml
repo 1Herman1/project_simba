@@ -63,6 +63,7 @@ jobs:
             (cd server && npx prisma migrate deploy)
 
             echo "==> Backfilling data the code expects (idempotent, admin edits win)"
+            (cd server && npx tsx src/scripts/backfill-quiz-tags.ts --apply)
             (cd server && npx tsx src/scripts/backfill-brand-identity.ts --apply)
             (cd server && npx tsx src/scripts/backfill-banners.ts --apply)
             (cd server && npx tsx src/scripts/backfill-species.ts --apply --only-unknown)
