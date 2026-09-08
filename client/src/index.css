@@ -45,8 +45,12 @@
 
 @layer base {
   body {
-    @apply bg-blue-50 text-navy-900 font-sans;
+    /* Решение владельца: Montserrat, основной текст — light. */
+    @apply bg-blue-50 text-navy-900 font-sans font-light;
   }
+  /* Light мельче 14px рассыпается — мелкий текст остаётся regular. */
+  .text-xs, .text-[13px] { font-weight: 400; }
+  h1, h2, h3, h4, h5, h6 { font-weight: 600; }
 
   /* Клавиатурный фокус: до этого ни одна кнопка магазина его не показывала. */
   *:focus-visible {
@@ -97,8 +101,10 @@
   .btn-primary {
     --btn-spot: 0;
     --btn-dim: 0;
-    --btn-g1: theme('colors.primary.DEFAULT');
-    --btn-g2: theme('colors.primary.hover');
+    /* Перепад светлее-темнее втрое глубже пары DEFAULT→hover — владелец
+       просил заметный градиент; текст держит AA по всей высоте кнопки. */
+    --btn-g1: theme('colors.primary.soft');
+    --btn-g2: theme('colors.primary.deep');
     --press-scale: 0.97;
     position: relative;
     overflow: hidden;
@@ -134,8 +140,9 @@
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
       --btn-spot: 1;
-      --btn-g1: theme('colors.primary.hover');
-      --btn-g2: theme('colors.primary.hover');
+      /* Ховер сдвигает весь градиент темнее, не схлопывая его в заливку. */
+      --btn-g1: theme('colors.primary.DEFAULT');
+      --btn-g2: theme('colors.primary.deep');
       transform: translateY(-1px);
       box-shadow:
         inset 0 1px 0 0 rgb(255 255 255 / 0.10),

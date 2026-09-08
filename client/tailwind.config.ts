@@ -19,9 +19,15 @@ const config: Config = {
           soft: '#4C82F7',
           tint: '#F2F6FE',
           fg: '#FFFFFF',
+          // Нижняя точка градиента кнопок: владелец попросил втрое более
+          // глубокий перепад, чем DEFAULT→hover.
+          deep: '#1E458F',
         },
         blue: {
-          50: '#F5F8FF',
+          // Решение владельца: фон страницы — нейтральный #F1F1F1 вместо
+          // голубоватого #F5F8FF. Токен остаётся blue-50, чтобы не трогать
+          // сотню упоминаний в разметке.
+          50: '#F1F1F1',
           100: '#D6EAFE',
           200: '#A4D4FC',
           300: '#6BB8F5',
@@ -47,7 +53,8 @@ const config: Config = {
           tint: '#E4F4EB',
         },
         navy: {
-          900: '#16233C',
+          // Решение владельца: основной текст на светлом фоне — чистый чёрный.
+          900: '#000000',
           800: '#1F2E48',
           700: '#2A3A56',
           600: '#3A4B66',
@@ -65,8 +72,16 @@ const config: Config = {
         card: '0 2px 8px rgba(22, 35, 60, 0.06)',
       },
       fontFamily: {
-        sans: ['Nunito', 'system-ui', 'sans-serif'],
-        display: ['Nunito', 'system-ui', 'sans-serif'],
+        sans: ['Montserrat', 'system-ui', 'sans-serif'],
+        display: ['Montserrat', 'system-ui', 'sans-serif'],
+      },
+      // Решение владельца: заголовки — semibold. font-bold по всему сайту
+      // отображается как 600; extrabold/black чуть тяжелее, но без 800-900 —
+      // у Montserrat они выглядят плакатно и ломают лёгкость.
+      fontWeight: {
+        bold: '600',
+        extrabold: '600',
+        black: '700',
       },
       transitionTimingFunction: {
         smooth: 'var(--ease-out)',

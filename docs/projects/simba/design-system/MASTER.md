@@ -29,14 +29,15 @@
 
 | Роль | Токен | Hex | Контраст |
 |---|---|---|---|
-| background (страница) | `blue-50` | `#F5F8FF` | — |
-| foreground | `navy-900` | `#16233C` | 14.7:1 ✅ |
+| background (страница) | `blue-50` | `#F1F1F1` | — (решение владельца: нейтральный фон) |
+| foreground | `navy-900` | `#000000` | 19.4:1 ✅ (решение владельца: чистый чёрный) |
 | muted-foreground (вторичный текст) | `navy-500` | `#4A5C7A` | 6.4:1 ✅ |
 | disabled / декор (**не для текста**) | `navy-300` | `#8FA8C0` | 2.6:1 ❌ |
 | border | `line` | `#E4EBF7` | — |
 | card | `white` + `border-line` | `#FFFFFF` | — |
 | **primary (CTA, фон под белым текстом)** | `primary` | `#3A6FE0` | on: `white` 4.63:1 ✅ |
 | primary hover + **любой синий текст/ссылка** | `primary-hover` | `#2E5DC8` | on: `white` 5.97:1 ✅ |
+| primary deep (низ градиента кнопок) | `primary-deep` | `#1E458F` | on: `white` 9.3:1 ✅ |
 | primary soft (**только нетекст**: иконки, рамка выбранного, фокус) | `primary-soft` | `#4C82F7` | 3.59:1 — под текстом ❌ |
 | primary tint (подложка инфо-блоков, раскрытый FAQ) | `primary-tint` | `#F2F6FE` | — |
 | accent (бренд, Scoins) — **только фон/заливка** | `amber-500` | `#E8921A` | on: `white` 2.45:1 ❌ как текст запрещён |
@@ -69,7 +70,7 @@ navy: {
   600: '#3A4B66',
   700: '#2A3A56',
   800: '#1F2E48',
-  900: '#16233C',  // основной текст
+  900: '#000000',  // основной текст (решение владельца: чистый чёрный)
 }
 ```
 
@@ -80,7 +81,7 @@ navy: {
 ### Шкалы blue и amber (как в `client/tailwind.config.ts`)
 
 ```ts
-blue:  { 50: '#F5F8FF', 100: '#D6EAFE', 200: '#A4D4FC',
+blue:  { 50: '#F1F1F1', 100: '#D6EAFE', 200: '#A4D4FC',
          300: '#6BB8F5', 400: '#3A9AE8', 500: '#1A3A5C' }
 amber: { 50: '#FFF8E8', 100: '#FFEDC4', 200: '#FFD9A0', 300: '#FFD580',
          400: '#FFB347', 500: '#E8921A', 600: '#A66200', 800: '#7A4700' }
@@ -102,13 +103,14 @@ amber: { 50: '#FFF8E8', 100: '#FFEDC4', 200: '#FFD9A0', 300: '#FFD580',
 
 ```ts
 fontFamily: {
-  sans: ['Nunito', 'system-ui', 'sans-serif'],
-  display: ['Nunito', 'system-ui', 'sans-serif'],
+  sans: ['Montserrat', 'system-ui', 'sans-serif'],
+  display: ['Montserrat', 'system-ui', 'sans-serif'],
 }
 ```
 
-- **Семейство:** Nunito (кириллица ✅, variable). Профиль «Warm Retail» — тёплый,
-  мягкий, человечный. Соответствует тону бренда.
+- **Семейство:** Montserrat (кириллица ✅). Решение владельца: заголовки —
+  semibold (600, утилита font-bold переопределена на 600), основной текст —
+  light (300); мельче 14px — regular (400), чтобы держать читаемость.
 - **Подключение:** только `<link>` в `index.html` с `display=swap` +
   `preconnect` к `fonts.googleapis.com` **и** `fonts.gstatic.com`.
   `@import` в CSS — запрещён (блокирует рендер).
