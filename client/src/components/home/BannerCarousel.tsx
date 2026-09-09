@@ -1,7 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
 import { bannersApi, type Banner } from '../../lib/api'
+
+interface DragState {
+  startX: number
+  currentX: number
+  startTime: number
+  isDragging: boolean
+}
 
 // Оформление слайда в базе не хранится — владелец меняет содержание, а не
 // градиенты. Схемы идут по кругу: dotColor задаётся на слайд, а не глобально,
@@ -32,6 +39,9 @@ const THEMES = [
 ]
 
 const SLIDE_MS = 6500
+const DRAG_THRESHOLD = 0.12 // 12% ширины трека
+const DRAG_THRESHOLD_PX = 6 // 6px для блокирования клика
+const VELOCITY_THRESHOLD = 0.5 // px/мс
 
 /** Телефон и компьютер получают разные файлы: широкая десктопная картинка на
     узком экране либо обрезается по краям, либо мельчает до нечитаемости.
@@ -54,73 +64,32 @@ function BannerImage({
         src={banner.image}
         alt={alt}
         aria-hidden={alt ? undefined : true}
-        fetchPriority={priority ? 'high' : 'auto'}
+        fetchPriority={priority ? 'high' : 'auto' as any}
+        draggable={false}
         className={className}
       />
     </picture>
   )
 }
 
-export default function BannerCarousel() {
-  const [banners, setBanners] = useState<Banner[]>([])
-  const [current, setCurrent] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
+interface SlideProps {
+  banner: Banner
+  index: number
+  isActive: boolean
+  theme: typeof THEMES[0]
+}
 
-  useEffect(() => {
-    bannersApi
-      .list({ page: 'home', position: 'main_slider' })
-      .then((res) => setBanners(res.data))
-      // Выдумывать баннеры при сбое нельзя: секция просто не показывается.
-      .catch(() => setBanners([]))
-  }, [])
-
-  useEffect(() => {
-    if (isPaused) return
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % banners.length)
-    }, SLIDE_MS)
-    return () => clearInterval(timer)
-  }, [isPaused, banners.length])
-
-  function prev() {
-    setCurrent((c) => (c - 1 + banners.length) % banners.length)
-  }
-
-  function next() {
-    setCurrent((c) => (c + 1) % banners.length)
-  }
-
-  // Ни одного включённого баннера — секции на главной просто нет.
-  if (banners.length === 0) return null
-
-  const banner = banners[current]
-  const theme = THEMES[current % THEMES.length]
-  // У готового баннера точки стоят под картинкой на светлом фоне страницы, а
-  // не на градиенте слайда: белые точки тёмной темы там просто пропадут.
-  const dot = banner.showText ? theme.dot : THEMES[0].dot
-
+function Slide({ banner, index, isActive, theme }: SlideProps) {
   return (
-    <section
-      id="banners"
-      aria-label="Акции и предложения"
-      className="scroll-mt-24 relative overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={() => setIsPaused(false)}
-    >
-      {/* h-56 на мобиле, а не h-48: зона нажатия точек внизу занимает 44px, и на
-          192px кнопка CTA уходила под них. */}
+    <div className="w-full shrink-0">
       {banner.showText ? (
         <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center`}>
           <div
-            key={banner.id}
             className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
+            aria-hidden={!isActive}
+            tabIndex={isActive ? 0 : -1}
           >
             <div className="max-w-lg pt-4 pb-10 md:py-6">
-              {/* h2, а не h1: заголовок слайда меняется по таймеру и не может быть
-                  главным заголовком страницы. Постоянный h1 — в HomePage. */}
               <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${theme.textColor}`}>
                 {banner.title}
               </h2>
@@ -132,46 +101,231 @@ export default function BannerCarousel() {
               <Link
                 to={banner.link ?? "/catalog"}
                 className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
+                tabIndex={isActive ? 0 : -1}
               >
                 {banner.buttonText ?? "Смотреть"}
               </Link>
             </div>
 
-            {/* Питомец занимает правую половину: без него на десктопе оставалась
-                пустая полоса градиента, а магазин терял товар/образ на первом
-                экране. На мобиле прячем — там места нет. */}
             <BannerImage
               banner={banner}
-              priority={current === 0}
+              priority={isActive}
               className="hidden md:block h-full w-auto max-w-[48%] object-contain object-bottom select-none pointer-events-none"
             />
           </div>
         </div>
       ) : (
-        /* Готовый баннер: текст уже нарисован на картинке, накладывать свой
-           поверх нельзя. Слайд целиком — одна ссылка, а заголовок из админки
-           уходит в alt, чтобы баннер не был немым для чтения с экрана.
-           Пропорции — как у файлов владельца (2:1 и 1520:1035): резать
-           картинку под фиксированную высоту значит отрезать текст на ней.
-           Поэтому слайд живёт в контейнере со скруглением, а не во всю ширину. */
         <div className="max-w-7xl mx-auto px-4 pt-4 md:pt-6 pb-11">
           <Link
-            key={banner.id}
             to={banner.link ?? "/catalog"}
             className="block overflow-hidden rounded-card animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
+            aria-hidden={!isActive}
+            tabIndex={isActive ? 0 : -1}
           >
             <BannerImage
               banner={banner}
-              priority={current === 0}
+              priority={isActive}
               alt={banner.title}
               className="w-full h-full object-cover"
             />
           </Link>
         </div>
       )}
+    </div>
+  )
+}
 
-      {/* Стрелки. На мобиле скрыты: там они вставали поверх заголовка —
-          для переключения хватает точек. */}
+export default function BannerCarousel() {
+  const [banners, setBanners] = useState<Banner[]>([])
+  const [current, setCurrent] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const [dragX, setDragX] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const dragStateRef = useRef<DragState>({ startX: 0, currentX: 0, startTime: 0, isDragging: false })
+  const trackRef = useRef<HTMLDivElement>(null)
+  const lastDragDistanceRef = useRef(0)
+
+  useEffect(() => {
+    bannersApi
+      .list({ page: 'home', position: 'main_slider' })
+      .then((res) => setBanners(res.data))
+      .catch(() => setBanners([]))
+  }, [])
+
+  // Listen to pointer events on document to catch pointerup outside element
+  useEffect(() => {
+    const handleDocumentPointerMove = (e: PointerEvent): void => {
+      if (!dragStateRef.current.isDragging) return
+      handlePointerMove(e.clientX)
+    }
+
+    const handleDocumentPointerUp = (): void => {
+      if (!dragStateRef.current.isDragging) return
+      handlePointerUp()
+    }
+
+    document.addEventListener('pointermove', handleDocumentPointerMove)
+    document.addEventListener('pointerup', handleDocumentPointerUp)
+    document.addEventListener('pointercancel', handleDocumentPointerUp)
+
+    return () => {
+      document.removeEventListener('pointermove', handleDocumentPointerMove)
+      document.removeEventListener('pointerup', handleDocumentPointerUp)
+      document.removeEventListener('pointercancel', handleDocumentPointerUp)
+    }
+  }, [current, banners.length])
+
+  useEffect(() => {
+    if (isPaused) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % banners.length)
+    }, SLIDE_MS)
+    return () => clearInterval(timer)
+  }, [isPaused, banners.length])
+
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>): void {
+    if (e.pointerType !== 'mouse' && e.pointerType !== 'touch' && e.pointerType !== 'pen') return
+
+    const track = trackRef.current
+    if (!track) return
+
+    track.setPointerCapture(e.pointerId)
+    dragStateRef.current = {
+      startX: e.clientX,
+      currentX: e.clientX,
+      startTime: Date.now(),
+      isDragging: true,
+    }
+    setIsPaused(true)
+    setIsAnimating(false)
+  }
+
+  function handlePointerMove(clientX: number): void {
+    const state = dragStateRef.current
+    if (!state.isDragging) return
+
+    const track = trackRef.current
+    if (!track) return
+
+    state.currentX = clientX
+
+    let dx = state.currentX - state.startX
+    lastDragDistanceRef.current = dx
+
+    // Rubber-banding на границах
+    const isAtStart = current === 0
+    const isAtEnd = current === banners.length - 1
+
+    if ((isAtStart && dx > 0) || (isAtEnd && dx < 0)) {
+      dx *= 0.35
+    }
+
+    setDragX(dx)
+  }
+
+
+  function handlePointerUp(): void {
+    const state = dragStateRef.current
+    if (!state.isDragging) return
+
+    const track = trackRef.current
+    if (!track) {
+      state.isDragging = false
+      return
+    }
+
+    // Захват указателя браузер снимает сам на pointerup/pointercancel.
+    state.isDragging = false
+
+    const trackWidth = track.offsetWidth
+    const dx = state.currentX - state.startX
+    const timeDelta = Date.now() - state.startTime
+    const velocity = timeDelta > 0 ? Math.abs(dx) / timeDelta : 0
+
+    const thresholdPx = trackWidth * DRAG_THRESHOLD
+    let nextIndex = current
+
+    if (Math.abs(dx) > thresholdPx || velocity > VELOCITY_THRESHOLD) {
+      if (dx < 0) {
+        // Свайп влево — следующий слайд
+        nextIndex = (current + 1) % banners.length
+      } else {
+        // Свайп вправо — предыдущий слайд
+        nextIndex = (current - 1 + banners.length) % banners.length
+      }
+    }
+
+    setCurrent(nextIndex)
+    setDragX(0)
+    setIsAnimating(true)
+    setIsPaused(false)
+  }
+
+
+  function handleClickCapture(e: React.MouseEvent): void {
+    if (Math.abs(lastDragDistanceRef.current) > DRAG_THRESHOLD_PX) {
+      e.preventDefault()
+      e.stopPropagation()
+      lastDragDistanceRef.current = 0
+    }
+  }
+
+  function prev(): void {
+    setCurrent((c) => (c - 1 + banners.length) % banners.length)
+    setIsAnimating(true)
+  }
+
+  function next(): void {
+    setCurrent((c) => (c + 1) % banners.length)
+    setIsAnimating(true)
+  }
+
+  if (banners.length === 0) return null
+
+  const theme = THEMES[current % THEMES.length]
+  const dot = banners[current].showText ? theme.dot : THEMES[0].dot
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const translateX = -current * 100 + (dragX / (trackRef.current?.offsetWidth || 1)) * 100
+  const shouldTransition = isAnimating && !dragStateRef.current.isDragging && !prefersReducedMotion
+
+  return (
+    <section
+      id="banners"
+      aria-label="Акции и предложения"
+      className="scroll-mt-24 relative overflow-hidden bg-white"
+      onMouseEnter={() => !dragStateRef.current.isDragging && setIsPaused(true)}
+      onMouseLeave={() => !dragStateRef.current.isDragging && setIsPaused(false)}
+      onFocusCapture={() => setIsPaused(true)}
+      onBlurCapture={() => setIsPaused(false)}
+    >
+      <div className="overflow-hidden">
+        <div
+          ref={trackRef}
+          className="flex cursor-grab active:cursor-grabbing select-none"
+          style={{
+            touchAction: 'pan-y',
+            transform: `translateX(${translateX}%)`,
+            transition: shouldTransition ? 'transform 420ms var(--ease-out)' : 'none',
+          }}
+          onPointerDown={handlePointerDown}
+          onClickCapture={handleClickCapture}
+          aria-roledescription="carousel"
+        >
+          {banners.map((banner, index) => (
+            <Slide
+              key={banner.id}
+              banner={banner}
+              index={index}
+              isActive={index === current}
+              theme={THEMES[index % THEMES.length]}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Стрелки */}
       <button
         type="button"
         onClick={prev}
@@ -189,17 +343,19 @@ export default function BannerCarousel() {
         <ArrowRightIcon className="w-4.5 h-4.5 ico-nudge" />
       </button>
 
-      {/* Точки. Видимый размер прежний, но зона нажатия — 44px по MASTER:
-          сама точка внутри кнопки-обёртки, а не является ею. */}
-      <div className="absolute bottom-0 inset-x-0 flex justify-center">
+      {/* Точки */}
+      <div className="absolute bottom-0 inset-x-0 flex justify-center pointer-events-none">
         {banners.map((b, i) => (
           <button
             type="button"
             key={b.id}
-            onClick={() => setCurrent(i)}
-            className="group w-11 h-11 flex items-center justify-center"
+            onClick={() => {
+              setCurrent(i)
+              setIsAnimating(true)
+            }}
+            className="group w-11 h-11 flex items-center justify-center pointer-events-auto"
             aria-label={`Перейти к баннеру ${i + 1}`}
-            aria-current={i === current}
+            aria-current={i === current ? 'page' : undefined}
           >
             <span
               className={`block h-2 rounded-full transition-[width,background-color] ${
