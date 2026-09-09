@@ -9,9 +9,14 @@ const matchRoute: FastifyPluginAsync = async (app) => {
       return reply.status(400).send({ error: parsed.error.errors[0].message })
     }
 
+    // Гостя не считаем владельцем сессии: иначе сессия привязывается к гостевому
+    // userId, а после входа claim отбивает её как чужую (409). Без userId
+    // сессия остаётся ничьей и после входа забирается claim'ом.
+    const userId = request.user?.type === 'guest' ? undefined : request.user?.userId
+
     try {
       const result = await app.prisma.$transaction(async (tx) => {
-        return runQuizMatch(tx, parsed.data, request.user?.userId)
+        return runQuizMatch(tx, parsed.data, userId)
       })
       return reply.send(result)
     } catch (err) {
