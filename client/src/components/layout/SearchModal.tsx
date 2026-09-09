@@ -11,9 +11,7 @@ const EXIT_MS = 150
 const QUICK_LINKS = [
   { label: 'Корм для кошек', href: '/catalog?category=cats-food' },
   { label: 'Корм для собак', href: '/catalog?category=dogs-food' },
-  { label: 'Наполнители', href: '/catalog?category=cats-litter' },
   { label: 'Лакомства', href: '/catalog?category=treats' },
-  { label: 'Игрушки', href: '/catalog?category=dogs-toys' },
 ]
 
 function pluralize(n: number, one: string, few: string, many: string): string {

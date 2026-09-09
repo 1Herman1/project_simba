@@ -28,6 +28,9 @@ function useIsCurrent() {
 const NAV_CURRENT = 'text-primary bg-blue-50'
 const NAV_IDLE = 'text-navy-700 hover:text-primary-hover hover:bg-blue-50'
 
+// В подменю только то, под чем есть товары: наполнители, игрушки, амуниция и
+// прочие подкатегории в ассортименте отсутствуют, а ссылка в пустой каталог
+// читается как «некликабельное продолжение». Вернуть — когда появится товар.
 const categories = [
   {
     label: 'Кошки',
@@ -37,11 +40,6 @@ const categories = [
       { label: 'Сухой корм', href: '/catalog?category=cats-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=cats-food&format=wet' },
       { label: 'Лечебное питание', href: '/catalog?category=cats-food&purpose=medical' },
-      { label: 'Наполнители', href: '/catalog?category=cats-litter' },
-      { label: 'Игрушки', href: '/catalog?category=cats-toys' },
-      { label: 'Когтеточки', href: '/catalog?category=cats-scratching' },
-      { label: 'Переноски', href: '/catalog?category=cats-carriers' },
-      { label: 'Аксессуары', href: '/catalog?category=cats-accessories' },
     ],
   },
   {
@@ -52,11 +50,7 @@ const categories = [
       { label: 'Сухой корм', href: '/catalog?category=dogs-food&format=dry' },
       { label: 'Влажный корм', href: '/catalog?category=dogs-food&format=wet' },
       { label: 'Лечебное питание', href: '/catalog?category=dogs-food&purpose=medical' },
-      { label: 'Лакомства', href: '/catalog?category=dogs-treats' },
-      { label: 'Игрушки', href: '/catalog?category=dogs-toys' },
-      { label: 'Поводки и ошейники', href: '/catalog?category=dogs-leashes' },
-      { label: 'Одежда', href: '/catalog?category=dogs-clothes' },
-      { label: 'Аксессуары', href: '/catalog?category=dogs-accessories' },
+      { label: 'Лакомства', href: '/catalog?category=treats' },
     ],
   },
   { label: 'Лакомства', key: null, href: '/catalog?category=treats' },
@@ -98,16 +92,16 @@ export default function Header() {
               <span className="text-sm font-medium">{CONTACTS.phone}</span>
             </a>
 
-            {/* Четыре кнопки, зазор 16px на всех. Увеличивается только та, на
+            {/* Четыре кнопки, зазор 20px на всех. Увеличивается только та, на
                 которую навели: волну соседей владелец попросил убрать. */}
-            <div className="header-dock flex items-center gap-4">
+            <div className="header-dock flex items-center gap-5">
               {/* Telegram */}
               <a
                 href={CONTACTS.telegram}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Написать в Telegram"
-                className="btn-press header-icon-link w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
+                className="btn-press header-icon-link w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
               >
                 <span className="icon-swap block w-[22px] h-[22px]">
                   <TelegramIcon className="w-[22px] h-[22px]" />
@@ -124,7 +118,7 @@ export default function Header() {
                 aria-label="Избранное"
                 aria-haspopup="dialog"
                 aria-expanded={drawer === 'favorites'}
-                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
+                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
               >
                 <span className="icon-swap block w-[22px] h-[22px]">
                   <HeartIcon className="w-[22px] h-[22px]" />
@@ -146,7 +140,7 @@ export default function Header() {
                 aria-label="Корзина"
                 aria-haspopup="dialog"
                 aria-expanded={drawer === 'cart'}
-                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500"
+                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
               >
                 <span className="icon-swap block w-[22px] h-[22px]">
                   <CartIcon className="w-[22px] h-[22px]" />
@@ -159,7 +153,7 @@ export default function Header() {
               </button>
 
               {/* Профиль */}
-              <Link to="/profile" aria-label="Профиль" className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-full text-navy-500">
+              <Link to="/profile" aria-label="Профиль" className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500">
                 <span className="icon-swap block w-[22px] h-[22px]">
                   <UserIcon className="w-[22px] h-[22px]" />
                 </span>

@@ -40,7 +40,10 @@ export default function BlogPostPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10 md:py-14">
+    <div className="py-10 md:py-14">
+      {/* Текст статьи держит читаемую ширину; «Читайте также» и CTA ниже
+          выходят на общую ширину сетки, как «Рекомендуем» в каталоге. */}
+      <div className="max-w-3xl mx-auto px-4">
       {/* Разметка для поисковика: без картинки и автора-человека — их у нас нет,
           а выдумывать поля в разметке хуже, чем их не иметь. */}
       <script
@@ -102,7 +105,9 @@ export default function BlogPostPage() {
       >
         {post.body && post.body()}
       </article>
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4">
       {/* Читайте также */}
       {relatedPosts.length > 0 && (
         <section className="mb-12">
@@ -160,6 +165,7 @@ export default function BlogPostPage() {
         >
           Подобрать за минуту
         </Link>
+      </div>
       </div>
     </div>
   )

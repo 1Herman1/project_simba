@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { brandsApi, categoriesApi } from '../lib/api'
 import CatalogSearch from '../components/catalog/CatalogSearch'
-import CatalogTags, { catalogTagLabel } from '../components/catalog/CatalogTags'
+import CatalogTags, { CATALOG_TAGS, catalogTagLabel, tagFitsSpecies } from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
 
@@ -22,6 +22,13 @@ export default function CatalogPage() {
   // useState внутри SortSelect и никуда оттуда не попадала — контрол переключался,
   // а выдача не менялась.
   const sort = searchParams.get('sort') || 'popular'
+
+  // Чип другого вида в URL (например, «Для щенков» в кошачьем каталоге) даёт
+  // пустую выдачу — сбрасываем его, а не показываем «ничего не найдено».
+  useEffect(() => {
+    const tag = CATALOG_TAGS.find(t => t.id === activeTag)
+    if (tag && !tagFitsSpecies(tag, species)) setActiveTag('')
+  }, [activeTag, species])
 
   useEffect(() => {
     const params: Record<string, string> = {}
@@ -53,7 +60,7 @@ export default function CatalogPage() {
       <div className="bg-white border-b border-blue-100 sticky top-[73px] z-30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
-          <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} />
+          <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} species={species} />
         </div>
       </div>
 

@@ -232,10 +232,10 @@
      — кругом в фирменный тон, — и одновременно контур перекрашивается в тот же
      цвет. Приём одинаков для всех четырёх. */
   .header-icon-link {
-    transition: color 100ms ease, background-color 100ms ease;
+    transition: color 160ms ease, background-color 160ms ease;
   }
   .icon-swap {
-    transition: transform 90ms var(--ease-out);
+    transition: transform 180ms var(--ease-out);
     transform-origin: bottom center;
   }
 
@@ -244,7 +244,7 @@
       color: theme('colors.primary.DEFAULT');
       background-color: theme('colors.primary.tint');
     }
-    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.18); }
+    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.12); }
   }
 
 

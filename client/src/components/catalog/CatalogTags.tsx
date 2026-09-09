@@ -2,11 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 
-export const CATALOG_TAGS = [
+export type CatalogTagSpecies = 'cat' | 'dog'
+
+/* species — чип имеет смысл только для этого вида: «Для щенков» в кошачьем
+   каталоге давал пустую выдачу, потому что вид и возраст складываются через И. */
+export const CATALOG_TAGS: Array<{ id: string; label: string; species?: CatalogTagSpecies }> = [
   { id: 'kidney', label: 'При болезнях почек' },
   { id: 'allergy', label: 'Без аллергенов' },
-  { id: 'kitten', label: 'Для котят' },
-  { id: 'puppy', label: 'Для щенков' },
+  { id: 'kitten', label: 'Для котят', species: 'cat' },
+  { id: 'puppy', label: 'Для щенков', species: 'dog' },
   { id: 'weight', label: 'Контроль веса' },
   { id: 'urinary', label: 'Мочекаменная' },
   { id: 'digestion', label: 'Пищеварение' },
@@ -18,6 +22,12 @@ export const CATALOG_TAGS = [
 interface Props {
   activeTag: string
   onTagClick: (tag: string) => void
+  /** Текущий вид в каталоге; чипы другого вида скрываются. */
+  species?: string
+}
+
+export function tagFitsSpecies(tag: { species?: CatalogTagSpecies }, species?: string): boolean {
+  return !tag.species || !species || tag.species === species
 }
 
 /** Ширина растушёвки у края: чуть больше кнопки (36px), чтобы она целиком стояла
@@ -47,7 +57,8 @@ function maskFor(left: boolean, right: boolean): string | undefined {
  *  Показываются только при мыши: именно мышиные пользователи не могут прокрутить
  *  ряд. На тач-экране свайп естественен, и стрелки там лишь закрывали бы чипы.
  */
-export default function CatalogTags({ activeTag, onTagClick }: Props) {
+export default function CatalogTags({ activeTag, onTagClick, species }: Props) {
+  const visibleTags = CATALOG_TAGS.filter(tag => tagFitsSpecies(tag, species))
   const trackRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
@@ -133,7 +144,7 @@ export default function CatalogTags({ activeTag, onTagClick }: Props) {
         // overflow-y: auto, иначе обводка обрезалась бы сверху.
         className="flex gap-2 -mx-1 px-1 py-1 overflow-x-auto scrollbar-hide"
       >
-        {CATALOG_TAGS.map(tag => (
+        {visibleTags.map(tag => (
           <button
             key={tag.id}
             type="button"
