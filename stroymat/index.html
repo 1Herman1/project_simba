@@ -117,6 +117,11 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 
 .feature{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
 @media (max-width:860px){ .feature{grid-template-columns:1fr;gap:32px} }
+.feature-end .shot{aspect-ratio:3/2}
+@media (min-width:861px){
+  .feature-end{grid-template-columns:1fr 1.1fr}
+  .feature-end .item-body{order:-1}
+}
 .feature + .grid, .grid + .feature{margin-top:96px}
 @media (min-width:900px){ .feature + .grid, .grid + .feature{margin-top:128px} }
 
@@ -243,12 +248,12 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
   </div>
   <div class="shell hero-in">
     <p class="eyebrow reveal">Обновление ассортимента · Сентябрь 2026</p>
-    <h1 class="reveal">Восемь новых позиций в поставке</h1>
-    <p class="hero-lead reveal">Листовые материалы, теплоизоляция и изоляционные плёнки. Отгружаем со склада, а объём везём транзитом с завода прямо на объект — без перевалки.</p>
+    <h1 class="reveal">Расширили ассортимент</h1>
+    <p class="hero-lead reveal">Теперь закрываем больше ваших потребностей по древесным плитам, стройматериалам и утеплению.</p>
     <ul class="hero-facts reveal">
       <li><b>8</b><span>новых позиций</span></li>
       <li><b>2</b><span>схемы поставки</span></li>
-      <li><b>9</b><span>заводов и брендов</span></li>
+      <li><b>9</b><span>брендов</span></li>
     </ul>
   </div>
 </section>
@@ -258,7 +263,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
     <div class="section-head reveal">
       <p class="eyebrow">Что появилось</p>
       <h2>Форматы и толщины</h2>
-      <p>Ниже — только то, что добавилось к ассортименту. Размеры указаны в миллиметрах, толщины уточняются под задачу при запросе прайса.</p>
+      <p>Размеры в миллиметрах.</p>
     </div>
 
     <article class="item feature reveal">
@@ -268,10 +273,10 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
       <div class="item-body">
         <span class="num">01</span>
         <h3>ОСП</h3>
-        <p class="item-note">Ориентированно-стружечная плита в базовом формате. Держим в наличии и возим объём напрямую с завода.</p>
+        <p class="item-note">Поставка со склада и напрямую с завода на объект.</p>
         <dl class="specs">
           <div><dt>Формат</dt><dd>1250 × 2500</dd></div>
-          <div><dt>Толщины</dt><dd>все</dd></div>
+          <div><dt>Толщины</dt><dd>все основные</dd></div>
         </dl>
         <ul class="tags">
           <li class="tag tag-stock">Со склада</li>
@@ -301,7 +306,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
         <span class="num">03</span>
         <h3>ЦСП <span aria-hidden="true">·</span> крупный формат</h3>
         <dl class="specs">
-          <div><dt>Форматы</dt><dd>1250 × 3200<br>2700 × 1250</dd></div>
+          <div><dt>Форматы</dt><dd>1250 × 3200<br>1250 × 2700</dd></div>
           <div><dt>Толщины</dt><dd>все</dd></div>
         </dl>
       </article>
@@ -314,7 +319,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
         <h3>ДВП <span aria-hidden="true">·</span> оргалит</h3>
         <dl class="specs">
           <div><dt>Форматы</dt><dd>1220 × 2140<br>1220 × 2440</dd></div>
-          <div><dt>Толщины</dt><dd>2,5 и 3,2</dd></div>
+          <div><dt>Толщины</dt><dd>2,5 / 3,2</dd></div>
         </dl>
       </article>
 
@@ -325,7 +330,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
         <span class="num">05</span>
         <h3>Утеплители</h3>
         <dl class="specs">
-          <div><dt>Бренды</dt><dd>ROCKWOOL, Пеноплэкс, Изорок, Изовол</dd></div>
+          <div><dt>Бренды</dt><dd>ROCKWOOL, Пеноплекс, Изорок, Изовол</dd></div>
           <div><dt>Плотности</dt><dd>все</dd></div>
           <div><dt>Толщины</dt><dd>все</dd></div>
         </dl>
@@ -358,14 +363,13 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 
     </div>
 
-    <article class="item feature reveal">
+    <article class="item feature feature-end reveal">
       <div class="shot">
         <img src="assets/plywood.jpg" alt="Торец фанеры крупным планом: видны склеенные слои шпона" loading="lazy">
       </div>
       <div class="item-body">
         <span class="num">08</span>
         <h3>Фанера</h3>
-        <p class="item-note">Влагостойкая, ламинированная и общего назначения — марку подбираем под задачу: опалубка, полы, мебельный раскрой.</p>
         <dl class="specs">
           <div><dt>Марки</dt><dd>ФСФ, ФК, ламинированная</dd></div>
         </dl>
@@ -380,18 +384,18 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
     <div class="section-head reveal">
       <p class="eyebrow">Логистика</p>
       <h2>Как поставляем</h2>
-      <p>Две схемы под разные задачи. На запрос прайса сразу говорим, какая из них по вашей позиции и объёму быстрее.</p>
+      <p>Собираем комплексную поставку сразу по нескольким позициям — со склада или напрямую с завода.</p>
     </div>
     <div class="supply-grid">
       <div class="way way-stock reveal">
         <hr class="way-rule">
         <h3>Со склада</h3>
-        <p>Позиция лежит в наличии. Подходит, когда объём небольшой или нужно добрать материал на текущий этап работ.</p>
+        <p>Позиция в наличии, отгружаем со склада.</p>
       </div>
       <div class="way way-transit reveal">
         <hr class="way-rule">
         <h3>Транзит с завода на объект</h3>
-        <p>Машина идёт с производства напрямую на вашу площадку, без перевалки через склад. Подходит для объёма.</p>
+        <p>Везём с производства сразу на вашу площадку.</p>
       </div>
     </div>
   </div>
@@ -400,8 +404,8 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 <section class="cta dark" id="price">
   <div class="shell">
     <p class="eyebrow reveal">Запрос</p>
-    <h2 class="reveal">Пришлём прайс по вашим позициям</h2>
-    <p class="reveal">Напишите форматы, толщины и объём — вернёмся с ценой, наличием и сроком по каждой строке.</p>
+    <h2 class="reveal">Прайс по вашим позициям</h2>
+    <p class="reveal">Напишите форматы, толщины и объём.</p>
     <div class="actions reveal">
       <a class="btn btn-primary" href="mailto:bgr@pilatop.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D1%80%D0%B0%D0%B9%D1%81%D0%B0%20%D0%BF%D0%BE%20%D0%BD%D0%BE%D0%B2%D1%8B%D0%BC%20%D0%BF%D0%BE%D0%B7%D0%B8%D1%86%D0%B8%D1%8F%D0%BC">Запросить прайс</a>
       <a class="btn btn-ghost" href="tel:+79672172346">+7 (967) 217-23-46</a>
@@ -451,6 +455,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
     if (el.getBoundingClientRect().top < window.innerHeight) { el.classList.add('in'); return; }
     io.observe(el);
   });
+  setTimeout(function(){ items.forEach(function(el){ el.classList.add('in'); }); }, 2500);
 })();
 </script>
 
