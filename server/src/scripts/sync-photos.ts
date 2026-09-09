@@ -24,9 +24,11 @@ const limit = limitArg !== -1 ? Number(process.argv[limitArg + 1]) : undefined
 const MAX_IMAGES_PER_PRODUCT = 4
 
 async function main() {
+  // Скрипт ходит в деплой-шаге: отсутствие токена — предупреждение, а не
+  // падение выкатки. Фото просто подъедут, когда токен появится.
   if (!process.env.MOYSKLAD_TOKEN) {
-    console.error('Не задана переменная MOYSKLAD_TOKEN — без неё МойСклад не ответит.')
-    process.exit(1)
+    console.warn('MOYSKLAD_TOKEN не задан — фотографии пропущены, остальное деплою не мешает.')
+    process.exit(0)
   }
 
   if (apply) {

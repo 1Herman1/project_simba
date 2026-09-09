@@ -69,6 +69,9 @@ jobs:
             (cd server && npx tsx src/scripts/backfill-banners.ts --apply)
             (cd server && npx tsx src/scripts/backfill-species.ts --apply --only-unknown)
 
+            echo "==> Product photos from МойСклад: full pass in the background (log: sync-photos.log)"
+            (cd server && setsid nohup npx tsx src/scripts/sync-photos.ts --apply > /var/www/simba-src/sync-photos.log 2>&1 < /dev/null &)
+
             pm2 reload simba-server --update-env
 
             echo "==> Deploying static files"
