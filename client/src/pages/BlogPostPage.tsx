@@ -110,7 +110,7 @@ export default function BlogPostPage() {
       <div className="max-w-7xl mx-auto px-4">
       {/* Читайте также */}
       {relatedPosts.length > 0 && (
-        <section className="mb-12">
+        <section className="mb-12 border-t border-line pt-10">
           <h2 className="text-2xl font-bold text-navy-900 mb-6">Читайте также</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {relatedPosts.map((relatedPost) => (
@@ -123,7 +123,7 @@ export default function BlogPostPage() {
                 {relatedPost.cover ? (
                   <img src={relatedPost.cover} alt={relatedPost.title} className="w-full aspect-[16/10] object-cover" />
                 ) : (
-                  <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
+                  <div className="w-full aspect-[21/9] bg-primary-tint flex items-center justify-center text-primary-soft">
                     <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
@@ -157,8 +157,8 @@ export default function BlogPostPage() {
       )}
 
       {/* CTA */}
-      <div className="mt-10 pt-6 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between sm:gap-4 gap-3">
-        <p className="text-navy-500">Не знаете, какой корм подойдёт питомцу — </p>
+      <div className="max-w-3xl mx-auto mt-10 pt-6 border-t border-line flex flex-col sm:flex-row sm:items-center sm:justify-between sm:gap-4 gap-3">
+        <p className="text-navy-500">Не знаете, какой корм подойдёт питомцу?</p>
         <Link
           to="/questionnaire"
           className="btn-primary rounded-xl px-6 font-bold w-full sm:w-auto whitespace-nowrap"

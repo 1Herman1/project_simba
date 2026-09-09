@@ -73,7 +73,10 @@ export default function Header() {
   return (
     <header className={`sticky top-0 z-40 transition-[background-color,box-shadow] duration-200 ease-smooth ${isScrolled ? 'bg-white/95 supports-[backdrop-filter]:bg-white/80 backdrop-blur-md shadow-md' : 'bg-white shadow-sm'}`}>
       {/* Десктоп шапка */}
-      <div className="hidden md:block">
+      {/* Уход мыши ловим на обёртке, а не на нав-строке: панель мегаменю —
+          её сосед, и с onMouseLeave на строке курсор, опущенный на пункты,
+          закрывал меню раньше, чем до них доходил. */}
+      <div className="hidden md:block" onMouseLeave={() => setActiveCategory(null)}>
         {/* Строка 1 */}
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
           {/* Логотип */}
@@ -85,7 +88,7 @@ export default function Header() {
           <HeaderSearch open={searchOpen} onOpen={() => setSearchOpen(true)} />
 
           {/* Иконки справа */}
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-5 flex-shrink-0 ml-auto">
             {/* Телефон */}
             <a href={CONTACTS.phoneHref} className="btn-press flex items-center gap-1.5 text-navy-700 hover:text-primary-hover" aria-label="Позвонить">
               <PhoneIcon className="w-[18px] h-[18px]" />
@@ -165,7 +168,6 @@ export default function Header() {
         {/* Строка 2 — навигация с мегаменю */}
         <div
           className={`grid transition-[grid-template-rows,opacity] duration-200 ease-smooth ${isScrolled ? 'grid-rows-[0fr] opacity-0 pointer-events-none' : 'grid-rows-[1fr] opacity-100'} border-t border-line relative`}
-          onMouseLeave={() => setActiveCategory(null)}
         >
           <div className="overflow-hidden">
             <nav className="max-w-7xl mx-auto px-4">
@@ -194,14 +196,14 @@ export default function Header() {
         {activeCategory && (
           <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line rounded-b-card overflow-hidden animate-slide-down z-50">
             <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="grid grid-cols-4 gap-4">
+              <div className="flex flex-wrap gap-x-2 gap-y-1">
                 {categories
                   .find((c) => c.key === activeCategory)
                   ?.subcategories?.map((sub) => (
                     <Link
                       key={sub.label}
                       to={sub.href}
-                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover transition-colors duration-100 ease-smooth text-sm"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover transition-colors duration-100 ease-smooth text-sm"
                       onClick={() => setActiveCategory(null)}
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-200 flex-shrink-0" />
