@@ -18,14 +18,51 @@ jobs:
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          SVC_CDEK_CLIENT_ID: ${{ secrets.CDEK_CLIENT_ID }}
+          SVC_CDEK_CLIENT_SECRET: ${{ secrets.CDEK_CLIENT_SECRET }}
+          SVC_YANDEX_DELIVERY_TOKEN: ${{ secrets.YANDEX_DELIVERY_TOKEN }}
+          SVC_YANDEX_PVZ_SOURCE_STATION: ${{ secrets.YANDEX_PVZ_SOURCE_STATION }}
+          SVC_DADATA_TOKEN: ${{ secrets.DADATA_TOKEN }}
+          SVC_OZON_CLIENT_ID: ${{ secrets.OZON_CLIENT_ID }}
+          SVC_OZON_API_KEY: ${{ secrets.OZON_API_KEY }}
+          SVC_MOYSKLAD_TOKEN: ${{ secrets.MOYSKLAD_TOKEN }}
         with:
           host: ${{ secrets.SIMBA_DEPLOY_HOST }}
           username: ${{ secrets.SIMBA_DEPLOY_USER }}
           key: ${{ secrets.SIMBA_DEPLOY_SSH_KEY }}
           command_timeout: 15m
+          # Ключи служб живут в секретах GitHub и переносятся в server/.env на
+          # сервере этим же шагом (см. "Syncing service keys" ниже). Значения в
+          # лог не попадают — только «задан/пусто».
+          envs: SVC_CDEK_CLIENT_ID,SVC_CDEK_CLIENT_SECRET,SVC_YANDEX_DELIVERY_TOKEN,SVC_YANDEX_PVZ_SOURCE_STATION,SVC_DADATA_TOKEN,SVC_OZON_CLIENT_ID,SVC_OZON_API_KEY,SVC_MOYSKLAD_TOKEN
           script: |
             set -euo pipefail
             cd /var/www/simba-src
+
+            echo "==> Syncing service keys from GitHub secrets into server/.env"
+            touch server/.env
+            upsert_env() {
+              local key="$1" value="$2"
+              if [ -z "$value" ]; then echo "   $key: empty in secrets, left as is"; return; fi
+              local escaped
+              escaped=$(printf '%s' "$value" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g')
+              if grep -q "^${key}=" server/.env; then
+                sed -i "s|^${key}=.*|${key}=\"${escaped}\"|" server/.env
+              else
+                printf '%s="%s"\n' "$key" "$escaped" >> server/.env
+              fi
+              echo "   $key: set"
+            }
+            upsert_env CDEK_CLIENT_ID "$SVC_CDEK_CLIENT_ID"
+            upsert_env CDEK_CLIENT_SECRET "$SVC_CDEK_CLIENT_SECRET"
+            if [ -n "$SVC_CDEK_CLIENT_ID" ]; then upsert_env CDEK_SANDBOX "false"; fi
+            upsert_env YANDEX_DELIVERY_TOKEN "$SVC_YANDEX_DELIVERY_TOKEN"
+            upsert_env YANDEX_PVZ_SOURCE_STATION "$SVC_YANDEX_PVZ_SOURCE_STATION"
+            upsert_env DADATA_TOKEN "$SVC_DADATA_TOKEN"
+            upsert_env OZON_CLIENT_ID "$SVC_OZON_CLIENT_ID"
+            upsert_env OZON_API_KEY "$SVC_OZON_API_KEY"
+            upsert_env MOYSKLAD_TOKEN "$SVC_MOYSKLAD_TOKEN"
 
             echo "==> Fetching deploy/simba"
             git fetch origin deploy/simba
