@@ -451,7 +451,10 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
       io.unobserve(el);
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: 0.1 });
-  items.forEach(function(el){ io.observe(el); });
+  items.forEach(function(el){
+    if (el.getBoundingClientRect().top < window.innerHeight) { el.classList.add('in'); return; }
+    io.observe(el);
+  });
 })();
 </script>
 
