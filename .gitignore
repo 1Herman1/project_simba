@@ -25,3 +25,6 @@ hb-landing/.astro/
 
 # Смещения архиватора сессий — служебное состояние, у каждой машины своё
 .claude/.archive-state/
+
+# Промежуточный билд для публикации ссылкой — генерируется stroymat/build.py
+stroymat/artifact.html

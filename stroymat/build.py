@@ -32,3 +32,15 @@ src = re.sub(r'src="assets/([^"]+)"', inline, src)
 out = here / "obnovlenie-assortimenta.html"
 out.write_text(src, encoding="utf-8")
 print(f"{out.name}: {len(src.encode()) / 1024 / 1024:.2f} MB")
+
+# Вариант для публикации ссылкой: хостинг оборачивает контент в свой каркас,
+# поэтому собственные doctype/html/head/body из файла убираются.
+frag = src
+for tag in ("<!doctype html>", '<html lang="ru">', "<head>", "</head>",
+            "<body>", "</body>", "</html>",
+            '<meta charset="utf-8">',
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'):
+    frag = frag.replace(tag, "")
+frag = "\n".join(line for line in frag.splitlines() if line.strip())
+(here / "artifact.html").write_text(frag, encoding="utf-8")
+print(f"artifact.html: {len(frag.encode()) / 1024 / 1024:.2f} MB")
