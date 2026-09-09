@@ -66,6 +66,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .wordmark{
   font-family:var(--display);font-weight:800;font-size:1.0625rem;letter-spacing:.02em;
   color:var(--dark-fg);text-decoration:none;
+  display:inline-flex;align-items:center;min-height:44px;
 }
 .top-phone{
   font-family:var(--display);font-weight:600;font-size:1rem;color:var(--dark-fg);
@@ -87,21 +88,22 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .hero-media img{width:100%;height:100%;object-fit:cover;opacity:.5}
 .hero-media::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(16,18,21,.86) 0%,rgba(16,18,21,.55) 42%,rgba(16,18,21,.95) 100%);
+  background:linear-gradient(180deg,rgba(16,18,21,.88) 0%,rgba(16,18,21,.74) 45%,rgba(16,18,21,.96) 100%);
 }
 .hero-in{position:relative;z-index:2}
 .hero h1{
   font-size:clamp(2.6rem,7vw,5.75rem);font-weight:700;line-height:1.02;letter-spacing:-.03em;
-  margin:20px 0 0;max-width:16ch;
+  margin:24px 0 0;max-width:16ch;
 }
 .hero-lead{
-  margin:28px 0 0;max-width:52ch;font-size:clamp(1.05rem,1.6vw,1.25rem);line-height:1.6;
+  margin:32px 0 0;max-width:52ch;font-size:clamp(1.05rem,1.6vw,1.25rem);line-height:1.6;
   color:var(--dark-fg-muted);
 }
 .hero-facts{
   display:flex;flex-wrap:wrap;gap:12px 48px;margin:48px 0 0;padding:0;list-style:none;
-  border-top:1px solid var(--dark-line);padding-top:28px;
+  border-top:1px solid var(--dark-line);padding-top:32px;
 }
+@media (max-width:520px){ .hero-facts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px} }
 .hero-facts b{
   display:block;font-family:var(--display);font-size:1.75rem;font-weight:700;
   letter-spacing:-.02em;font-variant-numeric:tabular-nums;
@@ -116,11 +118,11 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
   font-size:clamp(1.9rem,4vw,3rem);font-weight:700;line-height:1.1;letter-spacing:-.02em;
   margin:16px 0 0;
 }
-.section-head p{margin:20px 0 0;color:var(--fg-muted);max-width:58ch}
+.section-head p:not(.eyebrow){margin:24px 0 0;color:var(--fg-muted);max-width:58ch}
 
 /* ---------- позиции ---------- */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:72px 48px}
-@media (max-width:860px){ .grid{grid-template-columns:1fr;gap:64px} }
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:64px 48px}
+@media (max-width:700px){ .grid{grid-template-columns:1fr;gap:64px} }
 
 .feature{display:grid;grid-template-columns:1.1fr 1fr;gap:64px;align-items:center}
 @media (max-width:860px){ .feature{grid-template-columns:1fr;gap:32px} }
@@ -134,14 +136,14 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .feature .shot{aspect-ratio:16/11}
 .shot img{
   width:100%;height:100%;object-fit:cover;
-  transition:transform .5s var(--ease);
 }
-.item:hover .shot img{transform:scale(1.03)}
 
 .item h3{
   font-size:clamp(1.35rem,2.2vw,1.75rem);font-weight:600;line-height:1.2;letter-spacing:-.015em;
   margin:24px 0 0;
 }
+.grid .item .num{display:block;margin-top:24px}
+.grid .item h3{margin-top:6px}
 .feature .item-body h3{margin-top:16px;font-size:clamp(1.6rem,3vw,2.25rem);font-weight:700}
 .item-note{margin:12px 0 0;color:var(--fg-muted);max-width:46ch}
 
@@ -170,10 +172,12 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .supply-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:64px}
 @media (max-width:860px){ .supply-grid{grid-template-columns:1fr;gap:48px} }
 .way h3{
-  font-size:1.5rem;font-weight:600;letter-spacing:-.015em;margin:20px 0 0;
+  font-size:1.5rem;font-weight:600;letter-spacing:-.015em;margin:24px 0 0;
 }
 .way p{margin:16px 0 0;color:var(--fg-muted);max-width:44ch}
 .way-rule{width:56px;height:2px;background:var(--accent);border:0;margin:0}
+.way-stock .way-rule{background:var(--stock)}
+.way-transit .way-rule{background:var(--transit)}
 
 /* ---------- CTA ---------- */
 .cta{background:var(--dark);color:var(--dark-fg);padding-block:96px}
@@ -199,7 +203,7 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
 .foot{background:var(--dark);color:var(--dark-fg-muted);padding-block:0 96px;font-size:.9375rem}
 .foot-in{border-top:1px solid var(--dark-line);padding-top:48px;display:grid;gap:32px}
 @media (min-width:860px){ .foot-in{grid-template-columns:1fr auto;align-items:end} }
-.foot a{color:var(--dark-fg);text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
+.foot a:not(.btn){color:var(--dark-fg);text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
 .foot a:hover{color:var(--dark-accent)}
 .foot-links{display:flex;flex-wrap:wrap;gap:8px 32px;margin:8px 0 0;padding:0;list-style:none;font-variant-numeric:tabular-nums}
 .foot-note{margin:24px 0 0;font-size:.8125rem;color:var(--dark-fg-muted);max-width:52ch}
@@ -221,7 +225,6 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
   html{scroll-behavior:auto}
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
   .js .reveal{opacity:1;transform:none}
-  .item:hover .shot img{transform:none}
 }
 </style>
 
@@ -385,12 +388,12 @@ h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
       <p>Две схемы под разные задачи. На запрос прайса сразу говорим, какая из них по вашей позиции и объёму быстрее.</p>
     </div>
     <div class="supply-grid">
-      <div class="way reveal">
+      <div class="way way-stock reveal">
         <hr class="way-rule">
         <h3>Со склада</h3>
         <p>Позиция лежит в наличии. Подходит, когда объём небольшой или нужно добрать материал на текущий этап работ.</p>
       </div>
-      <div class="way reveal">
+      <div class="way way-transit reveal">
         <hr class="way-rule">
         <h3>Транзит с завода на объект</h3>
         <p>Машина идёт с производства напрямую на вашу площадку, без перевалки через склад. Подходит для объёма.</p>
