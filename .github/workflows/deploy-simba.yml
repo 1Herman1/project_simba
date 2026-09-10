@@ -106,6 +106,8 @@ jobs:
             (cd server && npx tsx src/scripts/backfill-banners.ts --apply)
             (cd server && npx tsx src/scripts/backfill-species.ts --apply --only-unknown)
 
+            echo "==> МойСклад token probe (statuses only, no values)"
+            (cd server && npx tsx src/scripts/moysklad-probe.ts || true)
             echo "==> Product photos from МойСклад: quick probe (dry run, 3 products) so the outcome is visible here"
             (cd server && npx tsx src/scripts/sync-photos.ts --limit 3 || true)
             echo "==> Product photos from МойСклад: full pass in the background (log: sync-photos.log)"
