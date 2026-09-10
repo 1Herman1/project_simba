@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import BannerCarousel from '../components/home/BannerCarousel'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
-import CategoryAccordion from '../components/home/CategoryAccordion'
+import CategoryTiles from '../components/home/CategoryTiles'
 import AdvantagesSection from '../components/home/AdvantagesSection'
 import PopularProducts from '../components/PopularProducts'
 import BrandsSection from '../components/home/BrandsSection'
@@ -36,7 +36,7 @@ export default function HomePage() {
       <BannerCarousel />
       {/* Секция квиза теперь имеет свой useReveal и наблюдатель — не оборачиваем */}
       <QuestionnaireTeaser />
-      <Reveal><CategoryAccordion /></Reveal>
+      <Reveal><CategoryTiles /></Reveal>
       <Reveal><AdvantagesSection /></Reveal>
       <PopularProducts variant="home" />
       {/* Без <Reveal>: у секции собственный каскад .reveal-group */}
