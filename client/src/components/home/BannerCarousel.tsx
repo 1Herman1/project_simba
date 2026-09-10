@@ -77,16 +77,28 @@ interface SlideProps {
   index: number
   isActive: boolean
   theme: typeof THEMES[0]
+  onNavigate?: (index: number) => void
+  isDragging?: boolean
 }
 
-function Slide({ banner, index, isActive, theme }: SlideProps) {
+function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: SlideProps) {
   return (
-    <div className="w-full shrink-0">
+    <div
+      className="carousel-slide w-[92%] md:w-[86%] shrink-0"
+      role="presentation"
+      aria-hidden={!isActive}
+      onClick={() => !isActive && onNavigate?.(index)}
+      style={{
+        opacity: isActive ? 1 : 0.55,
+        transform: isActive ? 'scale(1)' : 'scale(0.97)',
+        transition: isDragging ? 'none' : 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)',
+        cursor: !isActive ? 'pointer' : 'default',
+      }}
+    >
       {banner.showText ? (
-        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center`}>
+        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center rounded-card`}>
           <div
             className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
-            aria-hidden={!isActive}
             tabIndex={isActive ? 0 : -1}
           >
             <div className="max-w-lg pt-4 pb-10 md:py-6">
@@ -115,21 +127,23 @@ function Slide({ banner, index, isActive, theme }: SlideProps) {
           </div>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto px-4 pt-4 md:pt-6 pb-11">
-          <Link
-            to={banner.link ?? "/catalog"}
-            className="block overflow-hidden rounded-card animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
-            aria-hidden={!isActive}
-            tabIndex={isActive ? 0 : -1}
-          >
-            <BannerImage
-              banner={banner}
-              priority={isActive}
-              alt={banner.title}
-              className="w-full h-full object-cover"
-            />
-          </Link>
-        </div>
+        <Link
+          to={banner.link ?? "/catalog"}
+          className="block overflow-hidden rounded-card animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
+          tabIndex={isActive ? 0 : -1}
+          onClick={(e) => {
+            if (!isActive) {
+              e.preventDefault()
+            }
+          }}
+        >
+          <BannerImage
+            banner={banner}
+            priority={isActive}
+            alt={banner.title}
+            className="w-full h-full object-cover"
+          />
+        </Link>
       )}
     </div>
   )
@@ -141,6 +155,7 @@ export default function BannerCarousel() {
   const [isPaused, setIsPaused] = useState(false)
   const [dragX, setDragX] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [containerWidth, setContainerWidth] = useState(0)
   const dragStateRef = useRef<DragState>({ startX: 0, currentX: 0, startTime: 0, isDragging: false })
   const trackRef = useRef<HTMLDivElement>(null)
   const lastDragDistanceRef = useRef(0)
@@ -150,6 +165,22 @@ export default function BannerCarousel() {
       .list({ page: 'home', position: 'main_slider' })
       .then((res) => setBanners(res.data))
       .catch(() => setBanners([]))
+  }, [])
+
+  // Measure container width and track changes with ResizeObserver
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track?.parentElement) return
+
+    const container = track.parentElement
+    setContainerWidth(container.offsetWidth)
+
+    const resizeObserver = new ResizeObserver(() => {
+      setContainerWidth(container.offsetWidth)
+    })
+    resizeObserver.observe(container)
+
+    return () => resizeObserver.disconnect()
   }, [])
 
   // Listen to pointer events on document to catch pointerup outside element
@@ -287,7 +318,22 @@ export default function BannerCarousel() {
   const dot = banners[current].showText ? theme.dot : THEMES[0].dot
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const translateX = -current * 100 + (dragX / (trackRef.current?.offsetWidth || 1)) * 100
+
+  // Peek mode calculation: active slide centered with neighbors visible at 7% (desktop) or 4% (mobile)
+  const isMobile = window.innerWidth < 768
+  const peekPercent = isMobile ? 4 : 7
+  // Ширина слайда = 100% минус два поля выглядывания, иначе поля неравные.
+  const slideWidthPercent = 100 - peekPercent * 2
+  const gapPx = 16 // gap-4 in Tailwind
+
+  // Use measured containerWidth from state, fallback to window width if not measured yet
+  const effectiveContainerW = containerWidth || window.innerWidth
+  const slideWidthPx = (slideWidthPercent / 100) * effectiveContainerW
+  const peekPx = (peekPercent / 100) * effectiveContainerW
+
+  // Position calculation: slide i should have its left edge at peekPx from container left
+  const slidePositionPx = current * (slideWidthPx + gapPx) - peekPx + dragX
+
   const shouldTransition = isAnimating && !dragStateRef.current.isDragging && !prefersReducedMotion
 
   return (
@@ -303,11 +349,13 @@ export default function BannerCarousel() {
       <div className="overflow-hidden">
         <div
           ref={trackRef}
-          className="flex cursor-grab active:cursor-grabbing select-none"
+          className="flex cursor-grab active:cursor-grabbing select-none gap-4"
           style={{
             touchAction: 'pan-y',
-            transform: `translateX(${translateX}%)`,
-            transition: shouldTransition ? 'transform 420ms var(--ease-out)' : 'none',
+            // В пикселях, не в процентах: для первого слайда смещение отрицательное,
+            // и `-${-7}%` давал невалидный `--7%` — трансформ молча отбрасывался.
+            transform: `translateX(${-slidePositionPx}px)`,
+            transition: shouldTransition ? 'transform 300ms var(--ease-out)' : 'none',
           }}
           onPointerDown={handlePointerDown}
           onClickCapture={handleClickCapture}
@@ -319,7 +367,12 @@ export default function BannerCarousel() {
               banner={banner}
               index={index}
               isActive={index === current}
+              isDragging={dragStateRef.current.isDragging}
               theme={THEMES[index % THEMES.length]}
+              onNavigate={(newIndex) => {
+                setCurrent(newIndex)
+                setIsAnimating(true)
+              }}
             />
           ))}
         </div>
