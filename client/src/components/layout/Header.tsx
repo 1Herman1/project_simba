@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { CONTACTS } from '../../lib/contacts'
-import { HeartIcon, CartIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
+import { HeartIcon, CartTrolleyIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
 import SearchModal from './SearchModal'
 
 const categories = [
@@ -49,7 +49,7 @@ export default function Header() {
       {/* Десктоп шапка — пилюля */}
       <div className="hidden md:block px-4" onMouseLeave={() => setActiveCategory(null)}>
         {/* Пилюля */}
-        <div className="max-w-7xl mx-auto rounded-full px-8 h-16 flex items-center justify-between bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md drop-shadow-sm">
+        <div className="relative max-w-7xl mx-auto rounded-full px-8 h-16 flex items-center justify-between bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md drop-shadow-sm">
           {/* Слева — навигация */}
           <nav className="flex items-center gap-4 lg:gap-6">
             {categories.map((cat) => (
@@ -85,7 +85,7 @@ export default function Header() {
           </nav>
 
           {/* По центру — логотип */}
-          <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center flex-shrink-0 header-logo">
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center flex-shrink-0 header-logo">
             <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-40 h-auto header-pill-logo" />
           </Link>
 
@@ -99,7 +99,7 @@ export default function Header() {
               aria-label="Написать в Telegram"
               className="btn-press w-11 h-11 inline-flex items-center justify-center rounded-xl"
             >
-              <span className="header-tg-badge w-8 h-8 rounded-full inline-flex items-center justify-center text-white shadow-sm">
+              <span className="header-tg-badge w-8 h-8 rounded-full inline-flex items-center justify-center shadow-sm">
                 <TelegramIcon className="w-[18px] h-[18px]" />
               </span>
             </a>
@@ -111,12 +111,12 @@ export default function Header() {
               aria-label="Поиск"
               className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
             >
-              <SearchIcon className="w-[22px] h-[22px]" />
+              <SearchIcon className="header-ico-search w-[22px] h-[22px]" />
             </button>
 
             {/* Профиль */}
             <Link to="/profile" aria-label="Профиль" className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-white">
-              <UserIcon className="w-[22px] h-[22px]" />
+              <UserIcon className="header-ico-profile w-[22px] h-[22px]" />
             </Link>
 
             {/* Избранное */}
@@ -131,7 +131,7 @@ export default function Header() {
               aria-expanded={drawer === 'favorites'}
               className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
             >
-              <HeartIcon className="w-[22px] h-[22px]" />
+              <HeartIcon className="header-ico-heart w-[22px] h-[22px]" />
               {favCount > 0 && (
                 <span key={`fav-${favCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {favCount}
@@ -151,7 +151,7 @@ export default function Header() {
               aria-expanded={drawer === 'cart'}
               className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
             >
-              <CartIcon className="w-[22px] h-[22px]" />
+              <CartTrolleyIcon className="header-ico-cart w-[22px] h-[22px]" />
               {cartCount > 0 && (
                 <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
@@ -166,7 +166,7 @@ export default function Header() {
       {/* Мобильная шапка */}
       <div className="md:hidden px-4 pt-2">
         {/* Пилюля мобильная */}
-        <div className="flex items-center justify-between h-14 bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] rounded-full px-4 drop-shadow-sm">
+        <div className="relative flex items-center justify-between h-14 bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] rounded-full px-4 drop-shadow-sm">
           {/* Бургер */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -187,7 +187,7 @@ export default function Header() {
           </button>
 
           {/* Логотип по центру */}
-          <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+          <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <img src="/logo-header.png" alt="Симба" className="w-[100px] h-auto header-pill-logo" />
           </Link>
 
@@ -200,7 +200,7 @@ export default function Header() {
             aria-expanded={drawer === 'cart'}
             className="btn-press relative text-white w-11 h-11 flex items-center justify-center -mr-2 header-pill-text"
           >
-            <CartIcon className="w-[22px] h-[22px]" />
+            <CartTrolleyIcon className="w-[22px] h-[22px]" />
             {cartCount > 0 && (
               <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                 {cartCount}

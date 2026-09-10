@@ -253,9 +253,11 @@ export default function ProductPage() {
               {discount && (
                 <span className="text-amber-500 font-bold text-sm">Скидка {discount}%</span>
               )}
-              {selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
-                <span className="text-sm text-destructive font-medium">
-                  Осталось {selectedVariant.stock}
+              {selectedVariant.stock > 0 && (
+                <span className={`text-sm font-medium ${
+                  selectedVariant.stock <= 5 ? 'text-destructive' : 'text-navy-500'
+                }`}>
+                  Есть в наличии: {selectedVariant.stock}
                 </span>
               )}
             </div>

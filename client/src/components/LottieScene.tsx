@@ -65,5 +65,5 @@ export default function LottieScene({ load, className = '', loop = true }: Props
   }, [load, loop])
 
   if (failed) return null
-  return <div ref={hostRef} className={className} aria-hidden="true" />
+  return <div ref={hostRef} className={`lottie-host ${className}`} aria-hidden="true" />
 }

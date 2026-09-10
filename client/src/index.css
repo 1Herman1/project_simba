@@ -60,7 +60,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  /* Lottie-сцены исключены: их конечности стоят на SVG-атрибуте transform,
+     и CSS `transform: none` разбирал собаку на части. Плеер под reduced-motion
+     и так стоит на первом кадре — целом. */
+  :not(.lottie-host):not(.lottie-host *), *::before, *::after {
     transform: none !important;
     transition-property: opacity, color, background-color, border-color !important;
     animation-duration: 0.01ms !important;
@@ -76,6 +79,7 @@
      а «мигает с частотой кадров» — гасим их поимённо. */
   .quiz-stage { animation: none !important; }
   .icon-check-path { animation: none !important; stroke-dashoffset: 0; }
+  .header-ico-heart { animation: none !important; }
   .animate-spin { animation: none !important; }
   .animate-pulse { animation: none !important; }
   /* Квиз: карточка ловит reveal без задержки; лапа держит зеркало —
@@ -204,11 +208,13 @@
   }
 
   /* Логотип в шапке: лёгкое масштабирование при наведении */
-  .header-logo {
+  /* Масштаб вешаем на картинку, а не на ссылку: ссылка центрирована
+     translate(-50%,-50%), и scale на ней сбрасывал бы центровку. */
+  .header-logo img {
     transition: transform 120ms var(--ease-out);
   }
   @media (hover: hover) and (pointer: fine) {
-    .header-logo:hover {
+    .header-logo:hover img {
       transform: scale(1.05);
     }
   }
@@ -229,21 +235,35 @@
 
   /* Плашка Telegram в пилюле — залитый брендовый круг, как на референсе
      клиента; на ховер светлеет, соседние иконки не трогаем. */
+  /* Цвет глифа задан здесь, а не утилитой text-white: слой utilities идёт
+     позже components и перебил бы инверсию на hover при любой специфичности. */
   .header-tg-badge {
+    color: #fff;
     background-color: #0088cc;
-    transition: background-color 140ms ease;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    a:hover > .header-tg-badge {
-      background-color: #2AA9E8;
-    }
+    transition: background-color 160ms ease, color 160ms ease, transform 180ms var(--ease-out);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .header-pill-icon:hover {
       background-color: rgb(255 255 255 / 0.15);
     }
+  }
+
+  /* Моторика иконок живёт на самом SVG, не на 44px кнопке-обёртке,
+     поэтому соседние иконки никогда не сдвигаются. Двойной класс бьёт
+     утилиты Tailwind (transition-*). */
+  .header-ico-search.header-ico-search,
+  .header-ico-profile.header-ico-profile,
+  .header-ico-cart.header-ico-cart {
+    transform-origin: 50% 50%;
+    transition: transform 180ms var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    button:hover > .header-ico-search { transform: rotate(-12deg) scale(1.08); }
+    a:hover > .header-ico-profile { transform: translateY(-1px) scale(1.06); }
+    button:hover > .header-ico-cart { transform: translateX(2px) rotate(-6deg); }
+    button:hover > .header-ico-heart { animation: icoPop 200ms var(--ease-out); transform-origin: 50% 50%; }
+    a:hover > .header-tg-badge { background-color: #fff; color: #0088cc; transform: translate(1px, -1px); }
   }
 
 
@@ -964,12 +984,7 @@
 
 /* carousel peek mode: inactive slides dimmed with smooth transitions */
 .carousel-slide {
-  will-change: transform, opacity;
   border-radius: 24px;
-}
-
-.carousel-slide:not(:last-child) {
-  margin-right: 0; /* gap handled by flex gap-4 */
 }
 
 /* Плитки категорий на главной: наведение поднимает карточку, подсвечивает

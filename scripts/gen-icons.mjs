@@ -20,6 +20,7 @@ const STROKE = '1.75'
 const MAP = {
   SearchIcon: 'search',
   CartIcon: 'cart',
+  CartTrolleyIcon: 'simple-cart',
   HeartIcon: 'heart',
   HeartSolidIcon: 'heart-solid',
   UserIcon: 'user',

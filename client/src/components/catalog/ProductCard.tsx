@@ -156,7 +156,7 @@ export default function ProductCard({ product }: { product: Product }) {
           })}
         </div>
 
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-3">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           {unavailable ? (
             // Цену показываем приглушённой, если она есть: у распроданного товара
             // она осмысленна, а у незаполненного импортом (price = 0) — нет.
@@ -174,24 +174,17 @@ export default function ProductCard({ product }: { product: Product }) {
                   {formatPrice(selectedVariant.oldPrice)}
                 </span>
               )}
-              {/* Остаток показываем всегда — покупатель спрашивает «а хватит
-                  ли на месяц» до того, как класть в корзину. Цвет разный:
-                  пять штук и меньше — довод поторопиться, больше — справка.
-                  Число приходит из МоегоСклада за вычетом резерва. */}
-              {/* Проверять остаток тут не нужно: ветка уже под !unavailable,
-                  а туда попадают только фасовки с остатком. */}
-              <span
-                  className={`text-xs font-medium w-full sm:w-auto sm:ml-auto ${
-                    selectedVariant.stock <= 5 ? 'text-destructive' : 'text-navy-500'
-                  }`}
-                >
-                  {selectedVariant.stock <= 5
-                    ? `Осталось ${selectedVariant.stock}`
-                    : `${selectedVariant.stock} шт`}
-              </span>
             </>
           )}
         </div>
+
+        {!unavailable && (
+          <p className={`text-xs font-medium mb-3 ${
+            selectedVariant.stock <= 5 ? 'text-destructive' : 'text-navy-500'
+          }`}>
+            Есть в наличии: {selectedVariant.stock}
+          </p>
+        )}
 
         <button
           onClick={handleAddToCart}

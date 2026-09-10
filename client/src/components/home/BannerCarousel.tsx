@@ -42,6 +42,7 @@ const SLIDE_MS = 6500
 const DRAG_THRESHOLD = 0.12 // 12% ширины трека
 const DRAG_THRESHOLD_PX = 6 // 6px для блокирования клика
 const VELOCITY_THRESHOLD = 0.5 // px/мс
+const TRANSITION_DURATION_MS = 300
 
 /** Телефон и компьютер получают разные файлы: широкая десктопная картинка на
     узком экране либо обрезается по краям, либо мельчает до нечитаемости.
@@ -74,32 +75,35 @@ function BannerImage({
 
 interface SlideProps {
   banner: Banner
-  index: number
+  trackIndex: number
   isActive: boolean
   theme: typeof THEMES[0]
-  onNavigate?: (index: number) => void
+  onNavigate?: (trackIndex: number) => void
   isDragging?: boolean
+  widthPercent: number
+  isClone?: boolean
 }
 
-function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: SlideProps) {
+function Slide({ banner, trackIndex, isActive, theme, onNavigate, isDragging, widthPercent, isClone }: SlideProps) {
   return (
     <div
-      className="carousel-slide w-[82%] md:w-[84%] shrink-0"
+      className="carousel-slide shrink-0"
       role="presentation"
-      aria-hidden={!isActive}
-      onClick={() => !isActive && onNavigate?.(index)}
+      aria-hidden={!isActive || isClone}
+      onClick={() => !isActive && onNavigate?.(trackIndex)}
+      tabIndex={isClone ? -1 : undefined}
       style={{
-        opacity: isActive ? 1 : 0.45,
-        transform: isActive ? 'scale(1)' : 'scale(0.97)',
-        transition: isDragging ? 'none' : 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)',
+        width: `${widthPercent}%`,
+        opacity: isActive ? 1 : 0.6,
+        transition: isDragging ? 'none' : 'opacity 300ms var(--ease-out)',
         cursor: !isActive ? 'pointer' : 'default',
       }}
     >
       {banner.showText ? (
-        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center rounded-banner`}>
+        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-auto md:aspect-[2/1] flex items-center rounded-banner`}>
           <div
             className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
-            tabIndex={isActive ? 0 : -1}
+            tabIndex={isActive && !isClone ? 0 : -1}
           >
             <div className="max-w-lg pt-4 pb-10 md:py-6">
               <h2 className={`text-2xl md:text-4xl font-black mb-2 md:mb-3 ${theme.textColor}`}>
@@ -113,7 +117,7 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
               <Link
                 to={banner.link ?? "/catalog"}
                 className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
-                tabIndex={isActive ? 0 : -1}
+                tabIndex={isActive && !isClone ? 0 : -1}
               >
                 {banner.buttonText ?? "Смотреть"}
               </Link>
@@ -121,7 +125,7 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
 
             <BannerImage
               banner={banner}
-              priority={isActive}
+              priority={isActive && !isClone}
               className="hidden md:block h-full w-auto max-w-[48%] object-contain object-bottom select-none pointer-events-none"
             />
           </div>
@@ -130,7 +134,7 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
         <Link
           to={banner.link ?? "/catalog"}
           className="block overflow-hidden rounded-banner animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
-          tabIndex={isActive ? 0 : -1}
+          tabIndex={isActive && !isClone ? 0 : -1}
           onClick={(e) => {
             if (!isActive) {
               e.preventDefault()
@@ -139,7 +143,7 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
         >
           <BannerImage
             banner={banner}
-            priority={isActive}
+            priority={isActive && !isClone}
             alt={banner.title}
             className="w-full h-full object-cover"
           />
@@ -151,14 +155,16 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
 
 export default function BannerCarousel() {
   const [banners, setBanners] = useState<Banner[]>([])
-  const [current, setCurrent] = useState(0)
+  const [trackIndex, setTrackIndex] = useState(1) // Start at 1 (first real slide, with clone-last to the left)
   const [isPaused, setIsPaused] = useState(false)
   const [dragX, setDragX] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [shouldTransition, setShouldTransition] = useState(true) // For no-transition jumps
   const [containerWidth, setContainerWidth] = useState(0)
   const dragStateRef = useRef<DragState>({ startX: 0, currentX: 0, startTime: 0, isDragging: false })
   const trackRef = useRef<HTMLDivElement>(null)
   const lastDragDistanceRef = useRef(0)
+  const transitionEndTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     bannersApi
@@ -204,13 +210,14 @@ export default function BannerCarousel() {
       document.removeEventListener('pointerup', handleDocumentPointerUp)
       document.removeEventListener('pointercancel', handleDocumentPointerUp)
     }
-  }, [current, banners.length])
+  }, [banners.length])
 
   useEffect(() => {
-    if (isPaused) return
+    if (isPaused || banners.length === 0) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % banners.length)
+      setTrackIndex((prev) => prev + 1)
+      setIsAnimating(true)
     }, SLIDE_MS)
     return () => clearInterval(timer)
   }, [isPaused, banners.length])
@@ -241,17 +248,10 @@ export default function BannerCarousel() {
 
     state.currentX = clientX
 
-    let dx = state.currentX - state.startX
+    const dx = state.currentX - state.startX
     lastDragDistanceRef.current = dx
 
-    // Rubber-banding на границах
-    const isAtStart = current === 0
-    const isAtEnd = current === banners.length - 1
-
-    if ((isAtStart && dx > 0) || (isAtEnd && dx < 0)) {
-      dx *= 0.35
-    }
-
+    // No rubber-banding on infinite carousel
     setDragX(dx)
   }
 
@@ -274,20 +274,18 @@ export default function BannerCarousel() {
     const timeDelta = Date.now() - state.startTime
     const velocity = timeDelta > 0 ? Math.abs(dx) / timeDelta : 0
 
-    const thresholdPx = trackWidth * DRAG_THRESHOLD
-    let nextIndex = current
+    const thresholdPx = (trackWidth / banners.length) * DRAG_THRESHOLD
 
     if (Math.abs(dx) > thresholdPx || velocity > VELOCITY_THRESHOLD) {
       if (dx < 0) {
         // Свайп влево — следующий слайд
-        nextIndex = (current + 1) % banners.length
+        setTrackIndex((prev) => prev + 1)
       } else {
         // Свайп вправо — предыдущий слайд
-        nextIndex = (current - 1 + banners.length) % banners.length
+        setTrackIndex((prev) => prev - 1)
       }
     }
 
-    setCurrent(nextIndex)
     setDragX(0)
     setIsAnimating(true)
     setIsPaused(false)
@@ -303,38 +301,95 @@ export default function BannerCarousel() {
   }
 
   function prev(): void {
-    setCurrent((c) => (c - 1 + banners.length) % banners.length)
+    setTrackIndex((idx) => idx - 1)
     setIsAnimating(true)
   }
 
   function next(): void {
-    setCurrent((c) => (c + 1) % banners.length)
+    setTrackIndex((idx) => idx + 1)
     setIsAnimating(true)
   }
 
+  const n = banners.length
+  const hasClones = n >= 2
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Re-enable transition on next frame after disabling it, with double RAF for safety
+  useEffect(() => {
+    if (!shouldTransition) {
+      const rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setShouldTransition(true)
+        })
+      })
+      return () => cancelAnimationFrame(rafId)
+    }
+  }, [shouldTransition])
+
+  // Fallback: if prefers-reduced-motion is on, transitionend never fires, so handle it with setTimeout
+  useEffect(() => {
+    if (prefersReducedMotion && isAnimating && !dragStateRef.current.isDragging) {
+      if (trackIndex === n + 1 || trackIndex === 0) {
+        transitionEndTimeoutRef.current = setTimeout(() => {
+          if (trackIndex === n + 1) {
+            setTrackIndex(1)
+          } else if (trackIndex === 0) {
+            setTrackIndex(n)
+          }
+        }, TRANSITION_DURATION_MS)
+      }
+    }
+    return () => {
+      if (transitionEndTimeoutRef.current) {
+        clearTimeout(transitionEndTimeoutRef.current)
+      }
+    }
+  }, [trackIndex, n, isAnimating, prefersReducedMotion])
+
   if (banners.length === 0) return null
+
+  // Derive current (real slide index) from trackIndex
+  const current = hasClones ? (trackIndex - 1 + n) % n : trackIndex
 
   const theme = THEMES[current % THEMES.length]
   const dot = banners[current].showText ? theme.dot : THEMES[0].dot
 
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-  // Peek mode calculation: active slide centered with neighbors visible at 7% (desktop) or 4% (mobile)
+  // Peek mode calculation: desktop PEEK=11%, GAP=5.5%, SLIDE=67; mobile peek 9%, gap 16px, slide 82%
   const isMobile = window.innerWidth < 768
-  const peekPercent = isMobile ? 9 : 8
-  // Ширина слайда = 100% минус два поля выглядывания, иначе поля неравные.
-  const slideWidthPercent = 100 - peekPercent * 2
-  const gapPx = 16 // gap-4 in Tailwind
+  const peekPercent = isMobile ? 9 : 11
+  const gapPercent = isMobile ? 0 : 5.5
+  const slideWidthPercent = 100 - peekPercent * 2 - gapPercent * 2
 
   // Use measured containerWidth from state, fallback to window width if not measured yet
   const effectiveContainerW = containerWidth || window.innerWidth
-  const slideWidthPx = (slideWidthPercent / 100) * effectiveContainerW
   const peekPx = (peekPercent / 100) * effectiveContainerW
+  const gapPx = isMobile ? 16 : (gapPercent / 100) * effectiveContainerW
+  const slideWidthPx = (slideWidthPercent / 100) * effectiveContainerW
 
-  // Position calculation: slide i should have its left edge at peekPx from container left
-  const slidePositionPx = current * (slideWidthPx + gapPx) - peekPx + dragX
+  // Position calculation: active slide offset = peek + gap (desktop) or peek (mobile)
+  const activeOffsetPx = isMobile ? peekPx : peekPx + gapPx
+  const slidePositionPx = trackIndex * (slideWidthPx + gapPx) - activeOffsetPx + dragX
 
-  const shouldTransition = isAnimating && !dragStateRef.current.isDragging && !prefersReducedMotion
+  const isTransitioning = shouldTransition && isAnimating && !dragStateRef.current.isDragging && !prefersReducedMotion
+
+  // Handle transitionend event to jump from clone back to real slide
+  const handleTrackTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== trackRef.current || e.propertyName !== 'transform') return
+
+    if (transitionEndTimeoutRef.current) {
+      clearTimeout(transitionEndTimeoutRef.current)
+    }
+
+    if (trackIndex === n + 1) {
+      // At clone-first, jump to real first (trackIndex = 1)
+      setShouldTransition(false)
+      setTrackIndex(1)
+    } else if (trackIndex === 0) {
+      // At clone-last, jump to real last (trackIndex = n)
+      setShouldTransition(false)
+      setTrackIndex(n)
+    }
+  }
 
   return (
     <section
@@ -349,52 +404,93 @@ export default function BannerCarousel() {
       <div className="overflow-hidden">
         <div
           ref={trackRef}
-          className="flex cursor-grab active:cursor-grabbing select-none gap-4"
+          className="flex cursor-grab active:cursor-grabbing select-none"
           style={{
             touchAction: 'pan-y',
+            columnGap: `${gapPx}px`,
             // В пикселях, не в процентах: для первого слайда смещение отрицательное,
             // и `-${-7}%` давал невалидный `--7%` — трансформ молча отбрасывался.
             transform: `translateX(${-slidePositionPx}px)`,
-            transition: shouldTransition ? 'transform 300ms var(--ease-out)' : 'none',
+            transition: isTransitioning ? 'transform 300ms var(--ease-out)' : 'none',
           }}
           onPointerDown={handlePointerDown}
           onClickCapture={handleClickCapture}
+          onTransitionEnd={handleTrackTransitionEnd}
           aria-roledescription="carousel"
         >
+          {hasClones && (
+            <Slide
+              key="clone-last"
+              banner={banners[n - 1]}
+              trackIndex={0}
+              isActive={trackIndex === 0}
+              isDragging={dragStateRef.current.isDragging}
+              theme={THEMES[(n - 1) % THEMES.length]}
+              widthPercent={slideWidthPercent}
+              isClone
+              onNavigate={(idx) => {
+                setTrackIndex(idx)
+                setIsAnimating(true)
+              }}
+            />
+          )}
           {banners.map((banner, index) => (
             <Slide
               key={banner.id}
               banner={banner}
-              index={index}
-              isActive={index === current}
+              trackIndex={index + 1}
+              isActive={trackIndex === index + 1}
               isDragging={dragStateRef.current.isDragging}
               theme={THEMES[index % THEMES.length]}
-              onNavigate={(newIndex) => {
-                setCurrent(newIndex)
+              widthPercent={slideWidthPercent}
+              onNavigate={(idx) => {
+                setTrackIndex(idx)
                 setIsAnimating(true)
               }}
             />
           ))}
+          {hasClones && (
+            <Slide
+              key="clone-first"
+              banner={banners[0]}
+              trackIndex={n + 1}
+              isActive={trackIndex === n + 1}
+              isDragging={dragStateRef.current.isDragging}
+              theme={THEMES[0]}
+              widthPercent={slideWidthPercent}
+              isClone
+              onNavigate={(idx) => {
+                setTrackIndex(idx)
+                setIsAnimating(true)
+              }}
+            />
+          )}
         </div>
       </div>
 
-      {/* Стрелки */}
-      <button
-        type="button"
-        onClick={prev}
-        aria-label="Предыдущий баннер"
-        className="hidden md:flex absolute left-4 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:bg-white shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
-      >
-        <ArrowLeftIcon className="w-4.5 h-4.5 ico-nudge ico-nudge--back" />
-      </button>
-      <button
-        type="button"
-        onClick={next}
-        aria-label="Следующий баннер"
-        className="hidden md:flex absolute right-4 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:bg-white shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
-      >
-        <ArrowRightIcon className="w-4.5 h-4.5 ico-nudge" />
-      </button>
+      {/* Стрелки — скрыть если только один баннер */}
+      {n > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Предыдущий баннер"
+            className="hidden md:flex absolute top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:shadow-md shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
+            style={{ left: 'calc(13.75% - 22px)' }}
+          >
+            <ArrowLeftIcon className="w-4.5 h-4.5 ico-nudge ico-nudge--back" />
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Следующий баннер"
+            className="hidden md:flex absolute top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:shadow-md shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
+            style={{ right: 'calc(13.75% - 22px)' }}
+          >
+            <ArrowRightIcon className="w-4.5 h-4.5 ico-nudge" />
+          </button>
+        </>
+      )}
 
       {/* Точки */}
       <div className="absolute bottom-0 inset-x-0 flex justify-center pointer-events-none">
@@ -403,16 +499,16 @@ export default function BannerCarousel() {
             type="button"
             key={b.id}
             onClick={() => {
-              setCurrent(i)
+              setTrackIndex(i + 1)
               setIsAnimating(true)
             }}
             className="group w-11 h-11 flex items-center justify-center pointer-events-auto"
             aria-label={`Перейти к баннеру ${i + 1}`}
-            aria-current={i === current ? 'page' : undefined}
+            aria-current={i + 1 === trackIndex ? 'page' : undefined}
           >
             <span
               className={`block h-2 rounded-full transition-[width,background-color] ${
-                i === current ? `w-6 ${dot.active}` : `w-2 ${dot.idle}`
+                i + 1 === trackIndex ? `w-6 ${dot.active}` : `w-2 ${dot.idle}`
               }`}
             />
           </button>
