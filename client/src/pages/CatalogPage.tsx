@@ -57,11 +57,21 @@ export default function CatalogPage() {
 
   return (
     <div className="min-h-[100dvh] bg-blue-50">
-      <div className="bg-white border-b border-blue-100 sticky top-[73px] z-30">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Вторая строка — такая же пилюля, как шапка, только светлая: полосы на
+          всю ширину с фоном по бокам больше нет, ширина и высота совпадают с
+          шапкой. */}
+      {/* Поиск плавает пилюлей ровно как шапка: та же ширина и высота, светлый
+          фон, полосы во всю ширину с фоном по бокам больше нет. Чипы уезжают
+          со страницей — иначе карточки просвечивали бы в зазоре между
+          пилюлей и рядом фильтров. */}
+      <div className="sticky top-[84px] z-30 px-4 pt-3">
+        <div className="max-w-7xl mx-auto rounded-full bg-white/85 supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md h-16 flex items-center px-6 md:px-8">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
-          <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} species={species} />
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-5 pt-3">
+        <CatalogTags activeTag={activeTag} onTagClick={handleTagClick} species={species} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">

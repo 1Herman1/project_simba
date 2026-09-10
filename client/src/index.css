@@ -227,6 +227,19 @@
     transition: background-color 120ms ease, color 120ms ease;
   }
 
+  /* Плашка Telegram в пилюле — залитый брендовый круг, как на референсе
+     клиента; на ховер светлеет, соседние иконки не трогаем. */
+  .header-tg-badge {
+    background-color: #0088cc;
+    transition: background-color 140ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    a:hover > .header-tg-badge {
+      background-color: #2AA9E8;
+    }
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .header-pill-icon:hover {
       background-color: rgb(255 255 255 / 0.15);
@@ -952,9 +965,53 @@
 /* carousel peek mode: inactive slides dimmed with smooth transitions */
 .carousel-slide {
   will-change: transform, opacity;
-  border-radius: theme('borderRadius.card');
+  border-radius: 24px;
 }
 
 .carousel-slide:not(:last-child) {
   margin-right: 0; /* gap handled by flex gap-4 */
+}
+
+/* Плитки категорий на главной: наведение поднимает карточку, подсвечивает
+   фон, приближает питомца и подтягивает подпись. Всё под motion-safe —
+   правило prefers-reduced-motion гасит transform глобально. */
+.category-tile {
+  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out),
+    background-color 220ms var(--ease-out);
+}
+
+.category-tile__img {
+  transition: transform 320ms var(--ease-out);
+}
+
+.category-tile__scrim {
+  transition: opacity 220ms var(--ease-out);
+}
+
+.category-tile__label {
+  display: inline-block;
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Спецификация: .reveal-group.is-visible .reveal-item задаёт transform
+     тремя классами, поэтому подъём плитки описан четырьмя — иначе анимация
+     появления секции перебивала ховер. */
+  .reveal-group .category-tile.category-tile:hover {
+    transform: translateY(-4px);
+    background-color: #cfcfcf;
+    box-shadow: 0 12px 28px rgba(22, 35, 60, 0.16);
+  }
+
+  .category-tile:hover .category-tile__img {
+    transform: scale(1.06);
+  }
+
+  .category-tile:hover .category-tile__scrim {
+    opacity: 0.85;
+  }
+
+  .category-tile:hover .category-tile__label {
+    transform: translateY(-4px);
+  }
 }

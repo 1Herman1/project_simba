@@ -84,19 +84,19 @@ interface SlideProps {
 function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: SlideProps) {
   return (
     <div
-      className="carousel-slide w-[82%] md:w-[86%] shrink-0"
+      className="carousel-slide w-[82%] md:w-[84%] shrink-0"
       role="presentation"
       aria-hidden={!isActive}
       onClick={() => !isActive && onNavigate?.(index)}
       style={{
-        opacity: isActive ? 1 : 0.55,
+        opacity: isActive ? 1 : 0.45,
         transform: isActive ? 'scale(1)' : 'scale(0.97)',
         transition: isDragging ? 'none' : 'opacity 300ms var(--ease-out), transform 300ms var(--ease-out)',
         cursor: !isActive ? 'pointer' : 'default',
       }}
     >
       {banner.showText ? (
-        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center rounded-card`}>
+        <div className={`bg-gradient-to-r ${theme.bg} h-56 md:h-80 flex items-center rounded-banner`}>
           <div
             className="max-w-7xl mx-auto px-8 md:px-12 flex items-center justify-between w-full h-full animate-fade-in"
             tabIndex={isActive ? 0 : -1}
@@ -129,7 +129,7 @@ function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: Slide
       ) : (
         <Link
           to={banner.link ?? "/catalog"}
-          className="block overflow-hidden rounded-card animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
+          className="block overflow-hidden rounded-banner animate-fade-in aspect-[1520/1035] md:aspect-[2/1]"
           tabIndex={isActive ? 0 : -1}
           onClick={(e) => {
             if (!isActive) {
@@ -321,7 +321,7 @@ export default function BannerCarousel() {
 
   // Peek mode calculation: active slide centered with neighbors visible at 7% (desktop) or 4% (mobile)
   const isMobile = window.innerWidth < 768
-  const peekPercent = isMobile ? 9 : 7
+  const peekPercent = isMobile ? 9 : 8
   // Ширина слайда = 100% минус два поля выглядывания, иначе поля неравные.
   const slideWidthPercent = 100 - peekPercent * 2
   const gapPx = 16 // gap-4 in Tailwind
@@ -383,7 +383,7 @@ export default function BannerCarousel() {
         type="button"
         onClick={prev}
         aria-label="Предыдущий баннер"
-        className="hidden md:flex absolute left-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md items-center justify-center transition-[background-color,box-shadow]"
+        className="hidden md:flex absolute left-4 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:bg-white shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
       >
         <ArrowLeftIcon className="w-4.5 h-4.5 ico-nudge ico-nudge--back" />
       </button>
@@ -391,7 +391,7 @@ export default function BannerCarousel() {
         type="button"
         onClick={next}
         aria-label="Следующий баннер"
-        className="hidden md:flex absolute right-3 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white/80 hover:bg-white shadow-md items-center justify-center transition-[background-color,box-shadow]"
+        className="hidden md:flex absolute right-4 top-0 bottom-0 my-auto w-11 h-11 rounded-full bg-white hover:bg-white shadow-card items-center justify-center text-navy-700 transition-[background-color,box-shadow]"
       >
         <ArrowRightIcon className="w-4.5 h-4.5 ico-nudge" />
       </button>

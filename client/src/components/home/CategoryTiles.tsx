@@ -44,7 +44,7 @@ export default function CategoryTiles() {
               aria-label={cat.label}
               /* Серая плитка и радиус 32px — по референсу текущего сайта клиента
                  (решение владельца, исключение из шкалы радиусов MASTER). */
-              className="reveal-item group relative block overflow-hidden rounded-[32px] bg-[#D9D9D9] aspect-[4/3] sm:aspect-[4/5] transition-transform duration-[160ms] ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-card"
+              className="reveal-item category-tile group relative block overflow-hidden rounded-[32px] bg-[#D9D9D9] aspect-[4/3] sm:aspect-[4/5]"
             >
               {/* Вырезанный объект на прозрачном фоне, прижат к низу и центру */}
               <img
@@ -56,14 +56,14 @@ export default function CategoryTiles() {
                 }}
                 className={
                   cat.fit === 'cover'
-                    ? 'pointer-events-none select-none absolute inset-0 h-full w-full object-cover'
-                    : 'pointer-events-none select-none absolute inset-x-0 bottom-0 h-[88%] mx-auto w-auto object-contain'
+                    ? 'category-tile__img pointer-events-none select-none absolute inset-0 h-full w-full object-cover'
+                    : 'category-tile__img pointer-events-none select-none absolute inset-x-0 bottom-0 h-[88%] mx-auto w-auto object-contain'
                 }
               />
 
               {/* Подпись внизу поверх затемняющего градиента — читается и на светлой шерсти */}
-              <div className="absolute inset-x-0 bottom-0 pt-16 pb-6 flex items-end justify-center bg-gradient-to-t from-black/55 to-transparent">
-                <span className="text-center uppercase tracking-wide font-semibold text-lg lg:text-xl text-white">
+              <div className="category-tile__scrim absolute inset-x-0 bottom-0 pt-16 pb-6 flex items-end justify-center bg-gradient-to-t from-black/55 to-transparent">
+                <span className="category-tile__label text-center uppercase tracking-wide font-semibold text-lg lg:text-xl text-white">
                   {cat.label}
                 </span>
               </div>

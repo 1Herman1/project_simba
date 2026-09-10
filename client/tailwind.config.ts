@@ -67,6 +67,7 @@ const config: Config = {
       },
       borderRadius: {
         card: '14px',
+        banner: '24px',
       },
       boxShadow: {
         card: '0 2px 8px rgba(22, 35, 60, 0.06)',

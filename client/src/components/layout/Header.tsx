@@ -99,7 +99,7 @@ export default function Header() {
               aria-label="Написать в Telegram"
               className="btn-press w-11 h-11 inline-flex items-center justify-center rounded-xl"
             >
-              <span className="w-8 h-8 rounded-full bg-white inline-flex items-center justify-center text-[#0088cc] shadow-sm">
+              <span className="header-tg-badge w-8 h-8 rounded-full inline-flex items-center justify-center text-white shadow-sm">
                 <TelegramIcon className="w-[18px] h-[18px]" />
               </span>
             </a>

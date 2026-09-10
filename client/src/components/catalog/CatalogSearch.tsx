@@ -10,8 +10,8 @@ interface Props {
     был 1.23:1, то есть индикатора фокуса фактически не существовало. */
 export default function CatalogSearch({ value, onChange, onClear }: Props) {
   return (
-    <div role="search" className="relative mb-3">
-      <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-navy-300" />
+    <div role="search" className="relative w-full">
+      <SearchIcon className="absolute left-0 top-1/2 -translate-y-1/2 w-5 h-5 text-navy-300" />
 
       <input
         type="text"
@@ -19,7 +19,7 @@ export default function CatalogSearch({ value, onChange, onClear }: Props) {
         onChange={e => onChange(e.target.value)}
         placeholder="Найти корм, бренд или товар..."
         aria-label="Поиск по каталогу"
-        className="w-full pl-12 pr-12 py-3 rounded-2xl border border-blue-100 bg-blue-50 focus:bg-white focus:outline-none focus:border-primary-soft focus:ring-2 focus:ring-primary-soft transition-[border-color,box-shadow,background-color] text-navy-900 placeholder-navy-300 text-base"
+        className="w-full pl-8 pr-12 py-2 bg-transparent border-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-soft text-navy-900 placeholder-navy-300 text-base"
       />
 
       {/* Крестик — 44px, а не 20px: это полноценная кнопка, а не иконка. */}
@@ -28,7 +28,7 @@ export default function CatalogSearch({ value, onChange, onClear }: Props) {
           type="button"
           onClick={onClear}
           aria-label="Очистить поиск"
-          className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-navy-300 hover:text-navy-500 transition-colors">
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-navy-300 hover:text-navy-500 transition-colors">
           <CloseIcon className="w-5 h-5" />
         </button>
       )}
