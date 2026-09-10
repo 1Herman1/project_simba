@@ -34,7 +34,7 @@ export default function Layout() {
   return (
     <div className="min-h-[100dvh] bg-blue-50 flex flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pt-[84px]">
         <Outlet />
       </main>
       {showPopularProducts && <PopularProducts />}

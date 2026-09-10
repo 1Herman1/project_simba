@@ -213,39 +213,18 @@
     }
   }
 
-  /* Иконки в шапке.
-
-     ВОЛНЫ ДОКА ЗДЕСЬ БОЛЬШЕ НЕТ. Она была сделана намеренно — в доке macOS
-     соседние значки приподнимаются вместе с наведённым, — но владелец счёл, что
-     ряд из-за этого «дрожит». Теперь растёт только та иконка, на которую навели.
-
-     Масштабируется внутренний глиф (.icon-swap, 22px), а не кнопка 44px: если
-     растить саму зону наведения, она наезжает на соседнюю, курсор попадает уже
-     на другую кнопку, и ряд начинает дёргаться.
-
-     Длительность 90мс: docs/core/motion.md относит ховер к частым действиям и
-     требует меньше 100мс.
-
-     Заливка. Подмены контур↔заливка у самого глифа быть не может: в Iconoir
-     залитые пары есть у сердца и звезды, но НЕ у корзины, профиля и телеграма,
-     а свап у одной иконки из четырёх рассыпал бы ряд. Поэтому заливается КНОПКА
-     — кругом в фирменный тон, — и одновременно контур перекрашивается в тот же
-     цвет. Приём одинаков для всех четырёх. */
-  /* 120мс — спокойнее прежних 90, но в норме отклика на ховер (motion.md). */
-  .header-icon-link {
-    transition: color 120ms ease, background-color 120ms ease;
-  }
-  .icon-swap {
-    transition: transform 120ms var(--ease-out);
-    transform-origin: bottom center;
+  /* Иконки в пилюле шапки: белые иконки на полупрозрачном сером фоне.
+     На ховер заливка bg-white/15 с мягким переходом.
+     Текст-shadow для контраста на белый фон иконок. */
+  .header-pill-icon {
+    transition: background-color 120ms ease, color 120ms ease;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .header-icon-link:hover {
-      color: theme('colors.primary.DEFAULT');
-      background-color: theme('colors.primary.tint');
+    .header-pill-icon:hover {
+      background-color: rgb(255 255 255 / 0.15);
     }
-    .header-dock .header-icon-link:hover .icon-swap { transform: scale(1.12); }
   }
 
 
@@ -962,4 +941,14 @@
   .paw-toe--fr { transform: rotate(18deg)  !important; transform-origin: 49px 27px; }
   .paw-toe--tl { transform: rotate(-8deg)  !important; transform-origin: 24px 15px; }
   .paw-toe--tr { transform: rotate(8deg)   !important; transform-origin: 40px 15px; }
+}
+
+/* carousel peek mode: inactive slides dimmed with smooth transitions */
+.carousel-slide {
+  will-change: transform, opacity;
+  border-radius: theme('borderRadius.card');
+}
+
+.carousel-slide:not(:last-child) {
+  margin-right: 0; /* gap handled by flex gap-4 */
 }

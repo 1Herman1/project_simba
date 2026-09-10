@@ -1,47 +1,13 @@
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
-import { useScrolled } from '../../hooks/useScrolled'
 import { CONTACTS } from '../../lib/contacts'
-import { PhoneIcon, HeartIcon, CartIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
-import HeaderSearch from './HeaderSearch'
+import { HeartIcon, CartIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
 import SearchModal from './SearchModal'
 
-/** Открыт ли сейчас раздел, на который ведёт пункт меню. NavLink здесь не
-    годится: он сравнивает только путь, а «Кошки» и «Собаки» — это один и тот же
-    /catalog, различающийся параметром species. */
-function useIsCurrent() {
-  const { pathname, search, hash } = useLocation()
-  return (href: string) => {
-    if (href.startsWith('/#')) return pathname === '/' && hash === href.slice(1)
-    const [path, query] = href.split('?')
-    if (pathname !== path) return false
-    if (!query) return !search
-    const want = new URLSearchParams(query)
-    const have = new URLSearchParams(search)
-    return [...want].every(([key, value]) => have.get(key) === value)
-  }
-}
-
-const NAV_CURRENT = 'text-primary bg-blue-50'
-const NAV_IDLE = 'text-navy-700 hover:text-primary-hover hover:bg-blue-50'
-
-// В подменю только то, под чем есть товары: наполнители, игрушки, амуниция и
-// прочие подкатегории в ассортименте отсутствуют, а ссылка в пустой каталог
-// читается как «некликабельное продолжение». Вернуть — когда появится товар.
 const categories = [
-  {
-    label: 'Кошки',
-    key: 'cats',
-    href: '/catalog?species=cat',
-    subcategories: [
-      { label: 'Сухой корм', href: '/catalog?category=cats-food&format=dry' },
-      { label: 'Влажный корм', href: '/catalog?category=cats-food&format=wet' },
-      { label: 'Лечебное питание', href: '/catalog?category=cats-food&purpose=medical' },
-    ],
-  },
   {
     label: 'Собаки',
     key: 'dogs',
@@ -53,160 +19,144 @@ const categories = [
       { label: 'Лакомства', href: '/catalog?category=treats' },
     ],
   },
-  { label: 'Лакомства', key: null, href: '/catalog?category=treats' },
-  { label: 'Бренды', key: null, href: '/#brands' },
-  { label: 'Акции', key: null, href: '/#banners' },
-  { label: 'Блог', key: null, href: '/#blog' },
+  {
+    label: 'Коты и кошки',
+    key: 'cats',
+    href: '/catalog?species=cat',
+    subcategories: [
+      { label: 'Сухой корм', href: '/catalog?category=cats-food&format=dry' },
+      { label: 'Влажный корм', href: '/catalog?category=cats-food&format=wet' },
+      { label: 'Лечебное питание', href: '/catalog?category=cats-food&purpose=medical' },
+    ],
+  },
+  {
+    label: 'Ветаптека',
+    key: null,
+    href: '/catalog?category=care',
+  },
 ]
 
 export default function Header() {
-  const navigate = useNavigate()
-  const isCurrent = useIsCurrent()
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const { count: cartCount } = useCart()
   const { count: favCount } = useFavorites()
   const { openCart, openFavorites, drawer } = useDrawer()
-  const isScrolled = useScrolled(10)
 
   return (
-    <header className={`sticky top-0 z-40 transition-[background-color,box-shadow] duration-200 ease-smooth ${isScrolled ? 'bg-white/95 supports-[backdrop-filter]:bg-white/80 backdrop-blur-md shadow-md' : 'bg-white shadow-sm'}`}>
-      {/* Десктоп шапка */}
-      {/* Уход мыши ловим на обёртке, а не на нав-строке: панель мегаменю —
-          её сосед, и с onMouseLeave на строке курсор, опущенный на пункты,
-          закрывал меню раньше, чем до них доходил. */}
-      <div className="hidden md:block" onMouseLeave={() => setActiveCategory(null)}>
-        {/* Строка 1 */}
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
-          {/* Логотип */}
-          <Link to="/" className="flex items-center flex-shrink-0 header-logo">
-            <img src="/logo-header.png" alt="Симба" className="h-10 w-auto block relative top-[8px]" />
+    <header className="fixed top-[10px] left-0 right-0 z-50">
+      {/* Десктоп шапка — пилюля */}
+      <div className="hidden md:block px-4" onMouseLeave={() => setActiveCategory(null)}>
+        {/* Пилюля */}
+        <div className="max-w-7xl mx-auto rounded-full px-8 h-16 flex items-center justify-between bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md drop-shadow-sm">
+          {/* Слева — навигация */}
+          <nav className="flex items-center gap-6">
+            {categories.map((cat) => (
+              <div
+                key={cat.label}
+                onMouseEnter={() => cat.key ? setActiveCategory(cat.key) : setActiveCategory(null)}
+                className="relative"
+              >
+                <Link
+                  to={cat.href}
+                  className="text-white font-medium text-sm transition-opacity duration-100 hover:opacity-75 drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.35)]"
+                >
+                  {cat.label}
+                </Link>
+              </div>
+            ))}
+          </nav>
+
+          {/* По центру — логотип */}
+          <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center flex-shrink-0 header-logo">
+            <img src="/logo-header.png" alt="Симба" className="w-40 h-auto" />
           </Link>
 
-          {/* Поиск */}
-          <HeaderSearch open={searchOpen} onOpen={() => setSearchOpen(true)} />
-
-          {/* Иконки справа */}
-          <div className="flex items-center gap-5 flex-shrink-0 ml-auto">
-            {/* Телефон */}
-            <a href={CONTACTS.phoneHref} className="btn-press flex items-center gap-1.5 text-navy-700 hover:text-primary-hover" aria-label="Позвонить">
-              <PhoneIcon className="w-[18px] h-[18px]" />
-              <span className="text-sm font-medium">{CONTACTS.phone}</span>
+          {/* Справа — иконки */}
+          <div className="flex items-center gap-4 ml-auto">
+            {/* Telegram */}
+            <a
+              href={CONTACTS.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Написать в Telegram"
+              className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-[#0088cc]"
+            >
+              <TelegramIcon className="w-[22px] h-[22px]" />
             </a>
 
-            {/* Четыре кнопки, зазор 20px на всех. Увеличивается только та, на
-                которую навели: волну соседей владелец попросил убрать. */}
-            <div className="header-dock flex items-center gap-5">
-              {/* Telegram */}
-              <a
-                href={CONTACTS.telegram}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Написать в Telegram"
-                className="btn-press header-icon-link w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
-              >
-                <span className="icon-swap block w-[22px] h-[22px]">
-                  <TelegramIcon className="w-[22px] h-[22px]" />
-                </span>
-              </a>
+            {/* Поиск */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Поиск"
+              className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
+            >
+              <SearchIcon className="w-[22px] h-[22px]" />
+            </button>
 
-              {/* Избранное */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(false)
-                  openFavorites()
-                }}
-                aria-label="Избранное"
-                aria-haspopup="dialog"
-                aria-expanded={drawer === 'favorites'}
-                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
-              >
-                <span className="icon-swap block w-[22px] h-[22px]">
-                  <HeartIcon className="w-[22px] h-[22px]" />
-                </span>
-                {favCount > 0 && (
-                  <span key={`fav-${favCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
-                    {favCount}
-                  </span>
-                )}
-              </button>
+            {/* Профиль */}
+            <Link to="/profile" aria-label="Профиль" className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-white">
+              <UserIcon className="w-[22px] h-[22px]" />
+            </Link>
 
-              {/* Корзина */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(false)
-                  openCart()
-                }}
-                aria-label="Корзина"
-                aria-haspopup="dialog"
-                aria-expanded={drawer === 'cart'}
-                className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500"
-              >
-                <span className="icon-swap block w-[22px] h-[22px]">
-                  <CartIcon className="w-[22px] h-[22px]" />
+            {/* Избранное */}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen(false)
+                openFavorites()
+              }}
+              aria-label="Избранное"
+              aria-haspopup="dialog"
+              aria-expanded={drawer === 'favorites'}
+              className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
+            >
+              <HeartIcon className="w-[22px] h-[22px]" />
+              {favCount > 0 && (
+                <span key={`fav-${favCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
+                  {favCount}
                 </span>
-                {cartCount > 0 && (
-                  <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+              )}
+            </button>
 
-              {/* Профиль */}
-              <Link to="/profile" aria-label="Профиль" className="btn-press header-icon-link relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-navy-500">
-                <span className="icon-swap block w-[22px] h-[22px]">
-                  <UserIcon className="w-[22px] h-[22px]" />
+            {/* Корзина */}
+            <button
+              type="button"
+              onClick={() => {
+                setSearchOpen(false)
+                openCart()
+              }}
+              aria-label="Корзина"
+              aria-haspopup="dialog"
+              aria-expanded={drawer === 'cart'}
+              className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
+            >
+              <CartIcon className="w-[22px] h-[22px]" />
+              {cartCount > 0 && (
+                <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
+                  {cartCount}
                 </span>
-              </Link>
-            </div>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Строка 2 — навигация с мегаменю */}
-        <div
-          className={`grid transition-[grid-template-rows,opacity] duration-200 ease-smooth ${isScrolled ? 'grid-rows-[0fr] opacity-0 pointer-events-none' : 'grid-rows-[1fr] opacity-100'} border-t border-line relative`}
-        >
-          <div className="overflow-hidden">
-            <nav className="max-w-7xl mx-auto px-4">
-            <ul className="flex items-center gap-0">
-              {categories.map((cat) => (
-                <li
-                  key={cat.label}
-                  onMouseEnter={() => cat.key ? setActiveCategory(cat.key) : setActiveCategory(null)}
-                  className="relative"
-                >
-                  <Link
-                    to={cat.href}
-                    aria-current={isCurrent(cat.href) ? 'page' : undefined}
-                    className={`block px-4 py-3 text-sm font-medium transition-colors duration-100 ease-smooth ${isCurrent(cat.href) ? NAV_CURRENT : NAV_IDLE}`}
-                  >
-                    {cat.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-          </div>
-        </div>
-
-        {/* Мегаменю */}
+        {/* Мегаменю — под пилюлей */}
         {activeCategory && (
-          <div className="absolute top-full left-0 right-0 bg-white shadow-xl border-t border-line rounded-b-card overflow-hidden animate-slide-down z-50">
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              <div className="flex flex-wrap gap-x-2 gap-y-1">
+          <div className="absolute left-1/2 -translate-x-1/2 top-[calc(2.5rem+20px)] mt-4 bg-white rounded-card shadow-md overflow-hidden animate-slide-down z-50 max-w-sm">
+            <div className="px-6 py-4">
+              <div className="flex flex-wrap gap-x-3 gap-y-2">
                 {categories
                   .find((c) => c.key === activeCategory)
                   ?.subcategories?.map((sub) => (
                     <Link
                       key={sub.label}
                       to={sub.href}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-navy-700 hover:bg-blue-50 hover:text-primary-hover transition-colors duration-100 ease-smooth text-sm"
+                      className="block px-3 py-2 rounded-lg text-navy-700 text-sm font-medium hover:bg-blue-50 transition-colors duration-100"
                       onClick={() => setActiveCategory(null)}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-200 flex-shrink-0" />
                       {sub.label}
                     </Link>
                   ))}
@@ -217,12 +167,13 @@ export default function Header() {
       </div>
 
       {/* Мобильная шапка */}
-      <div className="md:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
+      <div className="md:hidden px-4 pt-2">
+        {/* Пилюля мобильная */}
+        <div className="flex items-center justify-between h-14 bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] rounded-full px-4 drop-shadow-sm">
           {/* Бургер */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="btn-press text-navy-700 -ml-2 w-11 h-11 flex items-center justify-center"
+            className="btn-press text-white w-10 h-10 flex items-center justify-center -ml-2"
             aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={mobileMenuOpen}
             type="button"
@@ -238,54 +189,38 @@ export default function Header() {
             </svg>
           </button>
 
-          {/* Логотип */}
-          <Link to="/" className="flex items-center gap-1.5">
-            <img src="/logo-header.png" alt="Симба" className="h-8 w-auto" />
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-amber-400">
-              <path d="M7 5C7 3.9 7.9 3 9 3s2 .9 2 2-.9 2-2 2S7 6.1 7 5zm8 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zM4 9c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2S4 10.1 4 9zm12 0c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm-4 2c-3.3 0-6 2.7-6 6v1h12v-1c0-3.3-2.7-6-6-6z" fill="currentColor"/>
-            </svg>
+          {/* Логотип по центру */}
+          <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 -translate-x-1/2">
+            <img src="/logo-header.png" alt="Симба" className="w-24 h-auto" />
           </Link>
 
-          {/* Правые иконки */}
-          <div className="flex items-center gap-1">
-            <button aria-label="Поиск" className="btn-press text-navy-500 w-11 h-11 flex items-center justify-center" type="button" onClick={() => setSearchOpen(true)}>
-              <SearchIcon className="w-[22px] h-[22px]" />
-            </button>
-            <button
-              type="button"
-              onClick={() => openCart()}
-              aria-label="Корзина"
-              aria-haspopup="dialog"
-              aria-expanded={drawer === 'cart'}
-              className="btn-press relative text-navy-500 w-11 h-11 flex items-center justify-center"
-            >
-              <CartIcon className="w-[22px] h-[22px]" />
-              {cartCount > 0 && (
-                <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          </div>
+          {/* Корзина справа */}
+          <button
+            type="button"
+            onClick={() => openCart()}
+            aria-label="Корзина"
+            aria-haspopup="dialog"
+            aria-expanded={drawer === 'cart'}
+            className="btn-press relative text-white w-10 h-10 flex items-center justify-center -mr-2"
+          >
+            <CartIcon className="w-[22px] h-[22px]" />
+            {cartCount > 0 && (
+              <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
+                {cartCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Мобильное меню-drawer */}
+        {/* Мобильное меню */}
         {mobileMenuOpen && (
-          <div className="border-t border-line bg-white animate-slide-down">
+          <div className="mt-2 bg-white rounded-card shadow-md overflow-hidden animate-slide-down">
             <nav className="px-4 py-3 flex flex-col gap-1">
-              <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer"
-                 onClick={() => setMobileMenuOpen(false)}
-                 className="flex items-center gap-2 py-2.5 px-3 min-h-11 rounded-lg text-navy-900 font-semibold hover:bg-blue-50">
-                <TelegramIcon />
-                Написать в Telegram
-              </a>
-              <div className="h-px bg-line my-2" />
               {categories.map((cat) => (
                 <Link
                   key={cat.label}
                   to={cat.href}
-                  aria-current={isCurrent(cat.href) ? 'page' : undefined}
-                  className={`py-2.5 px-3 rounded-lg font-medium transition-colors duration-100 ease-smooth ${isCurrent(cat.href) ? NAV_CURRENT : NAV_IDLE}`}
+                  className="py-3 px-3 rounded-lg font-medium text-navy-900 hover:bg-blue-50 transition-colors duration-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {cat.label}
