@@ -29,7 +29,7 @@ export default function ReviewsSection() {
         <div className="mt-8">
           <Link
             to="/reviews"
-            className="btn-primary px-6 rounded-xl font-bold"
+            className="btn-primary px-6"
           >
             Читать отзывы
           </Link>

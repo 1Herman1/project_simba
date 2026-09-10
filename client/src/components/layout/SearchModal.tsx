@@ -411,7 +411,7 @@ export default function SearchModal({ open, onClose }: Props) {
                 <Link
                   to="/catalog"
                   onClick={onClose}
-                  className="btn-primary mt-5 px-6 rounded-xl font-bold inline-flex"
+                  className="btn-primary mt-5 px-6 inline-flex"
                 >
                   Открыть каталог
                 </Link>
@@ -491,7 +491,7 @@ export default function SearchModal({ open, onClose }: Props) {
             <button
               type="button"
               onClick={() => handleSearch(value)}
-              className="btn-primary w-full rounded-xl font-bold"
+              className="btn-primary w-full"
             >
               Показать все результаты — {pluralize(total, 'товар', 'товара', 'товаров')}
             </button>

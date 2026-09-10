@@ -89,7 +89,7 @@ export default function QuestionnaireTeaser() {
             <button
               type="button"
               onClick={openQuiz}
-              className="btn-primary px-8 rounded-xl font-semibold"
+              className="btn-primary px-8"
             >
               Подобрать корм
             </button>

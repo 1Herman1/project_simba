@@ -97,7 +97,7 @@ export default function CertificatesPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary rounded-xl px-6 font-bold"
+          className="btn-primary px-6"
         >
           Написать в Telegram
         </a>

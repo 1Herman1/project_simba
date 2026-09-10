@@ -62,7 +62,7 @@ export default function AboutSection() {
 
             <div className="reveal-item mt-6" style={step(3)}>
               <p className="text-navy-500">Не знаете, какой корм подойдёт вашему питомцу —</p>
-              <Link to="/questionnaire" className="btn-primary mt-3 inline-flex whitespace-nowrap px-6 rounded-xl font-bold">
+              <Link to="/questionnaire" className="btn-primary mt-3 inline-flex whitespace-nowrap px-6">
                 Подобрать за минуту
               </Link>
             </div>

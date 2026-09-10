@@ -19,21 +19,21 @@ const THEMES = [
     bg: 'from-blue-100 to-blue-200',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-500',
-    accent: 'bg-primary text-white hover:bg-primary-hover',
+    accent: 'btn-primary',
     dot: { active: 'bg-navy-700', idle: 'bg-navy-700/40 group-hover:bg-navy-700/70' },
   },
   {
     bg: 'from-amber-300 to-amber-400',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-700',
-    accent: 'bg-primary text-white hover:bg-primary-hover',
+    accent: 'btn-primary',
     dot: { active: 'bg-navy-900', idle: 'bg-navy-900/40 group-hover:bg-navy-900/70' },
   },
   {
     bg: 'from-navy-700 to-navy-900',
     textColor: 'text-white',
     subtitleColor: 'text-blue-100',
-    accent: 'bg-primary-tint text-navy-900 hover:bg-primary-soft',
+    accent: 'btn-primary',
     dot: { active: 'bg-white', idle: 'bg-white/50 group-hover:bg-white/80' },
   },
 ]
@@ -116,7 +116,7 @@ function Slide({ banner, trackIndex, isActive, theme, onNavigate, isDragging, wi
               )}
               <Link
                 to={banner.link ?? "/catalog"}
-                className={`inline-block px-6 py-2.5 rounded-xl font-semibold text-sm transition-colors ${theme.accent}`}
+                className={`inline-block ${theme.accent}`}
                 tabIndex={isActive && !isClone ? 0 : -1}
               >
                 {banner.buttonText ?? "Смотреть"}
@@ -395,7 +395,7 @@ export default function BannerCarousel() {
     <section
       id="banners"
       aria-label="Акции и предложения"
-      className="scroll-mt-24 relative overflow-hidden bg-white"
+      className="scroll-mt-24 relative overflow-hidden"
       onMouseEnter={() => !dragStateRef.current.isDragging && setIsPaused(true)}
       onMouseLeave={() => !dragStateRef.current.isDragging && setIsPaused(false)}
       onFocusCapture={() => setIsPaused(true)}

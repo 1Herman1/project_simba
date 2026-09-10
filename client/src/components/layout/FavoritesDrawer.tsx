@@ -77,7 +77,7 @@ export default function FavoritesDrawer({ open, onClose }: Props) {
         <Link
           to="/catalog"
           onClick={onClose}
-          className="btn-primary px-6 py-2 rounded-xl font-bold text-sm"
+          className="btn-primary px-6 py-2"
         >
           Перейти в каталог
         </Link>
@@ -112,37 +112,37 @@ export default function FavoritesDrawer({ open, onClose }: Props) {
               <li
                 key={favorite.productId}
                 className={`flex gap-3 py-4 transition-opacity duration-200 ease-smooth ${
-                  removingId === product.id ? 'opacity-0' : 'opacity-100'
-                }`}
-              >
-                <Link
-                  to={`/product/${product.slug}`}
-                  onClick={onClose}
-                  className="flex-shrink-0 w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center overflow-hidden"
-                >
-                  {product.images[0] ? (
-                    <img src={product.images[0]} className="max-h-full max-w-full object-contain p-1" alt={product.name} />
-                  ) : (
-                    <PawIcon className="w-8 h-8 text-navy-200" />
-                  )}
-                </Link>
-                <div className="flex-1 min-w-0">
-                  <Link
-                    to={`/product/${product.slug}`}
-                    onClick={onClose}
-                    className="block text-sm font-semibold text-navy-900 leading-snug line-clamp-2 hover:text-primary-hover"
-                  >
-                    {product.name}
-                  </Link>
-                  <p className="mt-0.5 text-xs text-navy-500">{variant.weight} кг</p>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    {/* Кнопка "В корзину" */}
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(product.id)}
-                      className={`btn-primary h-9 px-3 rounded-xl text-xs font-bold ${
-                        isAdded ? 'bg-white border border-line text-navy-900' : ''
-                      }`}
+ removingId === product.id ? 'opacity-0' : 'opacity-100'
+ }`}
+ >
+ <Link
+ to={`/product/${product.slug}`}
+ onClick={onClose}
+ className="flex-shrink-0 w-16 h-16 bg-blue-50 flex items-center justify-center overflow-hidden"
+ >
+ {product.images[0] ? (
+ <img src={product.images[0]} className="max-h-full max-w-full object-contain p-1"alt={product.name} />
+ ) : (
+ <PawIcon className="w-8 h-8 text-navy-200"/>
+ )}
+ </Link>
+ <div className="flex-1 min-w-0">
+ <Link
+ to={`/product/${product.slug}`}
+ onClick={onClose}
+ className="block text-navy-900 leading-snug line-clamp-2 hover:text-primary-hover"
+ >
+ {product.name}
+ </Link>
+ <p className="mt-0.5 text-navy-500">{variant.weight} кг</p>
+ <div className="mt-2 flex items-center justify-between gap-2">
+ {/* Кнопка"В корзину"*/}
+ <button
+ type="button"
+ onClick={() => handleAddToCart(product.id)}
+ className={`btn-primary h-9 px-3 ${
+ isAdded ? 'bg-white border border-line text-navy-900' : ''
+ }`}
                     >
                       {isAdded ? 'Добавлено' : 'В корзину'}
                     </button>

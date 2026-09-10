@@ -122,11 +122,11 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
             <button
               onClick={handleAddBothToCart}
               disabled={isAddingBoth}
-              className={`w-full mt-4 py-3 rounded-xl font-medium transition-colors ${
-                addedBoth
-                  ? 'bg-white border border-line text-navy-900'
-                  : 'btn-primary'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              className={`w-full mt-4 py-3 ${
+ addedBoth
+ ? 'bg-white border border-line text-navy-900'
+ : 'btn-primary'
+ } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {addedBoth ? (
                 <span className="flex items-center justify-center gap-2">

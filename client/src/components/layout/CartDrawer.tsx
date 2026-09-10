@@ -144,7 +144,7 @@ export default function CartDrawer({ open, onClose }: Props) {
         <Link
           to="/catalog"
           onClick={onClose}
-          className="btn-primary px-6 py-2 rounded-xl font-bold text-sm"
+          className="btn-primary px-6 py-2"
         >
           Перейти в каталог
         </Link>
@@ -419,7 +419,7 @@ export default function CartDrawer({ open, onClose }: Props) {
         <Link
           to="/checkout"
           onClick={onClose}
-          className="btn-primary press-wide w-full rounded-xl font-bold py-3.5 text-center block"
+          className="btn-primary press-wide w-full py-3.5 text-center block"
         >
           Оформить заказ
         </Link>

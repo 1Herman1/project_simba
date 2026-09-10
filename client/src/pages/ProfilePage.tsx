@@ -317,7 +317,7 @@ export default function ProfilePage() {
                         {/* Кнопки */}
                         <div className="flex gap-2 flex-wrap">
                           {order.status === 'delivered' && (
-                            <button className="flex-1 btn-primary font-medium py-2 rounded-xl text-sm">
+                            <button className="flex-1 btn-primary py-2">
                               Повторить заказ
                             </button>
                           )}
@@ -501,7 +501,7 @@ export default function ProfilePage() {
             {!loadingSubscriptions && !subscriptionsError && subscriptions.length === 0 && (
               <div className="bg-white rounded-2xl p-10 text-center">
                 <p className="text-navy-500 mb-3">У вас ещё нет активных подписок</p>
-                <Link to="/catalog" className="inline-block btn-primary px-6 py-2 rounded-xl font-bold text-sm">
+                <Link to="/catalog" className="inline-block btn-primary px-6 py-2">
                   Перейти в каталог
                 </Link>
               </div>
@@ -685,7 +685,7 @@ export default function ProfilePage() {
                       setSavingProfile(false)
                     }
                   }}
-                  className="btn-primary font-bold py-2.5 rounded-xl text-sm mt-1 disabled:opacity-50">
+                  className="btn-primary py-2.5 mt-1 disabled:opacity-50">
                   {savingProfile ? 'Сохранение...' : 'Сохранить'}
                 </button>
               </div>

@@ -202,7 +202,7 @@ export default function TrustPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary rounded-xl px-6 font-bold gap-2 whitespace-nowrap"
+          className="btn-primary px-6 gap-2 whitespace-nowrap"
         >
           <TelegramIcon />
           Написать в Telegram

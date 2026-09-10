@@ -159,7 +159,7 @@ export default function QuizQuestionComponent({
             <button
               onClick={onNext}
               disabled={!isAnswered}
-              className="px-6 py-3 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed btn-primary flex items-center gap-2"
+              className="px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed btn-primary flex items-center gap-2"
             >
               {isLastQuestion ? (
                 <>

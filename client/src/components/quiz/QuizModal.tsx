@@ -97,9 +97,9 @@ export default function QuizModal({ open, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative flex flex-col w-full bg-white shadow-xl
+        className={`relative flex flex-col w-full bg-white shadow-xl overflow-hidden
                     h-[100dvh] rounded-none
-                    sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-card sm:border sm:border-line
+                    sm:h-auto sm:max-h-[90vh] sm:max-w-2xl sm:rounded-[28px] sm:border sm:border-line
                     transition-[opacity,transform] ease-smooth
                     ${shown
                       ? 'opacity-100 sm:scale-100 duration-200 sm:duration-[240ms]'

@@ -223,7 +223,7 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
         <button
           type="button"
           onClick={() => setRetry((n) => n + 1)}
-          className="mt-3 h-11 rounded-xl bg-primary px-6 text-sm font-semibold text-white transition-colors duration-100 ease-smooth hover:bg-primary-hover"
+          className="mt-3 btn-primary px-6"
         >
           Попробовать ещё раз
         </button>
@@ -351,7 +351,7 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
             <button
               type="button"
               onClick={() => onSelect(current)}
-              className="mt-3 h-11 w-full rounded-xl bg-primary text-sm font-semibold text-white transition-colors duration-100 ease-smooth hover:bg-primary-hover"
+              className="mt-3 w-full btn-primary"
             >
               Выбрать этот пункт
             </button>

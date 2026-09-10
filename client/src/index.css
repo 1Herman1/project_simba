@@ -26,13 +26,13 @@
 @property --btn-g1 {
   syntax: '<color>';
   inherits: false;
-  initial-value: #3A6FE0;
+  initial-value: #232323;
 }
 
 @property --btn-g2 {
   syntax: '<color>';
   inherits: false;
-  initial-value: #2E5DC8;
+  initial-value: #232323;
 }
 
 .scrollbar-hide {
@@ -99,22 +99,18 @@
 }
 
 @layer components {
-  /* CTA. Покой — плоская заливка primary (4.63:1 с белым текстом).
-     Hover — база уходит в primary.deep, под курсором зажигается spotlight:
-     тёплое ядро → плато → холодный ободок primary.soft → шлейф. Радиус 5.5rem
-     нарочно меньше ширины кнопки — это локальный пул света, а не заливка;
-     ядро вдвое ярче края, иначе пятно изолюминантно и читается грязью.
-     Самая светлая точка композита = 4.96:1 (замер по пикселям), выше нельзя:
-     α 0.28 уже проваливает AA. Отдельный слой блеска отклонён по той же
-     причине — даже белый 0.05 сверху съедает контраст в зоне текста; объём
-     даёт тёмная нижняя грань. Вход 150-180мс на `ease` (easeOutQuint проходил
-     93.5% за 50мс — измеренный скачок), выход 70% входа по motion.md.
+  /* CTA — чёрная кнопка. Покой — плоская заливка #232323 с белым текстом (контраст 15.2:1).
+     Hover — база уходит в #000000, под курсором зажигается нейтральный spotlight:
+     светлое ядро → плато → белый ободок → шлейф. Радиус 5.5rem нарочно меньше
+     ширины кнопки — это локальный пул света, а не заливка. Ядро вдвое ярче края.
+     Чёрный + spotlight даёт контраст 12–14:1 в зоне света (безопасно для AA).
+     Вход 150-180мс на `ease`, выход 70% входа по motion.md.
      Координаты курсора приходят из lib/button-spotlight.ts (--mx/--my). */
   .btn-primary {
     --btn-spot: 0;
     --btn-dim: 0;
-    --btn-g1: theme('colors.primary.DEFAULT');
-    --btn-g2: theme('colors.primary.DEFAULT');
+    --btn-g1: theme('colors.ink.DEFAULT');
+    --btn-g2: theme('colors.ink.DEFAULT');
     --press-scale: 0.97;
     position: relative;
     overflow: hidden;
@@ -122,22 +118,26 @@
     align-items: center;
     justify-content: center;
     min-height: 2.75rem;
-    color: theme('colors.primary.fg');
-    background-color: theme('colors.primary.hover');
+    border-radius: 30px;
+    padding: 0 1.5rem;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #232323;
     background-image:
       linear-gradient(rgb(22 35 60 / var(--btn-dim)), rgb(22 35 60 / var(--btn-dim))),
       radial-gradient(
         circle 5.5rem at var(--mx, 50%) var(--my, 50%),
-        rgb(255 248 236 / calc(var(--btn-spot) * 0.24)) 0%,
-        rgb(255 248 236 / calc(var(--btn-spot) * 0.21)) 14%,
-        rgb(76 130 247 / calc(var(--btn-spot) * 0.50)) 30%,
-        rgb(76 130 247 / calc(var(--btn-spot) * 0.22)) 58%,
-        rgb(76 130 247 / 0) 100%
+        rgb(255 255 255 / calc(var(--btn-spot) * 0.24)) 0%,
+        rgb(255 255 255 / calc(var(--btn-spot) * 0.21)) 14%,
+        rgb(255 255 255 / calc(var(--btn-spot) * 0.30)) 30%,
+        rgb(255 255 255 / calc(var(--btn-spot) * 0.15)) 58%,
+        rgb(255 255 255 / 0) 100%
       ),
       linear-gradient(to bottom, var(--btn-g1), var(--btn-g2));
     box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.14),
-      inset 0 -1px 0 0 rgb(30 69 143 / 0.35);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.10),
+      inset 0 -1px 0 0 rgb(0 0 0 / 0.35);
     touch-action: manipulation;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -151,17 +151,23 @@
       box-shadow 130ms ease;
   }
 
+  @media (max-width: 767px) {
+    .btn-primary {
+      font-size: 12px;
+    }
+  }
+
   /* Ховер-эффект только для мыши: тач не должен залипать в hover-состоянии. */
   @media (hover: hover) and (pointer: fine) {
     .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
       --btn-spot: 1;
-      --btn-g1: theme('colors.primary.deep');
-      --btn-g2: theme('colors.primary.deep');
+      --btn-g1: theme('colors.ink.hover');
+      --btn-g2: theme('colors.ink.hover');
       transform: translateY(-1px);
       box-shadow:
         inset 0 1px 0 0 rgb(255 255 255 / 0.10),
-        inset 0 -1px 0 0 rgb(30 69 143 / 0.45),
-        0 4px 12px rgb(58 111 224 / 0.28);
+        inset 0 -1px 0 0 rgb(0 0 0 / 0.35),
+        0 4px 12px rgb(0 0 0 / 0.18);
       /* Вход. */
       transition:
         --btn-spot 150ms var(--ease-out),
@@ -184,8 +190,8 @@
 
   .btn-primary:active:not(:disabled):not([aria-disabled='true']),
   .btn-primary.is-pressed:not(:disabled):not([aria-disabled='true']) {
-    --btn-g1: theme('colors.primary.hover');
-    --btn-g2: theme('colors.primary.hover');
+    --btn-g1: theme('colors.ink.DEFAULT');
+    --btn-g2: theme('colors.ink.DEFAULT');
     --btn-dim: 0.12;
     transform: translateY(0) scale(var(--press-scale));
     box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.10);
@@ -240,12 +246,18 @@
   .header-tg-badge {
     color: #fff;
     background-color: #0088cc;
-    transition: background-color 160ms ease, color 160ms ease, transform 180ms var(--ease-out);
+    box-shadow: 0 0 0 0 #0088cc;
+    transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  }
+  /* Глиф Iconoir оптически сидит внизу-слева (масса «самолётика» в левом
+     нижнем углу), поэтому сдвиг на доли пикселя — к центру круга. */
+  .header-tg-badge svg {
+    transform: translate(0.75px, -0.5px);
   }
 
   @media (hover: hover) and (pointer: fine) {
     .header-pill-icon:hover {
-      background-color: rgb(255 255 255 / 0.15);
+      background-color: rgb(255 255 255 / 0.28);
     }
   }
 
@@ -263,7 +275,10 @@
     a:hover > .header-ico-profile { transform: translateY(-1px) scale(1.06); }
     button:hover > .header-ico-cart { transform: translateX(2px) rotate(-6deg); }
     button:hover > .header-ico-heart { animation: icoPop 200ms var(--ease-out); transform-origin: 50% 50%; }
-    a:hover > .header-tg-badge { background-color: #fff; color: #0088cc; transform: translate(1px, -1px); }
+    a:hover > .header-tg-badge { background-color: #fff; color: #0088cc; box-shadow: 0 0 0 1.5px #0088cc; }
+    /* Остальные иконки на hover насыщеннее: штрих толще, тень плотнее. */
+    .header-pill-icon:hover > svg { filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.75)); }
+    .header-pill-icon:hover > svg * { stroke-width: 2.25; }
   }
 
 
@@ -990,22 +1005,25 @@
 /* Плитки категорий на главной: наведение поднимает карточку, подсвечивает
    фон, приближает питомца и подтягивает подпись. Всё под motion-safe —
    правило prefers-reduced-motion гасит transform глобально. */
-.category-tile {
-  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out),
-    background-color 220ms var(--ease-out);
+/* Четыре класса: .reveal-group.is-visible .reveal-item задаёт свой transition
+   тремя, и без этого переходы плитки обнулялись. Opacity и transform нужны и
+   самому появлению секции. */
+.reveal-group .category-tile.category-tile {
+  transition: opacity 320ms var(--ease-out), transform 320ms var(--ease-out),
+    box-shadow 320ms var(--ease-out), background-color 320ms var(--ease-out);
 }
 
 .category-tile__img {
-  transition: transform 320ms var(--ease-out);
+  transition: transform 480ms var(--ease-out);
 }
 
 .category-tile__scrim {
-  transition: opacity 220ms var(--ease-out);
+  transition: opacity 320ms var(--ease-out);
 }
 
 .category-tile__label {
   display: inline-block;
-  transition: transform 220ms var(--ease-out);
+  transition: transform 320ms var(--ease-out);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1028,5 +1046,14 @@
 
   .category-tile:hover .category-tile__label {
     transform: translateY(-4px);
+  }
+}
+
+/* В сцене подбора у кнопки нет внешней тени на hover: она ложилась рядом с
+   собакой и читалась как баг. Остаются только внутренние тени и спотлайт. */
+@media (hover: hover) and (pointer: fine) {
+  .quiz-scene .btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.10), inset 0 -1px 0 0 rgb(0 0 0 / 0.35);
+    transform: none;
   }
 }

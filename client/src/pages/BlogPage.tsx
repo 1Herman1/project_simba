@@ -162,7 +162,7 @@ export default function BlogPage() {
           <p className="text-navy-500 mb-6">Мы продолжаем писать новые материалы. Попробуйте выбрать другую категорию.</p>
           <button
             onClick={() => handleCategoryClick(null)}
-            className="btn-primary rounded-xl px-6 font-bold"
+            className="btn-primary px-6"
           >
             Показать все статьи
           </button>

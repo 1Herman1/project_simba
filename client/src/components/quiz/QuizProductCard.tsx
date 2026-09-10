@@ -121,11 +121,11 @@ export default function QuizProductCard({
           <button
             onClick={handleAddToCart}
             disabled={isAdding}
-            className={`relative z-10 w-full py-3 rounded-xl font-medium transition-colors duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed ${
-              isMain
-                ? 'btn-primary text-base'
-                : 'bg-blue-50 text-primary-hover border border-line hover:bg-blue-100'
-            }`}
+            className={`relative z-10 w-full py-3 duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed ${
+ isMain
+ ? 'btn-primary '
+ : 'bg-blue-50 text-primary-hover border border-line hover:bg-blue-100'
+ }`}
           >
             {added ? (
               <span className="flex items-center justify-center gap-2">

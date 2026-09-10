@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { brandsApi, categoriesApi } from '../lib/api'
+import { useScrollDirection } from '../hooks/useScrollDirection'
 import CatalogSearch from '../components/catalog/CatalogSearch'
 import CatalogTags, { CATALOG_TAGS, catalogTagLabel, tagFitsSpecies } from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
 
 export default function CatalogPage() {
+  const { hidden } = useScrollDirection()
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [activeTag, setActiveTag] = useState(searchParams.get('tag') || '')
@@ -64,7 +66,8 @@ export default function CatalogPage() {
           фон, полосы во всю ширину с фоном по бокам больше нет. Чипы уезжают
           со страницей — иначе карточки просвечивали бы в зазоре между
           пилюлей и рядом фильтров. */}
-      <div className="sticky top-[84px] z-30 px-4 pt-3">
+      {/* Пилюля скрывается при скролле вниз и появляется при скролле вверх. */}
+      <div className={`sticky top-[84px] z-30 px-4 pt-3 transition-[transform,opacity] duration-[220ms] ease-out ${hidden ? '-translate-y-[130%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="max-w-7xl mx-auto rounded-full bg-white/85 supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md h-16 flex items-center px-6 md:px-8">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
         </div>

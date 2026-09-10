@@ -136,7 +136,7 @@ export default function TrustSection() {
         <div className="mt-8">
           <Link
             to="/trust"
-            className="btn-primary px-6 rounded-xl font-bold"
+            className="btn-primary px-6"
           >
             Подробнее о гарантиях
           </Link>

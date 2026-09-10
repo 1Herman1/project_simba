@@ -85,8 +85,10 @@ export default function Header() {
           </nav>
 
           {/* По центру — логотип */}
-          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center flex-shrink-0 header-logo">
-            <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-40 h-auto header-pill-logo" />
+          {/* Позиция логотипа — по тюнеру владельца: 240px, +41px вправо, +10px вниз
+              от центра пилюли (на планшете — 96px строго по центру). */}
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+41px)] lg:translate-y-[calc(-50%+10px)] flex items-center flex-shrink-0 header-logo">
+            <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-[240px] h-auto header-pill-logo" />
           </Link>
 
           {/* Справа — иконки */}

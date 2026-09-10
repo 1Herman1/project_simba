@@ -121,7 +121,7 @@ export default function ReturnsPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary rounded-xl px-6 py-3 font-bold gap-2"
+          className="btn-primary px-6 py-3 gap-2"
         >
           <TelegramIcon />
           Написать в Telegram

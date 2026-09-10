@@ -41,7 +41,7 @@ export default function EmptyCatalog({ sectionEmpty }: Props) {
           ? 'Товары появятся здесь в ближайшее время. А пока загляните в корма — там больше пятисот позиций.'
           : 'Попробуйте другой запрос или снимите часть фильтров.'}
       </p>
-      <Link to="/catalog" className="btn-primary px-6 rounded-xl text-sm font-bold" style={delay(50)}>
+      <Link to="/catalog" className="btn-primary px-6" style={delay(50)}>
         Весь каталог
       </Link>
     </div>

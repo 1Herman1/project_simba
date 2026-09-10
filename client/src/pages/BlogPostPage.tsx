@@ -161,7 +161,7 @@ export default function BlogPostPage() {
         <p className="text-navy-500">Не знаете, какой корм подойдёт питомцу?</p>
         <Link
           to="/questionnaire"
-          className="btn-primary rounded-xl px-6 font-bold w-full sm:w-auto whitespace-nowrap"
+          className="btn-primary px-6 w-full sm:w-auto whitespace-nowrap"
         >
           Подобрать за минуту
         </Link>

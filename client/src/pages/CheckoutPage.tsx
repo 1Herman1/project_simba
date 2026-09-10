@@ -472,7 +472,7 @@ export default function CheckoutPage() {
                     нет, «войти» ему нечем. Email ушёл в подпись — при пустом
                     поле прежний лейбл давал дыру «Войти по  и получить…». */}
                 <Link to={contactEmail ? `/auth?email=${encodeURIComponent(contactEmail)}` : '/auth'}
-                  className="block btn-primary font-bold py-3 rounded-xl text-base text-center">
+                  className="block btn-primary py-3 text-center">
                   Забрать 300 бонусов
                 </Link>
                 {contactEmail && (
@@ -486,7 +486,7 @@ export default function CheckoutPage() {
               </>
             ) : (
               <>
-                <Link to="/profile" className="block btn-primary font-bold py-3 rounded-xl text-base text-center">
+                <Link to="/profile" className="block btn-primary py-3 text-center">
                   Мои заказы
                 </Link>
                 <Link to="/" className="btn-outline w-full py-3 rounded-xl text-base font-medium">
@@ -846,36 +846,36 @@ export default function CheckoutPage() {
                           value={contactPhone}
                           onChange={e => setContactPhone(handlePhoneInput(e.target.value))}
                           onBlur={() => setTouched(t => ({ ...t, contactPhone: true }))}
-                          className={`w-full px-4 py-2.5 rounded-xl border text-sm text-navy-900 focus:outline-none focus:ring-2 transition-colors ${
-                            validationErrors.contactPhone && touched.contactPhone
-                              ? 'border-destructive focus:border-destructive focus:ring-destructive/30'
-                              : 'border-line focus:border-line focus:ring-blue-100'
-                          }`}
-                        />
-                        {validationErrors.contactPhone && touched.contactPhone && (
-                          <p className="text-xs text-destructive mt-1">{validationErrors.contactPhone}</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                          className={`w-full px-4 py-2.5 border text-navy-900 focus:outline-none focus:ring-2 ${
+ validationErrors.contactPhone && touched.contactPhone
+ ? 'border-destructive focus:border-destructive focus:ring-destructive/30'
+ : 'border-line focus:border-line focus:ring-blue-100'
+ }`}
+ />
+ {validationErrors.contactPhone && touched.contactPhone && (
+ <p className="text-destructive mt-1">{validationErrors.contactPhone}</p>
+ )}
+ </div>
+ </div>
+ </div>
+ )}
 
-                <button
-                  onClick={handleNextFromDelivery}
-                  className="w-full mt-5 btn-primary press-wide font-bold py-3 rounded-xl text-sm">
-                  Далее: Оплата
-                </button>
-              </div>
-            )}
+ <button
+ onClick={handleNextFromDelivery}
+ className="w-full mt-5 btn-primary press-wide py-3">
+ Далее: Оплата
+ </button>
+ </div>
+ )}
 
-            {/* ШАГ 2 — Оплата */}
-            {step === 'payment' && (
-              <div className="bg-white rounded-2xl p-5">
-                <h2 className="font-bold text-navy-900 mb-4">Способ оплаты</h2>
+ {/* ШАГ 2 — Оплата */}
+ {step === 'payment' && (
+ <div className="bg-white p-5">
+ <h2 className="text-navy-900 mb-4">Способ оплаты</h2>
 
-                <div className="flex flex-col gap-2 mb-5">
-                  {[
-                    { key: 'card' as PaymentMethod, title: 'Картой онлайн', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
+ <div className="flex flex-col gap-2 mb-5">
+ {[
+ { key: 'card' as PaymentMethod, title: 'Картой онлайн', desc: 'Visa, Mastercard, МИР — безопасный платёж' },
                     { key: 'cash_on_delivery' as PaymentMethod, title: 'Наличными курьеру', desc: 'Только при доставке курьером до двери' },
                   ].map(opt => {
                     // Наличные доступны только при доставке курьером Simba
@@ -978,7 +978,7 @@ export default function CheckoutPage() {
                     </p>
                     <button
                       onClick={() => setLoginModalOpen(true)}
-                      className="w-full btn-primary press-wide font-bold py-2 rounded-xl text-sm">
+                      className="w-full btn-primary press-wide py-2">
                       Войти в аккаунт
                     </button>
                   </div>
@@ -992,7 +992,7 @@ export default function CheckoutPage() {
                   </button>
                   <button
                     onClick={() => setStep('confirm')}
-                    className="flex-[2] btn-primary press-wide font-bold py-3 rounded-xl text-sm">
+                    className="flex-[2] btn-primary press-wide py-3">
                     Далее: Подтверждение
                   </button>
                 </div>
@@ -1066,7 +1066,7 @@ export default function CheckoutPage() {
                     </p>
                     <button
                       onClick={() => setLoginModalOpen(true)}
-                      className="w-full btn-primary press-wide font-bold py-2 rounded-xl text-sm">
+                      className="w-full btn-primary press-wide py-2">
                       Войти в аккаунт
                     </button>
                   </div>
@@ -1081,7 +1081,7 @@ export default function CheckoutPage() {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={placingOrder}
-                    className="flex-[2] btn-primary press-wide font-bold py-3 rounded-xl text-sm disabled:opacity-60">
+                    className="flex-[2] btn-primary press-wide py-3 disabled:opacity-60">
                     {placingOrder ? (
                       <span className="flex items-center justify-center gap-2">
                         <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">

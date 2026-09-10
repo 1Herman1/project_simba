@@ -22,7 +22,7 @@ export default function QuizIntro({ onStart, inModal }: QuizIntroProps) {
 
         <button
           onClick={onStart}
-          className="btn-primary rounded-xl px-8 py-4 font-bold text-lg mb-8 inline-block"
+          className="btn-primary px-8 py-4 mb-8 inline-block"
         >
           Начать подбор
         </button>

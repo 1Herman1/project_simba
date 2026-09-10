@@ -59,7 +59,7 @@ export default function AboutPage() {
         </p>
         <Link
           to="/questionnaire"
-          className="btn-primary rounded-xl font-bold px-6"
+          className="btn-primary px-6"
         >
           Подобрать за минуту
         </Link>

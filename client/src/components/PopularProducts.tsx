@@ -138,7 +138,7 @@ export default function PopularProducts({ variant = 'default' }: Props) {
         </div>
 
         <div className="flex justify-center mt-8">
-          <Link to="/catalog" className="btn-primary px-8 py-3 rounded-xl font-semibold">
+          <Link to="/catalog" className="btn-primary px-8 py-3">
             Весь каталог
           </Link>
         </div>

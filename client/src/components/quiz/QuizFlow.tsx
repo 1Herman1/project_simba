@@ -213,26 +213,26 @@ export default function QuizFlow({ startPhase = 'intro', inModal }: Props) {
   if (phase === 'error') {
     return (
       <div className={`flex items-center justify-center bg-blue-50 px-4 ${
-        inModal ? 'min-h-0' : 'min-h-[100dvh]'
-      }`}>
-        <div className="max-w-md text-center">
-          <h1 className="text-2xl font-bold text-navy-900 mb-4">
-            Что-то пошло не так
-          </h1>
-          <p className="text-navy-600 mb-6">{error}</p>
-          <button
-            onClick={handleRetry}
-            className="btn-primary px-8 py-3 rounded-xl font-medium"
-          >
-            Попробовать ещё раз
-          </button>
-        </div>
-      </div>
-    )
-  }
+ inModal ? 'min-h-0' : 'min-h-[100dvh]'
+ }`}>
+ <div className="max-w-md text-center">
+ <h1 className="text-navy-900 mb-4">
+ Что-то пошло не так
+ </h1>
+ <p className="text-navy-600 mb-6">{error}</p>
+ <button
+ onClick={handleRetry}
+ className="btn-primary px-8 py-3"
+ >
+ Попробовать ещё раз
+ </button>
+ </div>
+ </div>
+ )
+ }
 
-  if (phase === 'result' && result) {
-    return <QuizResult result={result} inModal={inModal} />
+ if (phase === 'result' && result) {
+ return <QuizResult result={result} inModal={inModal} />
   }
 
   // Quiz phase

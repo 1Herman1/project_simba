@@ -215,7 +215,7 @@ export default function DeliveryPage() {
           href={CONTACTS.telegram}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn-primary press-wide rounded-xl px-6 py-3 font-bold w-full sm:w-auto gap-2 whitespace-nowrap"
+          className="btn-primary press-wide px-6 py-3 w-full sm:w-auto gap-2 whitespace-nowrap"
         >
           <TelegramIcon />
           Написать в Telegram

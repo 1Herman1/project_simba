@@ -132,7 +132,7 @@ export default function BlogSection() {
             <button
               type="button"
               onClick={() => handleCategoryClick(null)}
-              className="btn-primary px-6 rounded-xl font-bold"
+              className="btn-primary px-6"
             >
               Показать все статьи
             </button>
@@ -140,7 +140,7 @@ export default function BlogSection() {
         )}
 
         <div className="reveal-item mt-8 flex justify-center" style={{ '--reveal-delay': '300ms' } as CSSProperties}>
-          <Link to="/blog" className="btn-primary px-6 rounded-xl font-bold">
+          <Link to="/blog" className="btn-primary px-6">
             Все статьи
           </Link>
         </div>

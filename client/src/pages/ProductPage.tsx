@@ -281,15 +281,15 @@ export default function ProductPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedVariant || !isSellable(selectedVariant, quantity)}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-colors ${
-                  error
-                    ? 'bg-white text-destructive border border-destructive'
-                    : added
-                    ? 'bg-green-100 text-green-700'
-                    : !selectedVariant || !isSellable(selectedVariant, quantity)
-                    ? 'bg-blue-50 text-navy-400 border border-line cursor-not-allowed'
-                    : 'btn-primary'
-                }`}>
+                className={`flex-1 py-3 ${
+ error
+ ? 'bg-white text-destructive border border-destructive'
+ : added
+ ? 'bg-green-100 text-green-700'
+ : !selectedVariant || !isSellable(selectedVariant, quantity)
+ ? 'bg-blue-50 text-navy-400 border border-line cursor-not-allowed'
+ : 'btn-primary'
+ }`}>
                 {error
                   ? error
                   : added
@@ -407,7 +407,7 @@ export default function ProductPage() {
             {activeTab === 'reviews' && (
               <div className="text-center py-10">
                 <p className="text-navy-400 mb-4">Отзывы пока не добавлены</p>
-                <button className="btn-primary px-6 py-2.5 rounded-xl font-semibold text-sm">
+                <button className="btn-primary px-6 py-2.5">
                   Написать первый отзыв
                 </button>
               </div>
