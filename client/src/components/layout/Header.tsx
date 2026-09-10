@@ -51,7 +51,7 @@ export default function Header() {
         {/* Пилюля */}
         <div className="max-w-7xl mx-auto rounded-full px-8 h-16 flex items-center justify-between bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md drop-shadow-sm">
           {/* Слева — навигация */}
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-4 lg:gap-6">
             {categories.map((cat) => (
               <div
                 key={cat.label}
@@ -60,30 +60,48 @@ export default function Header() {
               >
                 <Link
                   to={cat.href}
-                  className="text-white font-medium text-sm transition-opacity duration-100 hover:opacity-75 drop-shadow-[0_1px_2px_rgb(0_0_0_/_0.35)]"
+                  className="inline-flex items-center h-11 text-white font-medium text-sm transition-opacity duration-100 hover:opacity-75 header-pill-text"
                 >
                   {cat.label}
                 </Link>
+                {cat.key && activeCategory === cat.key && cat.subcategories && (
+                  <div className="absolute left-0 top-full mt-3 w-max max-w-sm bg-white rounded-card shadow-md overflow-hidden animate-slide-down z-50">
+                    <div className="px-4 py-3 flex flex-wrap gap-x-2 gap-y-1">
+                      {cat.subcategories.map((sub) => (
+                        <Link
+                          key={sub.label}
+                          to={sub.href}
+                          className="block px-3 py-2 rounded-lg text-navy-700 text-sm font-medium hover:bg-blue-50 transition-colors duration-100"
+                          onClick={() => setActiveCategory(null)}
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </nav>
 
           {/* По центру — логотип */}
           <Link to="/" className="absolute left-1/2 -translate-x-1/2 flex items-center flex-shrink-0 header-logo">
-            <img src="/logo-header.png" alt="Симба" className="w-40 h-auto" />
+            <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-40 h-auto header-pill-logo" />
           </Link>
 
           {/* Справа — иконки */}
-          <div className="flex items-center gap-4 ml-auto">
+          <div className="flex items-center gap-1 lg:gap-3 ml-auto">
             {/* Telegram */}
             <a
               href={CONTACTS.telegram}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Написать в Telegram"
-              className="btn-press header-pill-icon w-11 h-11 inline-flex items-center justify-center rounded-xl text-[#0088cc]"
+              className="btn-press w-11 h-11 inline-flex items-center justify-center rounded-xl"
             >
-              <TelegramIcon className="w-[22px] h-[22px]" />
+              <span className="w-8 h-8 rounded-full bg-white inline-flex items-center justify-center text-[#0088cc] shadow-sm">
+                <TelegramIcon className="w-[18px] h-[18px]" />
+              </span>
             </a>
 
             {/* Поиск */}
@@ -143,27 +161,6 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Мегаменю — под пилюлей */}
-        {activeCategory && (
-          <div className="absolute left-1/2 -translate-x-1/2 top-[calc(2.5rem+20px)] mt-4 bg-white rounded-card shadow-md overflow-hidden animate-slide-down z-50 max-w-sm">
-            <div className="px-6 py-4">
-              <div className="flex flex-wrap gap-x-3 gap-y-2">
-                {categories
-                  .find((c) => c.key === activeCategory)
-                  ?.subcategories?.map((sub) => (
-                    <Link
-                      key={sub.label}
-                      to={sub.href}
-                      className="block px-3 py-2 rounded-lg text-navy-700 text-sm font-medium hover:bg-blue-50 transition-colors duration-100"
-                      onClick={() => setActiveCategory(null)}
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Мобильная шапка */}
@@ -173,7 +170,7 @@ export default function Header() {
           {/* Бургер */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="btn-press text-white w-10 h-10 flex items-center justify-center -ml-2"
+            className="btn-press text-white w-11 h-11 flex items-center justify-center -ml-2 header-pill-text"
             aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={mobileMenuOpen}
             type="button"
@@ -191,7 +188,7 @@ export default function Header() {
 
           {/* Логотип по центру */}
           <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 -translate-x-1/2">
-            <img src="/logo-header.png" alt="Симба" className="w-24 h-auto" />
+            <img src="/logo-header.png" alt="Симба" className="w-[100px] h-auto header-pill-logo" />
           </Link>
 
           {/* Корзина справа */}
@@ -201,7 +198,7 @@ export default function Header() {
             aria-label="Корзина"
             aria-haspopup="dialog"
             aria-expanded={drawer === 'cart'}
-            className="btn-press relative text-white w-10 h-10 flex items-center justify-center -mr-2"
+            className="btn-press relative text-white w-11 h-11 flex items-center justify-center -mr-2 header-pill-text"
           >
             <CartIcon className="w-[22px] h-[22px]" />
             {cartCount > 0 && (

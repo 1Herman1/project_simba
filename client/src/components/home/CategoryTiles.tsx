@@ -44,10 +44,7 @@ export default function CategoryTiles() {
               aria-label={cat.label}
               /* Серая плитка и радиус 32px — по референсу текущего сайта клиента
                  (решение владельца, исключение из шкалы радиусов MASTER). */
-              className="reveal-item group relative block overflow-hidden rounded-[32px] bg-[#D9D9D9] transition-transform duration-[160ms] ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-card"
-              style={{
-                aspectRatio: '4 / 5',
-              }}
+              className="reveal-item group relative block overflow-hidden rounded-[32px] bg-[#D9D9D9] aspect-[4/3] sm:aspect-[4/5] transition-transform duration-[160ms] ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-card"
             >
               {/* Вырезанный объект на прозрачном фоне, прижат к низу и центру */}
               <img
@@ -64,14 +61,9 @@ export default function CategoryTiles() {
                 }
               />
 
-              {/* Подпись белым капсом по центру плитки поверх объекта, с text-shadow для читаемости */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span
-                  className="text-center uppercase tracking-wide font-semibold text-lg lg:text-xl text-white"
-                  style={{
-                    textShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-                  }}
-                >
+              {/* Подпись внизу поверх затемняющего градиента — читается и на светлой шерсти */}
+              <div className="absolute inset-x-0 bottom-0 pt-16 pb-6 flex items-end justify-center bg-gradient-to-t from-black/55 to-transparent">
+                <span className="text-center uppercase tracking-wide font-semibold text-lg lg:text-xl text-white">
                   {cat.label}
                 </span>
               </div>

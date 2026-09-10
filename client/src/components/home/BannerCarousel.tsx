@@ -84,7 +84,7 @@ interface SlideProps {
 function Slide({ banner, index, isActive, theme, onNavigate, isDragging }: SlideProps) {
   return (
     <div
-      className="carousel-slide w-[92%] md:w-[86%] shrink-0"
+      className="carousel-slide w-[82%] md:w-[86%] shrink-0"
       role="presentation"
       aria-hidden={!isActive}
       onClick={() => !isActive && onNavigate?.(index)}
@@ -321,7 +321,7 @@ export default function BannerCarousel() {
 
   // Peek mode calculation: active slide centered with neighbors visible at 7% (desktop) or 4% (mobile)
   const isMobile = window.innerWidth < 768
-  const peekPercent = isMobile ? 4 : 7
+  const peekPercent = isMobile ? 9 : 7
   // Ширина слайда = 100% минус два поля выглядывания, иначе поля неравные.
   const slideWidthPercent = 100 - peekPercent * 2
   const gapPx = 16 // gap-4 in Tailwind

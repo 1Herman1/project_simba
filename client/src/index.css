@@ -213,12 +213,18 @@
     }
   }
 
-  /* Иконки в пилюле шапки: белые иконки на полупрозрачном сером фоне.
-     На ховер заливка bg-white/15 с мягким переходом.
-     Текст-shadow для контраста на белый фон иконок. */
+  /* Пилюля шапки: фон владельца — серый #777 на 50% с размытием, поэтому
+     читаемость белого текста и иконок держится тенью (filter работает и на
+     SVG, text-shadow — нет). */
+  .header-pill-text,
+  .header-pill-icon {
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.55));
+  }
+  .header-pill-logo {
+    filter: drop-shadow(0 1px 3px rgb(0 0 0 / 0.45));
+  }
   .header-pill-icon {
     transition: background-color 120ms ease, color 120ms ease;
-    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
   }
 
   @media (hover: hover) and (pointer: fine) {
