@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { CONTACTS } from '../../lib/contacts'
-import { HeartIcon, CartTrolleyIcon, UserIcon, TelegramPlaneIcon, SearchIcon } from '../icons'
+import { HeartIcon, CartBagIcon, UserIcon, TelegramPlaneIcon, SearchIcon } from '../icons'
 import SearchModal from './SearchModal'
 
 const categories = [
@@ -85,9 +85,9 @@ export default function Header() {
           </nav>
 
           {/* По центру — логотип */}
-          {/* Позиция логотипа — по тюнеру владельца: 240px, +41px вправо; по вертикали
-              центр (логотип 63px в пилюле 64px, сдвиг вниз резался краем). */}
-          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+41px)] flex items-center flex-shrink-0 header-logo">
+          {/* Позиция логотипа — по тюнеру владельца 1:1: 240px, +42px вправо, +11px вниз
+              (у PNG прозрачный запас сверху, оптический центр ниже геометрического). */}
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+42px)] lg:translate-y-[calc(-50%+11px)] flex items-center flex-shrink-0 header-logo">
             <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-[240px] h-auto header-pill-logo" />
           </Link>
 
@@ -153,7 +153,7 @@ export default function Header() {
               aria-expanded={drawer === 'cart'}
               className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
             >
-              <CartTrolleyIcon className="header-ico-cart w-[22px] h-[22px]" />
+              <CartBagIcon className="header-ico-cart w-[22px] h-[22px]" />
               {cartCount > 0 && (
                 <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
@@ -202,7 +202,7 @@ export default function Header() {
             aria-expanded={drawer === 'cart'}
             className="btn-press relative text-white w-11 h-11 flex items-center justify-center -mr-2 header-pill-text"
           >
-            <CartTrolleyIcon className="w-[22px] h-[22px]" />
+            <CartBagIcon className="w-[22px] h-[22px]" />
             {cartCount > 0 && (
               <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                 {cartCount}

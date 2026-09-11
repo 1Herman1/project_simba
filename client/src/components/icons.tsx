@@ -71,6 +71,21 @@ export function TelegramPlaneIcon({ className = '' }: IconProps) {
   )
 }
 
+/** Корзина в шапке — «пакет из бутика», та же форма, что в Perfect Skin
+    (lucide shopping-bag, MIT). Владелец просил форму оттуда, цвет и анимация
+    остаются наши. */
+export function CartBagIcon({ className = '' }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"
+      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"
+      className={`${base} ${className}`}>
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+      <path d="M3 6h18" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  )
+}
+
 /** Галочка. Класс icon-check-path на линии — её прочерчивание при появлении. */
 export function CheckIcon({ className = '' }: IconProps) {
   return (
@@ -106,14 +121,6 @@ export function CartIcon({ className = '' }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={`${base} ${className}`}>
       <g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75"><path fill="currentColor" d="M19.5 22a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m-10 0a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3" /><path d="M5 4h17l-2 11H7zm0 0c-.167-.667-1-2-3-2m18 13H5.23c-1.784 0-2.73.781-2.73 2s.946 2 2.73 2H19.5" /></g>
-    </svg>
-  )
-}
-
-export function CartTrolleyIcon({ className = '' }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className={`${base} ${className}`}>
-      <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.75" d="M3 6h19l-3 10H6zm0 0l-.75-2.5m8.75 16a1.5 1.5 0 0 1-3 0m9 0a1.5 1.5 0 0 1-3 0" />
     </svg>
   )
 }
