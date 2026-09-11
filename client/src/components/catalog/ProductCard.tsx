@@ -188,16 +188,16 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={handleAddToCart}
-          disabled={!isSellable(selectedVariant)}
-          className={`w-full py-2 ${
- error
- ? 'bg-white border border-destructive text-destructive '
- : added
- ? 'bg-white border border-line text-navy-900 '
- : !isSellable(selectedVariant)
- ? 'bg-blue-50 border border-line text-navy-400 cursor-not-allowed '
- : 'btn-primary'
- }`}>
+          disabled={unavailable}
+          className={`w-full py-2 rounded-[30px] ${
+            error
+              ? 'bg-white border border-destructive text-destructive'
+              : added
+                ? 'bg-white border border-line text-navy-900'
+                : unavailable
+                  ? 'bg-blue-50 border border-line text-navy-400 cursor-not-allowed'
+                  : 'btn-primary'
+          }`}>
           {error ? (
             <span className="text-xs">{error}</span>
           ) : added ? (
@@ -205,7 +205,7 @@ export default function ProductCard({ product }: { product: Product }) {
               <CheckIcon className="w-4 h-4 text-success" />
               Добавлено
             </span>
-          ) : !isSellable(selectedVariant) ? (
+          ) : unavailable ? (
             'Нет в наличии'
           ) : (
             'В корзину'

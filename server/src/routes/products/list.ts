@@ -17,7 +17,7 @@ const querySchema = z.object({
   species: z.preprocess(blankToUndefined, z.enum(['cat', 'dog']).optional()),
   purpose: z.preprocess(blankToUndefined, z.enum(['medical']).optional()),
   tags: z.union([z.string(), z.array(z.string())]).optional(),
-  sort: z.preprocess(blankToUndefined, z.enum(['price_asc', 'price_desc', 'newest', 'popular']).optional()),
+  sort: z.preprocess(blankToUndefined, z.enum(['price_asc', 'price_desc', 'newest', 'popular', 'in_stock']).optional()),
   featured: z.enum(['true', 'false']).optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),

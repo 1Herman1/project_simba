@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
-import { productsApi, type Product } from '../../lib/api'
+import { productsApi, type Product, type SortValue } from '../../lib/api'
 import ProductCard from './ProductCard'
 import { pluralize } from '../../lib/format'
 import EmptyCatalog from './EmptyCatalog'
 
 type ListParams = NonNullable<Parameters<typeof productsApi.list>[0]>
+
+const VALID_SORTS: SortValue[] = ['popular', 'price_asc', 'price_desc', 'newest', 'in_stock']
+function isSortValue(value: unknown): value is SortValue {
+  return typeof value === 'string' && VALID_SORTS.includes(value as SortValue)
+}
 
 interface Props {
   search: string
@@ -36,7 +41,7 @@ export default function CatalogGrid({ search, activeTag, category, brand, format
       if (format === 'dry' || format === 'wet') params.format = format
       if (purpose === 'medical') params.purpose = purpose
       if (species === 'cat' || species === 'dog') params.species = species
-      if (sort && sort !== 'popular') params.sort = sort
+      if (sort && sort !== 'popular' && isSortValue(sort)) params.sort = sort
       return params
     },
     [search, activeTag, category, brand, format, purpose, species, sort],

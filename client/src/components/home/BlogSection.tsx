@@ -15,7 +15,7 @@ const swapDelay = (i: number) => `${Math.min(i, 3) * 40}ms`
 
 const CHIP_BASE =
   'px-4 min-h-11 rounded-full font-semibold text-sm transition-[background-color,border-color,color,transform] duration-100 ease active:scale-[0.97]'
-const CHIP_ON = 'bg-primary text-white border border-primary'
+const CHIP_ON = 'bg-primary-deep text-white border border-primary-deep'
 const CHIP_OFF = 'bg-white border border-line text-navy-500 hover:border-primary-soft hover:bg-primary-tint'
 
 export default function BlogSection() {

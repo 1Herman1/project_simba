@@ -100,6 +100,8 @@ export async function ensureGuestSession(): Promise<void> {
 
 // ─── Типы ───────────────────────────────────────────────────────────────────
 
+export type SortValue = 'popular' | 'price_asc' | 'price_desc' | 'newest' | 'in_stock'
+
 export interface ProductVariant {
   id: string
   weight: number
@@ -229,7 +231,7 @@ export const productsApi = {
     purpose?: 'medical'
     species?: 'cat' | 'dog'
     tags?: string[]
-    sort?: string
+    sort?: SortValue
     page?: number
     limit?: number
     featured?: 'true' | 'false'

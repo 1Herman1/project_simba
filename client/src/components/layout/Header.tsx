@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { CONTACTS } from '../../lib/contacts'
-import { HeartIcon, CartTrolleyIcon, UserIcon, TelegramIcon, SearchIcon } from '../icons'
+import { HeartIcon, CartTrolleyIcon, UserIcon, TelegramPlaneIcon, SearchIcon } from '../icons'
 import SearchModal from './SearchModal'
 
 const categories = [
@@ -85,9 +85,9 @@ export default function Header() {
           </nav>
 
           {/* По центру — логотип */}
-          {/* Позиция логотипа — по тюнеру владельца: 240px, +41px вправо, +10px вниз
-              от центра пилюли (на планшете — 96px строго по центру). */}
-          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+41px)] lg:translate-y-[calc(-50%+10px)] flex items-center flex-shrink-0 header-logo">
+          {/* Позиция логотипа — по тюнеру владельца: 240px, +41px вправо; по вертикали
+              центр (логотип 63px в пилюле 64px, сдвиг вниз резался краем). */}
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+41px)] flex items-center flex-shrink-0 header-logo">
             <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-[240px] h-auto header-pill-logo" />
           </Link>
 
@@ -102,7 +102,7 @@ export default function Header() {
               className="btn-press w-11 h-11 inline-flex items-center justify-center rounded-xl"
             >
               <span className="header-tg-badge w-8 h-8 rounded-full inline-flex items-center justify-center shadow-sm">
-                <TelegramIcon className="w-[18px] h-[18px]" />
+                <TelegramPlaneIcon className="w-[16px] h-[14px]" />
               </span>
             </a>
 

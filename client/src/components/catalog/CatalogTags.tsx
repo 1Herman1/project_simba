@@ -156,8 +156,8 @@ export default function CatalogTags({ activeTag, onTagClick, species }: Props) {
             // на белой шапке читался как «рамка отвалилась», а не как «выбрано».
             className={`btn-press flex-shrink-0 inline-flex items-center min-h-11 lg:min-h-0 px-4 py-2 rounded-full text-sm font-medium ${
               activeTag === tag.id
-                ? 'bg-primary border border-primary text-white hover:bg-primary-hover hover:border-primary-hover'
-                : 'bg-white border border-line text-navy-700 hover:border-primary-soft hover:bg-blue-50'
+                ? 'bg-primary-deep border border-primary-deep text-white hover:bg-ink hover:border-ink'
+                : 'bg-white border border-line text-navy-700 hover:bg-ink hover:border-ink hover:text-white'
             }`}>
             {tag.label}
           </button>

@@ -50,7 +50,7 @@ export default function BlogPage() {
           onClick={() => handleCategoryClick(null)}
           className={`px-4 min-h-11 rounded-full font-semibold text-sm transition-colors duration-100 ease ${
             selectedCategory === null
-              ? 'bg-primary text-white'
+              ? 'bg-primary-deep text-white'
               : 'bg-white border border-line text-navy-500 hover:border-primary-soft'
           }`}
         >
@@ -62,7 +62,7 @@ export default function BlogPage() {
             onClick={() => handleCategoryClick(category)}
             className={`px-4 min-h-11 rounded-full font-semibold text-sm transition-colors duration-100 ease ${
               selectedCategory === category
-                ? 'bg-primary text-white'
+                ? 'bg-primary-deep text-white'
                 : 'bg-white border border-line text-navy-500 hover:border-primary-soft'
             }`}
           >
@@ -135,7 +135,7 @@ export default function BlogPage() {
                   onClick={() => handlePageChange(page)}
                   className={`min-w-11 min-h-11 rounded-xl font-semibold transition-colors duration-100 ease ${
                     currentPage === page
-                      ? 'bg-primary text-white'
+                      ? 'bg-primary-deep text-white'
                       : 'bg-white border border-line text-navy-900 hover:bg-primary-tint'
                   }`}
                 >

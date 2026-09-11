@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { brandsApi, categoriesApi } from '../lib/api'
+import { brandsApi, categoriesApi, type SortValue } from '../lib/api'
 import { useScrollDirection } from '../hooks/useScrollDirection'
 import CatalogSearch from '../components/catalog/CatalogSearch'
 import CatalogTags, { CATALOG_TAGS, catalogTagLabel, tagFitsSpecies } from '../components/catalog/CatalogTags'
 import CatalogGrid from '../components/catalog/CatalogGrid'
 import QuestionnaireTeaser from '../components/home/QuestionnaireTeaser'
+
+const VALID_SORTS: SortValue[] = ['popular', 'price_asc', 'price_desc', 'newest', 'in_stock']
+function isSortValue(value: unknown): value is SortValue {
+  return typeof value === 'string' && VALID_SORTS.includes(value as SortValue)
+}
 
 export default function CatalogPage() {
   const { hidden } = useScrollDirection()
@@ -23,7 +28,8 @@ export default function CatalogPage() {
   // Сортировка живёт в URL, как остальные фильтры: раньше она сидела в локальном
   // useState внутри SortSelect и никуда оттуда не попадала — контрол переключался,
   // а выдача не менялась.
-  const sort = searchParams.get('sort') || 'popular'
+  const sortParam = searchParams.get('sort') || 'popular'
+  const sort: SortValue = isSortValue(sortParam) ? sortParam : 'popular'
 
   // Чип другого вида в URL (например, «Для щенков» в кошачьем каталоге) даёт
   // пустую выдачу — сбрасываем его, а не показываем «ничего не найдено».
@@ -170,6 +176,7 @@ function SortSelect({ value, onChange }: { value: string; onChange: (value: stri
       <option value="price_asc">Сначала дешевле</option>
       <option value="price_desc">Сначала дороже</option>
       <option value="newest">Новинки</option>
+      <option value="in_stock">Сначала в наличии</option>
     </select>
   )
 }

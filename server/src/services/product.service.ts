@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { isSellable, type Variant } from '@simba/shared'
 import { buildTagCondition, isCatalogTag } from '../lib/catalog-tags'
 
 export interface ProductFilters {
@@ -18,7 +19,7 @@ export interface ProductFilters {
   purpose?: 'medical'
   /** Быстрые фильтры-кнопки над выдачей. */
   tags?: string[]
-  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular'
+  sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'popular' | 'in_stock'
   featured?: boolean
   page?: number
   limit?: number
@@ -169,8 +170,10 @@ export async function getProducts(prisma: PrismaClient, filters: ProductFilters)
     prisma.product.count({ where }),
   ])
 
+  const sorted = filters.sortBy === 'in_stock' ? sortItemsByStock(items) : items
+
   return {
-    items,
+    items: sorted,
     total,
     page,
     totalPages: Math.ceil(total / limit),
@@ -259,6 +262,9 @@ function buildOrderBy(sortBy?: string): Record<string, unknown> | Record<string,
     case 'price_desc':
       // Сортировка по минимальной цене варианта делается после выборки
       return { createdAt: 'desc' }
+    case 'in_stock':
+      // Сортировка по наличию делается после выборки (как цена)
+      return { createdAt: 'desc' }
     default:
       return { createdAt: 'desc' }
   }
@@ -274,5 +280,17 @@ export function sortItemsByPrice(
     const minA = Math.min(...a.variants.map((v) => v.price))
     const minB = Math.min(...b.variants.map((v) => v.price))
     return sortBy === 'price_asc' ? minA - minB : minB - minA
+  })
+}
+
+export function sortItemsByStock(
+  items: Array<{ variants: Variant[] }>,
+) {
+  // Стабильная сортировка: товары с продаваемым вариантом перед остальными,
+  // порядок внутри каждой группы сохраняется
+  return [...items].sort((a, b) => {
+    const aSellable = a.variants.some((v) => isSellable(v))
+    const bSellable = b.variants.some((v) => isSellable(v))
+    return bSellable ? (aSellable ? 0 : 1) : (aSellable ? -1 : 0)
   })
 }
