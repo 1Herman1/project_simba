@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeftIcon, ArrowRightIcon } from '../icons'
 import { bannersApi, type Banner } from '../../lib/api'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 
 interface DragState {
   startX: number
@@ -11,30 +12,25 @@ interface DragState {
 }
 
 // Оформление слайда в базе не хранится — владелец меняет содержание, а не
-// градиенты. Схемы идут по кругу: dotColor задаётся на слайд, а не глобально,
-// потому что фон меняется от светло-голубого до navy-900, и одна константа не
-// может остаться читаемой на обоих.
+// градиенты. Точки используют единую схему цветов (bg-navy-900).
 const THEMES = [
   {
     bg: 'from-blue-100 to-blue-200',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-500',
     accent: 'btn-primary',
-    dot: { active: 'bg-navy-700', idle: 'bg-navy-700/40 group-hover:bg-navy-700/70' },
   },
   {
     bg: 'from-amber-300 to-amber-400',
     textColor: 'text-navy-900',
     subtitleColor: 'text-navy-700',
     accent: 'btn-primary',
-    dot: { active: 'bg-navy-900', idle: 'bg-navy-900/40 group-hover:bg-navy-900/70' },
   },
   {
     bg: 'from-navy-700 to-navy-900',
     textColor: 'text-white',
     subtitleColor: 'text-blue-100',
     accent: 'btn-primary',
-    dot: { active: 'bg-white', idle: 'bg-white/50 group-hover:bg-white/80' },
   },
 ]
 
@@ -154,8 +150,10 @@ function Slide({ banner, trackIndex, isActive, theme, onNavigate, isDragging, wi
 }
 
 export default function BannerCarousel() {
+  const isMobile = useMediaQuery('(max-width: 767px)')
   const [banners, setBanners] = useState<Banner[]>([])
   const [trackIndex, setTrackIndex] = useState(1) // Start at 1 (first real slide, with clone-last to the left)
+  const [mobileIndex, setMobileIndex] = useState(0) // For native scroll on mobile
   const [isPaused, setIsPaused] = useState(false)
   const [dragX, setDragX] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
@@ -163,6 +161,7 @@ export default function BannerCarousel() {
   const [containerWidth, setContainerWidth] = useState(0)
   const dragStateRef = useRef<DragState>({ startX: 0, currentX: 0, startTime: 0, isDragging: false })
   const trackRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null) // For mobile native scroll
   const lastDragDistanceRef = useRef(0)
   const transitionEndTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -172,6 +171,25 @@ export default function BannerCarousel() {
       .then((res) => setBanners(res.data))
       .catch(() => setBanners([]))
   }, [])
+
+  // Mobile native scroll: track active index
+  useEffect(() => {
+    if (!isMobile || !scrollRef.current) return
+
+    const el = scrollRef.current
+    const handleScroll = () => {
+      if (!el || el.children.length === 0) return
+
+      const slideWidth = (el.children[0] as HTMLElement).offsetWidth
+      const gap = 16 // gap-4 in tailwind = 16px
+      const scrollLeft = el.scrollLeft
+      const index = Math.round(scrollLeft / (slideWidth + gap))
+      setMobileIndex(Math.min(index, banners.length - 1))
+    }
+
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [isMobile, banners.length])
 
   // Measure container width and track changes with ResizeObserver
   useEffect(() => {
@@ -352,10 +370,8 @@ export default function BannerCarousel() {
   const current = hasClones ? (trackIndex - 1 + n) % n : trackIndex
 
   const theme = THEMES[current % THEMES.length]
-  const dot = banners[current].showText ? theme.dot : THEMES[0].dot
 
   // Peek mode calculation: desktop PEEK=11%, GAP=5.5%, SLIDE=67; mobile peek 9%, gap 16px, slide 82%
-  const isMobile = window.innerWidth < 768
   const peekPercent = isMobile ? 9 : 11
   const gapPercent = isMobile ? 0 : 5.5
   const slideWidthPercent = 100 - peekPercent * 2 - gapPercent * 2
@@ -391,6 +407,71 @@ export default function BannerCarousel() {
     }
   }
 
+  if (isMobile) {
+    // Mobile: native scroll with snap
+    return (
+      <section
+        id="banners"
+        aria-label="Акции и предложения"
+        className="scroll-mt-24"
+      >
+        <div className="overflow-hidden">
+          <div
+            ref={scrollRef}
+            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 px-[9%] scroll-px-[9%]"
+            style={{ scrollPaddingInline: '9%' }}
+            role="region"
+            aria-roledescription="carousel"
+          >
+            {banners.map((banner, index) => (
+              <Slide
+                key={banner.id}
+                banner={banner}
+                trackIndex={index}
+                isActive={mobileIndex === index}
+                isDragging={false}
+                theme={THEMES[index % THEMES.length]}
+                widthPercent={82}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Dots below the banner */}
+        {n > 1 && (
+          <div className="mt-3 flex justify-center">
+            {banners.map((b, i) => (
+              <button
+                type="button"
+                key={b.id}
+                onClick={() => {
+                  if (scrollRef.current && scrollRef.current.children.length > i) {
+                    const slideWidth = (scrollRef.current.children[i] as HTMLElement).offsetWidth
+                    const gap = 16
+                    scrollRef.current.scrollTo({
+                      left: i * (slideWidth + gap),
+                      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                    })
+                  }
+                }}
+                className="w-11 h-11 flex items-center justify-center"
+                aria-label={`Перейти к баннеру ${i + 1}`}
+                aria-current={mobileIndex === i ? 'page' : undefined}
+              >
+                <span
+                  className={`block h-2 rounded-full transition-[width,background-color] ${
+                    mobileIndex === i ? 'w-6 bg-navy-900' : 'w-2 bg-navy-900/30'
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  // Desktop: JS drag with infinite carousel
   return (
     <section
       id="banners"
@@ -492,28 +573,30 @@ export default function BannerCarousel() {
         </>
       )}
 
-      {/* Точки */}
-      <div className="absolute bottom-0 inset-x-0 flex justify-center pointer-events-none">
-        {banners.map((b, i) => (
-          <button
-            type="button"
-            key={b.id}
-            onClick={() => {
-              setTrackIndex(i + 1)
-              setIsAnimating(true)
-            }}
-            className="group w-11 h-11 flex items-center justify-center pointer-events-auto"
-            aria-label={`Перейти к баннеру ${i + 1}`}
-            aria-current={i + 1 === trackIndex ? 'page' : undefined}
-          >
-            <span
-              className={`block h-2 rounded-full transition-[width,background-color] ${
-                i + 1 === trackIndex ? `w-6 ${dot.active}` : `w-2 ${dot.idle}`
-              }`}
-            />
-          </button>
-        ))}
-      </div>
+      {/* Dots below the banner */}
+      {n > 1 && (
+        <div className="mt-3 flex justify-center">
+          {banners.map((b, i) => (
+            <button
+              type="button"
+              key={b.id}
+              onClick={() => {
+                setTrackIndex(i + 1)
+                setIsAnimating(true)
+              }}
+              className="w-11 h-11 flex items-center justify-center"
+              aria-label={`Перейти к баннеру ${i + 1}`}
+              aria-current={i + 1 === trackIndex ? 'page' : undefined}
+            >
+              <span
+                className={`block h-2 rounded-full transition-[width,background-color] ${
+                  i + 1 === trackIndex ? 'w-6 bg-navy-900' : 'w-2 bg-navy-900/30'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

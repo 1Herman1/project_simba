@@ -81,7 +81,7 @@ export default function QuizModal({ open, onClose }: Props) {
   if (!mounted) return null
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-start justify-center sm:px-4 sm:pt-[6vh]">
+    <div className="fixed inset-0 z-[80] flex items-start justify-center sm:px-4 sm:pt-[6vh]">
       {/* Backdrop */}
       <div
         onClick={onClose}

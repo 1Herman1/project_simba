@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import { useFavorites } from '../../context/FavoritesContext'
 import { useDrawer } from '../../context/DrawerContext'
 import { CONTACTS } from '../../lib/contacts'
-import { HeartIcon, CartBagIcon, UserIcon, TelegramPlaneIcon, SearchIcon } from '../icons'
+import { HeartIcon, CartBagIcon, UserIcon, TelegramPlaneIcon, SearchIcon, PhoneIcon } from '../icons'
 import SearchModal from './SearchModal'
 
 const categories = [
@@ -40,6 +40,26 @@ export default function Header() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [contactsOpen, setContactsOpen] = useState(false)
+  const contactsRef = useRef<HTMLDivElement>(null)
+
+  // Попап контактов закрывается тапом вне и по Esc.
+  useEffect(() => {
+    if (!contactsOpen) return
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node
+      if (contactsRef.current?.contains(t)) return
+      if ((t as Element).closest?.('[aria-label="Контакты"]')) return
+      setContactsOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setContactsOpen(false)
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [contactsOpen])
   const { count: cartCount } = useCart()
   const { count: favCount } = useFavorites()
   const { openCart, openFavorites, drawer } = useDrawer()
@@ -172,7 +192,10 @@ export default function Header() {
         <div className="relative flex items-center justify-between h-14 bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] rounded-full px-4 drop-shadow-sm">
           {/* Бургер */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => {
+              setContactsOpen(false)
+              setMobileMenuOpen(!mobileMenuOpen)
+            }}
             className="btn-press text-white w-11 h-11 flex items-center justify-center -ml-2 header-pill-text"
             aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
             aria-expanded={mobileMenuOpen}
@@ -191,26 +214,57 @@ export default function Header() {
 
           {/* Логотип по центру */}
           <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <img src="/logo-header.png" alt="Симба" className="w-[64px] h-auto header-pill-logo" />
+            <img src="/logo-header.png" alt="Симба" className="w-[96px] h-auto header-pill-logo" />
           </Link>
 
-          {/* Корзина справа */}
-          <button
-            type="button"
-            onClick={() => openCart()}
-            aria-label="Корзина"
-            aria-haspopup="dialog"
-            aria-expanded={drawer === 'cart'}
-            className="btn-press relative text-white w-11 h-11 flex items-center justify-center -mr-2 header-pill-text"
-          >
-            <CartBagIcon className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
-                {cartCount}
-              </span>
-            )}
-          </button>
+          {/* Справа — Telegram и контакты, в стиле пилюли (корзина живёт в нижнем меню) */}
+          <div className="flex items-center -mr-2">
+            <a
+              href={CONTACTS.telegram}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Написать в Telegram"
+              className="btn-press header-pill-icon text-white w-11 h-11 flex items-center justify-center rounded-xl"
+            >
+              <TelegramPlaneIcon className="w-[18px] h-[16px]" />
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false)
+                setContactsOpen((v) => !v)
+              }}
+              aria-label="Контакты"
+              aria-haspopup="dialog"
+              aria-expanded={contactsOpen}
+              className={`btn-press header-pill-icon text-white w-11 h-11 flex items-center justify-center rounded-xl ${contactsOpen ? 'bg-white/28' : ''}`}
+            >
+              <PhoneIcon className="w-[22px] h-[22px]" />
+            </button>
+          </div>
         </div>
+
+        {/* Попап контактов — под пилюлей */}
+        {contactsOpen && (
+          <div ref={contactsRef} role="dialog" aria-label="Контакты" className="mt-2 bg-white rounded-card shadow-md overflow-hidden animate-slide-down">
+            <div className="px-5 py-4 flex flex-col gap-2">
+              <a href={CONTACTS.phoneHref} className="text-2xl font-semibold text-navy-900 tracking-tight">
+                {CONTACTS.phone}
+              </a>
+              <p className="text-sm text-navy-500">{CONTACTS.hours}</p>
+              <p className="text-sm text-navy-700">Поможем подобрать корм и оформить заказ.</p>
+              <a
+                href={CONTACTS.telegram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary press-wide w-full mt-2"
+                onClick={() => setContactsOpen(false)}
+              >
+                Написать в Telegram
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Мобильное меню */}
         {mobileMenuOpen && (

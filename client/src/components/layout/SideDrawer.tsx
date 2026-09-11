@@ -105,9 +105,10 @@ export default function SideDrawer({ open, onClose, title, titleSuffix, children
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`absolute inset-y-0 right-0 flex flex-col
+        className={`absolute top-0 bottom-[calc(64px+env(safe-area-inset-bottom))] sm:bottom-0 right-0 flex flex-col
                     w-full sm:w-[420px] max-w-full
                     bg-white shadow-xl sm:border-l sm:border-line sm:rounded-l-card sm:overflow-hidden
+                    rounded-b-card sm:rounded-b-none
                     transition-[transform,opacity] ease-drawer
                     ${shown ? 'translate-x-0 opacity-100 duration-300' : 'translate-x-full opacity-0 duration-200'}`}
       >

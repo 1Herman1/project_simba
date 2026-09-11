@@ -7,77 +7,96 @@ import { HomeIcon, HeartIcon, CartIcon, UserIcon } from '../icons'
 export default function MobileBottomNav() {
   const { count: cartCount } = useCart()
   const { count: favCount } = useFavorites()
-  const { openCart, openFavorites, drawer } = useDrawer()
+  const { openCart, openFavorites, drawer, close } = useDrawer()
+
+  const handleCartClick = () => {
+    if (drawer === 'cart') {
+      close()
+    } else {
+      openCart()
+    }
+  }
+
+  const handleFavoritesClick = () => {
+    if (drawer === 'favorites') {
+      close()
+    } else {
+      openFavorites()
+    }
+  }
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-line z-50">
-      <div className="flex pb-[env(safe-area-inset-bottom)]">
+    <nav
+      className="md:hidden fixed left-4 right-4 bottom-[10px] z-[70] rounded-full h-14 bg-[rgb(119_119_119_/_0.5)] supports-[backdrop-filter]:backdrop-blur-[8px] drop-shadow-sm"
+      style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div className="flex h-full items-center justify-around px-2">
         {/* Главная */}
         <NavLink
           to="/"
+          aria-label="Главная"
           className={({ isActive }) =>
-            `flex-1 flex flex-col items-center py-2 pb-3 transition-colors duration-100 ease ${
-              isActive ? 'text-primary-hover' : 'text-navy-500'
+            `flex flex-col items-center justify-center gap-0.5 w-16 h-12 rounded-full text-white header-pill-text transition-colors duration-100 ease ${
+              isActive ? 'bg-white/28' : ''
             }`
           }
         >
-          <div className="relative">
-            <HomeIcon className="w-6 h-6" />
-          </div>
-          <span className="text-xs mt-0.5 font-medium">Главная</span>
+          <HomeIcon className="w-[22px] h-[22px]" />
+          <span className="text-[10px] font-medium leading-none">Главная</span>
         </NavLink>
 
         {/* Избранное */}
         <button
           type="button"
-          onClick={() => openFavorites()}
-          className={`flex-1 flex flex-col items-center py-2 pb-3 transition-colors duration-100 ease ${
-            drawer === 'favorites' ? 'text-primary-hover' : 'text-navy-500'
+          onClick={handleFavoritesClick}
+          aria-label={drawer === 'favorites' ? 'Закрыть избранное' : 'Открыть избранное'}
+          className={`flex flex-col items-center justify-center gap-0.5 w-16 h-12 rounded-full text-white header-pill-text transition-colors duration-100 ease ${
+            drawer === 'favorites' ? 'bg-white/28' : ''
           }`}
         >
           <div className="relative">
-            <HeartIcon className="w-6 h-6" />
+            <HeartIcon className="w-[22px] h-[22px]" />
             {favCount > 0 && (
-              <span key={`fav-nav-${favCount}`} className="absolute -top-1 -right-1 bg-primary text-white text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5 animate-badge-pop">
+              <span key={`fav-nav-${favCount}`} className="absolute -top-1 -right-1 bg-amber-400 text-navy-900 text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5 animate-badge-pop">
                 {favCount}
               </span>
             )}
           </div>
-          <span className="text-xs mt-0.5 font-medium">Избранное</span>
+          <span className="text-[10px] font-medium leading-none">Избранное</span>
         </button>
 
         {/* Корзина */}
         <button
           type="button"
-          onClick={() => openCart()}
-          className={`flex-1 flex flex-col items-center py-2 pb-3 transition-colors duration-100 ease ${
-            drawer === 'cart' ? 'text-primary-hover' : 'text-navy-500'
+          onClick={handleCartClick}
+          aria-label={drawer === 'cart' ? 'Закрыть корзину' : 'Открыть корзину'}
+          className={`flex flex-col items-center justify-center gap-0.5 w-16 h-12 rounded-full text-white header-pill-text transition-colors duration-100 ease ${
+            drawer === 'cart' ? 'bg-white/28' : ''
           }`}
         >
           <div className="relative">
-            <CartIcon className="w-6 h-6" />
+            <CartIcon className="w-[22px] h-[22px]" />
             {cartCount > 0 && (
-              <span key={`cart-nav-${cartCount}`} className="absolute -top-1 -right-1 bg-primary text-white text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5 animate-badge-pop">
+              <span key={`cart-nav-${cartCount}`} className="absolute -top-1 -right-1 bg-amber-400 text-navy-900 text-[10px] min-w-[16px] h-4 rounded-full flex items-center justify-center font-bold px-0.5 animate-badge-pop">
                 {cartCount}
               </span>
             )}
           </div>
-          <span className="text-xs mt-0.5 font-medium">Корзина</span>
+          <span className="text-[10px] font-medium leading-none">Корзина</span>
         </button>
 
         {/* Профиль */}
         <NavLink
           to="/profile"
+          aria-label="Профиль"
           className={({ isActive }) =>
-            `flex-1 flex flex-col items-center py-2 pb-3 transition-colors duration-100 ease ${
-              isActive ? 'text-primary-hover' : 'text-navy-500'
+            `flex flex-col items-center justify-center gap-0.5 w-16 h-12 rounded-full text-white header-pill-text transition-colors duration-100 ease ${
+              isActive ? 'bg-white/28' : ''
             }`
           }
         >
-          <div className="relative">
-            <UserIcon className="w-6 h-6" />
-          </div>
-          <span className="text-xs mt-0.5 font-medium">Профиль</span>
+          <UserIcon className="w-[22px] h-[22px]" />
+          <span className="text-[10px] font-medium leading-none">Профиль</span>
         </NavLink>
       </div>
     </nav>

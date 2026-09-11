@@ -106,17 +106,17 @@ export default function QuizQuestionComponent({
                 aria-checked={isSelected}
                 className={`w-full p-4 rounded-xl border-2 text-left transition-[transform,border-color,background-color] duration-100 ease active:scale-[0.98] ${
                   isSelected
-                    ? 'border-primary-soft bg-white text-navy-900'
-                    : 'border-line text-navy-700 bg-white hover:border-primary-soft hover:bg-blue-50'
+                    ? 'bg-ink border-ink text-white'
+                    : 'bg-white border-line text-navy-700 hover:border-ink'
                 } ${
                   'min-h-[44px] flex items-center'
                 }`}
               >
                 {option.pet === 'dog' && (
-                  <DogSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-primary-soft' : 'text-navy-300'}`} />
+                  <DogSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-white' : 'text-navy-300'}`} />
                 )}
                 {option.pet === 'cat' && (
-                  <CatSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-primary-soft' : 'text-navy-300'}`} />
+                  <CatSilhouette className={`w-12 h-12 mr-4 flex-shrink-0 transition-colors duration-100 ease ${isSelected ? 'text-white' : 'text-navy-300'}`} />
                 )}
                 <div className="flex-1">
                   <div className="font-medium text-base">{option.label}</div>
@@ -127,12 +127,12 @@ export default function QuizQuestionComponent({
                 {isMultiple && (
                   <div
                     className={`ml-4 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                      isSelected ? 'border-primary-soft bg-primary' : 'border-navy-300'
+                      isSelected ? 'border-white bg-white' : 'border-navy-300'
                     }`}
                     aria-hidden="true"
                   >
                     {isSelected && (
-                      <CheckIcon className="w-3 h-3 text-white ico-draw" />
+                      <CheckIcon className="w-3 h-3 text-ink ico-draw" />
                     )}
                   </div>
                 )}

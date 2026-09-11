@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMetaTags } from '../hooks/useMetaTags'
 import CountUp from '../components/CountUp'
-import { ImagePlaceholderIcon } from '../components/icons'
 import { CONTACTS, LEGAL } from '../lib/contacts'
 
 export default function AboutPage() {
@@ -13,7 +12,13 @@ export default function AboutPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-10 md:py-14">
-      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-3">Кто мы</h1>
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-navy-900 mb-5">Кто мы</h1>
+
+      {/* Баннер после заголовка. Реального фото магазина в репозитории нет —
+          стоит иллюстрация; замена: положить файл в public/about/ и поменять src. */}
+      <div className="mb-8 rounded-banner overflow-hidden bg-[#D9D9D9] aspect-[16/9] md:aspect-[21/9]">
+        <img src="/pets/dogwithcat.png" alt="Собака и кошка — питомцы Симбы" className="w-full h-full object-cover" />
+      </div>
       <p className="text-navy-500 max-w-prose mb-10 leading-relaxed">
         Симба начался с простой собственной проблемы: найти импортный корм для своей собаки — гарантированно оригинальный, со свежими сроками и по честной цене, — и это оказалось сложнее, чем должно быть.
       </p>
@@ -22,19 +27,6 @@ export default function AboutPage() {
       <div className="mb-10 flex items-baseline gap-4">
         <CountUp value={24000} suffix="+" className="text-[40px] font-black text-navy-900" />
         <p className="text-navy-500">заказов и 2 500 отзывов</p>
-      </div>
-
-      {/* Image placeholder on all screens */}
-      <div className="mb-10">
-        <div className="bg-primary-tint rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
-          <div className="text-primary-soft mb-3">
-            <ImagePlaceholderIcon className="w-12 h-12" />
-          </div>
-          <p className="text-sm text-navy-500 text-center">
-            Здесь будет фото: витрина, склад или сборка заказа
-          </p>
-        </div>
-        {/* TODO: Replace placeholder with actual image: <img src="..." alt="..." className="rounded-card object-cover aspect-[4/3]" /> */}
       </div>
 
       {/* Section 1: Ассортимент */}

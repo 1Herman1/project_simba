@@ -21,10 +21,10 @@ export default function QuizProgress({ current, total }: QuizProgressProps) {
           aria-valuemin={1}
           aria-valuemax={total}
           aria-label={`Вопрос ${current} из ${total}`}
-          className="w-full h-2 bg-blue-50 rounded-full overflow-hidden"
+          className="w-full h-2 bg-navy-100 rounded-full overflow-hidden"
         >
           <div
-            className="h-full w-full bg-primary transition-transform duration-300 ease-out origin-left"
+            className="h-full w-full bg-ink transition-transform duration-300 ease-out origin-left"
             style={{ transform: `scaleX(${percentage / 100})` }}
           />
         </div>
