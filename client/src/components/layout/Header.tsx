@@ -85,10 +85,11 @@ export default function Header() {
           </nav>
 
           {/* По центру — логотип */}
-          {/* Позиция логотипа — по тюнеру владельца 1:1: 240px, +42px вправо, +11px вниз
-              (у PNG прозрачный запас сверху, оптический центр ниже геометрического). */}
-          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:translate-x-[calc(-50%+42px)] lg:translate-y-[calc(-50%+11px)] flex items-center flex-shrink-0 header-logo">
-            <img src="/logo-header.png" alt="Симба" className="w-24 lg:w-[240px] h-auto header-pill-logo" />
+          {/* PNG обрезан по «чернилам» (было 1968×520 с пустыми полями справа и снизу),
+              поэтому логотип центруется без сдвигов на любой ширине. Видимый размер тот,
+              что владелец выставил в тюнере: 240px старого файла = 154px обрезанного. */}
+          <Link to="/" className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center flex-shrink-0 header-logo">
+            <img src="/logo-header.png" alt="Симба" className="w-[62px] lg:w-[154px] h-auto header-pill-logo" />
           </Link>
 
           {/* Справа — иконки */}
@@ -153,7 +154,7 @@ export default function Header() {
               aria-expanded={drawer === 'cart'}
               className="btn-press header-pill-icon relative w-11 h-11 inline-flex items-center justify-center rounded-xl text-white"
             >
-              <CartBagIcon className="header-ico-cart w-[22px] h-[22px]" />
+              <CartBagIcon className="header-ico-cart w-5 h-5" />
               {cartCount > 0 && (
                 <span key={`cart-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                   {cartCount}
@@ -190,7 +191,7 @@ export default function Header() {
 
           {/* Логотип по центру */}
           <Link to="/" className="flex items-center flex-shrink-0 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <img src="/logo-header.png" alt="Симба" className="w-[100px] h-auto header-pill-logo" />
+            <img src="/logo-header.png" alt="Симба" className="w-[64px] h-auto header-pill-logo" />
           </Link>
 
           {/* Корзина справа */}
@@ -202,7 +203,7 @@ export default function Header() {
             aria-expanded={drawer === 'cart'}
             className="btn-press relative text-white w-11 h-11 flex items-center justify-center -mr-2 header-pill-text"
           >
-            <CartBagIcon className="w-[22px] h-[22px]" />
+            <CartBagIcon className="w-5 h-5" />
             {cartCount > 0 && (
               <span key={`cart-mobile-${cartCount}`} className="absolute -top-0.5 -right-0.5 bg-amber-400 text-navy-900 text-[10px] min-w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold px-1 animate-badge-pop">
                 {cartCount}
