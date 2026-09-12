@@ -15,8 +15,8 @@ const swapDelay = (i: number) => `${Math.min(i, 3) * 40}ms`
 
 const CHIP_BASE =
   'px-4 min-h-11 rounded-full font-semibold text-sm transition-[background-color,border-color,color,transform] duration-100 ease active:scale-[0.97]'
-const CHIP_ON = 'bg-primary-deep text-white border border-primary-deep'
-const CHIP_OFF = 'bg-white border border-line text-navy-500 hover:border-primary-soft hover:bg-primary-tint'
+const CHIP_ON = 'bg-ink text-white border border-ink'
+const CHIP_OFF = 'bg-white border border-line text-navy-700 [@media(hover:hover)]:hover:bg-ink [@media(hover:hover)]:hover:border-ink [@media(hover:hover)]:hover:text-white'
 
 export default function BlogSection() {
   /** Наблюдатель на самой группе: секция подключена без обёртки <Reveal>,
@@ -93,18 +93,18 @@ export default function BlogSection() {
                 key={post.slug}
                 to={`/blog/${post.slug}`}
                 style={cardStyle(i)}
-                className={`reveal-item ${swapClass} bg-white border border-line rounded-card overflow-hidden transition-[transform,box-shadow,border-color] duration-100 ease hover:border-primary-soft hover:shadow-card hover:-translate-y-0.5`}
+                className={`reveal-item ${swapClass} bg-white border border-line rounded-card overflow-hidden transition-[transform,box-shadow,border-color] duration-100 ease hover:border-navy-300 hover:shadow-card hover:-translate-y-0.5`}
               >
                 {post.cover ? (
                   <img src={post.cover} alt={post.title} loading="lazy" className="w-full aspect-[16/10] object-cover" />
                 ) : (
-                  <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
+                  <div className="w-full aspect-[16/10] bg-blue-50 flex items-center justify-center text-navy-300">
                     <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
 
                 <div className="p-5">
-                  <p className="text-xs uppercase tracking-wide text-primary-hover font-semibold mb-2">
+                  <p className="text-xs uppercase tracking-wide text-navy-500 font-semibold mb-2">
                     {post.categories.join(' · ')}
                   </p>
                   <h3 className="font-bold text-lg text-navy-900 mb-2 line-clamp-2">{post.title}</h3>

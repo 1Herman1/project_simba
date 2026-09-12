@@ -69,10 +69,10 @@ function BrandTileLink({ brand }: { brand: Brand }) {
             loading="lazy"
             decoding="async"
             onError={() => setFailed(true)}
-            className="h-full w-full bg-white object-cover"
-            /* Масштаб подобран владельцем в живой примерке: логотип на 72% плитки,
-               по центру. Поле вокруг — тот же фирменный синий, шва нет. */
-            style={{ transform: 'scale(0.72)' }}
+            /* 72% плитки — примерка владельца. Раньше это был transform: scale,
+               и на трёх колонках телефона края логотипа резались рамкой плитки;
+               теперь размер задан боксом, картинка всегда вписана. */
+            className="h-[72%] aspect-square bg-white object-contain"
           />
         ) : (
         <div className="flex items-center justify-center w-full h-full">

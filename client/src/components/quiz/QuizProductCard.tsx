@@ -83,8 +83,8 @@ export default function QuizProductCard({
           <p className="text-xs text-navy-500">{product.brandName}</p>
           {product.matchScore >= 0.6 && (
             <span className="inline-flex items-center gap-1.5 text-sm font-bold text-navy-900 tabular-nums">
-              <span className="w-2 h-2 rounded-full bg-primary" aria-hidden="true" />
-              Совпадение {Math.round(product.matchScore * 100)}%
+              <span className="w-2 h-2 rounded-full bg-amber-500" aria-hidden="true" />
+              Совпадение {Math.round(Math.min(100, product.matchScore * 100))}%
             </span>
           )}
         </div>
@@ -123,8 +123,8 @@ export default function QuizProductCard({
             disabled={isAdding}
             className={`relative z-10 w-full py-3 duration-100 ease disabled:opacity-50 disabled:cursor-not-allowed ${
  isMain
- ? 'btn-primary '
- : 'bg-blue-50 text-primary-hover border border-line hover:bg-blue-100'
+ ? 'btn-primary'
+ : added ? 'rounded-[30px] min-h-[2.75rem] bg-white border border-line text-navy-900' : 'rounded-[30px] min-h-[2.75rem] bg-white border border-ink text-ink font-semibold text-[13px] [@media(hover:hover)]:hover:bg-ink [@media(hover:hover)]:hover:text-white transition-colors'
  }`}
           >
             {added ? (

@@ -75,7 +75,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
           <p className="text-navy-600 text-sm mb-8">
             По вашим условиям в каталоге нашлось{' '}
             {pluralize(result.shortfall.found, 'вариант', 'варианта', 'вариантов')}.{' '}
-            <Link to="/catalog" className="text-primary-hover font-medium underline underline-offset-2">
+            <Link to="/catalog" className="text-navy-900 font-medium underline underline-offset-2">
               Посмотреть похожие в каталоге
             </Link>
           </p>
@@ -85,7 +85,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
         <div className="mb-8">
           <div className="relative">
             <QuizProductCard product={result.main} variant="main" onAddToCart={handleAddMainToCart} added={addedMain} />
-            <span className="absolute top-3 left-3 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">
+            <span className="absolute top-3 left-3 bg-amber-400 text-navy-900 text-xs font-bold px-3 py-1 rounded-full">
               Основная рекомендация
             </span>
           </div>
@@ -102,7 +102,7 @@ export default function QuizResult({ result, inModal }: QuizResultProps) {
           <ul className="space-y-3">
             {result.reasons.map((reason, idx) => (
               <li key={idx} className="flex gap-3 text-navy-700" style={{ '--draw-delay': `${Math.min(idx, 4) * 60}ms` } as React.CSSProperties}>
-                <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5 ico-draw" />
+                <CheckIcon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5 ico-draw" />
                 <span>{reason}</span>
               </li>
             ))}

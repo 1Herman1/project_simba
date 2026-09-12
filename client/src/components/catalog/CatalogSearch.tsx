@@ -6,8 +6,8 @@ interface Props {
   onClear: () => void
 }
 
-/** Кольцо фокуса — primary-soft, а не blue-100: у прежнего контраст к белому
-    был 1.23:1, то есть индикатора фокуса фактически не существовало. */
+/** Кольцо фокуса — ink (чёрный), а не синий: контраст к белому даёт 15.2:1,
+    индикатор фокуса хорошо видно на светлом фоне. */
 export default function CatalogSearch({ value, onChange, onClear }: Props) {
   return (
     <div role="search" className="relative w-full">
@@ -19,7 +19,7 @@ export default function CatalogSearch({ value, onChange, onClear }: Props) {
         onChange={e => onChange(e.target.value)}
         placeholder="Найти корм, бренд или товар..."
         aria-label="Поиск по каталогу"
-        className="w-full pl-8 pr-12 py-2 bg-transparent border-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-soft text-navy-900 placeholder-navy-300 text-base"
+        className="w-full pl-8 pr-12 py-2 bg-transparent border-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ink text-navy-900 placeholder-navy-300 text-base"
       />
 
       {/* Крестик — 44px, а не 20px: это полноценная кнопка, а не иконка. */}

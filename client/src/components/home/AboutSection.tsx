@@ -1,10 +1,9 @@
 import { type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
-import { ImagePlaceholderIcon } from '../icons'
 import { LEGAL } from '../../lib/contacts'
 import { useReveal } from '../../hooks/useReveal'
 
-/** Фото основательницы/склада. null — фото ещё нет, показываем плейсхолдер.
+/** Фото основательницы/склада. null — фото ещё нет, стоит иллюстрация с питомцами.
     Когда появится: { src: '/about/alina.jpg', alt: 'Алина, основательница Симбы' } */
 const FOUNDER_PHOTO: { src: string; alt: string } | null = null
 
@@ -13,24 +12,16 @@ const FOUNDER_PHOTO: { src: string; alt: string } | null = null
 const step = (i: number) => ({ '--reveal-delay': `${Math.min(i, 3) * 60}ms` }) as CSSProperties
 
 function FounderVisual() {
-  if (FOUNDER_PHOTO) {
-    return (
+  const photo = FOUNDER_PHOTO ?? { src: '/pets/dogwithcat.png', alt: 'Собака и кошка — питомцы Симбы' }
+  return (
+    <div className="rounded-banner overflow-hidden bg-[#D9D9D9] aspect-[16/9] md:aspect-[21/9]">
       <img
-        src={FOUNDER_PHOTO.src}
-        alt={FOUNDER_PHOTO.alt}
+        src={photo.src}
+        alt={photo.alt}
         loading="lazy"
         decoding="async"
-        className="w-full aspect-[4/3] object-cover rounded-card"
+        className="w-full h-full object-cover"
       />
-    )
-  }
-
-  return (
-    <div className="bg-white border border-line rounded-card aspect-[4/3] flex flex-col items-center justify-center p-4">
-      <div className="text-primary-soft mb-3">
-        <ImagePlaceholderIcon className="w-12 h-12" />
-      </div>
-      <p className="text-sm text-navy-500 text-center">Здесь будет фото: витрина, склад или сборка заказа</p>
     </div>
   )
 }
@@ -47,7 +38,12 @@ export default function AboutSection() {
           <h2 id="about-title" className="mt-1 text-3xl font-bold text-navy-900">Кто мы</h2>
         </div>
 
-        <div className="mt-8 grid md:grid-cols-2 gap-8 md:items-center">
+        {/* Медиа-рамка сразу после заголовка, на всю ширину секции — по ТЗ владельца */}
+        <div className="reveal-item mt-6" style={step(1)}>
+          <FounderVisual />
+        </div>
+
+        <div className="mt-8">
           {/* Текст слева */}
           <div>
             <p className="reveal-item text-navy-500 max-w-prose leading-relaxed" style={step(1)}>
@@ -76,10 +72,6 @@ export default function AboutSection() {
             </div>
           </div>
 
-          {/* Визуал справа: фото основательницы, пока его нет — брендовая панель с репликой */}
-          <div className="reveal-item" style={step(1)}>
-            <FounderVisual />
-          </div>
         </div>
 
         {/* Тонкая юридическая строка: разделитель на всю ширину секции,

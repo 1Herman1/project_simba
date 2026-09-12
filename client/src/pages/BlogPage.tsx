@@ -50,8 +50,8 @@ export default function BlogPage() {
           onClick={() => handleCategoryClick(null)}
           className={`px-4 min-h-11 rounded-full font-semibold text-sm transition-colors duration-100 ease ${
             selectedCategory === null
-              ? 'bg-primary-deep text-white'
-              : 'bg-white border border-line text-navy-500 hover:border-primary-soft'
+              ? 'bg-ink border border-ink text-white'
+              : 'bg-white border border-line text-navy-700 [@media(hover:hover)]:hover:bg-ink [@media(hover:hover)]:hover:border-ink [@media(hover:hover)]:hover:text-white'
           }`}
         >
           Все
@@ -62,8 +62,8 @@ export default function BlogPage() {
             onClick={() => handleCategoryClick(category)}
             className={`px-4 min-h-11 rounded-full font-semibold text-sm transition-colors duration-100 ease ${
               selectedCategory === category
-                ? 'bg-primary-deep text-white'
-                : 'bg-white border border-line text-navy-500 hover:border-primary-soft'
+                ? 'bg-ink border border-ink text-white'
+                : 'bg-white border border-line text-navy-700 [@media(hover:hover)]:hover:bg-ink [@media(hover:hover)]:hover:border-ink [@media(hover:hover)]:hover:text-white'
             }`}
           >
             {category}
@@ -79,13 +79,13 @@ export default function BlogPage() {
               <Link
                 key={post.slug}
                 to={`/blog/${post.slug}`}
-                className="bg-white border border-line rounded-card overflow-hidden transition-[transform] duration-100 ease hover:border-primary-soft hover:shadow-card hover:-translate-y-0.5"
+                className="bg-white border border-line rounded-card overflow-hidden transition-[transform] duration-100 ease hover:border-navy-300 hover:shadow-card hover:-translate-y-0.5"
               >
                 {/* Обложка */}
                 {post.cover ? (
                   <img src={post.cover} alt={post.title} className="w-full aspect-[16/10] object-cover" />
                 ) : (
-                  <div className="w-full aspect-[16/10] bg-primary-tint flex items-center justify-center text-primary-soft">
+                  <div className="w-full aspect-[16/10] bg-blue-50 flex items-center justify-center text-navy-300">
                     <ImagePlaceholderIcon className="w-12 h-12" />
                   </div>
                 )}
@@ -93,7 +93,7 @@ export default function BlogPage() {
                 {/* Контент */}
                 <div className="p-5">
                   {/* Категории */}
-                  <p className="text-xs uppercase tracking-wide text-primary-hover font-semibold mb-2">
+                  <p className="text-xs uppercase tracking-wide text-navy-500 font-semibold mb-2">
                     {post.categories.join(' · ')}
                   </p>
 
@@ -122,7 +122,7 @@ export default function BlogPage() {
               {currentPage > 1 && (
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-primary-tint transition-colors duration-100 ease flex items-center justify-center"
+                  className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-blue-50 transition-colors duration-100 ease flex items-center justify-center"
                   aria-label="Предыдущая страница"
                 >
                   <ArrowLeftIcon className="ico-nudge ico-nudge--back w-5 h-5" />
@@ -135,8 +135,8 @@ export default function BlogPage() {
                   onClick={() => handlePageChange(page)}
                   className={`min-w-11 min-h-11 rounded-xl font-semibold transition-colors duration-100 ease ${
                     currentPage === page
-                      ? 'bg-primary-deep text-white'
-                      : 'bg-white border border-line text-navy-900 hover:bg-primary-tint'
+                      ? 'bg-ink text-white'
+                      : 'bg-white border border-line text-navy-900 hover:bg-blue-50'
                   }`}
                 >
                   {page}
@@ -146,7 +146,7 @@ export default function BlogPage() {
               {currentPage < totalPages && (
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-primary-tint transition-colors duration-100 ease flex items-center justify-center"
+                  className="w-11 h-11 rounded-xl border border-line text-navy-900 hover:bg-blue-50 transition-colors duration-100 ease flex items-center justify-center"
                   aria-label="Следующая страница"
                 >
                   <ArrowRightIcon className="ico-nudge w-5 h-5" />

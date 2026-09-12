@@ -284,7 +284,7 @@ describe('C. Скоринг: здоровье ×3, философия ×2, мя�
     const res = await runQuizMatch(prisma, cat({ health: ['hairball'], lifestyle: 'indoor' }))
 
     expect(tagsOf(res.main.id)).toContain('health:hairball')
-    expect(res.main.matchScore).toBeGreaterThanOrEqual(3)
+    expect(res.main.matchScore).toBeGreaterThanOrEqual(3 / 28) // 1 health match (3 pts) normalized to 0..1
   })
 
   it('стерилизованная кошка получает корм для стерилизованных, даже если health не отмечен', async () => {
@@ -656,7 +656,7 @@ describe('I. Ручные quizTags перекрывают авто-теги', ()
     const res = await runQuizMatch(prisma, dog({ health: ['joints'] }))
 
     expect(res.main.id).toBe('joints')
-    expect(res.main.matchScore).toBe(3)
+    expect(res.main.matchScore).toBeCloseTo(3 / 28, 5) // 1 health match (3 pts) normalized to 0..1
   })
 })
 

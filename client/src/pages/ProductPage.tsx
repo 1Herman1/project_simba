@@ -108,7 +108,7 @@ export default function ProductPage() {
                     key={i}
                     onClick={() => setActiveImage(i)}
                     className={`w-16 h-16 rounded-xl bg-white border flex items-center justify-center text-2xl transition-[border-color,box-shadow] overflow-hidden ${
-                      activeImage === i ? 'border-primary-soft shadow-md' : 'border-line opacity-60 hover:opacity-100'
+                      activeImage === i ? 'border-ink shadow-md' : 'border-line opacity-60 hover:opacity-100'
                     }`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
@@ -168,7 +168,7 @@ export default function ProductPage() {
             {/* Бренд */}
             {product.brand && (
             <Link to={`/catalog?brand=${product.brand.slug}`}
-              className="text-primary-hover font-semibold text-sm hover:text-primary-hover transition-colors w-fit">
+              className="text-navy-700 font-semibold text-sm hover:text-navy-900 transition-colors w-fit">
               {product.brand.name}
             </Link>
           )}
@@ -190,8 +190,8 @@ export default function ProductPage() {
                     onClick={() => setSelectedVariant(v)}
                     className={`btn-press flex flex-col items-center px-4 py-2 rounded-xl border ${
                       selectedVariant.id === v.id
-                        ? 'bg-white border-primary-soft text-primary-hover font-semibold'
-                        : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                        ? 'bg-ink border-ink text-white font-semibold'
+                        : 'bg-white border-line text-navy-700 [@media(hover:hover)]:hover:border-ink'
                     }`}>
                     <span className="font-bold text-navy-900">{v.weight} кг</span>
                     <span className="text-xs text-navy-400">{(Math.round(v.price / v.weight) / 100).toLocaleString('ru-RU')} ₽/кг</span>
@@ -210,8 +210,8 @@ export default function ProductPage() {
                     onClick={() => setMode(m)}
                     className={`btn-press flex-1 px-4 py-2 rounded-xl border ${
                       mode === m
-                        ? 'bg-white border-primary-soft text-primary-hover font-semibold'
-                        : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                        ? 'bg-ink border-ink text-white font-semibold'
+                        : 'bg-white border-line text-navy-700 [@media(hover:hover)]:hover:border-ink'
                     }`}>
                     {m === 'once' ? 'Разово' : 'Подписка −7%'}
                   </button>
@@ -230,8 +230,8 @@ export default function ProductPage() {
                       onClick={() => setIntervalWeeks(weeks)}
                       className={`btn-press px-4 py-2 rounded-xl border ${
                         intervalWeeks === weeks
-                          ? 'bg-white border-primary-soft text-primary-hover font-semibold'
-                          : 'bg-white border-line text-navy-500 hover:border-primary-soft'
+                          ? 'bg-ink border-ink text-white font-semibold'
+                          : 'bg-white border-line text-navy-700 [@media(hover:hover)]:hover:border-ink'
                       }`}>
                       {weeks} недель
                     </button>
@@ -351,7 +351,7 @@ export default function ProductPage() {
                 onClick={() => setActiveTab(tab.key as 'about' | 'specs' | 'reviews')}
                 className={`btn-press px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === tab.key
-                    ? 'border-primary-soft text-primary-hover'
+                    ? 'border-ink text-navy-900'
                     : 'border-transparent text-navy-500 hover:text-navy-700'
                 }`}>
                 {tab.label}

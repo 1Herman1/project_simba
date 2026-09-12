@@ -107,7 +107,7 @@ export default function CatalogTags({ activeTag, onTagClick, species }: Props) {
       prefers-reduced-motion гасит transform у всего через `!important`, и
       трансформ-центрирование там разъезжается — кнопка вылезала из шапки. */
   const arrowClass =
-    'btn-press absolute inset-y-0 my-auto z-10 w-9 h-9 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 hover:border-primary-soft shadow-card transition-opacity'
+    'btn-press absolute inset-y-0 my-auto z-10 w-9 h-9 rounded-full bg-white border border-line flex items-center justify-center text-navy-700 hover:border-ink shadow-card transition-opacity'
 
   /** Неактивная стрелка гасится, а не размонтируется: иначе после долистывания
       узел исчезает вместе с фокусом клавиатуры, и следующий Tab начинает обход
@@ -156,8 +156,8 @@ export default function CatalogTags({ activeTag, onTagClick, species }: Props) {
             // на белой шапке читался как «рамка отвалилась», а не как «выбрано».
             className={`btn-press flex-shrink-0 inline-flex items-center min-h-11 lg:min-h-0 px-4 py-2 rounded-full text-sm font-medium ${
               activeTag === tag.id
-                ? 'bg-primary-deep border border-primary-deep text-white hover:bg-ink hover:border-ink'
-                : 'bg-white border border-line text-navy-700 hover:bg-ink hover:border-ink hover:text-white'
+                ? 'bg-ink border border-ink text-white'
+                : 'bg-white border border-line text-navy-700 [@media(hover:hover)]:hover:bg-ink [@media(hover:hover)]:hover:border-ink [@media(hover:hover)]:hover:text-white'
             }`}>
             {tag.label}
           </button>

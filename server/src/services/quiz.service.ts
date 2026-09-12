@@ -222,7 +222,10 @@ function scoreProduct(u: QuizUserTags, quizTags: string[]): number {
   for (const t of u.soft) {
     if (has(t)) score += 1
   }
-  return score
+  // Доля закрытых потребностей ЭТОГО покупателя, 0..1: делим на максимум,
+  // достижимый при его ответах, а не на абстрактные 28 — иначе у всех «11%».
+  const max = u.health.length * 3 + (u.philosophy ? 2 : 0) + u.soft.length
+  return max === 0 ? 0 : Math.min(1, score / max)
 }
 
 // Значения анкеты (без дефиса) → slug бренда в БД (с дефисом)

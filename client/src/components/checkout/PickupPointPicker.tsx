@@ -309,7 +309,7 @@ export function PickupPointPicker({ provider, city, cityCoords, selected, onSele
                         <span className="block text-sm text-navy-500">{point.address}</span>
                         {point.workTime && <span className="block text-xs text-navy-500">{point.workTime}</span>}
                       </span>
-                      {active && <CheckIcon className="mt-1 w-4 h-4 flex-shrink-0 text-primary" aria-hidden="true" />}
+                      {active && <CheckIcon className="mt-1 w-4 h-4 flex-shrink-0 text-amber-600" aria-hidden="true" />}
                     </button>
                   )
                 })}

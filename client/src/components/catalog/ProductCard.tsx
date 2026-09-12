@@ -147,8 +147,8 @@ export default function ProductCard({ product }: { product: Product }) {
                   !sellable
                     ? 'border-line text-navy-300 cursor-not-allowed bg-blue-50'
                     : selectedVariant.id === v.id
-                    ? 'bg-white border-primary-soft text-primary-hover font-medium'
-                    : 'border-line text-navy-500 hover:border-primary-soft'
+                    ? 'bg-ink border-ink text-white font-medium'
+                    : 'border-line text-navy-700 [@media(hover:hover)]:hover:border-ink'
                 }`}>
                 {v.weight} кг{!sellable && ' — нет'}
               </button>

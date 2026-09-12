@@ -54,7 +54,7 @@
 
   /* Клавиатурный фокус: до этого ни одна кнопка магазина его не показывала. */
   *:focus-visible {
-    outline: 2px solid theme('colors.primary.soft');
+    outline: 2px solid theme('colors.ink.DEFAULT');
     outline-offset: 2px;
   }
 }
