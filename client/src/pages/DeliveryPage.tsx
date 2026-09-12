@@ -119,13 +119,13 @@ export default function DeliveryPage() {
       </div>
 
       {/* Delivery methods grid */}
-      <div ref={iconsRef} className="delivery-icons grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div ref={iconsRef} className="delivery-icons grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4 mb-12">
         {loading ? (
           // Скелеты при загрузке
           Array.from({ length: 4 }).map((_, idx) => (
             <div
               key={idx}
-              className="bg-blue-50 rounded-card p-5 animate-pulse h-48"
+              className="bg-blue-50 rounded-card p-5 animate-pulse h-40"
             />
           ))
         ) : error ? (
@@ -136,20 +136,20 @@ export default function DeliveryPage() {
           methods.map((method: DeliveryMethod, idx: number) => (
             <div
               key={method.name}
-              className={`relative bg-white rounded-card p-5 flex flex-col ${
-                method.isFree ? 'border-2 border-primary-soft' : 'border border-line'
+              className={`relative bg-white rounded-card p-4 sm:p-5 flex flex-col ${
+                method.isFree ? 'border-2 border-ink' : 'border border-line'
               }`}
             >
               {method.isFree && (
-                <span className="absolute -top-2 left-4 bg-primary text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                <span className="absolute -top-2 left-4 bg-ink text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
                   Бесплатно
                 </span>
               )}
-              <div style={iconDelay(idx)} className="text-primary-soft mb-3">{method.icon}</div>
-              <h3 className="font-bold text-navy-900 mb-1">{method.name}</h3>
-              <p className="text-sm text-navy-500 mb-3 flex-grow">{method.subtitle || ''}</p>
+              <div style={iconDelay(idx)} className="text-navy-900 mb-3">{method.icon}</div>
+              <h3 className="font-bold text-navy-900 text-sm sm:text-base mb-1">{method.name}</h3>
+              <p className="text-xs sm:text-sm text-navy-500 mb-3 flex-grow">{method.subtitle || ''}</p>
               {!method.isFree && (
-                <p className="text-2xl font-bold text-navy-900 tabular-nums">{formatPrice(method.price)}</p>
+                <p className="text-xl sm:text-2xl font-bold text-navy-900 tabular-nums">{formatPrice(method.price)}</p>
               )}
             </div>
           ))
@@ -189,15 +189,15 @@ export default function DeliveryPage() {
       </section>
 
       {/* Info block */}
-      <div className="bg-blue-100 rounded-card p-5 mt-10">
+      <div className="bg-white border border-line rounded-card p-5 mt-10">
         <div className="flex items-start gap-3">
-          <ClockIcon size={24} className="text-primary-soft flex-shrink-0 mt-1" />
+          <ClockIcon size={24} className="text-navy-700 flex-shrink-0 mt-1" />
           <div>
             <h3 className="font-bold text-navy-900 mb-2">Проверяем перед отправкой</h3>
             <p className="text-navy-500 leading-relaxed">
               Каждый заказ мы собираем и проверяем перед отправкой: сроки годности, целостность упаковки, комплектность. При
               получении вы можете сверить маркировку — если что-то не так, заменим или вернём деньги, подробнее на странице{' '}
-              <Link to="/returns" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
+              <Link to="/returns" className="font-medium text-navy-700 hover:text-navy-900 transition-colors duration-100 ease">
                 Обмен и возврат
               </Link>
               .

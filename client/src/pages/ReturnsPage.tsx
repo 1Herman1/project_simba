@@ -24,8 +24,8 @@ export default function ReturnsPage() {
       title: 'Напишите нам',
       content: (
         <>
-          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">Telegram</a> или{' '}
-          позвоните: <a href={CONTACTS.returnsPhoneHref} className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">{CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
+          В <a href={CONTACTS.telegram} target="_blank" rel="noopener noreferrer" className="font-medium text-navy-700 hover:text-navy-900 transition-colors duration-100 ease">Telegram</a> или{' '}
+          позвоните: <a href={CONTACTS.returnsPhoneHref} className="font-medium text-navy-700 hover:text-navy-900 transition-colors duration-100 ease">{CONTACTS.returnsPhone}</a>. Скажите номер заказа — он есть в письме-подтверждении и в личном
           кабинете.
         </>
       ),
@@ -58,7 +58,7 @@ export default function ReturnsPage() {
         <div className="space-y-4">
           {steps.map((step) => (
             <div key={step.number} className="bg-white border border-line rounded-card p-5 flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">
+              <div className="flex-shrink-0 w-8 h-8 bg-ink text-white rounded-full flex items-center justify-center font-bold text-sm">
                 {step.number}
               </div>
               <div className="flex-grow">
@@ -74,9 +74,9 @@ export default function ReturnsPage() {
 
       {/* Info blocks */}
       <section ref={infoRef} className="returns-icons space-y-5 mb-12">
-        <div className="bg-blue-100 rounded-card p-5">
+        <div className="bg-white border border-line rounded-card p-5">
           <div className="flex items-start gap-3">
-            <svg style={iconDelay(0)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
+            <svg style={iconDelay(0)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-navy-700 flex-shrink-0 mt-0.5">
               <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
               <g className="returns-alert">
                 <path d="M12 8v4" />
@@ -94,9 +94,9 @@ export default function ReturnsPage() {
           </div>
         </div>
 
-        <div className="bg-blue-100 rounded-card p-5">
+        <div className="bg-white border border-line rounded-card p-5">
           <div className="flex items-start gap-3">
-            <svg style={iconDelay(1)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-soft flex-shrink-0 mt-0.5">
+            <svg style={iconDelay(1)} aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-navy-700 flex-shrink-0 mt-0.5">
               <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
               <g className="returns-check">
                 <path d="M9 12l2 2l4 -4" />

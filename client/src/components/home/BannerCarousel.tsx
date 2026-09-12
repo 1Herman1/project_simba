@@ -418,8 +418,10 @@ export default function BannerCarousel() {
         <div className="overflow-hidden">
           <div
             ref={scrollRef}
-            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 px-[9%] scroll-px-[9%]"
-            style={{ scrollPaddingInline: '9%' }}
+            /* На телефоне слайд во всю ширину с гаттером страницы 16px, сосед
+               не выглядывает — решение владельца. */
+            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide gap-4 px-4 scroll-px-4"
+            style={{ scrollPaddingInline: '16px' }}
             role="region"
             aria-roledescription="carousel"
           >
@@ -428,10 +430,10 @@ export default function BannerCarousel() {
                 key={banner.id}
                 banner={banner}
                 trackIndex={index}
-                isActive={mobileIndex === index}
+                isActive
                 isDragging={false}
                 theme={THEMES[index % THEMES.length]}
-                widthPercent={82}
+                widthPercent={100}
               />
             ))}
           </div>

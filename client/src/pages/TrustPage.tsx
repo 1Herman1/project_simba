@@ -83,7 +83,7 @@ function TypingReplyIcon() {
 /** Тот же тональный код, что в TrustSection.tsx: синий — про товар и проверку,
     янтарный — про людей и сервис. */
 const TONE = {
-  primary: 'text-primary-soft',
+  primary: 'text-navy-900',
   amber: 'text-amber-600',
 } as const
 
@@ -109,7 +109,7 @@ export default function TrustPage() {
       content: (
         <>
           Прямые поставки от официальных дистрибьюторов, документы на каждую партию — сканы на странице{' '}
-          <Link to="/certificates" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
+          <Link to="/certificates" className="font-medium text-navy-700 hover:text-navy-900 transition-colors duration-100 ease">
             Сертификаты
           </Link>
           .
@@ -136,7 +136,7 @@ export default function TrustPage() {
       content: (
         <>
           Невскрытую упаковку принимаем 30 дней. Брак меняем без вопросов.{' '}
-          <Link to="/returns" className="font-medium text-navy-700 hover:text-primary-hover transition-colors duration-100 ease">
+          <Link to="/returns" className="font-medium text-navy-700 hover:text-navy-900 transition-colors duration-100 ease">
             Условия возврата
           </Link>
         </>

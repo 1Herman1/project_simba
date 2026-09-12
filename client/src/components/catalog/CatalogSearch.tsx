@@ -19,7 +19,7 @@ export default function CatalogSearch({ value, onChange, onClear }: Props) {
         onChange={e => onChange(e.target.value)}
         placeholder="Найти корм, бренд или товар..."
         aria-label="Поиск по каталогу"
-        className="w-full pl-8 pr-12 py-2 bg-transparent border-0 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ink text-navy-900 placeholder-navy-300 text-base"
+        className="w-full pl-8 pr-12 py-2 bg-transparent border-0 rounded-full focus:outline-none text-navy-900 placeholder-navy-300 text-base"
       />
 
       {/* Крестик — 44px, а не 20px: это полноценная кнопка, а не иконка. */}

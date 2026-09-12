@@ -91,7 +91,7 @@ export default function BonusesPage() {
       </p>
 
       {/* Крупная сводка */}
-      <div className="bg-primary-tint rounded-card p-6 mb-10">
+      <div className="bg-white border border-line rounded-card p-6 mb-10">
         <div className="flex flex-col md:flex-row md:items-start gap-4">
           <div className="flex-1">
             <CountUp value={5} suffix="%" className="block text-[40px] font-black text-navy-900" />
@@ -110,7 +110,7 @@ export default function BonusesPage() {
       <div ref={iconsRef} className="bonus-icons grid md:grid-cols-3 gap-4 mb-10">
         {/* Карточка 1 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <span style={iconDelay(0)} className="block text-primary-soft mb-4">
+          <span style={iconDelay(0)} className="block text-navy-900 mb-4">
             <GiftIcon />
           </span>
           <h3 className="font-bold text-navy-900 mb-2">300 бонусов новому клиенту</h3>
@@ -121,7 +121,7 @@ export default function BonusesPage() {
 
         {/* Карточка 2 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <span style={iconDelay(1)} className="block text-primary-soft mb-4">
+          <span style={iconDelay(1)} className="block text-navy-900 mb-4">
             <PercentIcon />
           </span>
           <h3 className="font-bold text-navy-900 mb-2">Как списывать</h3>
@@ -132,7 +132,7 @@ export default function BonusesPage() {
 
         {/* Карточка 3 */}
         <div className="bg-white border border-line rounded-card p-5">
-          <span style={iconDelay(2)} className="block text-primary-soft mb-4">
+          <span style={iconDelay(2)} className="block text-navy-900 mb-4">
             <WalletIcon />
           </span>
           <h3 className="font-bold text-navy-900 mb-2">Где смотреть баланс</h3>
@@ -176,7 +176,7 @@ export default function BonusesPage() {
       </p>
 
       {/* Блок про подбор корма */}
-      <div className="bg-primary-tint rounded-card p-6 text-center">
+      <div className="bg-white border border-line rounded-card p-6 text-center">
         <h2 className="text-2xl font-bold text-navy-900 mb-3">
           Не знаете, какой корм выбрать?
         </h2>
@@ -189,12 +189,14 @@ export default function BonusesPage() {
         >
           Подобрать корм
         </Link>
-        <div className="flex items-center justify-center gap-1.5 mt-4 text-sm text-navy-500">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        {/* Звезда стоит в строке текста (inline-block с вертикальным
+            выравниванием), а не отдельной колонкой слева от двух строк. */}
+        <p className="mt-4 text-center text-sm text-navy-500">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="inline-block align-[-3px] mr-1.5 text-amber-600">
             <polyline points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
           </svg>
           После подбора — 300 бонусов на первую покупку
-        </div>
+        </p>
       </div>
 
     </div>

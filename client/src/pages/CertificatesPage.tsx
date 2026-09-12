@@ -64,11 +64,11 @@ export default function CertificatesPage() {
                 href={cert.file}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group bg-white border border-line rounded-card p-4 flex flex-col items-center h-full hover:border-primary-soft transition-colors duration-100 ease"
+                className="group bg-white border border-line rounded-card p-4 flex flex-col items-center h-full hover:border-navy-300 transition-colors duration-100 ease"
                 aria-label={`${cert.doc} ${cert.brand}, откроется в новой вкладке`}
               >
-                <div className="bg-primary-tint rounded-xl aspect-square flex items-center justify-center mb-3 w-full">
-                  <div className="text-primary-soft">
+                <div className="bg-blue-50 rounded-xl aspect-square flex items-center justify-center mb-3 w-full">
+                  <div className="text-navy-900">
                     <CertificateIcon />
                   </div>
                 </div>
@@ -77,8 +77,8 @@ export default function CertificatesPage() {
               </a>
             ) : (
               <div className="group bg-white border border-line rounded-card p-4 flex flex-col items-center h-full">
-                <div className="bg-primary-tint rounded-xl aspect-square flex items-center justify-center mb-3 w-full">
-                  <div className="text-primary-soft">
+                <div className="bg-blue-50 rounded-xl aspect-square flex items-center justify-center mb-3 w-full">
+                  <div className="text-navy-900">
                     <CertificateIcon />
                   </div>
                 </div>

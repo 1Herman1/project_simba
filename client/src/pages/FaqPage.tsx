@@ -15,12 +15,12 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
       <h2 className="font-bold text-navy-900 text-base sm:text-lg">
         <button
           onClick={() => setOpen(!open)}
-          className={`w-full flex items-center justify-between p-5 text-left transition-colors duration-150 ease ${open ? 'bg-primary-tint' : ''}`}
+          className={`w-full flex items-center justify-between p-5 text-left transition-colors duration-150 ease`}
           aria-expanded={open}
           aria-controls={`faq-${item.id}`}
         >
           <span className="pr-4 flex-grow">{item.q}</span>
-          <div className="flex-shrink-0 text-primary-hover">
+          <div className="flex-shrink-0 text-navy-900">
             <ChevronDownIcon open={open} className="w-5 h-5" />
           </div>
         </button>
@@ -32,7 +32,7 @@ function FaqItemComponent({ item }: { item: FaqEntry }) {
         className={`grid transition-[grid-template-rows] ease-out ${open ? 'duration-200' : 'duration-150'}`}
         style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
       >
-        <div className="overflow-hidden bg-primary-tint">
+        <div className="overflow-hidden bg-white border-t border-line">
           <div
             className={`px-5 pt-4 pb-5 max-w-prose text-navy-500 leading-relaxed transition-[opacity,transform] ease-out ${open ? 'duration-200 opacity-100 translate-y-0' : 'duration-150 opacity-0 -translate-y-1'}`}
           >

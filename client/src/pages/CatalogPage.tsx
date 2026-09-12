@@ -74,7 +74,7 @@ export default function CatalogPage() {
           пилюлей и рядом фильтров. */}
       {/* Пилюля скрывается при скролле вниз и появляется при скролле вверх. */}
       <div className={`sticky top-[84px] z-30 px-4 pt-3 transition-[transform,opacity] duration-[220ms] ease-out ${hidden ? '-translate-y-[130%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <div className="max-w-7xl mx-auto rounded-full bg-white/85 supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md h-16 flex items-center px-6 md:px-8">
+        <div className="max-w-7xl mx-auto rounded-full bg-white/85 supports-[backdrop-filter]:backdrop-blur-[8px] shadow-md h-16 flex items-center px-6 md:px-8 focus-within:ring-2 focus-within:ring-ink">
           <CatalogSearch value={search} onChange={setSearch} onClear={() => setSearch('')} />
         </div>
       </div>
